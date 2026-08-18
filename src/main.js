@@ -1,0 +1,29 @@
+import { createApp } from 'vue'
+import { createPinia } from 'pinia'
+
+import App from './App.vue'
+import { crearEnrutador } from './router/index.js'
+import { engancharEconomia, usarEconomia } from './almacen/economia.js'
+import { engancharGatos, usarGatos } from './almacen/gatos.js'
+import { engancharNarrador, usarNarrador } from './almacen/narrador.js'
+import { engancharProgreso, usarProgreso } from './almacen/progreso.js'
+import { usarJuego } from './almacen/juego.js'
+import './estilos/base.css'
+
+const app = createApp(App)
+const pinia = createPinia()
+
+app.use(pinia)
+app.use(crearEnrutador())
+
+// Primero se rellenan los almacenes con la partida guardada y solo después se
+// arranca la sesión: si se hiciera al revés, el desgaste de los gatos se
+// calcularía sobre una colonia vacía y se perdería.
+engancharProgreso(usarProgreso(pinia))
+engancharEconomia(usarEconomia(pinia))
+engancharGatos(usarGatos(pinia))
+engancharNarrador(usarNarrador(pinia))
+
+usarJuego(pinia).arrancarSesion()
+
+app.mount('#app')

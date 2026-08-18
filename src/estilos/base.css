@@ -1,0 +1,153 @@
+/* Paleta: bruma, noche y metal. */
+:root {
+  --fondo: #14121a;
+  --fondo-alto: #1b1826;
+  --panel: #221e30;
+  --panel-alto: #2b2539;
+  --borde: #383150;
+  --borde-suave: #2c2740;
+
+  --texto: #ece6da;
+  --texto-tenue: #9b92ac;
+  --texto-apagado: #6f6880;
+
+  --cobre: #c98b4b;
+  --cobre-claro: #e3ab6b;
+  --verde: #5fb98a;
+  --rojo: #e07a72;
+  --ambar: #d9b45c;
+  --morado: #9578ba;
+
+  --radio: 10px;
+  --sombra: 0 10px 30px rgba(0, 0, 0, 0.35);
+  --mono: ui-monospace, SFMono-Regular, "SF Mono", Menlo, Consolas, "Liberation Mono", monospace;
+}
+
+* { box-sizing: border-box; }
+
+html, body, #app { height: 100%; }
+
+body {
+  margin: 0;
+  background:
+    radial-gradient(1200px 600px at 20% -10%, rgba(201, 139, 75, 0.10), transparent 60%),
+    radial-gradient(900px 500px at 90% 0%, rgba(149, 120, 186, 0.10), transparent 55%),
+    var(--fondo);
+  color: var(--texto);
+  font: 16px/1.6 system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  -webkit-font-smoothing: antialiased;
+}
+
+h1, h2, h3 { line-height: 1.25; margin: 0 0 0.4em; font-weight: 650; }
+h1 { font-size: 1.9rem; letter-spacing: -0.02em; }
+h2 { font-size: 1.3rem; }
+h3 { font-size: 1.05rem; }
+p { margin: 0 0 0.9em; }
+a { color: var(--cobre-claro); }
+
+code, kbd {
+  font-family: var(--mono);
+  font-size: 0.88em;
+  background: rgba(201, 139, 75, 0.12);
+  color: var(--cobre-claro);
+  padding: 0.12em 0.4em;
+  border-radius: 5px;
+}
+
+pre {
+  font-family: var(--mono);
+  font-size: 0.86rem;
+  background: #16131f;
+  border: 1px solid var(--borde-suave);
+  border-radius: var(--radio);
+  padding: 14px 16px;
+  overflow-x: auto;
+  margin: 0 0 1em;
+}
+pre code { background: none; color: var(--texto); padding: 0; }
+
+button {
+  font: inherit;
+  font-weight: 550;
+  cursor: pointer;
+  border: 1px solid var(--borde);
+  background: var(--panel-alto);
+  color: var(--texto);
+  padding: 9px 16px;
+  border-radius: 8px;
+  transition: background 0.15s, border-color 0.15s, transform 0.05s;
+}
+button:hover:not(:disabled) { background: #342c46; border-color: #4a4166; }
+button:active:not(:disabled) { transform: translateY(1px); }
+button:disabled { opacity: 0.45; cursor: not-allowed; }
+
+button.principal {
+  background: linear-gradient(180deg, var(--cobre-claro), var(--cobre));
+  border-color: #a97038;
+  color: #241705;
+}
+button.principal:hover:not(:disabled) { background: linear-gradient(180deg, #eeb87a, #d1934f); }
+
+input, textarea, select {
+  font: inherit;
+  background: #16131f;
+  color: var(--texto);
+  border: 1px solid var(--borde);
+  border-radius: 8px;
+  padding: 9px 12px;
+}
+input:focus, textarea:focus, select:focus { outline: 2px solid rgba(201, 139, 75, 0.5); outline-offset: 1px; }
+
+.panel {
+  background: var(--panel);
+  border: 1px solid var(--borde-suave);
+  border-radius: var(--radio);
+  padding: 18px 20px;
+}
+
+.tenue { color: var(--texto-tenue); }
+.apagado { color: var(--texto-apagado); }
+.centrado { text-align: center; }
+
+.contenedor { max-width: 1180px; margin: 0 auto; padding: 0 20px; }
+.pila { display: flex; flex-direction: column; gap: 16px; }
+.fila { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; }
+
+.etiqueta {
+  display: inline-block;
+  font-size: 0.74rem;
+  font-weight: 650;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  padding: 3px 9px;
+  border-radius: 999px;
+  border: 1px solid var(--borde);
+  color: var(--texto-tenue);
+}
+.etiqueta.superado { color: var(--verde); border-color: rgba(95, 185, 138, 0.45); background: rgba(95, 185, 138, 0.10); }
+.etiqueta.jefe { color: var(--ambar); border-color: rgba(217, 180, 92, 0.45); background: rgba(217, 180, 92, 0.10); }
+.etiqueta.bloqueado { color: var(--texto-apagado); }
+
+/* Barra de estado de los gatos y de progreso de los mundos. */
+.barra {
+  height: 7px;
+  background: #16131f;
+  border-radius: 999px;
+  overflow: hidden;
+  border: 1px solid var(--borde-suave);
+}
+.barra > i { display: block; height: 100%; border-radius: 999px; transition: width 0.35s ease; }
+
+.marco-sandbox {
+  width: 100%;
+  height: 100%;
+  min-height: 220px;
+  border: 0;
+  display: block;
+  background: transparent;
+}
+
+@media (max-width: 860px) {
+  body { font-size: 15px; }
+  .contenedor { padding: 0 14px; }
+}
