@@ -1,0 +1,46 @@
+import { codigo, pista } from '../comun.js'
+
+export default {
+  id: "es6-04-plantillas",
+  mundo: "es6",
+  entorno: "worker",
+  tipo: "prediccion",
+  titulo: "La cuenta de la taberna",
+  enunciado: codigo(
+    "Aquí no se escribe nada: se piensa.",
+    "",
+    "Lee el código, decide **exactamente** qué se va a imprimir y escríbelo abajo, una línea",
+    "por cada `console.log`.",
+    "",
+    "Cuando contestes lo ejecuto de verdad delante de ti, así que no me vale con que te suene.",
+  ),
+  codigoMostrado: codigo(
+    "const recompensa = '50'",
+    "const propina = 25",
+    "const gatos = ['Acero', 'Bronce', 'Peltre']",
+    "",
+    "console.log(`Recompensa: ${recompensa + propina}`)",
+    "console.log(`Recompensa: ${Number(recompensa) + propina}`)",
+    "console.log(`Van ${gatos.length} gatos y el último es ${gatos[gatos.length - 1]}.`)",
+  ),
+  respuestaEsperada: codigo(
+    "Recompensa: 5025",
+    "Recompensa: 75",
+    "Van 3 gatos y el último es Peltre.",
+  ),
+  tests: [
+    {
+      nombre: "la salida real es la que había que predecir",
+      codigo: codigo(
+        "esperar(consola.map((linea) => linea.texto).join(String.fromCharCode(10)))",
+        "  .diceLoMismoQue(\"Recompensa: 5025\\nRecompensa: 75\\nVan 3 gatos y el último es Peltre.\")",
+      ),
+    },
+  ],
+  pistas: [
+    pista("Mírate bien la primera línea. `recompensa` no es un número, aunque lo parezca mucho.", 0),
+    pista("El `+` entre un texto y un número no suma: pega. Y pega en el orden en que se lo encuentra.", 1),
+    pista("La primera pega `'50'` con `25` y sale `5025`. La segunda convierte antes y suma: `75`. La tercera es la fácil, pero cuenta bien la posición del último.", 2),
+  ],
+  recompensa: { croquetas: 18 },
+}

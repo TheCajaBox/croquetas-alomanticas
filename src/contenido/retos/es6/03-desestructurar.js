@@ -1,0 +1,77 @@
+import { codigo, pista } from '../comun.js'
+
+export default {
+  id: "es6-03-desestructurar",
+  mundo: "es6",
+  entorno: "worker",
+  tipo: "codigo",
+  titulo: "La ficha del buscado",
+  enunciado: codigo(
+    "Te llega un cartel de busca y captura y hay que resumirlo. Los carteles vienen como",
+    "salen de la imprenta: a algunos les falta la recompensa, otros no describen las señas,",
+    "y casi todos traen datos de más que aquí no interesan.",
+    "",
+    "Escribe `resumirCartel(cartel)`, que devuelva un objeto con:",
+    "",
+    "- `nombre`",
+    "- `recompensa`, y si el cartel no la trae, `0`",
+    "- `sombrero`, que viene dentro de `senas`, y si no lo dice, `'ninguno'`",
+    "- `otros`, con **todo lo demás** que trajera el cartel",
+    "",
+    "Y hazlo desestructurando en la propia firma de la función. Nada de leer propiedades",
+    "una por una ahí dentro.",
+  ),
+  inicial: codigo(
+    "function resumirCartel(cartel) {",
+    "  // Desestructura aquí arriba, en el paréntesis, no dentro.",
+    "}",
+  ),
+  solucion: codigo(
+    "function resumirCartel({ nombre, recompensa = 0, senas: { sombrero = 'ninguno' } = {}, ...otros }) {",
+    "  return { nombre, recompensa, sombrero, otros }",
+    "}",
+  ),
+  requisitos: [
+    { tipo: "usaDesestructuracion" },
+    { tipo: "usaSpread" },
+    { tipo: "usaParametroPorDefecto" },
+    { tipo: "prohibeVar" },
+    { tipo: "declaraVariable", valor: "resumirCartel" },
+  ],
+  tests: [
+    {
+      nombre: "resume un cartel completo",
+      codigo: codigo(
+        "esperar(resumirCartel({",
+        "  nombre: 'Wayne',",
+        "  recompensa: 500,",
+        "  senas: { sombrero: 'hongo', altura: 'media' },",
+        "  vivo: true,",
+        "  zona: 'Áridos',",
+        "})).igualA({",
+        "  nombre: 'Wayne',",
+        "  recompensa: 500,",
+        "  sombrero: 'hongo',",
+        "  otros: { vivo: true, zona: 'Áridos' },",
+        "})",
+      ),
+    },
+    { nombre: "sin recompensa, pone 0", codigo: "esperar(resumirCartel({ nombre: 'Marasi' }).recompensa).igualA(0)" },
+    { nombre: "sin señas, el sombrero es ninguno", codigo: "esperar(resumirCartel({ nombre: 'Marasi' }).sombrero).igualA('ninguno')" },
+    { nombre: "sin datos de más, otros queda vacío", codigo: "esperar(resumirCartel({ nombre: 'Wax', recompensa: 10 }).otros).igualA({})" },
+    {
+      nombre: "senas no se cuela dentro de otros",
+      codigo: codigo(
+        "const ficha = resumirCartel({ nombre: 'Wax', senas: { sombrero: 'de copa' }, alias: 'Coincidente' })",
+        "esperar(ficha.otros).igualA({ alias: 'Coincidente' })",
+        "esperar(ficha.sombrero).igualA('de copa')",
+      ),
+    },
+  ],
+  pistas: [
+    pista("Todo se hace en el paréntesis de la función. Ahí dentro puedes desestructurar, poner valores por defecto y recoger el resto.", 0),
+    pista("Para lo de dentro de `senas` se anida: `senas: { sombrero = 'ninguno' }`. Y ojo, que `senas` puede no venir: dale también un valor por defecto, `= {}`.", 1),
+    pista("`function resumirCartel({ nombre, recompensa = 0, senas: { sombrero = 'ninguno' } = {}, ...otros })` y devuelve `{ nombre, recompensa, sombrero, otros }`.", 2),
+  ],
+  recompensa: { croquetas: 20 },
+}

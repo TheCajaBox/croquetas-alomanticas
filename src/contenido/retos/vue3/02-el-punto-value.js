@@ -1,0 +1,53 @@
+import { codigo, pista } from '../comun.js'
+
+export default {
+  id: "vue3-02-el-punto-value",
+  mundo: "vue3",
+  entorno: "vue3",
+  tipo: "prediccion",
+  titulo: "La caja que se abre sola y la que no",
+  enunciado: codigo(
+    "Otro para pensar, y de los importantes: este error lo comete todo el mundo una vez, y el",
+    "que lo entiende aquí se ahorra una tarde entera de mirar la pantalla.",
+    "",
+    "Lee las tres últimas líneas y di qué imprime cada una.",
+    "",
+    "La tercera es la que decide si te has enterado o no.",
+  ),
+  codigoMostrado: codigo(
+    "const { ref, reactive } = Vue",
+    "",
+    "const contador = ref(10)",
+    "const estado = reactive({ balas: 6 })",
+    "",
+    "// Sacamos balas del objeto reactivo para escribir menos. Parece buena idea.",
+    "const { balas } = estado",
+    "",
+    "estado.balas = 1",
+    "contador.value += 5",
+    "",
+    "console.log(`contador.value vale ${contador.value}`)",
+    "console.log(`estado.balas vale ${estado.balas}`)",
+    "console.log(`balas suelta vale ${balas}`)",
+  ),
+  respuestaEsperada: codigo(
+    "contador.value vale 15",
+    "estado.balas vale 1",
+    "balas suelta vale 6",
+  ),
+  tests: [
+    {
+      nombre: "la salida real es la que había que predecir",
+      codigo: codigo(
+        "esperar(consola.map((linea) => linea.texto).join(String.fromCharCode(10)))",
+        "  .diceLoMismoQue(\"contador.value vale 15\\nestado.balas vale 1\\nbalas suelta vale 6\")",
+      ),
+    },
+  ],
+  pistas: [
+    pista("Las dos primeras son directas: una caja a la que se le suma, y una propiedad a la que se le asigna.", 0),
+    pista("La tercera se desestructuró **antes** del cambio. Al desestructurar copias el valor de ese momento, no el vínculo con el objeto.", 1),
+    pista("Sale `15`, `1` y `6`. La reactividad vive en el objeto, no en la variable que sacaste de él: por eso existe `toRefs`.", 2),
+  ],
+  recompensa: { croquetas: 25 },
+}

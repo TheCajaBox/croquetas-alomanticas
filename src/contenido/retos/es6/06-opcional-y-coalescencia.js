@@ -1,0 +1,68 @@
+import { codigo, pista } from '../comun.js'
+
+export default {
+  id: "es6-06-opcional-y-coalescencia",
+  mundo: "es6",
+  entorno: "worker",
+  tipo: "codigo",
+  titulo: "Fichas incompletas",
+  enunciado: codigo(
+    "Las fichas de los agentes las rellena gente con prisa. Faltan campos, faltan objetos",
+    "enteros, y a veces hay campos vacíos que **sí** son correctos y hay que respetar.",
+    "",
+    "Escribe `informeDeAgente(agente)`, que devuelva exactamente:",
+    "",
+    "`nombre — ciudad — N contacto(s)`",
+    "",
+    "Con estas reglas:",
+    "",
+    "- si no hay `nombre`, pon `desconocido`",
+    "- la ciudad está en `agente.destino.ciudad`, y puede no haber `destino` siquiera; entonces, `sin asignar`",
+    "- `N` es cuántos `contactos` tiene; si no hay lista, `0`",
+    "",
+    "**Ojo con esto**, que es la trampa: un nombre vacío `''` es un nombre vacío, no es «que falte».",
+    "Tiene que salir vacío. Por eso aquí `||` no te vale.",
+  ),
+  inicial: codigo(
+    "function informeDeAgente(agente) {",
+    "  // ?. para lo que puede no existir, ?? para lo que puede faltar.",
+    "}",
+  ),
+  solucion: codigo(
+    "function informeDeAgente(agente) {",
+    "  const nombre = agente?.nombre ?? 'desconocido'",
+    "  const ciudad = agente?.destino?.ciudad ?? 'sin asignar'",
+    "  const contactos = agente?.contactos?.length ?? 0",
+    "  return `${nombre} — ${ciudad} — ${contactos} contacto(s)`",
+    "}",
+  ),
+  requisitos: [
+    { tipo: "usaEncadenamientoOpcional" },
+    { tipo: "usaCoalescencia" },
+    { tipo: "prohibeVar" },
+    { tipo: "declaraVariable", valor: "informeDeAgente" },
+  ],
+  tests: [
+    {
+      nombre: "ficha completa",
+      codigo: codigo(
+        "esperar(informeDeAgente({",
+        "  nombre: 'Marasi',",
+        "  destino: { ciudad: 'Elendel' },",
+        "  contactos: ['Wax', 'Wayne'],",
+        "})).igualA('Marasi — Elendel — 2 contacto(s)')",
+      ),
+    },
+    { nombre: "ficha en blanco", codigo: "esperar(informeDeAgente({})).igualA('desconocido — sin asignar — 0 contacto(s)')" },
+    { nombre: "sin destino no revienta", codigo: "esperar(informeDeAgente({ nombre: 'Wax' })).igualA('Wax — sin asignar — 0 contacto(s)')" },
+    { nombre: "destino a null tampoco revienta", codigo: "esperar(informeDeAgente({ nombre: 'Wax', destino: null })).igualA('Wax — sin asignar — 0 contacto(s)')" },
+    { nombre: "un nombre vacío se respeta, no se sustituye", codigo: "esperar(informeDeAgente({ nombre: '' })).igualA(' — sin asignar — 0 contacto(s)')" },
+    { nombre: "cero contactos es cero, no es que falte la lista", codigo: "esperar(informeDeAgente({ nombre: 'Wax', contactos: [] })).igualA('Wax — sin asignar — 0 contacto(s)')" },
+  ],
+  pistas: [
+    pista("`?.` corta por lo sano si lo de la izquierda no existe, y devuelve `undefined` en vez de reventar.", 0),
+    pista("`??` solo salta con `null` y `undefined`. `||` salta también con `''` y con `0`, y por eso aquí te suspende dos tests.", 1),
+    pista("Tres líneas: `agente?.nombre ?? 'desconocido'`, `agente?.destino?.ciudad ?? 'sin asignar'` y `agente?.contactos?.length ?? 0`. Luego los juntas con una plantilla.", 2),
+  ],
+  recompensa: { croquetas: 22 },
+}
