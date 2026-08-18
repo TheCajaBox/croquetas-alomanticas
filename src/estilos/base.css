@@ -109,7 +109,10 @@ input:focus, textarea:focus, select:focus { outline: 2px solid rgba(201, 139, 75
 .apagado { color: var(--texto-apagado); }
 .centrado { text-align: center; }
 
-.contenedor { max-width: 1180px; margin: 0 auto; padding: 0 20px; }
+/* El `width: 100%` no sobra: como contenedor es un elemento flex con márgenes
+   automáticos, esos márgenes anulan el estirado y sin él se queda en el ancho
+   de su contenido en vez de llegar al tope. */
+.contenedor { width: 100%; max-width: 1180px; margin: 0 auto; padding: 0 20px; }
 .pila { display: flex; flex-direction: column; gap: 16px; }
 .fila { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; }
 
