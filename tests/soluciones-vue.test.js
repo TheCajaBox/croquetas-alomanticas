@@ -3,6 +3,7 @@ import { readFileSync } from 'node:fs'
 import { beforeAll, describe, expect, it } from 'vitest'
 
 import { RETOS } from '../src/contenido/retos/index.js'
+import { SIN_CODIGO, codigoDeReferencia } from './revisarRetos.js'
 import { analizar, inyectarGuardaDeBucles } from '../src/motor/guardaBucles.js'
 import { comprobarRequisitos } from '../src/motor/chequeosEstaticos.js'
 
@@ -43,7 +44,7 @@ beforeAll(() => {
 })
 
 async function ejecutarSolucion(reto) {
-  const fuente = reto.tipo === 'prediccion' ? reto.codigoMostrado : reto.solucion
+  const fuente = codigoDeReferencia(reto)
   const ast = analizar(fuente)
   const requisitos = comprobarRequisitos(ast, reto.requisitos)
 
@@ -65,7 +66,9 @@ async function ejecutarSolucion(reto) {
   }
 }
 
-const retosDeVue = RETOS.filter((reto) => reto.entorno !== 'worker')
+const retosDeVue = RETOS.filter(
+  (reto) => reto.entorno !== 'worker' && !SIN_CODIGO.includes(reto.tipo),
+)
 
 describe('las soluciones de referencia de los mundos de Vue resuelven sus retos', () => {
   for (const reto of retosDeVue) {

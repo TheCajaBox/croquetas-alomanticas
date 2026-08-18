@@ -1,14 +1,25 @@
+import { MUNDOS } from '../mundos.js'
+
 /**
  * Catálogo de retos.
  *
  * Se recogen por carpeta y se ordenan por nombre de fichero; por eso van
  * numerados. Añadir un reto es crear su fichero, sin tocar ningún índice.
+ *
+ * El orden entre mundos lo manda MUNDOS y no el alfabeto de las carpetas: «El
+ * primer día» va antes que «Los Áridos» aunque su carpeta diga lo contrario.
  */
 const modulos = import.meta.glob('./*/*.js', { eager: true })
+const ordenDeMundos = Object.fromEntries(MUNDOS.map((mundo, indice) => [mundo.id, indice]))
 
 export const RETOS = Object.keys(modulos)
-  .sort((a, b) => a.localeCompare(b))
-  .map((ruta) => modulos[ruta].default)
+  .map((ruta) => ({ ruta, reto: modulos[ruta].default }))
+  .sort(
+    (a, b) =>
+      (ordenDeMundos[a.reto.mundo] ?? 99) - (ordenDeMundos[b.reto.mundo] ?? 99) ||
+      a.ruta.localeCompare(b.ruta),
+  )
+  .map(({ reto }) => reto)
 
 export const RETOS_POR_ID = Object.fromEntries(RETOS.map((reto) => [reto.id, reto]))
 

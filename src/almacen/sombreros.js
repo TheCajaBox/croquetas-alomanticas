@@ -3,6 +3,7 @@ import { defineStore } from 'pinia'
 import { CROQUETAS_POR_SOMBRERO, SOMBREROS, SOMBREROS_POR_ID } from '../contenido/sombreros.js'
 import { usarEconomia } from './economia.js'
 import { usarNarrador } from './narrador.js'
+import { usarRecortes } from './recortes.js'
 import { autoguardar } from './persistencia.js'
 
 export const usarSombreros = defineStore('sombreros', {
@@ -36,6 +37,7 @@ export const usarSombreros = defineStore('sombreros', {
       this.ultimoEncontrado = { id, cuando: Date.now() }
 
       usarEconomia().ingresar(CROQUETAS_POR_SOMBRERO, `Sombrero: ${sombrero.nombre}`)
+      if (this.encontrados.length >= 6) usarRecortes().desbloquear('seis-sombreros')
 
       const narrador = usarNarrador()
       if (this.estanTodos) narrador.decir('todosLosSombreros', {}, { forzar: true })

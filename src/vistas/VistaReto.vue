@@ -5,6 +5,11 @@ import { useRouter } from 'vue-router'
 
 import EditorCodigo from '../componentes/EditorCodigo.vue'
 import Marcado from '../componentes/Marcado.vue'
+import RetoCompletar from '../componentes/RetoCompletar.vue'
+import RetoEleccion from '../componentes/RetoEleccion.vue'
+import RetoEmparejar from '../componentes/RetoEmparejar.vue'
+import RetoOrdenar from '../componentes/RetoOrdenar.vue'
+import PanelApunte from '../componentes/PanelApunte.vue'
 import PanelPistas from '../componentes/PanelPistas.vue'
 import PanelResultados from '../componentes/PanelResultados.vue'
 import VistaPreviaSandbox from '../componentes/VistaPreviaSandbox.vue'
@@ -30,6 +35,10 @@ if (!reto) router.replace('/')
 const mundo = computed(() => MUNDOS_POR_ID[reto?.mundo])
 const siguiente = computed(() => (reto ? retoSiguiente(reto) : null))
 const esPrediccion = computed(() => reto?.tipo === 'prediccion')
+/** Los que se escriben a mano: editor, botón de ejecutar y requisitos en vivo. */
+const seEscribe = computed(() => ['codigo', 'bug'].includes(reto?.tipo))
+/** Los que se resuelven señalando y colocando: traen su propio botón. */
+const esTactil = computed(() => ['eleccion', 'emparejar', 'ordenar', 'completar'].includes(reto?.tipo))
 
 // El puente se crea aquí y se destruye con la vista. La clave por ruta del
 // RouterView garantiza que cambiar de reto levante un sandbox limpio.
@@ -66,6 +75,16 @@ async function ejecutar() {
     : await juego.enviar(reto, codigo.value, puente)
 }
 
+/** Elegir y emparejar se corrigen sin ejecutar nada. */
+function responderTactil(acertado) {
+  resultado.value = juego.resolverInteractivo(reto, acertado)
+}
+
+/** Ordenar y completar sí ejecutan: se monta el código y se manda al sandbox. */
+async function ejecutarMontaje(codigoMontado) {
+  resultado.value = await juego.enviar(reto, codigoMontado, puente)
+}
+
 function reiniciarCodigo() {
   codigo.value = reto.inicial ?? ''
   resultado.value = null
@@ -92,6 +111,8 @@ function reiniciarCodigo() {
           <SombreroEscondido id="enunciado" :posicion="{ top: '10px', right: '12px' }" :tamano="17" />
           <Marcado :texto="reto.enunciado" />
         </section>
+
+        <PanelApunte v-if="reto.apunte" :texto="reto.apunte" :empieza-abierto="!yaSuperado" />
 
         <PanelPistas :reto="reto" />
 
@@ -125,6 +146,34 @@ function reiniciarCodigo() {
           </section>
         </template>
 
+        <RetoEleccion
+          v-else-if="reto.tipo === 'eleccion'"
+          :reto="reto"
+          :contestado="!!resultado"
+          @responder="responderTactil"
+        />
+
+        <RetoEmparejar
+          v-else-if="reto.tipo === 'emparejar'"
+          :reto="reto"
+          :contestado="!!resultado?.ok"
+          @responder="responderTactil"
+        />
+
+        <RetoOrdenar
+          v-else-if="reto.tipo === 'ordenar'"
+          :reto="reto"
+          :contestado="!!resultado?.ok"
+          @montar="ejecutarMontaje"
+        />
+
+        <RetoCompletar
+          v-else-if="reto.tipo === 'completar'"
+          :reto="reto"
+          :contestado="!!resultado?.ok"
+          @montar="ejecutarMontaje"
+        />
+
         <template v-else>
           <section class="bloque editor-bloque">
             <div class="cabecera-editor">
@@ -135,14 +184,14 @@ function reiniciarCodigo() {
           </section>
         </template>
 
-        <div v-if="avisosEnVivo.length" class="oido-fino">
+        <div v-if="avisosEnVivo.length && seEscribe" class="oido-fino">
           <p class="titulo">Estaño ha oído algo</p>
           <ul>
             <li v-for="aviso in avisosEnVivo" :key="aviso.tipo + aviso.mensaje">{{ aviso.mensaje }}</li>
           </ul>
         </div>
 
-        <div class="acciones">
+        <div v-if="!esTactil" class="acciones">
           <button class="principal" :class="{ trabajando: juego.ejecutando }" :disabled="juego.ejecutando" @click="ejecutar">
             {{ juego.ejecutando ? 'Ejecutando…' : esPrediccion ? 'Comprobar predicción' : 'Ejecutar' }}
           </button>
@@ -151,9 +200,17 @@ function reiniciarCodigo() {
           </span>
         </div>
 
-        <VistaPreviaSandbox v-if="reto.entorno !== 'worker'" :puente="puente" :entorno="reto.entorno" />
+        <VistaPreviaSandbox
+          v-if="reto.entorno !== 'worker' && reto.tipo !== 'eleccion' && reto.tipo !== 'emparejar'"
+          :puente="puente"
+          :entorno="reto.entorno"
+        />
 
-        <PanelResultados :resultado="resultado" :ejecutando="juego.ejecutando" />
+        <PanelResultados
+          v-if="!esTactil || resultado"
+          :resultado="resultado"
+          :ejecutando="juego.ejecutando"
+        />
 
         <section v-if="resultado?.ok && esPrediccion" class="panel bloque">
           <h3>Lo que ha pasado de verdad</h3>

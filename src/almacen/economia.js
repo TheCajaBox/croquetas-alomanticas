@@ -3,8 +3,8 @@ import { defineStore } from 'pinia'
 import { TRASTOS } from '../contenido/trastos.js'
 import { autoguardar } from './persistencia.js'
 
-/** Con esto se empieza: da justo para una pista de las baratas y poco más. */
-export const CROQUETAS_INICIALES = 20
+/** Con esto se empieza: da para una pista barata y una comida. Y poco más. */
+export const CROQUETAS_INICIALES = 12
 
 export const usarEconomia = defineStore('economia', {
   state: () => ({

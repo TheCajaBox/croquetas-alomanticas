@@ -7,16 +7,20 @@ import SombreroEscondido from './componentes/SombreroEscondido.vue'
 import { usarEconomia } from './almacen/economia.js'
 import { usarGatos } from './almacen/gatos.js'
 import { usarProgreso } from './almacen/progreso.js'
+import { usarRecortes } from './almacen/recortes.js'
 import { usarSombreros } from './almacen/sombreros.js'
 import { RETOS } from './contenido/retos/index.js'
+import { RECORTES_POR_ID } from './contenido/recortes.js'
 import { SOMBREROS_POR_ID } from './contenido/sombreros.js'
 
 const economia = usarEconomia()
 const gatos = usarGatos()
 const progreso = usarProgreso()
 const sombreros = usarSombreros()
+const recortes = usarRecortes()
 const { croquetas } = storeToRefs(economia)
 const { ultimoEncontrado } = storeToRefs(sombreros)
+const { ultimoEncontrado: ultimoRecorte } = storeToRefs(recortes)
 
 const enElRefugio = computed(() => gatos.enElRefugio.length)
 const avance = computed(() => `${progreso.retosSuperados}/${RETOS.length}`)
@@ -41,6 +45,15 @@ const sombreroReciente = computed(() =>
 watch(ultimoEncontrado, (nuevo) => {
   if (nuevo) setTimeout(() => sombreros.olvidarUltimo(), 4200)
 })
+
+// Los recortes no se buscan: caen solos. Por eso se anuncian, o pasarían
+// desapercibidos y nadie llegaría a leerlos nunca.
+const recorteReciente = computed(() =>
+  ultimoRecorte.value ? RECORTES_POR_ID[ultimoRecorte.value.id] : null,
+)
+watch(ultimoRecorte, (nuevo) => {
+  if (nuevo) setTimeout(() => recortes.olvidarUltimo(), 6500)
+})
 </script>
 
 <template>
@@ -64,7 +77,7 @@ watch(ultimoEncontrado, (nuevo) => {
             <span v-if="enElRefugio" class="aviso">{{ enElRefugio }}</span>
           </RouterLink>
           <RouterLink to="/sombrerera">Sombrerera</RouterLink>
-          <RouterLink to="/trastos">Trastos</RouterLink>
+          <RouterLink to="/trastos">Cajón</RouterLink>
           <RouterLink to="/ajustes">Ajustes</RouterLink>
         </nav>
 
@@ -115,6 +128,15 @@ watch(ultimoEncontrado, (nuevo) => {
           <p class="nombre">{{ sombreroReciente.nombre }}</p>
         </div>
       </aside>
+    </Transition>
+
+    <!-- Aviso de recorte desbloqueado -->
+    <Transition name="hallazgo">
+      <RouterLink v-if="recorteReciente" to="/trastos" class="recorte-nuevo">
+        <p class="cabecera-periodico">Elendel Daily · edición especial</p>
+        <p class="titular">{{ recorteReciente.titular }}</p>
+        <p class="pie">Recorte nuevo en el cajón →</p>
+      </RouterLink>
     </Transition>
 
     <Narrador />
@@ -242,6 +264,32 @@ watch(ultimoEncontrado, (nuevo) => {
   font-weight: 700;
 }
 .nombre { margin: 0; font-weight: 600; }
+
+.recorte-nuevo {
+  position: fixed;
+  right: 18px;
+  bottom: 18px;
+  z-index: 40;
+  display: block;
+  max-width: 330px;
+  padding: 14px 18px;
+  text-decoration: none;
+  color: inherit;
+  background: linear-gradient(180deg, #2a2436, #221d2d);
+  border: 1px solid #3d3552;
+  border-radius: var(--radio);
+  box-shadow: var(--sombra);
+}
+.recorte-nuevo:hover { border-color: var(--borde); }
+.recorte-nuevo .cabecera-periodico {
+  margin: 0 0 6px;
+  font-size: 0.64rem;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: var(--texto-apagado);
+}
+.recorte-nuevo .titular { margin: 0 0 6px; font-weight: 650; font-size: 0.9rem; line-height: 1.3; }
+.recorte-nuevo .pie { margin: 0; font-size: 0.78rem; color: var(--cobre-claro); }
 
 .hallazgo-enter-active { transition: opacity 0.3s, transform 0.3s cubic-bezier(0.2, 1.2, 0.4, 1); }
 .hallazgo-leave-active { transition: opacity 0.25s, transform 0.25s; }

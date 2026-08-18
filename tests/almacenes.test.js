@@ -1,13 +1,15 @@
 import { createPinia, setActivePinia } from 'pinia'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 
-import { DESGASTE_MAXIMO, FELICIDAD_PARA_BONUS } from '../src/contenido/gatos.js'
+import { CUIDADOS, DESGASTE_MAXIMO, FELICIDAD_PARA_BONUS } from '../src/contenido/gatos.js'
+import { RECORTES } from '../src/contenido/recortes.js'
 import { CROQUETAS_POR_SOMBRERO, SOMBREROS } from '../src/contenido/sombreros.js'
 import { TRASTOS } from '../src/contenido/trastos.js'
 import { CROQUETAS_INICIALES, usarEconomia } from '../src/almacen/economia.js'
 import { usarGatos } from '../src/almacen/gatos.js'
 import { usarNarrador } from '../src/almacen/narrador.js'
 import { usarProgreso } from '../src/almacen/progreso.js'
+import { usarRecortes } from '../src/almacen/recortes.js'
 import { usarSombreros } from '../src/almacen/sombreros.js'
 
 beforeEach(() => setActivePinia(createPinia()))
@@ -105,7 +107,7 @@ describe('desgaste de los gatos', () => {
     gatos.estado('acero').comida = 10
 
     expect(gatos.cuidar('acero', 'alimentar').ok).toBe(true)
-    expect(economia.croquetas).toBe(CROQUETAS_INICIALES - 8)
+    expect(economia.croquetas).toBe(CROQUETAS_INICIALES - CUIDADOS.alimentar.coste)
 
     const segundoIntento = gatos.cuidar('acero', 'alimentar')
     expect(segundoIntento.ok).toBe(false)
@@ -263,6 +265,64 @@ describe('sombreros escondidos', () => {
       expect(sombrero.pista, sombrero.id).toBeTruthy()
       expect(sombrero.donde, sombrero.id).toBeTruthy()
       expect(sombrero.dice, sombrero.id).toBeTruthy()
+    }
+  })
+})
+
+describe('recortes secretos', () => {
+  it('se desbloquean una sola vez', () => {
+    const recortes = usarRecortes()
+
+    expect(recortes.desbloquear('primer-fallo')).toBeTruthy()
+    expect(recortes.desbloquear('primer-fallo')).toBeNull()
+    expect(recortes.cuantos).toBe(1)
+  })
+
+  it('uno inventado no cuela', () => {
+    const recortes = usarRecortes()
+    expect(recortes.desbloquear('exclusiva-falsa')).toBeNull()
+    expect(recortes.cuantos).toBe(0)
+  })
+
+  it('dar de comer a un gato al límite desbloquea el suyo', () => {
+    const gatos = usarGatos()
+    const recortes = usarRecortes()
+    usarEconomia().ingresar(50, 'para la prueba')
+
+    gatos.adoptar('acero')
+    gatos.estado('acero').comida = 10
+    gatos.cuidar('acero', 'alimentar')
+
+    expect(recortes.tiene('gato-al-limite')).toBe(true)
+  })
+
+  it('un gato bien alimentado no lo desbloquea', () => {
+    const gatos = usarGatos()
+    const recortes = usarRecortes()
+
+    gatos.adoptar('acero')
+    gatos.estado('acero').comida = 80
+    gatos.cuidar('acero', 'alimentar')
+
+    expect(recortes.tiene('gato-al-limite')).toBe(false)
+  })
+
+  it('el sexto sombrero trae portada', () => {
+    const sombreros = usarSombreros()
+    const recortes = usarRecortes()
+
+    for (const sombrero of SOMBREROS.slice(0, 5)) sombreros.encontrar(sombrero.id)
+    expect(recortes.tiene('seis-sombreros')).toBe(false)
+
+    sombreros.encontrar(SOMBREROS[5].id)
+    expect(recortes.tiene('seis-sombreros')).toBe(true)
+  })
+
+  it('cada recorte trae titular, entradilla y consejo', () => {
+    for (const recorte of RECORTES) {
+      expect(recorte.titular, recorte.id).toBeTruthy()
+      expect(recorte.entradilla, recorte.id).toBeTruthy()
+      expect(recorte.consejo, recorte.id).toBeTruthy()
     }
   })
 })

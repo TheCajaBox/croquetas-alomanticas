@@ -6,6 +6,7 @@ import { usarEconomia } from './economia.js'
 import { usarGatos } from './gatos.js'
 import { usarNarrador } from './narrador.js'
 import { usarProgreso } from './progreso.js'
+import { usarRecortes } from './recortes.js'
 
 /** Con la burbuja de Bendaloy, el código tiene bastante más margen. */
 const TIEMPO_LIMITE_AMPLIADO_MS = 8000
@@ -62,6 +63,10 @@ export const usarJuego = defineStore('juego', {
         }
       }
 
+      // Un secreto para quien programa a horas intempestivas.
+      const hora = new Date().getHours()
+      if (hora >= 3 && hora < 6) usarRecortes().desbloquear('nocturno')
+
       progreso.registrarVisita()
     },
 
@@ -97,6 +102,9 @@ export const usarJuego = defineStore('juego', {
       }
 
       progreso.registrarPista(reto.id, nivel)
+      if (progreso.ficha(reto.id).pistasUsadas.length === 3) {
+        usarRecortes().desbloquear('tres-pistas')
+      }
       narrador.decir('pistaPedida', {}, { nivel: nivel + 1, forzar: true })
 
       const trasto = pista.coste > 0 && !cortesiaDeCobre ? economia.recibirTrasto() : null
@@ -116,9 +124,17 @@ export const usarJuego = defineStore('juego', {
         this.ejecutando = false
       }
 
+      const recortes = usarRecortes()
       const ficha = progreso.ficha(reto.id)
+      const fallosAntes = ficha.fallos
       const indultado =
         !resultado.ok && !ficha.superado && ficha.fallos === 0 && gatos.tieneBonus('segundaOportunidad')
+
+      if (codigo === reto.inicial) recortes.desbloquear('sin-tocar-nada')
+      if (resultado.fase === FASES.SINTAXIS) recortes.desbloquear('error-de-sintaxis')
+      if (resultado.error?.bucleInfinito) recortes.desbloquear('bucle-infinito')
+      if (!resultado.ok) recortes.desbloquear('primer-fallo')
+      if (resultado.ok && fallosAntes >= 5) recortes.desbloquear('insistente')
 
       progreso.registrarIntento(reto.id, resultado.ok, { indultado })
 
@@ -126,7 +142,15 @@ export const usarJuego = defineStore('juego', {
         ? { ...resultado, indultado, ...this.premiar(reto) }
         : { ...resultado, indultado, recompensa: null }
 
-      if (!resultado.ok) this.narrarFallo(resultado)
+      if (!resultado.ok) {
+        // Wayne va de gracioso con cada fallo, pero cuando el reto se resiste de
+        // verdad la broma deja de ayudar: ahí entra Wax y explica.
+        const fallos = progreso.ficha(reto.id).fallos
+        const narrador = usarNarrador()
+        if (fallos === 3) narrador.decirWax('atascado')
+        else if (fallos > 3 && fallos % 4 === 0) narrador.decirWax('insiste')
+        else this.narrarFallo(resultado)
+      }
       this.ultimoResultado = completo
       return completo
     },
@@ -163,6 +187,36 @@ export const usarJuego = defineStore('juego', {
       }
 
       if (!acertado) usarNarrador().decir('testFallado')
+      this.ultimoResultado = completo
+      return completo
+    },
+
+    /**
+     * Retos que no ejecutan código: elegir la respuesta y emparejar. Se
+     * corrigen aquí mismo, sin sandbox, porque no hay nada que ejecutar.
+     */
+    resolverInteractivo(reto, acertado) {
+      const progreso = usarProgreso()
+      progreso.registrarIntento(reto.id, acertado)
+
+      const completo = {
+        ok: acertado,
+        fase: 'interactivo',
+        requisitos: [],
+        tests: [],
+        consola: [],
+        error: null,
+        tiempoMs: 0,
+        ...(acertado ? this.premiar(reto) : { recompensa: null }),
+      }
+
+      if (!acertado) {
+        const fallos = progreso.ficha(reto.id).fallos
+        const narrador = usarNarrador()
+        if (fallos === 3) narrador.decirWax('atascado')
+        else narrador.decir('testFallado')
+      }
+
       this.ultimoResultado = completo
       return completo
     },

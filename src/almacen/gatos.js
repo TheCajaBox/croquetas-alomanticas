@@ -10,6 +10,7 @@ import {
 } from '../contenido/gatos.js'
 import { usarEconomia } from './economia.js'
 import { usarProgreso } from './progreso.js'
+import { usarRecortes } from './recortes.js'
 import { autoguardar } from './persistencia.js'
 
 const UNA_HORA = 60 * 60 * 1000
@@ -159,6 +160,8 @@ export const usarGatos = defineStore('gatos', {
           return { ok: false, motivo: 'No te quedan croquetas.' }
         }
       }
+
+      if (accion === 'alimentar' && gato.comida < 20) usarRecortes().desbloquear('gato-al-limite')
 
       gato[cuidado.indicador] = Math.min(100, gato[cuidado.indicador] + cuidado.cantidad)
       gato.ultimoCuidado = { ...gato.ultimoCuidado, [accion]: Date.now() }

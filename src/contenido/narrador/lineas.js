@@ -150,6 +150,28 @@ export const LINEAS = {
     'Si necesitas pensar, piensa. Yo mientras miro el sombrero.',
   ],
 
+  /**
+   * Lo que suelta Wayne cuando no ha pasado absolutamente nada. No informa de
+   * nada y no hay que hacerle caso: es que está ahí y se aburre.
+   */
+  charla: [
+    'Una vez cambié un caballo por un sombrero. Salí ganando, y el del caballo también lo pensaba.',
+    'Wax dice que los nombres de las variables tienen que explicarse solos. Yo a mi sombrero lo llamo «sombrero» y nos entendemos.',
+    'Lo bueno de los ordenadores es que te dicen que te has equivocao sin ponerte esa cara. Wax pone la cara.',
+    'Si algo funciona a la primera, desconfía. Yo desconfío hasta cuando funciona a la tercera.',
+    'He conocido a gente que programa de pie. No les preguntes por qué, porque te lo cuentan.',
+    'El truco de una buena coartada y el de un buen código es el mismo: que no haya que explicarlo dos veces.',
+    'Ese gato lleva un rato mirando la pantalla. O sabe más que tú, o hay una mosca.',
+    'A mí lo de las llaves y los paréntesis me recuerda a los abogados. Todo son parejas y si falta una, ya la has liao.',
+    'Antes había un tipo en los Áridos que escribía sus planes en un papel. Le pillaron por eso. Comenta menos, escribe mejor.',
+    'Deberías beber agua. Lo digo yo, que no bebo agua.',
+    'Con el tiempo aprendes a mirar un código y saber si su autor dormía bien. Este tuyo tiene buena pinta. Más o menos.',
+    'Yo no tengo un sombrero favorito. Tengo el que llevo puesto, que siempre es el mejor.',
+    'Marasi lo apuntaría todo en una libreta. Yo me lo apunto en un sombrero, que se pierde menos.',
+    'Un consejo gratis, y de los de verdad: si llevas veinte minutos con lo mismo, levántate. Vuelves y está resuelto. No sé por qué.',
+    'Nunca he entendido lo de los números que empiezan en cero. Wax dice que es lógico. Wax dice eso de todo.',
+  ],
+
   verborreaBaja: [
     '¿Que me calle? Muy bien. Perfecto. No diré ni una palabra más. ...¿Ves? Ni una.',
     'Callao. Como una tumba. Una tumba con muy buenas ideas que no comparte.',
@@ -169,6 +191,35 @@ export const LINEAS = {
     (contexto) => `A cambio te dejo esto: ${contexto.trasto}. Es un intercambio justo, no me discutas.`,
     (contexto) => `Toma, ${contexto.trasto}. No vale nada, pero es tuyo y eso no te lo quita nadie.`,
     (contexto) => `${contexto.trasto}. De nada. Ya me lo agradecerás cuando te haga falta, que no te hará.`,
+  ],
+}
+
+/**
+ * Lo que dice Wax.
+ *
+ * Wayne va de gracioso y cobra por las pistas; Wax aparece cuando la cosa se
+ * pone seria y explica de verdad, gratis, porque para él eso no se cobra.
+ * Sale solo, sin que se lo pidan, cuando lleva un rato sin salirte un reto.
+ */
+export const LINEAS_DE_WAX = {
+  presentacion: [
+    'Waxillium Ladrian. Wayne me ha dicho que te vendría bien alguien que se explicara sin cobrar por ello. Vamos a mirarlo con calma.',
+  ],
+
+  atascado: [
+    'Tres intentos. Eso casi nunca es un descuido: suele ser que estás resolviendo un problema distinto del que hay. Ábrete mi apunte y léelo entero antes de tocar el código otra vez.',
+    'Para un momento. Vuelve a leer el mensaje del test, entero y despacio: ahí está dicho exactamente qué esperaba y qué ha recibido.',
+    'No es cabezonería tuya, es que falta un dato. Está en el apunte, justo debajo del enunciado.',
+  ],
+
+  insiste: [
+    'Sigue sin salir, y ya van unas cuantas. Lee el apunte y, si después sigue igual, cómprale a Wayne la pista cara. Para eso está, aunque él lo cuente de otra manera.',
+    'Cuando algo se resiste tanto, casi siempre es una idea equivocada de base y no una errata. Empieza otra vez desde el enunciado.',
+  ],
+
+  enhorabuena: [
+    'Buen trabajo. Y lo digo yo, que no exagero nunca.',
+    'Eso estaba bien resuelto. No te acostumbres a que te lo diga.',
   ],
 }
 

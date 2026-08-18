@@ -192,7 +192,7 @@ export const DESGASTE_POR_HORA = { comida: 4, felicidad: 3, limpieza: 2 }
 export const DESGASTE_MAXIMO = 70
 
 export const CUIDADOS = {
-  alimentar: { titulo: 'Dar de comer', indicador: 'comida', cantidad: 45, coste: 8, esperaMinutos: 45 },
+  alimentar: { titulo: 'Dar de comer', indicador: 'comida', cantidad: 45, coste: 5, esperaMinutos: 45 },
   jugar: { titulo: 'Jugar', indicador: 'felicidad', cantidad: 35, coste: 0, esperaMinutos: 30 },
   cepillar: { titulo: 'Cepillar', indicador: 'limpieza', cantidad: 50, coste: 0, esperaMinutos: 60 },
 }

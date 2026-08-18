@@ -50,8 +50,9 @@ test.beforeEach(async ({ page }) => {
   await page.evaluate(() => localStorage.clear())
 })
 
-test('la portada presenta los tres mundos', async ({ page }) => {
+test('la portada presenta los cuatro mundos', async ({ page }) => {
   await page.goto('')
+  await expect(page.getByRole('heading', { name: 'El primer día' })).toBeVisible()
   await expect(page.getByRole('heading', { name: 'Los Áridos' })).toBeVisible()
   await expect(page.getByRole('heading', { name: 'La mansión Ladrian' })).toBeVisible()
   await expect(page.getByRole('heading', { name: 'La Nueva Seran' })).toBeVisible()
@@ -100,7 +101,7 @@ test('la partida sobrevive a recargar la página', async ({ page }) => {
 
   await page.reload()
   await expect(page.locator('.contador.croquetas')).toHaveText(croquetas)
-  await expect(page.locator('.contador.retos')).toHaveText('1/21')
+  await expect(page.locator('.contador.retos')).toHaveText(/^1\/\d+$/)
   // Y el reto sigue marcado como superado, con el código que se escribió.
   await expect(page.getByText('superado')).toBeVisible()
   await expect(page.locator('.cm-content')).toContainText('TARIFA_DIARIA')
@@ -133,12 +134,16 @@ test('los sombreros se encuentran, se pagan y se guardan', async ({ page }) => {
 
   // Están casi transparentes hasta que alguien pasa por encima: se pulsan igual.
   await expect(page.locator('.contador.sombreros')).toContainText('0/12')
+  const croquetasAntes = Number(await page.locator('.contador.croquetas').textContent())
+
   await page.locator('.portada .sombrero-escondido').click()
 
   await expect(page.getByText('Sombrero encontrado')).toBeVisible()
   await expect(page.locator('.contador.sombreros')).toContainText('1/12')
   // Wayne jura que era suyo y lo paga.
-  await expect(page.locator('.contador.croquetas')).toContainText('35')
+  await expect
+    .poll(async () => Number(await page.locator('.contador.croquetas').textContent()))
+    .toBeGreaterThan(croquetasAntes)
 
   // Ya no está en su escondite y sí en la sombrerera.
   await expect(page.locator('.portada .sombrero-escondido')).toHaveCount(0)
@@ -149,4 +154,48 @@ test('los sombreros se encuentran, se pagan y se guardan', async ({ page }) => {
   // Y sobrevive a recargar.
   await page.reload()
   await expect(page.locator('.contador.sombreros')).toContainText('1/12')
+})
+
+test('los retos del primer día se resuelven sin escribir código', async ({ page }) => {
+  // Elegir la respuesta: se marca, se responde y se explican TODAS las opciones.
+  await page.goto('#/reto/dia1-01-variables')
+  await expect(page.getByRole('button', { name: /El apunte de Wax/ })).toBeVisible()
+  await page.locator('.opcion').first().click()
+  await page.getByRole('button', { name: 'Responder' }).click()
+
+  await expect(page.getByText('Reto superado.')).toBeVisible()
+  await expect(page.locator('.opcion .porque').first()).toBeVisible()
+
+  // Emparejar: al juntar las seis parejas, el reto se da por resuelto.
+  await page.goto('#/reto/dia1-02-tipos')
+  await expect(page.getByText('0 de 6')).toBeVisible()
+
+  const izquierda = page.locator('.columnas .columna').first().locator('button')
+  const derecha = page.locator('.columnas .columna').last().locator('button')
+  const textosIzquierda = await izquierda.allTextContents()
+
+  const PAREJAS = {
+    "'bombín'": 'Un texto',
+    '42': 'Un número',
+    'true': 'Un booleano: verdadero o falso',
+    "['Acero', 'Bronce']": 'Una lista de valores en orden',
+    "{ nombre: 'Wayne' }": 'Un objeto: valores con nombre',
+    'null': 'Aquí no hay nada, y es a propósito',
+  }
+
+  for (const texto of textosIzquierda) {
+    await izquierda.filter({ hasText: texto.trim() }).first().click()
+    await derecha.filter({ hasText: PAREJAS[texto.trim()] }).first().click()
+  }
+
+  await expect(page.getByText('Reto superado.')).toBeVisible()
+})
+
+test('un reto de ordenar ejecuta el código en el orden que lo dejes', async ({ page }) => {
+  await page.goto('#/reto/dia1-05-ordenar')
+  // Se ejecuta tal cual viene barajado: sale mal, y sale mal explicando por qué.
+  await page.getByRole('button', { name: 'Ejecutar en este orden' }).click()
+  await expect(page.getByText(/Ha reventado al ejecutarlo|cuenta los tres gatos/)).toBeVisible({
+    timeout: 20_000,
+  })
 })

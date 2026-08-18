@@ -7,11 +7,24 @@
  */
 export const MUNDOS = [
   {
+    id: 'primer-dia',
+    nombre: 'El primer día',
+    subtitulo: 'Sin escribir una línea (casi)',
+    entorno: 'worker',
+    requiere: null,
+    color: '#7fb2d8',
+    resumen: 'Qué es una variable, qué tipos hay y cómo se lee un programa. Se señala y se coloca más que se escribe.',
+    presentacion:
+      'Antes de salir a los Áridos hay que aprender un par de cosas, y aquí casi no se escribe: se elige, se empareja y se colocan piezas. Wax ha dejado sus apuntes debajo de cada reto, y esos no se pagan.',
+    despedida:
+      'Ya sabes leer un programa. Ahora toca escribirlos, que es parecido pero con más disgustos.',
+  },
+  {
     id: 'es6',
     nombre: 'Los Áridos',
     subtitulo: 'JavaScript ES6',
     entorno: 'worker',
-    requiere: null,
+    requiere: 'primer-dia',
     color: '#c98b4b',
     resumen: 'Lo básico, sin ciudad y sin comodidades: variables, funciones, arrays y promesas.',
     presentacion:

@@ -22,20 +22,39 @@ El progreso se guarda en el navegador (`localStorage`), sin cuentas ni servidore
 y el ordenador son partidas distintas; en **Ajustes** hay exportar e importar para pasarla
 de uno a otro.
 
-## Los tres mundos
+## Los cuatro mundos
 
 | Mundo | Qué se aprende | Retos |
 |---|---|---|
+| **El primer día** | Qué es una variable, qué tipos hay, cómo se lee un programa. Casi sin escribir | 7 |
 | **Los Áridos** | JavaScript ES6: ámbito, flechas y `this`, desestructuración, `map`/`filter`/`reduce`, `?.` y `??`, promesas | 7 |
 | **La mansión Ladrian** | Vue 2 con Options API: `data`, directivas, `computed` frente a `methods`, los caveats de reactividad y `$set`, props y `$emit`, ciclo de vida | 7 |
 | **La Nueva Seran** | Vue 3 con Composition API: `ref` y `reactive`, `computed`, `watch` frente a `watchEffect`, `provide`/`inject`, composables | 7 |
 
-Los Áridos son la base común. Las dos rutas de Vue son independientes y se juegan en el
-orden que se quiera.
+El primer día es la rampa de entrada: se empieza señalando y colocando piezas, no
+escribiendo. Los Áridos son la base común de JavaScript, y a partir de ahí las dos rutas de
+Vue son independientes y se juegan en el orden que se quiera.
 
-Hay tres clases de reto: **escribir** desde cero, **cazar el fallo** en código que casi
-funciona, y **acertijos** en los que no se escribe nada, se predice qué va a imprimir un
-código y luego se ejecuta delante de ti para comparar.
+Hay siete clases de reto, y solo tres piden escribir código:
+
+- **Elegir** la respuesta, con el porqué de todas las opciones, también de las falsas.
+- **Emparejar** conceptos con lo que significan.
+- **Colocar** líneas desordenadas, que luego se ejecutan tal y como las dejes.
+- **Rellenar** huecos con fichas, con fichas de más para que no salga por descarte.
+- **Predecir** qué va a imprimir un código, que después se ejecuta delante de ti.
+- **Escribir** una solución desde cero.
+- **Cazar el fallo** en código que casi funciona.
+
+## Wayne explica mal, Wax explica bien
+
+**Wayne** narra, se burla y te vende pistas: la primera gratis, las otras a precio de amigo.
+Habla también cuando no ha pasado nada, porque se aburre.
+
+**Wax** aparece cuando la cosa se pone seria: si un reto se te resiste tres veces, se planta
+ahí y te manda a leer. Y cada reto lleva **un apunte suyo, gratis**, con la explicación del
+concepto y sus ejemplos — al estilo de un artículo de [javascript.info](https://es.javascript.info):
+primero se lee, después se pelea uno con el ejercicio. Wayne cobra por decirte la respuesta;
+Wax no cobra por explicarte el porqué.
 
 ## Los gatos
 
@@ -48,13 +67,21 @@ Los indicadores bajan con el tiempo real, estés o no estés delante. **Ningún 
 ni se va nunca**: esto es un juego para aprender, no para castigar. Un gato desatendido solo
 se pone triste y deja de echarte una mano hasta que le hagas caso.
 
-## Los sombreros
+## Lo que se colecciona
+
+### Los sombreros
 
 Wayne ha ido dejando **doce sombreros escondidos** por todo el juego: en la cabecera, en el
 panel de pistas, en el refugio, dentro de la propia sombrerera… Están casi transparentes,
 así que hay que pasar el ratón por los rincones para dar con ellos. Cada uno que encuentras,
 él jura que era suyo y te lo cambia por croquetas; tú te lo quedas igual y se apunta en la
 sombrerera, que enseña una pista de los que aún faltan.
+
+### Los recortes del Elendel Daily
+
+Nueve recortes de prensa que **no se buscan: caen solos**, al hacer ciertas cosas. Cuáles, no
+se dice. El titular es la broma del periódico; el pie de página lleva un consejo que sí
+sirve, de esos que normalmente solo se aprenden a base de perder tardes.
 
 ## Apartado visual
 

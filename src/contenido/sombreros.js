@@ -99,4 +99,4 @@ export const SOMBREROS = [
 export const SOMBREROS_POR_ID = Object.fromEntries(SOMBREROS.map((s) => [s.id, s]))
 
 /** Lo que Wayne paga por cada sombrero que le devuelves. Regatear no sirve. */
-export const CROQUETAS_POR_SOMBRERO = 15
+export const CROQUETAS_POR_SOMBRERO = 8

@@ -1,34 +1,56 @@
 <script setup>
-import { computed, onBeforeUnmount, watch } from 'vue'
+import { computed, onBeforeUnmount, onMounted, ref, watch } from 'vue'
 import { storeToRefs } from 'pinia'
 
-import { usarNarrador } from '../almacen/narrador.js'
+import { PERSONAJES, usarNarrador } from '../almacen/narrador.js'
 
-/** Lo que tarda Wayne en callarse solo. Suficiente para leerle sin prisa. */
+/** Lo que tarda el bocadillo en quitarse solo. Suficiente para leerlo sin prisa. */
 const DURACION_MS = 14_000
+/** Silencio a partir del cual Wayne se aburre y suelta algo por su cuenta. */
+const SILENCIO_PARA_CHARLAR_MS = 95_000
+const CADA_CUANTO_MIRA_MS = 20_000
 
 const narrador = usarNarrador()
 const { mensaje, verborrea } = storeToRefs(narrador)
 
-// El bocadillo está fijo sobre la página: si no se retirara, taparía el panel
-// de pistas de forma permanente.
+const quien = computed(() => mensaje.value?.personaje ?? 'wayne')
+const nombre = computed(() => PERSONAJES[quien.value]?.nombre ?? 'Wayne')
+
+// El bocadillo está fijo sobre la página: si no se retirara acabaría tapando el
+// panel de pistas de forma permanente.
 let temporizador = null
+const ultimaVez = ref(Date.now())
+
 watch(mensaje, (nuevo) => {
   clearTimeout(temporizador)
-  if (nuevo) temporizador = setTimeout(() => narrador.callar(), DURACION_MS)
+  if (!nuevo) return
+  ultimaVez.value = Date.now()
+  temporizador = setTimeout(() => narrador.callar(), DURACION_MS)
 })
-onBeforeUnmount(() => clearTimeout(temporizador))
 
-// Con Wayne callado el bocadillo desaparece del todo salvo cuando trae algo
-// que de verdad hace falta saber; de eso ya se encarga el almacén al decidir
-// si habla o no.
-const visible = computed(() => !!mensaje.value)
+// Wayne habla también cuando no ha pasado nada. No informa de nada: es que está
+// ahí y se aburre. Con la verborrea al mínimo, se lo calla.
+let vigilante = null
+onMounted(() => {
+  vigilante = setInterval(() => {
+    if (mensaje.value) return
+    if (Date.now() - ultimaVez.value < SILENCIO_PARA_CHARLAR_MS) return
+    ultimaVez.value = Date.now()
+    narrador.charlar()
+  }, CADA_CUANTO_MIRA_MS)
+})
+
+onBeforeUnmount(() => {
+  clearTimeout(temporizador)
+  clearInterval(vigilante)
+})
 </script>
 
 <template>
   <Transition name="asoma">
-    <aside v-if="visible" class="narrador" :class="{ callado: verborrea === 'callado' }">
-      <svg class="retrato" viewBox="0 0 64 64" width="52" height="52" aria-hidden="true">
+    <aside v-if="mensaje" class="narrador" :class="[`es-${quien}`, { callado: verborrea === 'callado' }]">
+      <!-- Wayne: bombín, sonrisa y cara de estar tramando algo. -->
+      <svg v-if="quien === 'wayne'" class="retrato" viewBox="0 0 64 64" width="52" height="52" aria-hidden="true">
         <ellipse cx="32" cy="56" rx="20" ry="8" fill="#3a3050" />
         <circle cx="32" cy="34" r="15" fill="#d9b48e" />
         <path d="M20 30 Q 32 20 44 30 Z" fill="#241f30" />
@@ -39,8 +61,21 @@ const visible = computed(() => !!mensaje.value)
         <path d="M27 43 Q 32 47 37 42" fill="none" stroke="#241f30" stroke-width="2" stroke-linecap="round" />
       </svg>
 
+      <!-- Wax: sombrero de ala recta, cara larga y ni un gesto de más. -->
+      <svg v-else class="retrato" viewBox="0 0 64 64" width="52" height="52" aria-hidden="true">
+        <ellipse cx="32" cy="56" rx="20" ry="8" fill="#2f3a44" />
+        <ellipse cx="32" cy="36" rx="13" ry="16" fill="#d9b48e" />
+        <rect x="11" y="25" width="42" height="4" rx="2" fill="#1f2630" />
+        <rect x="21" y="8" width="22" height="18" rx="2" fill="#2b3540" />
+        <rect x="21" y="20" width="22" height="4" fill="#4a5866" />
+        <circle cx="27" cy="36" r="2" fill="#1f2630" />
+        <circle cx="37" cy="36" r="2" fill="#1f2630" />
+        <path d="M27 45 L37 45" stroke="#1f2630" stroke-width="2" stroke-linecap="round" />
+        <path d="M22 50 L32 54 L42 50" fill="none" stroke="#4a5866" stroke-width="3" stroke-linecap="round" />
+      </svg>
+
       <div class="bocadillo">
-        <p class="quien">Wayne</p>
+        <p class="quien">{{ nombre }}</p>
         <p class="dice">{{ mensaje.texto }}</p>
       </div>
 
@@ -58,7 +93,7 @@ const visible = computed(() => !!mensaje.value)
   display: flex;
   align-items: flex-start;
   gap: 12px;
-  max-width: 430px;
+  max-width: 460px;
   padding: 14px 16px;
   background: linear-gradient(180deg, #2a2338, #241e30);
   border: 1px solid var(--borde);
@@ -66,6 +101,13 @@ const visible = computed(() => !!mensaje.value)
   border-radius: var(--radio);
   box-shadow: var(--sombra);
 }
+/* Wax se distingue de un vistazo: cuando aparece él, la cosa va en serio. */
+.narrador.es-wax {
+  border-left-color: #6f93b0;
+  background: linear-gradient(180deg, #232c36, #1e242c);
+}
+.narrador.es-wax .quien { color: #8fb4d0; }
+
 .retrato { flex-shrink: 0; }
 .bocadillo { min-width: 0; }
 .quien {

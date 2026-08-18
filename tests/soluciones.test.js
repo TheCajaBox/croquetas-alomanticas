@@ -3,18 +3,14 @@ import { createContext, runInContext } from 'node:vm'
 import { describe, expect, it } from 'vitest'
 
 import { RETOS } from '../src/contenido/retos/index.js'
+import { SIN_CODIGO, codigoDeReferencia, revisarTactil } from './revisarRetos.js'
 import { analizar, inyectarGuardaDeBucles } from '../src/motor/guardaBucles.js'
 import { comprobarRequisitos } from '../src/motor/chequeosEstaticos.js'
 
 /**
- * Prueba de fuego del contenido: cada solución de referencia tiene que pasar
- * sus propios tests y cumplir sus propios requisitos.
- *
- * Un reto cuya solución no pasa es un reto imposible, y eso en un juego de
- * aprender no es un fallo cualquiera: es el peor de todos.
- *
- * Aquí solo se pueden comprobar los retos de ES6, que no necesitan navegador.
- * De los de Vue se encarga la prueba de extremo a extremo con Playwright.
+ * Comprobación de todo el contenido que no necesita navegador. Los criterios
+ * por tipo de reto están en tests/revisarRetos.js; de los mundos de Vue se
+ * encarga tests/soluciones-vue.test.js, que sí monta un DOM.
  */
 function crearSandboxDeNodo() {
   const contexto = {
@@ -36,7 +32,7 @@ function crearSandboxDeNodo() {
 const sandbox = crearSandboxDeNodo()
 
 async function ejecutarSolucion(reto) {
-  const fuente = reto.tipo === 'prediccion' ? reto.codigoMostrado : reto.solucion
+  const fuente = codigoDeReferencia(reto)
   const ast = analizar(fuente)
 
   const requisitos = comprobarRequisitos(ast, reto.requisitos)
@@ -53,7 +49,32 @@ async function ejecutarSolucion(reto) {
   return { incumplidos, resultados: api.resultados }
 }
 
-const retosSinNavegador = RETOS.filter((reto) => reto.entorno === 'worker')
+const retosSinNavegador = RETOS.filter(
+  (reto) => reto.entorno === 'worker' && !SIN_CODIGO.includes(reto.tipo),
+)
+const retosTactiles = RETOS.filter((reto) => SIN_CODIGO.includes(reto.tipo))
+
+describe('los retos de señalar están bien montados', () => {
+  it('hay retos de señalar', () => {
+    expect(retosTactiles.length).toBeGreaterThan(0)
+  })
+
+  for (const reto of retosTactiles) {
+    it(`${reto.id}: ${reto.titulo}`, () => {
+      expect(revisarTactil(reto)).toEqual([])
+    })
+  }
+})
+
+describe('todos los retos traen apunte y pistas', () => {
+  for (const reto of RETOS) {
+    it(reto.id, () => {
+      expect(reto.apunte, 'sin apunte de Wax').toBeTruthy()
+      expect(reto.pistas?.length, 'sin las tres pistas').toBe(3)
+      expect(reto.recompensa?.croquetas, 'sin recompensa').toBeGreaterThan(0)
+    })
+  }
+})
 
 describe('las soluciones de referencia resuelven sus propios retos', () => {
   it('hay retos que comprobar', () => {

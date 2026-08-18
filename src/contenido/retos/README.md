@@ -7,8 +7,9 @@ Cada reto es un módulo con `export default` y estos campos:
 | `id` | Único en todo el juego. Se usa en la URL y en la partida guardada. |
 | `mundo` | `es6`, `vue2` o `vue3`. |
 | `entorno` | `worker` (sin DOM), `vue2` o `vue3`. Decide en qué sandbox se ejecuta. |
-| `tipo` | `codigo`, `bug` o `prediccion`. |
+| `tipo` | `codigo`, `bug`, `prediccion`, `eleccion`, `emparejar`, `ordenar` o `completar`. |
 | `titulo`, `enunciado` | El enunciado admite Markdown sencillo. |
+| `apunte` | La explicación del concepto, con la voz de Wax. Gratis y siempre visible. **Todos los retos lo llevan.** |
 | `inicial` | Código de partida que aparece en el editor. |
 | `solucion` | Solución de referencia. Se enseña solo cuando el reto ya está superado. |
 | `requisitos` | Comprobaciones sobre el AST, antes de ejecutar. Ver `src/motor/chequeosEstaticos.js`. |
@@ -43,6 +44,23 @@ Dentro de un test tienes disponible:
 `textos(sel)`, `html(sel)`, `existe(sel)`, `contar(sel)`, `valor(sel)`,
 `click(sel)`, `escribir(sel, texto)`, `vm` y `siguienteTick()`. Todo lo que
 cambia el DOM devuelve una promesa: hay que esperarlo con `await`.
+
+## Retos que no se escriben
+
+Cuatro tipos se resuelven señalando y colocando, no tecleando:
+
+- **`eleccion`** — trae `pregunta` y `opciones: [{ texto, correcta, porque }]`. El `porque`
+  es obligatorio en **todas**, también en las falsas: media enseñanza está en entender por
+  qué la que descartaste estaba mal. Si hay más de una `correcta`, el reto pasa solo a
+  selección múltiple.
+- **`emparejar`** — trae `parejas: [{ izquierda, derecha }]`. Las dos columnas se barajan
+  con una semilla fija, así que el reto sale igual cada vez que se abre.
+- **`ordenar`** — trae `lineas` en el orden correcto. Se barajan, el jugador las recoloca y
+  al enviar **se ejecuta el código en el orden que haya puesto**, con sus `tests`. No se
+  compara con la respuesta: se ejecuta, y así el que falla ve qué se rompe.
+- **`completar`** — trae `plantilla` con huecos marcados `___`, un montón de `fichas` (con
+  alguna de más, para que no salga por descarte) y una `solucion` de referencia para las
+  pruebas. Al enviar también se ejecuta de verdad.
 
 ## Retos de predicción
 
