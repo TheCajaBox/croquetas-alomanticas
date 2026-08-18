@@ -2,7 +2,15 @@
 import { computed, onBeforeUnmount, onMounted, ref, watch } from 'vue'
 import { storeToRefs } from 'pinia'
 
+import WayneSvg from './WayneSvg.vue'
 import { PERSONAJES, usarNarrador } from '../almacen/narrador.js'
+
+/** La cara que pone Wayne según lo que esté contando. */
+const ANIMOS = {
+  orgullo: ['retoSuperado', 'superadoSinPistas', 'jefeDerrotado', 'sombreroEncontrado', 'todosLosSombreros', 'gatoAdoptado', 'gatoCuidado'],
+  sorpresa: ['errorDeSintaxis', 'bucleInfinito', 'tiempoAgotado', 'vuelvesTrasUnaSemana'],
+  fastidio: ['requisitoIncumplido', 'sinCroquetas', 'gatoDesatendido', 'verborreaBaja'],
+}
 
 /** Lo que tarda el bocadillo en quitarse solo. Suficiente para leerlo sin prisa. */
 const DURACION_MS = 14_000
@@ -15,6 +23,12 @@ const { mensaje, verborrea } = storeToRefs(narrador)
 
 const quien = computed(() => mensaje.value?.personaje ?? 'wayne')
 const nombre = computed(() => PERSONAJES[quien.value]?.nombre ?? 'Wayne')
+
+const animo = computed(() => {
+  const evento = mensaje.value?.evento
+  const encontrado = Object.entries(ANIMOS).find(([, eventos]) => eventos.includes(evento))
+  return encontrado?.[0] ?? 'guasa'
+})
 
 // El bocadillo está fijo sobre la página: si no se retirara acabaría tapando el
 // panel de pistas de forma permanente.
@@ -49,17 +63,7 @@ onBeforeUnmount(() => {
 <template>
   <Transition name="asoma">
     <aside v-if="mensaje" class="narrador" :class="[`es-${quien}`, { callado: verborrea === 'callado' }]">
-      <!-- Wayne: bombín, sonrisa y cara de estar tramando algo. -->
-      <svg v-if="quien === 'wayne'" class="retrato" viewBox="0 0 64 64" width="52" height="52" aria-hidden="true">
-        <ellipse cx="32" cy="56" rx="20" ry="8" fill="#3a3050" />
-        <circle cx="32" cy="34" r="15" fill="#d9b48e" />
-        <path d="M20 30 Q 32 20 44 30 Z" fill="#241f30" />
-        <rect x="14" y="26" width="36" height="5" rx="2.5" fill="#241f30" />
-        <path d="M22 22 Q 32 8 42 22 Z" fill="#3b3145" />
-        <circle cx="27" cy="35" r="2" fill="#241f30" />
-        <circle cx="37" cy="35" r="2" fill="#241f30" />
-        <path d="M27 43 Q 32 47 37 42" fill="none" stroke="#241f30" stroke-width="2" stroke-linecap="round" />
-      </svg>
+      <WayneSvg v-if="quien === 'wayne'" class="retrato" :animo="animo" :tamano="66" />
 
       <!-- Wax: sombrero de ala recta, cara larga y ni un gesto de más. -->
       <svg v-else class="retrato" viewBox="0 0 64 64" width="52" height="52" aria-hidden="true">
@@ -108,7 +112,7 @@ onBeforeUnmount(() => {
 }
 .narrador.es-wax .quien { color: #8fb4d0; }
 
-.retrato { flex-shrink: 0; }
+.retrato { flex-shrink: 0; margin: -6px -2px -10px 0; }
 .bocadillo { min-width: 0; }
 .quien {
   margin: 0 0 2px;

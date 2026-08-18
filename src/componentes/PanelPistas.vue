@@ -3,6 +3,7 @@ import { computed, ref } from 'vue'
 import SombreroEscondido from './SombreroEscondido.vue'
 
 import Marcado from './Marcado.vue'
+import WayneSvg from './WayneSvg.vue'
 import { usarEconomia } from '../almacen/economia.js'
 import { usarGatos } from '../almacen/gatos.js'
 import { usarJuego } from '../almacen/juego.js'
@@ -55,7 +56,12 @@ function pedir(nivel) {
   <section class="pistas panel">
     <SombreroEscondido id="pistas" :posicion="{ bottom: '12px', right: '14px' }" :tamano="17" />
     <div class="cabecera">
-      <h3>Pistas de Wayne</h3>
+      <!-- Que se vea quién cobra. -->
+      <WayneSvg class="vendedor" :animo="compradas.length ? 'orgullo' : 'guasa'" :tamano="52" />
+      <div class="titulo-pistas">
+        <h3>Pistas de Wayne</h3>
+        <span class="tenue coletilla">la primera invita la casa</span>
+      </div>
       <span class="tenue saldo">{{ economia.croquetas }} croquetas</span>
     </div>
 
@@ -95,9 +101,12 @@ function pedir(nivel) {
 
 <style scoped>
 .pistas { position: relative; }
-.cabecera { display: flex; justify-content: space-between; align-items: baseline; margin-bottom: 12px; }
+.cabecera { display: flex; align-items: center; gap: 10px; margin-bottom: 14px; }
+.vendedor { flex-shrink: 0; margin: -8px -4px -12px -4px; }
+.titulo-pistas { display: flex; flex-direction: column; line-height: 1.2; flex: 1; min-width: 0; }
 .cabecera h3 { margin: 0; }
-.saldo { font-size: 0.85rem; }
+.coletilla { font-size: 0.76rem; }
+.saldo { font-size: 0.85rem; white-space: nowrap; }
 
 .cortesia {
   font-size: 0.84rem;

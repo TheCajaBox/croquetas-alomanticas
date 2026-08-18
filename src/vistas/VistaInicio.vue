@@ -7,6 +7,7 @@ import { retosDelMundo } from '../contenido/retos/index.js'
 import { usarGatos } from '../almacen/gatos.js'
 import { usarProgreso } from '../almacen/progreso.js'
 import GatoSvg from '../componentes/GatoSvg.vue'
+import WayneSvg from '../componentes/WayneSvg.vue'
 
 const progreso = usarProgreso()
 const gatos = usarGatos()
@@ -33,13 +34,26 @@ const colonia = computed(() => gatos.adoptados)
   <div class="pila">
     <section class="portada panel">
       <SombreroEscondido id="mundos" :posicion="{ top: '14px', right: '18px' }" />
-      <h1>Aprende a programar y págalo en croquetas</h1>
-      <p class="tenue entradilla">
-        Tres mundos, veintiún retos y código que se ejecuta de verdad: nada de elegir la
-        respuesta correcta de una lista. Wayne comenta lo que haces, te vende pistas a precio
-        de amigo y con lo que ganes das de comer a una colonia de gatos que, cuando están
-        contentos, te devuelven el favor.
-      </p>
+
+      <div class="texto-portada">
+        <h1>Aprende a programar y págalo en croquetas</h1>
+        <p class="tenue entradilla">
+          Cuatro mundos, veintiocho retos y código que se ejecuta de verdad: nada de elegir
+          la respuesta correcta de una lista. Se empieza señalando y colocando piezas, y se
+          acaba montando componentes de Vue.
+        </p>
+        <p class="tenue entradilla">
+          Wayne lo cuenta todo, se ríe de lo que haces y te vende pistas a precio de amigo.
+          Con lo que ganes das de comer a una colonia de gatos que, cuando están contentos,
+          te devuelven el favor.
+        </p>
+      </div>
+
+      <!-- Wayne, en grande y presidiendo. Es su juego, al fin y al cabo. -->
+      <figure class="anfitrion">
+        <WayneSvg :tamano="172" animo="guasa" />
+        <figcaption>«Yo no robo. Intercambio.»</figcaption>
+      </figure>
     </section>
 
     <h2>Mundos</h2>
@@ -101,9 +115,31 @@ const colonia = computed(() => gatos.adoptados)
 </template>
 
 <style scoped>
-.portada { position: relative; background: linear-gradient(150deg, #26203a, #1c1826); border-color: var(--borde); }
-.portada h1 { max-width: 22ch; }
-.entradilla { max-width: 68ch; margin: 0; }
+.portada {
+  position: relative;
+  display: flex;
+  align-items: center;
+  gap: 26px;
+  background: linear-gradient(150deg, #26203a, #1c1826);
+  border-color: var(--borde);
+}
+.texto-portada { flex: 1; min-width: 0; }
+.portada h1 { max-width: 20ch; }
+.entradilla { max-width: 62ch; margin: 0 0 0.8em; }
+.entradilla:last-child { margin-bottom: 0; }
+
+.anfitrion { flex-shrink: 0; margin: 0; text-align: center; }
+.anfitrion figcaption {
+  margin-top: 4px;
+  font-size: 0.8rem;
+  font-style: italic;
+  color: var(--cobre-claro);
+}
+
+@media (max-width: 760px) {
+  .portada { flex-direction: column-reverse; align-items: flex-start; }
+  .anfitrion { align-self: center; }
+}
 
 .mundos { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 16px; }
 .mundo {

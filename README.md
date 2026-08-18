@@ -47,14 +47,21 @@ Hay siete clases de reto, y solo tres piden escribir código:
 
 ## Wayne explica mal, Wax explica bien
 
-**Wayne** narra, se burla y te vende pistas: la primera gratis, las otras a precio de amigo.
-Habla también cuando no ha pasado nada, porque se aburre.
+**Wayne** es el juego. Preside la portada, narra, se burla, cambia de cara según lo que
+cuente —guasa, orgullo, sorpresa, fastidio— y te vende pistas: la primera gratis, las otras a
+precio de amigo. Habla también cuando no ha pasado nada, porque se aburre.
 
 **Wax** aparece cuando la cosa se pone seria: si un reto se te resiste tres veces, se planta
-ahí y te manda a leer. Y cada reto lleva **un apunte suyo, gratis**, con la explicación del
-concepto y sus ejemplos — al estilo de un artículo de [javascript.info](https://es.javascript.info):
-primero se lee, después se pelea uno con el ejercicio. Wayne cobra por decirte la respuesta;
-Wax no cobra por explicarte el porqué.
+ahí y te manda a leer. Y cada reto lleva **un apunte suyo, gratis y a todo lo ancho**, con la
+explicación del concepto y sus ejemplos — al estilo de un artículo de
+[javascript.info](https://es.javascript.info): primero se lee, después se pelea uno con el
+ejercicio. Wayne cobra por decirte la respuesta; Wax no cobra por explicarte el porqué.
+
+Los apuntes explican con lo que Wax tiene a mano: carteles de busca y captura, el almacén de
+metales, el inventario de la mansión, los avisos que tardan en llegar. Un `const` es una
+tarifa fijada por la casa; desestructurar es sacar datos de una ficha; `Promise.all` es
+esperar a que contesten todos aunque uno conteste antes. La sintaxis se aprende igual y se
+recuerda mejor.
 
 ## Los gatos
 

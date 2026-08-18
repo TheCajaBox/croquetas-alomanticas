@@ -75,6 +75,13 @@ const abierto = ref(props.empiezaAbierto)
   padding: 2px 18px 18px;
   font-size: 0.93rem;
 }
+
+/* Maquetación de artículo: el texto con un ancho de lectura cómodo y el código a
+   todo lo ancho, que si no los ejemplos alineados se cortan por la mitad. */
+.cuerpo :deep(p),
+.cuerpo :deep(ul),
+.cuerpo :deep(h2),
+.cuerpo :deep(h3) { max-width: 76ch; }
 .cuerpo :deep(pre) { background: #191f27; border-color: #2c3742; }
 .cuerpo :deep(code) { background: rgba(143, 180, 208, 0.14); color: #a8cbe4; }
 .cuerpo :deep(p:last-child) { margin-bottom: 0; }

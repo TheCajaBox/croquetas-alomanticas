@@ -105,14 +105,19 @@ function reiniciarCodigo() {
       <h1>{{ reto.titulo }}</h1>
     </header>
 
+    <PanelApunte
+      v-if="reto.apunte"
+      class="apunte-ancho"
+      :texto="reto.apunte"
+      :empieza-abierto="!yaSuperado"
+    />
+
     <div class="tablero">
       <div class="columna izquierda">
         <section class="panel enunciado">
           <SombreroEscondido id="enunciado" :posicion="{ top: '10px', right: '12px' }" :tamano="17" />
           <Marcado :texto="reto.enunciado" />
         </section>
-
-        <PanelApunte v-if="reto.apunte" :texto="reto.apunte" :empieza-abierto="!yaSuperado" />
 
         <PanelPistas :reto="reto" />
 
@@ -239,6 +244,8 @@ function reiniciarCodigo() {
 .volver { display: inline-block; text-decoration: none; font-size: 0.85rem; margin-bottom: 10px; }
 .etiquetas { gap: 6px; margin-bottom: 8px; }
 .encabezado h1 { margin: 0; }
+
+.apunte-ancho { margin-bottom: 18px; }
 
 .tablero { display: grid; grid-template-columns: minmax(0, 5fr) minmax(0, 6fr); gap: 18px; align-items: start; }
 .columna { display: flex; flex-direction: column; gap: 16px; min-width: 0; }
