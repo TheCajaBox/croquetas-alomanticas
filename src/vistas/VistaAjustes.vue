@@ -1,16 +1,19 @@
 <script setup>
 import { computed, ref } from 'vue'
+import SombreroEscondido from '../componentes/SombreroEscondido.vue'
 
 import { NIVELES_DE_VERBORREA, usarNarrador } from '../almacen/narrador.js'
 import { usarEconomia } from '../almacen/economia.js'
 import { usarGatos } from '../almacen/gatos.js'
 import { usarProgreso } from '../almacen/progreso.js'
+import { usarSombreros } from '../almacen/sombreros.js'
 import { borrarPartida, exportarPartida, importarPartida } from '../almacen/persistencia.js'
 
 const narrador = usarNarrador()
 const progreso = usarProgreso()
 const economia = usarEconomia()
 const gatos = usarGatos()
+const sombreros = usarSombreros()
 
 const textoDePartida = ref('')
 const aviso = ref('')
@@ -22,6 +25,7 @@ const resumen = computed(() => [
   { titulo: 'Croquetas ganadas', valor: economia.ganadasEnTotal },
   { titulo: 'Croquetas gastadas en pistas', valor: economia.gastadasEnTotal },
   { titulo: 'Gatos en la colonia', valor: gatos.adoptados.length },
+  { titulo: 'Sombreros encontrados', valor: `${sombreros.cuantos} de ${sombreros.total}` },
 ])
 
 function copiarPartida() {
@@ -102,6 +106,7 @@ function empezarDeCero() {
     </section>
 
     <section class="panel peligro">
+      <SombreroEscondido id="ajustes" :posicion="{ top: '14px', right: '16px' }" />
       <h2>Empezar de cero</h2>
       <p class="tenue nota">
         Se borra todo: retos, croquetas, trastos y gatos. No hay vuelta atrás.
@@ -128,7 +133,7 @@ h2 { font-size: 1.05rem; }
 textarea { width: 100%; font-family: var(--mono); font-size: 0.78rem; resize: vertical; }
 .aviso { margin: 8px 0 0; font-size: 0.87rem; color: var(--cobre-claro); }
 
-.peligro { border-color: rgba(224, 122, 114, 0.3); }
+.peligro { position: relative; border-color: rgba(224, 122, 114, 0.3); }
 .borrar { border-color: rgba(224, 122, 114, 0.5); color: var(--rojo); }
 .borrar:hover { background: rgba(224, 122, 114, 0.12); }
 </style>

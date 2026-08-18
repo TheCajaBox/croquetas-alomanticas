@@ -1,5 +1,6 @@
 <script setup>
 import { computed } from 'vue'
+import SombreroEscondido from '../componentes/SombreroEscondido.vue'
 
 import { TRASTOS, TRASTOS_POR_ID } from '../contenido/trastos.js'
 import { usarEconomia } from '../almacen/economia.js'
@@ -17,6 +18,7 @@ const mios = computed(() =>
 <template>
   <div class="pila">
     <section class="panel encabezado">
+      <SombreroEscondido id="trastos" :posicion="{ bottom: '16px', right: '18px' }" />
       <h1>El cajón de los trastos</h1>
       <p class="tenue">
         Wayne no roba: intercambia. Cada pista que le compras se paga en croquetas y él, muy
@@ -46,6 +48,7 @@ const mios = computed(() =>
 </template>
 
 <style scoped>
+.encabezado { position: relative; }
 .encabezado p { max-width: 72ch; }
 .cuenta { margin: 0; font-size: 0.9rem; color: var(--cobre-claro); }
 .rejilla { display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 14px; }

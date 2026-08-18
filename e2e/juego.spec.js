@@ -100,7 +100,7 @@ test('la partida sobrevive a recargar la página', async ({ page }) => {
 
   await page.reload()
   await expect(page.locator('.contador.croquetas')).toHaveText(croquetas)
-  await expect(page.locator('.contador').first()).toHaveText('1/21')
+  await expect(page.locator('.contador.retos')).toHaveText('1/21')
   // Y el reto sigue marcado como superado, con el código que se escribió.
   await expect(page.getByText('superado')).toBeVisible()
   await expect(page.locator('.cm-content')).toContainText('TARIFA_DIARIA')
@@ -126,4 +126,27 @@ const robado = window.parent.localStorage.getItem('gatosYCodigo')`,
   await page.getByRole('button', { name: 'Ejecutar' }).click()
 
   await expect(page.getByText('Ha reventado al ejecutarlo')).toBeVisible({ timeout: 20_000 })
+})
+
+test('los sombreros se encuentran, se pagan y se guardan', async ({ page }) => {
+  await page.goto('')
+
+  // Están casi transparentes hasta que alguien pasa por encima: se pulsan igual.
+  await expect(page.locator('.contador.sombreros')).toContainText('0/12')
+  await page.locator('.portada .sombrero-escondido').click()
+
+  await expect(page.getByText('Sombrero encontrado')).toBeVisible()
+  await expect(page.locator('.contador.sombreros')).toContainText('1/12')
+  // Wayne jura que era suyo y lo paga.
+  await expect(page.locator('.contador.croquetas')).toContainText('35')
+
+  // Ya no está en su escondite y sí en la sombrerera.
+  await expect(page.locator('.portada .sombrero-escondido')).toHaveCount(0)
+  await page.goto('#/sombrerera')
+  await expect(page.getByRole('heading', { name: 'El polvoriento' })).toBeVisible()
+  await expect(page.getByText('1 de 12 encontrados')).toBeVisible()
+
+  // Y sobrevive a recargar.
+  await page.reload()
+  await expect(page.locator('.contador.sombreros')).toContainText('1/12')
 })

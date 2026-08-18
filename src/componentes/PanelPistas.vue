@@ -1,5 +1,6 @@
 <script setup>
 import { computed, ref } from 'vue'
+import SombreroEscondido from './SombreroEscondido.vue'
 
 import Marcado from './Marcado.vue'
 import { usarEconomia } from '../almacen/economia.js'
@@ -52,6 +53,7 @@ function pedir(nivel) {
 
 <template>
   <section class="pistas panel">
+    <SombreroEscondido id="pistas" :posicion="{ bottom: '12px', right: '14px' }" :tamano="17" />
     <div class="cabecera">
       <h3>Pistas de Wayne</h3>
       <span class="tenue saldo">{{ economia.croquetas }} croquetas</span>
@@ -92,6 +94,7 @@ function pedir(nivel) {
 </template>
 
 <style scoped>
+.pistas { position: relative; }
 .cabecera { display: flex; justify-content: space-between; align-items: baseline; margin-bottom: 12px; }
 .cabecera h3 { margin: 0; }
 .saldo { font-size: 0.85rem; }

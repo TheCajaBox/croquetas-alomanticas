@@ -2,11 +2,13 @@ import { createPinia, setActivePinia } from 'pinia'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 
 import { DESGASTE_MAXIMO, FELICIDAD_PARA_BONUS } from '../src/contenido/gatos.js'
+import { CROQUETAS_POR_SOMBRERO, SOMBREROS } from '../src/contenido/sombreros.js'
 import { TRASTOS } from '../src/contenido/trastos.js'
 import { CROQUETAS_INICIALES, usarEconomia } from '../src/almacen/economia.js'
 import { usarGatos } from '../src/almacen/gatos.js'
 import { usarNarrador } from '../src/almacen/narrador.js'
 import { usarProgreso } from '../src/almacen/progreso.js'
+import { usarSombreros } from '../src/almacen/sombreros.js'
 
 beforeEach(() => setActivePinia(createPinia()))
 afterEach(() => vi.useRealTimers())
@@ -199,5 +201,68 @@ describe('narrador', () => {
     const narrador = usarNarrador()
     const texto = narrador.decir('gatoAdoptado', { gato: 'Bendaloy' }, { forzar: true })
     expect(texto).toContain('Bendaloy')
+  })
+})
+
+describe('sombreros escondidos', () => {
+  it('encontrar uno lo apunta y Wayne lo paga', () => {
+    const sombreros = usarSombreros()
+    const economia = usarEconomia()
+
+    expect(sombreros.tiene('cabecera')).toBe(false)
+    const hallado = sombreros.encontrar('cabecera')
+
+    expect(hallado.nombre).toBeTruthy()
+    expect(sombreros.tiene('cabecera')).toBe(true)
+    expect(economia.croquetas).toBe(CROQUETAS_INICIALES + CROQUETAS_POR_SOMBRERO)
+  })
+
+  it('el mismo sombrero no se cobra dos veces', () => {
+    const sombreros = usarSombreros()
+    const economia = usarEconomia()
+
+    sombreros.encontrar('cabecera')
+    const saldo = economia.croquetas
+    expect(sombreros.encontrar('cabecera')).toBeNull()
+    expect(economia.croquetas).toBe(saldo)
+    expect(sombreros.cuantos).toBe(1)
+  })
+
+  it('un sombrero que no existe no cuela', () => {
+    const sombreros = usarSombreros()
+    expect(sombreros.encontrar('inventado')).toBeNull()
+    expect(sombreros.cuantos).toBe(0)
+  })
+
+  it('la lista enseña la pista de los que faltan y el sitio de los hallados', () => {
+    const sombreros = usarSombreros()
+    sombreros.encontrar('trastos')
+
+    const hallado = sombreros.lista.find((s) => s.id === 'trastos')
+    const pendiente = sombreros.lista.find((s) => s.id === 'colonia')
+
+    expect(hallado.encontrado).toBe(true)
+    expect(hallado.donde).toBeTruthy()
+    expect(pendiente.encontrado).toBe(false)
+    expect(pendiente.pista).toBeTruthy()
+  })
+
+  it('al juntarlos todos, Wayne se despide de ellos', () => {
+    const sombreros = usarSombreros()
+    const narrador = usarNarrador()
+
+    for (const sombrero of SOMBREROS) sombreros.encontrar(sombrero.id)
+
+    expect(sombreros.estanTodos).toBe(true)
+    expect(narrador.mensaje.evento).toBe('todosLosSombreros')
+  })
+
+  it('cada sombrero tiene su sitio, su pista y su frase', () => {
+    for (const sombrero of SOMBREROS) {
+      expect(sombrero.nombre, sombrero.id).toBeTruthy()
+      expect(sombrero.pista, sombrero.id).toBeTruthy()
+      expect(sombrero.donde, sombrero.id).toBeTruthy()
+      expect(sombrero.dice, sombrero.id).toBeTruthy()
+    }
   })
 })

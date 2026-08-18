@@ -1,5 +1,6 @@
 <script setup>
 import { computed } from 'vue'
+import SombreroEscondido from '../componentes/SombreroEscondido.vue'
 
 import { MUNDOS } from '../contenido/mundos.js'
 import { retosDelMundo } from '../contenido/retos/index.js'
@@ -31,6 +32,7 @@ const colonia = computed(() => gatos.adoptados)
 <template>
   <div class="pila">
     <section class="portada panel">
+      <SombreroEscondido id="mundos" :posicion="{ top: '14px', right: '18px' }" />
       <h1>Aprende a programar y págalo en croquetas</h1>
       <p class="tenue entradilla">
         Tres mundos, veintiún retos y código que se ejecuta de verdad: nada de elegir la
@@ -41,15 +43,15 @@ const colonia = computed(() => gatos.adoptados)
     </section>
 
     <h2>Mundos</h2>
-    <div class="mundos">
+    <div class="mundos escalonado">
       <component
         :is="mundo.disponible ? 'RouterLink' : 'div'"
-        v-for="mundo in mundos"
+        v-for="(mundo, orden) in mundos"
         :key="mundo.id"
         :to="mundo.disponible ? { name: 'mundo', params: { mundoId: mundo.id } } : undefined"
         class="mundo panel"
         :class="{ bloqueado: !mundo.disponible }"
-        :style="{ '--color-mundo': mundo.color }"
+        :style="{ '--color-mundo': mundo.color, '--orden': orden }"
       >
         <div class="fila cabecera">
           <span class="etiqueta" :style="{ color: mundo.color, borderColor: mundo.color }">
@@ -99,7 +101,7 @@ const colonia = computed(() => gatos.adoptados)
 </template>
 
 <style scoped>
-.portada { background: linear-gradient(150deg, #26203a, #1c1826); border-color: var(--borde); }
+.portada { position: relative; background: linear-gradient(150deg, #26203a, #1c1826); border-color: var(--borde); }
 .portada h1 { max-width: 22ch; }
 .entradilla { max-width: 68ch; margin: 0; }
 

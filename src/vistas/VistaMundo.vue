@@ -1,5 +1,6 @@
 <script setup>
 import { computed } from 'vue'
+import SombreroEscondido from '../componentes/SombreroEscondido.vue'
 import { useRouter } from 'vue-router'
 
 import { MUNDOS_POR_ID } from '../contenido/mundos.js'
@@ -41,6 +42,7 @@ if (!mundo.value || !progreso.mundoDisponible(props.mundoId)) router.replace('/'
 <template>
   <div v-if="mundo" class="pila">
     <section class="panel encabezado" :style="{ '--color-mundo': mundo.color }">
+      <SombreroEscondido id="mundo" :posicion="{ bottom: '16px', right: '20px' }" />
       <RouterLink to="/" class="tenue volver">← Mundos</RouterLink>
       <span class="etiqueta" :style="{ color: mundo.color, borderColor: mundo.color }">{{ mundo.subtitulo }}</span>
       <h1>{{ mundo.nombre }}</h1>
@@ -48,8 +50,8 @@ if (!mundo.value || !progreso.mundoDisponible(props.mundoId)) router.replace('/'
       <p v-if="progreso.mundoCompletado(mundoId)" class="despedida">{{ mundo.despedida }}</p>
     </section>
 
-    <ol class="retos">
-      <li v-for="reto in retos" :key="reto.id">
+    <ol class="retos escalonado">
+      <li v-for="(reto, orden) in retos" :key="reto.id" :style="{ '--orden': orden }">
         <component
           :is="reto.abierto ? 'RouterLink' : 'div'"
           :to="reto.abierto ? { name: 'reto', params: { retoId: reto.id } } : undefined"
@@ -75,7 +77,7 @@ if (!mundo.value || !progreso.mundoDisponible(props.mundoId)) router.replace('/'
 </template>
 
 <style scoped>
-.encabezado { border-top: 3px solid var(--color-mundo); }
+.encabezado { position: relative; border-top: 3px solid var(--color-mundo); }
 .volver { display: inline-block; text-decoration: none; font-size: 0.85rem; margin-bottom: 10px; }
 .encabezado h1 { margin: 8px 0 10px; }
 .presentacion { max-width: 70ch; margin: 0; font-style: italic; color: var(--texto-tenue); }

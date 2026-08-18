@@ -1,5 +1,6 @@
 <script setup>
 import { computed, ref } from 'vue'
+import SombreroEscondido from '../componentes/SombreroEscondido.vue'
 
 import GatoSvg from '../componentes/GatoSvg.vue'
 import { usarGatos } from '../almacen/gatos.js'
@@ -23,6 +24,7 @@ function adoptar(gatoId) {
 <template>
   <div class="pila">
     <section class="panel encabezado">
+      <SombreroEscondido id="refugio" :posicion="{ top: '16px', right: '18px' }" />
       <h1>El refugio</h1>
       <p class="tenue">
         Cada gato lleva el nombre de un metal y se comporta como él. Se ganan resolviendo retos,
@@ -66,6 +68,7 @@ function adoptar(gatoId) {
 </template>
 
 <style scoped>
+.encabezado { position: relative; }
 .encabezado p { max-width: 72ch; margin: 0; }
 
 .bienvenida { display: flex; gap: 18px; align-items: center; border-color: rgba(201, 139, 75, 0.4); background: rgba(201, 139, 75, 0.07); }

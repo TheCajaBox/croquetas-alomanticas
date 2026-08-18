@@ -1,5 +1,6 @@
 <script setup>
 import { computed } from 'vue'
+import SombreroEscondido from './SombreroEscondido.vue'
 
 import Marcado from './Marcado.vue'
 import { FASES } from '../motor/ejecutor.js'
@@ -32,6 +33,7 @@ const requisitosIncumplidos = computed(
 
 <template>
   <section class="resultados panel">
+    <SombreroEscondido id="resultados" :posicion="{ top: '10px', right: '12px' }" :tamano="17" />
     <p v-if="ejecutando" class="tenue">Ejecutando…</p>
 
     <p v-else-if="!resultado" class="tenue">
@@ -71,8 +73,13 @@ const requisitosIncumplidos = computed(
       </div>
 
       <!-- Tests -->
-      <ul v-if="testsVisibles.length" class="tests">
-        <li v-for="test in testsVisibles" :key="test.nombre" :class="{ ok: test.ok, mal: !test.ok }">
+      <ul v-if="testsVisibles.length" class="tests escalonado">
+        <li
+          v-for="(test, orden) in testsVisibles"
+          :key="test.nombre"
+          :class="{ ok: test.ok, mal: !test.ok }"
+          :style="{ '--orden': orden }"
+        >
           <span class="marca">{{ test.ok ? '✓' : '✕' }}</span>
           <div>
             <p class="nombre">{{ test.nombre }}</p>
@@ -112,9 +119,13 @@ const requisitosIncumplidos = computed(
 </template>
 
 <style scoped>
-.resultados { font-size: 0.93rem; }
+.resultados { position: relative; font-size: 0.93rem; }
 .titular { font-weight: 650; margin-bottom: 10px; }
-.titular.bien { color: var(--verde); }
+.titular.bien {
+  color: var(--verde);
+  font-size: 1.05rem;
+  animation: asomar 0.4s cubic-bezier(0.2, 1.3, 0.4, 1) backwards;
+}
 
 .aviso { border-radius: 8px; padding: 12px 14px; margin-bottom: 12px; }
 .aviso.mal { background: rgba(224, 122, 114, 0.10); border: 1px solid rgba(224, 122, 114, 0.3); }
@@ -141,6 +152,8 @@ const requisitosIncumplidos = computed(
 .consola pre { margin: 0; }
 
 .recompensa {
+  /* Entra la última, cuando ya se han pintado los tests. */
+  animation: asomar 0.45s cubic-bezier(0.2, 1, 0.3, 1) 0.35s backwards;
   margin-top: 14px;
   padding: 12px 14px;
   border-radius: 8px;

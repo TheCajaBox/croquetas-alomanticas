@@ -1,5 +1,6 @@
 <script setup>
 import { onBeforeUnmount, onMounted, ref } from 'vue'
+import SombreroEscondido from './SombreroEscondido.vue'
 
 import { ENTORNOS } from '../motor/protocolo.js'
 
@@ -26,6 +27,7 @@ onBeforeUnmount(() => props.puente.destruir())
       <span class="etiqueta">{{ ENTORNOS[entorno].etiqueta }}</span>
     </div>
     <div ref="hueco" class="lienzo" />
+    <SombreroEscondido id="vista-previa" :posicion="{ bottom: '30px', left: '10px' }" :tamano="17" />
     <p class="tenue nota">
       Corre aislado del juego: tu código no puede tocar la partida ni esta página.
     </p>
@@ -33,7 +35,7 @@ onBeforeUnmount(() => props.puente.destruir())
 </template>
 
 <style scoped>
-.vista-previa { display: flex; flex-direction: column; }
+.vista-previa { position: relative; display: flex; flex-direction: column; }
 .cabecera { display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px; }
 .cabecera h3 { margin: 0; font-size: 0.95rem; }
 .lienzo {

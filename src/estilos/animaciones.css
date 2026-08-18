@@ -1,0 +1,115 @@
+/*
+ * Animaciones del juego.
+ *
+ * Todo lo de aquí es decorativo y tiene que poder apagarse: al final del
+ * fichero hay un bloque que lo desactiva entero para quien haya pedido menos
+ * movimiento en su sistema. Nada de lo que se anima aquí es necesario para
+ * jugar; si no se mueve, el juego funciona igual.
+ */
+
+@keyframes bruma-uno {
+  0%, 100% { transform: translate3d(-4%, 0, 0) scale(1); }
+  50% { transform: translate3d(6%, -3%, 0) scale(1.12); }
+}
+@keyframes bruma-dos {
+  0%, 100% { transform: translate3d(5%, 2%, 0) scale(1.08); }
+  50% { transform: translate3d(-6%, -2%, 0) scale(1); }
+}
+@keyframes bruma-tres {
+  0%, 100% { transform: translate3d(0, 4%, 0) scale(1.15); opacity: 0.5; }
+  50% { transform: translate3d(-8%, -1%, 0) scale(1); opacity: 0.85; }
+}
+
+/* La bruma. Dos capas muy tenues que se cruzan despacio; es el fondo del
+   juego, así que va detrás de todo y no intercepta ni un clic. */
+.bruma {
+  position: fixed;
+  inset: -20%;
+  z-index: 0;
+  pointer-events: none;
+  overflow: hidden;
+}
+.bruma i {
+  position: absolute;
+  inset: 0;
+  display: block;
+  opacity: 0.75;
+}
+.bruma i:nth-child(1) {
+  background: radial-gradient(closest-side at 24% 26%, rgba(201, 139, 75, 0.17), transparent 68%);
+  animation: bruma-uno 68s ease-in-out infinite;
+}
+.bruma i:nth-child(2) {
+  background: radial-gradient(closest-side at 79% 14%, rgba(149, 120, 186, 0.18), transparent 68%);
+  animation: bruma-dos 91s ease-in-out infinite;
+}
+.bruma i:nth-child(3) {
+  background: radial-gradient(closest-side at 55% 88%, rgba(79, 157, 140, 0.12), transparent 70%);
+  animation: bruma-tres 113s ease-in-out infinite;
+}
+
+@keyframes asomar {
+  from { opacity: 0; transform: translateY(8px); }
+  to { opacity: 1; transform: none; }
+}
+
+@keyframes latido {
+  0%, 100% { transform: scale(1); }
+  35% { transform: scale(1.22); }
+}
+
+@keyframes subir-y-desvanecer {
+  0% { opacity: 0; transform: translateY(6px); }
+  25% { opacity: 1; transform: translateY(-2px); }
+  100% { opacity: 0; transform: translateY(-26px); }
+}
+
+@keyframes girar-entrando {
+  0% { opacity: 0; transform: rotate(-140deg) scale(0.3); }
+  70% { transform: rotate(8deg) scale(1.1); }
+  100% { opacity: 1; transform: none; }
+}
+
+@keyframes respirar {
+  0%, 100% { transform: scaleY(1) translateY(0); }
+  50% { transform: scaleY(1.025) translateY(-1px); }
+}
+
+@keyframes parpadear {
+  0%, 92%, 100% { transform: scaleY(1); }
+  95% { transform: scaleY(0.08); }
+}
+
+@keyframes menear-cola {
+  0%, 100% { transform: rotate(-3deg); }
+  50% { transform: rotate(7deg); }
+}
+
+@keyframes pulso-suave {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.55; }
+}
+
+/* Aparición escalonada: quien la use pone --orden en cada elemento. */
+.escalonado > * {
+  animation: asomar 0.32s cubic-bezier(0.2, 0.9, 0.3, 1) backwards;
+  animation-delay: calc(var(--orden, 0) * 45ms);
+}
+
+/* Transición entre pantallas. */
+.pagina-enter-active { transition: opacity 0.22s ease, transform 0.22s ease; }
+.pagina-leave-active { transition: opacity 0.13s ease, transform 0.13s ease; }
+.pagina-enter-from { opacity: 0; transform: translateY(10px); }
+.pagina-leave-to { opacity: 0; transform: translateY(-6px); }
+
+@media (prefers-reduced-motion: reduce) {
+  .bruma { display: none; }
+  .escalonado > * { animation: none; }
+  .pagina-enter-active,
+  .pagina-leave-active { transition: none; }
+  *, *::before, *::after {
+    animation-duration: 0.001ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.001ms !important;
+  }
+}

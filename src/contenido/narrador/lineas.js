@@ -155,6 +155,16 @@ export const LINEAS = {
     'Callao. Como una tumba. Una tumba con muy buenas ideas que no comparte.',
   ],
 
+  sombreroEncontrado: [
+    (contexto) => contexto.dice,
+    (contexto) => `${contexto.dice} Toma unas croquetas y no se lo cuentes a nadie.`,
+    (contexto) => `¡Eh! Ese es mío. ${contexto.dice}`,
+  ],
+
+  todosLosSombreros: [
+    'Los doce. Todos. No me queda ni uno escondido y me siento raro, la verdad. Quédatelos: se te da mejor que a mí guardarlos.',
+  ],
+
   trastoRecibido: [
     (contexto) => `A cambio te dejo esto: ${contexto.trasto}. Es un intercambio justo, no me discutas.`,
     (contexto) => `Toma, ${contexto.trasto}. No vale nada, pero es tuyo y eso no te lo quita nadie.`,
@@ -167,6 +177,8 @@ export const LINEAS = {
  * llevan información útil, no los que solo llevan a Wayne.
  */
 export const EVENTOS_IMPORTANTES = new Set([
+  'sombreroEncontrado',
+  'todosLosSombreros',
   'errorDeSintaxis',
   'bucleInfinito',
   'tiempoAgotado',

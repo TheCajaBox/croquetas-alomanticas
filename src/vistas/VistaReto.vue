@@ -1,5 +1,6 @@
 <script setup>
 import { computed, ref, watch } from 'vue'
+import SombreroEscondido from '../componentes/SombreroEscondido.vue'
 import { useRouter } from 'vue-router'
 
 import EditorCodigo from '../componentes/EditorCodigo.vue'
@@ -88,6 +89,7 @@ function reiniciarCodigo() {
     <div class="tablero">
       <div class="columna izquierda">
         <section class="panel enunciado">
+          <SombreroEscondido id="enunciado" :posicion="{ top: '10px', right: '12px' }" :tamano="17" />
           <Marcado :texto="reto.enunciado" />
         </section>
 
@@ -141,7 +143,7 @@ function reiniciarCodigo() {
         </div>
 
         <div class="acciones">
-          <button class="principal" :disabled="juego.ejecutando" @click="ejecutar">
+          <button class="principal" :class="{ trabajando: juego.ejecutando }" :disabled="juego.ejecutando" @click="ejecutar">
             {{ juego.ejecutando ? 'Ejecutando…' : esPrediccion ? 'Comprobar predicción' : 'Ejecutar' }}
           </button>
           <span class="tenue intentos">
@@ -184,7 +186,7 @@ function reiniciarCodigo() {
 .tablero { display: grid; grid-template-columns: minmax(0, 5fr) minmax(0, 6fr); gap: 18px; align-items: start; }
 .columna { display: flex; flex-direction: column; gap: 16px; min-width: 0; }
 
-.enunciado { font-size: 0.95rem; }
+.enunciado { position: relative; font-size: 0.95rem; }
 
 .bloque h3 { margin: 0 0 10px; font-size: 0.95rem; }
 .bloque pre { margin: 0; }
@@ -213,6 +215,7 @@ function reiniciarCodigo() {
 .oido-fino ul { margin: 0; padding-left: 18px; }
 
 .acciones { display: flex; align-items: center; gap: 14px; }
+.principal.trabajando { animation: pulso-suave 1.1s ease-in-out infinite; }
 .intentos { font-size: 0.83rem; }
 
 .solucion .nota { margin: 0 0 10px; font-size: 0.85rem; }

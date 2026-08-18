@@ -1,5 +1,6 @@
 <script setup>
 import { computed } from 'vue'
+import SombreroEscondido from '../componentes/SombreroEscondido.vue'
 
 import TarjetaGato from '../componentes/TarjetaGato.vue'
 import { usarGatos } from '../almacen/gatos.js'
@@ -16,6 +17,7 @@ const beneficiosActivos = computed(
 <template>
   <div class="pila">
     <section class="panel encabezado">
+      <SombreroEscondido id="colonia" :posicion="{ bottom: '16px', right: '18px' }" />
       <h1>La colonia</h1>
       <p class="tenue">
         Los indicadores bajan con el tiempo real, estés o no estés. Ningún gato se muere ni se
@@ -27,8 +29,13 @@ const beneficiosActivos = computed(
       </p>
     </section>
 
-    <div v-if="colonia.length" class="tarjetas">
-      <TarjetaGato v-for="gato in colonia" :key="gato.id" :gato="gato" />
+    <div v-if="colonia.length" class="tarjetas escalonado">
+      <TarjetaGato
+        v-for="(gato, orden) in colonia"
+        :key="gato.id"
+        :gato="gato"
+        :style="{ '--orden': orden }"
+      />
     </div>
 
     <section v-else class="panel centrado vacia">
@@ -42,6 +49,7 @@ const beneficiosActivos = computed(
 </template>
 
 <style scoped>
+.encabezado { position: relative; }
 .encabezado p { max-width: 72ch; }
 .encabezado .resumen { margin: 0; font-size: 0.9rem; color: var(--cobre-claro); }
 .tarjetas { display: grid; grid-template-columns: repeat(auto-fit, minmax(430px, 1fr)); gap: 16px; }

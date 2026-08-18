@@ -48,6 +48,24 @@ Los indicadores bajan con el tiempo real, estés o no estés delante. **Ningún 
 ni se va nunca**: esto es un juego para aprender, no para castigar. Un gato desatendido solo
 se pone triste y deja de echarte una mano hasta que le hagas caso.
 
+## Los sombreros
+
+Wayne ha ido dejando **doce sombreros escondidos** por todo el juego: en la cabecera, en el
+panel de pistas, en el refugio, dentro de la propia sombrerera… Están casi transparentes,
+así que hay que pasar el ratón por los rincones para dar con ellos. Cada uno que encuentras,
+él jura que era suyo y te lo cambia por croquetas; tú te lo quedas igual y se apunta en la
+sombrerera, que enseña una pista de los que aún faltan.
+
+## Apartado visual
+
+Bruma de fondo en tres capas que se cruzan muy despacio, gatos que respiran, parpadean y
+menean la cola —cada uno con su propio ritmo, sacado de sus colores, para que la colonia no
+parezca un escaparate—, resultados de los tests que entran escalonados, croquetas que suben
+flotando al ganarlas y transiciones entre pantallas.
+
+Todo eso se apaga solo si el sistema pide menos movimiento (`prefers-reduced-motion`): nada
+de lo que se anima hace falta para jugar.
+
 ## Desarrollo
 
 ```bash

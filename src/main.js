@@ -7,8 +7,10 @@ import { engancharEconomia, usarEconomia } from './almacen/economia.js'
 import { engancharGatos, usarGatos } from './almacen/gatos.js'
 import { engancharNarrador, usarNarrador } from './almacen/narrador.js'
 import { engancharProgreso, usarProgreso } from './almacen/progreso.js'
+import { engancharSombreros, usarSombreros } from './almacen/sombreros.js'
 import { usarJuego } from './almacen/juego.js'
 import './estilos/base.css'
+import './estilos/animaciones.css'
 
 const app = createApp(App)
 const pinia = createPinia()
@@ -23,6 +25,7 @@ engancharProgreso(usarProgreso(pinia))
 engancharEconomia(usarEconomia(pinia))
 engancharGatos(usarGatos(pinia))
 engancharNarrador(usarNarrador(pinia))
+engancharSombreros(usarSombreros(pinia))
 
 usarJuego(pinia).arrancarSesion()
 
