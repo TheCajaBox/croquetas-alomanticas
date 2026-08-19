@@ -5,10 +5,14 @@ import { useRouter } from 'vue-router'
 
 import EditorCodigo from '../componentes/EditorCodigo.vue'
 import Marcado from '../componentes/Marcado.vue'
+import RetoCazarLinea from '../componentes/RetoCazarLinea.vue'
 import RetoCompletar from '../componentes/RetoCompletar.vue'
 import RetoEleccion from '../componentes/RetoEleccion.vue'
 import RetoEmparejar from '../componentes/RetoEmparejar.vue'
+import RetoEtiquetar from '../componentes/RetoEtiquetar.vue'
 import RetoOrdenar from '../componentes/RetoOrdenar.vue'
+import RetoTrazar from '../componentes/RetoTrazar.vue'
+import RetoVerdaderoFalso from '../componentes/RetoVerdaderoFalso.vue'
 import PanelApunte from '../componentes/PanelApunte.vue'
 import PanelPistas from '../componentes/PanelPistas.vue'
 import PanelResultados from '../componentes/PanelResultados.vue'
@@ -216,6 +220,34 @@ function reiniciarCodigo() {
           :reto="reto"
           :contestado="!!resultado?.ok"
           @montar="ejecutarMontaje"
+        />
+
+        <RetoTrazar
+          v-else-if="reto.tipo === 'trazar'"
+          :reto="reto"
+          :contestado="!!resultado"
+          @responder="responderTactil"
+        />
+
+        <RetoCazarLinea
+          v-else-if="reto.tipo === 'cazar-linea'"
+          :reto="reto"
+          :contestado="!!resultado"
+          @responder="responderTactil"
+        />
+
+        <RetoEtiquetar
+          v-else-if="reto.tipo === 'etiquetar'"
+          :reto="reto"
+          :contestado="!!resultado"
+          @responder="responderTactil"
+        />
+
+        <RetoVerdaderoFalso
+          v-else-if="reto.tipo === 'verdadero-o-falso'"
+          :reto="reto"
+          :contestado="!!resultado"
+          @responder="responderTactil"
         />
 
         <template v-else>

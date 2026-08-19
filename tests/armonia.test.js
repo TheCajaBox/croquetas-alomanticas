@@ -89,6 +89,14 @@ describe('Armonía no puede decir nada que no esté ya gratis en pantalla', () =
       for (const pista of reto.pistas ?? []) prohibidos.push(pista.texto)
       for (const opcion of reto.opciones ?? []) prohibidos.push(opcion.porque)
       prohibidos.push(reto.respuestaEsperada, (reto.lineas ?? []).join(' '))
+
+      // Los tipos de señalar, cada uno guarda su respuesta en su sitio.
+      prohibidos.push(reto.plantilla, (reto.fichas ?? []).join(' '))
+      for (const afirmacion of reto.afirmaciones ?? []) prohibidos.push(afirmacion.porque)
+      for (const explicacion of Object.values(reto.explicaciones ?? {})) prohibidos.push(explicacion)
+      for (const fragmento of reto.fragmentos ?? []) prohibidos.push(fragmento.etiqueta)
+      for (const paso of reto.pasos ?? []) prohibidos.push(Object.values(paso.valores ?? {}).join(' '))
+      prohibidos.push(reto.porque)
     }
 
     const filtrados = []

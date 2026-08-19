@@ -1,0 +1,71 @@
+import { codigo, pista } from '../comun.js'
+
+export default {
+  id: "com-06b-seguir-el-hilo",
+  mundo: "comisaria",
+  entorno: "worker",
+  tipo: "trazar",
+  titulo: "Vuelta a vuelta",
+  enunciado: codigo(
+    "Acabas de escribir un bucle con acumulador. Ahora toca lo otro, que es igual de",
+    "importante y no se practica nunca: **seguir uno con el dedo** y saber decir cuánto",
+    "vale cada cosa en cada momento.",
+    "",
+    "Rellena la tabla. Una fila por momento, una columna por variable. Sobran valores.",
+  ),
+  codigoMostrado: codigo(
+    "const precios = [12, 30, 8]",
+    "let total = 0",
+    "",
+    "for (const precio of precios) {",
+    "  total = total + precio",
+    "}",
+    "",
+    "console.log(total)",
+  ),
+  variables: ["precio", "total"],
+  pasos: [
+    { etiqueta: "Antes del bucle", valores: { precio: "(no existe)", total: "0" } },
+    { etiqueta: "Al final de la 1.ª vuelta", valores: { precio: "12", total: "12" } },
+    { etiqueta: "Al final de la 2.ª vuelta", valores: { precio: "30", total: "42" } },
+    { etiqueta: "Al final de la 3.ª vuelta", valores: { precio: "8", total: "50" } },
+    { etiqueta: "Después del bucle", valores: { precio: "(no existe)", total: "50" } },
+  ],
+  valoresPosibles: [
+    "(no existe)",
+    "0",
+    "8",
+    "12",
+    "30",
+    "42",
+    "50",
+    "3",
+    "18",
+    "undefined",
+  ],
+  porque: codigo(
+    "Dos cosas que esta tabla enseña y que un bucle bien escrito esconde:",
+    "",
+    "**`total` arrastra.** No se calcula de cero en cada vuelta: cada vuelta parte de lo",
+    "que había y le suma lo nuevo. Por eso 12, luego 42, luego 50. Si en algún momento",
+    "vuelve a 0, es que has puesto el `let total = 0` dentro del bucle.",
+    "",
+    "**`precio` no existe fuera.** Se declara en el propio `for`, así que vive una vuelta",
+    "y desaparece. Buscarlo después del bucle da `ReferenceError`.",
+  ),
+  tests: [
+    {
+      nombre: "la suma de los tres precios sale 50",
+      codigo: codigo(
+        "esperar(consola.map((linea) => linea.texto).join(String.fromCharCode(10)))",
+        "  .diceLoMismoQue('50')",
+      ),
+    },
+  ],
+  pistas: [
+    pista("Empieza por la fila de arriba. Antes de entrar al bucle solo se ha ejecutado el `let total = 0`, así que solo una de las dos variables tiene valor.", 0),
+    pista("`total = total + precio` se lee de derecha a izquierda: coge lo que vale `total` ahora, súmale el precio de esta vuelta, y guarda el resultado otra vez en `total`.", 1),
+    pista("La segunda vuelta parte de lo que dejó la primera, no de cero. Y la variable del `for` desaparece al terminar el bucle: fíjate en qué columna repite valor en la primera fila y en la última.", 2),
+  ],
+  recompensa: { croquetas: 7 },
+}

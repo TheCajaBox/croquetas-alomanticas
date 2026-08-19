@@ -1,3 +1,5 @@
+import { readdirSync } from 'node:fs'
+
 import { expect, test } from '@playwright/test'
 
 /**
@@ -5,6 +7,27 @@ import { expect, test } from '@playwright/test'
  * los tres entornos, se comprueba que la protección contra bucles infinitos
  * funciona y que el sandbox no alcanza la partida guardada.
  */
+
+/**
+ * Los ids de los retos de un mundo, leídos del contenido.
+ *
+ * No se puede usar `contenido/retos/index.js` porque se monta con
+ * `import.meta.glob`, que es de Vite y aquí no existe; así que se lee la
+ * carpeta y se importa cada reto, que son módulos normales.
+ *
+ * Escritos a mano se desfasaban en cuanto se añadía un reto, y el síntoma no
+ * decía nada: el mundo dejaba de estar completo y el repaso redirigía a la
+ * portada.
+ */
+async function idsDelMundo(mundo) {
+  const carpeta = new URL(`../src/contenido/retos/${mundo}/`, import.meta.url)
+  const ficheros = readdirSync(carpeta).filter((f) => f.endsWith('.js')).sort()
+  const ids = []
+  for (const fichero of ficheros) {
+    ids.push((await import(new URL(fichero, carpeta).href)).default.id)
+  }
+  return ids
+}
 
 /** Escribe en el editor de CodeMirror, que es un contenteditable. */
 async function escribirCodigo(pagina, codigo) {
@@ -159,6 +182,57 @@ test('los sombreros se encuentran, se pagan y se guardan', async ({ page }) => {
   await expect(page.locator('.contador.sombreros')).toContainText('1/12')
 })
 
+test('los cuatro tipos de señalar se resuelven y explican', async ({ page }) => {
+  // Poner nombre: se elige la etiqueta y se pulsa el trozo al que corresponde.
+  await page.goto('#/reto/dia1-06b-poner-nombre')
+  const etiquetar = page.locator('.etiquetar')
+  for (const [etiqueta, trozo] of [
+    ['nombre de la función', 'saludar'],
+    ['parámetro', 'nombre'],
+    ['cuerpo', 'return `Buenas, ${nombre}`'],
+    ['llamada', "saludar('Wayne')"],
+  ]) {
+    await etiquetar.locator('.etiqueta', { hasText: etiqueta }).first().click()
+    // Por etiqueta accesible y no por texto: al colocar un nombre, el trozo se
+    // lo queda dentro y pasaría a colar en las búsquedas de los siguientes.
+    await etiquetar.getByRole('button', { name: `Trozo ${trozo}`, exact: true }).click()
+  }
+  await page.getByRole('button', { name: 'Comprobar' }).click()
+  await expect(page.getByText('Reto superado.')).toBeVisible()
+  // Al terminar se repasa cómo se llama cada cosa, se acierte o no.
+  await expect(etiquetar.locator('.repaso')).toBeVisible()
+
+  // Verdadero o falso: se marcan todas y se corrigen juntas.
+  await page.goto('#/reto/es6-06b-verdadero-o-falso')
+  const vof = page.locator('.vof')
+  await expect(page.getByRole('button', { name: 'Te falta marcar alguna' })).toBeDisabled()
+  for (const afirmacion of await vof.locator('.afirmacion').all()) {
+    await afirmacion.getByRole('button', { name: 'Verdadero' }).click()
+  }
+  await page.getByRole('button', { name: 'Corregir' }).click()
+  // Marcarlas todas verdaderas falla, y aun así se explica cada una.
+  await expect(page.locator('.resultados')).not.toContainText('Reto superado')
+  await expect(vof.locator('.porque')).toHaveCount(6)
+
+  // Cazar la línea: se señala la culpable, que no es donde revienta.
+  await page.goto('#/reto/taller-04b-la-linea-culpable')
+  const cazar = page.locator('.cazar')
+  await cazar.getByRole('button', { name: 'Línea 7' }).click()
+  await page.getByRole('button', { name: 'Es la línea 7' }).click()
+  await expect(page.getByText('Reto superado.')).toBeVisible()
+  await expect(cazar.locator('.veredicto.bien')).toContainText('La línea 7 era')
+
+  // Seguir el hilo: se rellena la tabla y salta sola a la casilla siguiente.
+  await page.goto('#/reto/com-06b-seguir-el-hilo')
+  const trazar = page.locator('.trazar')
+  for (const valor of ['(no existe)', '0', '12', '12', '30', '42', '8', '50', '(no existe)', '50']) {
+    await trazar.locator('.valor-ficha', { hasText: valor }).first().click()
+  }
+  await page.getByRole('button', { name: 'Comprobar la traza' }).click()
+  await expect(page.getByText('Reto superado.')).toBeVisible()
+  await expect(trazar.locator('.veredicto.bien')).toBeVisible()
+})
+
 test('los retos del primer día se resuelven sin escribir código', async ({ page }) => {
   // Elegir la respuesta: se marca, se responde y se explican TODAS las opciones.
   await page.goto('#/reto/dia1-01-variables')
@@ -284,25 +358,17 @@ test('el repaso de Marasi corrige, explica y paga una sola vez', async ({ page }
   }
 
   // El repaso solo se abre con el mundo terminado: se da por resuelto de antemano
-  // para no repetir aquí los siete retos del primer día, que ya se prueban aparte.
+  // para no repetir aquí los retos del primer día, que ya se prueban aparte.
   // Se siembra antes de que arranque la app, porque el autoguardado pisa
   // cualquier cosa que se escriba en localStorage con la partida ya en marcha.
-  await page.addInitScript(() => {
-    const ids = [
-      'dia1-01-variables',
-      'dia1-02-tipos',
-      'dia1-03-const-o-let',
-      'dia1-04-rellenar',
-      'dia1-05-ordenar',
-      'dia1-06-que-imprime',
-      'dia1-07-primera-funcion',
-    ]
+  const idsDelPrimerDia = await idsDelMundo('primer-dia')
+  await page.addInitScript((ids) => {
     const retos = {}
     for (const id of ids) {
       retos[id] = { superado: true, intentos: 1, pistasUsadas: 0, superadoEn: Date.now() }
     }
     localStorage.setItem('gatosYCodigo', JSON.stringify({ version: 1, progreso: { retos } }))
-  })
+  }, idsDelPrimerDia)
 
   // Recargar de verdad: el guion sembrado solo corre al cargar el documento, y
   // saltar de almohadilla en almohadilla no recarga nada.

@@ -5,7 +5,7 @@
  * acordarse de tocar a la vez: los que se escriben y los que se señalan (en
  * `VistaReto`), los que enseñan la vista previa del sandbox (una condición que
  * nombraba dos tipos a pelo) y las etiquetas de `VistaMundo`. Con ocho tipos ya
- * escocía, y vienen más.
+ * escocía; con doce era insostenible.
  *
  * Y había algo peor que la repetición: la plantilla de `VistaReto` termina en un
  * `v-else` que pinta el editor de código. Un tipo mal cableado no fallaba, salía
@@ -77,6 +77,34 @@ export const TIPOS_DE_RETO = {
     tactil: true,
     vistaPrevia: true,
     referencia: (reto) => reto.solucion,
+  },
+
+  // ---- Los cuatro que se señalan sobre código que no se toca ----------------
+
+  trazar: {
+    etiqueta: 'seguir el hilo',
+    tactil: true,
+    // Se corrige comparando la tabla, sin ejecutar nada del jugador; pero el
+    // código que se lee sí se ejecuta en las pruebas, para que nadie publique
+    // una traza que no es la que de verdad pasa.
+    referencia: (reto) => reto.codigoMostrado,
+  },
+  'cazar-linea': {
+    etiqueta: 'cazar la línea',
+    tactil: true,
+    // El código que se enseña está roto a propósito: ejecutarlo es justamente
+    // lo que no se puede hacer.
+    referencia: null,
+  },
+  etiquetar: {
+    etiqueta: 'poner nombre',
+    tactil: true,
+    referencia: null,
+  },
+  'verdadero-o-falso': {
+    etiqueta: 'verdadero o falso',
+    tactil: true,
+    referencia: null,
   },
 }
 

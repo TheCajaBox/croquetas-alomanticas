@@ -2,7 +2,7 @@ import { readFileSync } from 'node:fs'
 import { createContext, runInContext } from 'node:vm'
 import { describe, expect, it } from 'vitest'
 
-import { hayApunte } from '../src/contenido/apuntes/index.js'
+import { cargarApunte, hayApunte } from '../src/contenido/apuntes/index.js'
 import { RETOS } from '../src/contenido/retos/index.js'
 import { SIN_CODIGO, codigoDeReferencia, revisarTactil } from './revisarRetos.js'
 import { analizar, inyectarGuardaDeBucles } from '../src/motor/guardaBucles.js'
@@ -80,6 +80,33 @@ describe('todos los retos traen apunte, y pistas los que deben', () => {
       }
       expect(reto.pistas?.length, 'sin las tres pistas').toBe(3)
       expect(reto.recompensa?.croquetas, 'sin recompensa').toBeGreaterThan(0)
+    })
+  }
+})
+
+/**
+ * El apunte es gratis y se abre en la misma pantalla que el reto. Eso está muy
+ * bien para enseñar y es un desastre si el ejemplo del apunte **es** la
+ * solución: entonces el reto no se resuelve, se copia.
+ *
+ * Pasaba de verdad con el jefe del primer mundo, que pedía escribir `saludar` y
+ * traía la función entera escrita justo encima. Wax tiene que enseñar el
+ * concepto con otro ejemplo, para que haya que trasladarlo.
+ */
+describe('ningún apunte regala la solución de su propio reto', () => {
+  const aplanar = (texto) => (texto ?? '').replace(/\s+/g, ' ').trim()
+
+  for (const reto of RETOS) {
+    it(reto.id, async () => {
+      const solucion = aplanar(codigoDeReferencia(reto))
+      // Los fragmentos cortos coinciden por casualidad y no revelan nada.
+      if (!solucion || solucion.length < 40) return
+      // En los de predecir y trazar el código mostrado ES el enunciado, y el
+      // apunte puede explicarlo: ahí no hay nada que esconder.
+      if (['prediccion', 'trazar'].includes(reto.tipo)) return
+
+      const apunte = aplanar(await cargarApunte(reto.id))
+      expect(apunte.includes(solucion), 'el apunte trae la solución escrita').toBe(false)
     })
   }
 })

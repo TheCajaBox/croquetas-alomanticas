@@ -1,0 +1,50 @@
+import { codigo, pista } from '../comun.js'
+
+export default {
+  id: "dia1-06b-poner-nombre",
+  mundo: "primer-dia",
+  entorno: "worker",
+  tipo: "etiquetar",
+  titulo: "Cada parte tiene su nombre",
+  enunciado: codigo(
+    "Antes de escribir tu primera función conviene saber cómo se llama cada trozo,",
+    "porque a partir de aquí todo el mundo va a dar por hecho que lo sabes: los",
+    "enunciados, los mensajes de error y cualquier cosa que busques por ahí.",
+    "",
+    "Elige un nombre de la lista y pulsa el trozo de código al que le corresponde.",
+    "Sobran nombres a propósito.",
+  ),
+  fragmentos: [
+    { texto: "function " },
+    { texto: "saludar", etiqueta: "nombre de la función" },
+    { texto: "(" },
+    { texto: "nombre", etiqueta: "parámetro" },
+    { texto: ") {\n  " },
+    { texto: "return `Buenas, ${nombre}`", etiqueta: "cuerpo" },
+    { texto: "\n}\n\n" },
+    { texto: "saludar('Wayne')", etiqueta: "llamada" },
+  ],
+  etiquetas: [
+    "nombre de la función",
+    "parámetro",
+    "cuerpo",
+    "llamada",
+    "argumento",
+    "variable",
+    "bucle",
+  ],
+  porque: codigo(
+    "La diferencia que más se confunde es **parámetro** y **argumento**, y merece la pena",
+    "fijarla ahora: `nombre` es el parámetro —el hueco que la función deja para que le",
+    "pasen algo— y `'Wayne'` es el argumento —lo que se le pasa de verdad al llamarla—.",
+    "",
+    "El parámetro se escribe una vez, al declarar la función. Los argumentos se escriben",
+    "cada vez que la llamas, y pueden ser distintos en cada llamada.",
+  ),
+  pistas: [
+    pista("Mira dónde está cada trozo: lo que va entre paréntesis en la declaración no es lo mismo que lo que va entre paréntesis al usarla.", 0),
+    pista("El nombre de la función es lo que va justo después de `function`. El cuerpo es lo que hay entre las llaves, o sea lo que la función hace.", 1),
+    pista("Quedan dos que se parecen mucho: uno está en la línea donde se declara la función y el otro en la línea donde se usa. La palabra «llamada» describe usarla.", 2),
+  ],
+  recompensa: { croquetas: 5 },
+}
