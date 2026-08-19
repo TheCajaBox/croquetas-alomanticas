@@ -2,6 +2,8 @@
 import { computed } from 'vue'
 
 import wayne from '../recursos/wayne-avatar.webp'
+import marasi from '../recursos/marasi-avatar.webp'
+import melaan from '../recursos/melaan-avatar.webp'
 import steris from '../recursos/steris-avatar.webp'
 import wax from '../recursos/wax-avatar.webp'
 
@@ -10,7 +12,8 @@ import wax from '../recursos/wax-avatar.webp'
  *
  * Son las ilustraciones de los personajes, recortadas del fondo y compuestas
  * sobre un disco con los colores que cada uno tiene en la interfaz: el cobre de
- * Wayne, el azul acero de Wax, el lavanda de Steris. Sobre un disco y no
+ * Wayne, el azul acero de Wax, el lavanda de Steris, el granate de Marasi y
+ * el jade de MeLaan. Sobre un disco y no
  * recortadas a pelo, porque
  * una cabeza sin fondo dentro de un círculo se lee como una cabeza flotando y
  * no como un avatar.
@@ -18,8 +21,8 @@ import wax from '../recursos/wax-avatar.webp'
  * Se importan como módulos para que Vite les ponga su hash y su ruta base;
  * escritas a mano, esas rutas se romperían al publicar en GitHub Pages.
  */
-const CARAS = { wayne, wax, steris }
-const NOMBRES = { wayne: 'Wayne', wax: 'Wax', steris: 'Steris' }
+const CARAS = { wayne, wax, steris, marasi, melaan }
+const NOMBRES = { wayne: 'Wayne', wax: 'Wax', steris: 'Steris', marasi: 'Marasi', melaan: 'MeLaan' }
 
 const props = defineProps({
   quien: { type: String, default: 'wayne' },

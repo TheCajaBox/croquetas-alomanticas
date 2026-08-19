@@ -13,6 +13,13 @@ import wayneRetrato from '../recursos/wayne-retrato.webp'
 const progreso = usarProgreso()
 const gatos = usarGatos()
 
+const NUMEROS = ['Cero', 'Un', 'Dos', 'Tres', 'Cuatro', 'Cinco', 'Seis', 'Siete', 'Ocho', 'Nueve']
+
+// Contar los mundos y los retos a mano en el texto es una promesa que se rompe
+// sola: se añade contenido y la portada se queda mintiendo. Se calculan.
+const cuantosMundos = computed(() => NUMEROS[MUNDOS.length] ?? MUNDOS.length)
+const cuantosRetos = computed(() => MUNDOS.reduce((suma, mundo) => suma + retosDelMundo(mundo.id).length, 0))
+
 const mundos = computed(() =>
   MUNDOS.map((mundo) => {
     const total = retosDelMundo(mundo.id).length
@@ -24,6 +31,8 @@ const mundos = computed(() =>
       porcentaje: total ? Math.round((hechos / total) * 100) : 0,
       disponible: progreso.mundoDisponible(mundo.id),
       completado: progreso.mundoCompletado(mundo.id),
+      // Cada mundo cerrado dice cuál es el que lo abre, no siempre el primero.
+      loAbre: MUNDOS.find((otro) => otro.id === mundo.requiere)?.nombre ?? null,
     }
   }),
 )
@@ -39,7 +48,7 @@ const colonia = computed(() => gatos.adoptados)
       <div class="texto-portada">
         <h1>Aprende a programar y págalo en croquetas</h1>
         <p class="tenue entradilla">
-          Cuatro mundos, veintiocho retos y código que se ejecuta de verdad: nada de elegir
+          {{ cuantosMundos }} mundos, {{ cuantosRetos }} retos y código que se ejecuta de verdad: nada de elegir
           la respuesta correcta de una lista. Se empieza señalando y colocando piezas, y se
           acaba montando componentes de Vue.
         </p>
@@ -98,7 +107,7 @@ const colonia = computed(() => gatos.adoptados)
         <p class="tenue resumen">{{ mundo.resumen }}</p>
 
         <p v-if="!mundo.disponible" class="tenue candado">
-          Antes hay que terminar Los Áridos.
+          Antes hay que terminar {{ mundo.loAbre }}.
         </p>
 
         <div v-else class="avance">

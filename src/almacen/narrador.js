@@ -1,6 +1,12 @@
 import { defineStore } from 'pinia'
 
-import { EVENTOS_IMPORTANTES, LINEAS, LINEAS_DE_WAX } from '../contenido/narrador/lineas.js'
+import {
+  EVENTOS_IMPORTANTES,
+  LINEAS,
+  LINEAS_DE_MARASI,
+  LINEAS_DE_MELAAN,
+  LINEAS_DE_WAX,
+} from '../contenido/narrador/lineas.js'
 import { autoguardar } from './persistencia.js'
 
 /** Cuántas frases recientes se recuerdan por evento para no repetirlas. */
@@ -9,11 +15,13 @@ const MEMORIA = 3
 /** Eventos que con la verborrea normal sobran: son ruido de Wayne, no información. */
 const SOLO_CON_VERBORREA_ALTA = new Set(['primerIntento', 'gatoCuidado'])
 
-const SACOS = { wayne: LINEAS, wax: LINEAS_DE_WAX }
+const SACOS = { wayne: LINEAS, wax: LINEAS_DE_WAX, marasi: LINEAS_DE_MARASI, melaan: LINEAS_DE_MELAAN }
 
 export const PERSONAJES = {
   wayne: { nombre: 'Wayne' },
   wax: { nombre: 'Wax' },
+  marasi: { nombre: 'Marasi' },
+  melaan: { nombre: 'MeLaan' },
 }
 
 export const NIVELES_DE_VERBORREA = [
@@ -29,6 +37,8 @@ export const usarNarrador = defineStore('narrador', {
     mensaje: null,
     /** Wax se presenta una sola vez en toda la partida. */
     waxSePresento: false,
+    /** Y quien presenta un mundo, igual: la segunda vez ya te conoce. */
+    presentados: [],
   }),
 
   getters: {
@@ -37,7 +47,9 @@ export const usarNarrador = defineStore('narrador', {
      * porque llevas un rato atascado, y eso es información, no cháchara.
      */
     leTocaHablar: (estado) => (evento, personaje = 'wayne') => {
-      if (personaje === 'wax') return true
+      // Solo Wayne está de cháchara. Cuando habla cualquier otro es porque
+      // trae algo que hace falta saber.
+      if (personaje !== 'wayne') return true
       if (estado.verborrea === 'callado') return EVENTOS_IMPORTANTES.has(evento)
       if (estado.verborrea === 'normal') return !SOLO_CON_VERBORREA_ALTA.has(evento)
       return true
@@ -83,6 +95,21 @@ export const usarNarrador = defineStore('narrador', {
 
       this.mensaje = { texto, evento, personaje, cuando: Date.now() }
       return texto
+    },
+
+    /**
+     * Se entra en un mundo. Si ese mundo tiene dueño, sale a recibirte y se
+     * presenta la primera vez; el resto los abre Wayne, que se apunta a todo.
+     */
+    entrarAlMundo(mundo) {
+      const anfitrion = mundo?.anfitrion
+      // Presentarse dos veces es de no acordarse de con quién hablas. A partir
+      // de la segunda visita el mundo lo abre Wayne, como todos los demás.
+      if (anfitrion && !this.presentados.includes(anfitrion)) {
+        this.presentados = [...this.presentados, anfitrion]
+        return this.decir('presentacion', {}, { personaje: anfitrion, forzar: true })
+      }
+      return this.decir('entrarAlMundo')
     },
 
     /**

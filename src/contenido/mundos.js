@@ -58,6 +58,21 @@ export const MUNDOS = [
     despedida:
       'Ciudad nueva conquistada. Y ahora ya puedes discutir de las dos con conocimiento de causa, que es lo peligroso.',
   },
+  {
+    id: 'melaan',
+    nombre: 'Cambio de forma',
+    subtitulo: 'Reescribir lo que ya funciona',
+    entorno: 'vue3',
+    requiere: 'vue3',
+    color: '#4fb89c',
+    // Quien recibe al llegar. Los demás mundos los abre Wayne por defecto.
+    anfitrion: 'melaan',
+    resumen: 'El mismo comportamiento, otra forma. Bucles a métodos, promesas a async, Options API a Composition.',
+    presentacion:
+      'MeLaan puede ser cualquiera sin dejar de ser ella. Aquí se hace lo mismo con el código: nada de lo que escribas va a cambiar de comportamiento, solo de forma. Y eso, que suena a capricho, es la mitad del oficio.',
+    despedida:
+      'Ya sabes cambiar de forma sin cambiar de fondo. Es lo que más vas a hacer en un trabajo de verdad: casi nunca escribes algo desde cero, casi siempre reescribes algo que ya estaba.',
+  },
 ]
 
 export const MUNDOS_POR_ID = Object.fromEntries(MUNDOS.map((mundo) => [mundo.id, mundo]))

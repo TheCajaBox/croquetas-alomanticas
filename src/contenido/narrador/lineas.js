@@ -224,6 +224,61 @@ export const LINEAS_DE_WAX = {
 }
 
 /**
+ * Lo que dice Marasi.
+ *
+ * Lleva los repasos. Es la que se toma en serio lo que ya has visto y comprueba
+ * si sigue ahí, porque resolver algo una vez y no volver a verlo nunca es la
+ * forma más rápida de olvidarlo.
+ */
+export const LINEAS_DE_MARASI = {
+  presentacion: [
+    'Marasi Colms. Me interesa menos lo que sabes resolver que lo que recuerdas una semana después, así que he preparado unas preguntas sobre lo que ya has visto.',
+  ],
+
+  abreCaso: [
+    'He revisado por dónde vas y he sacado las preguntas de lo que más se confunde. No es un examen: es para ver qué se ha quedado.',
+    'Seis preguntas sobre lo que ya has hecho. Si fallas alguna, mejor: eso es exactamente lo que había que encontrar.',
+  ],
+
+  bordado: [
+    'Todas. Y sin dudar en ninguna, por lo que he visto. Eso se ha quedado.',
+    'Pleno. Lo digo con conocimiento de causa: estas preguntas están puestas donde la gente falla.',
+  ],
+
+  bien: [
+    'La mayoría. Lo que has fallado no es casualidad, así que vuelve al apunte de ese reto y léelo otra vez con calma.',
+    'Bastante bien. Apunta lo que has fallado; son justo los sitios donde volverás a tropezar.',
+  ],
+
+  flojo: [
+    'Menos de la mitad. No es un problema: significa que ese mundo hay que volver a leerlo, no que no valgas para esto.',
+    'Ha ido flojo. Es información útil: ya sabes exactamente qué repasar, y eso vale más que un aprobado.',
+  ],
+}
+
+/**
+ * Lo que dice MeLaan.
+ *
+ * Se dedica a las reescrituras, que es lo suyo: cambiar de forma sin dejar de
+ * ser lo mismo.
+ */
+export const LINEAS_DE_MELAAN = {
+  presentacion: [
+    'MeLaan. Cambiar de forma se me da bien, así que me han puesto con esto. Tranquilo, que aquí nada de lo que escribas va a cambiar de comportamiento: solo de aspecto.',
+  ],
+
+  funcionaYaLoSe: [
+    'Ya sé que funciona. Ese es el asunto: reescribir algo que está roto es arreglarlo, y no tiene ningún mérito. Reescribir algo que funciona es lo difícil.',
+    'Sí, los tests pasan. Ejecútalo antes de tocar nada y compruébalo, que luego querrás saber que estaban verdes al empezar.',
+  ],
+
+  mismaCosa: [
+    'Misma cosa, otra cara. Es exactamente lo que hago yo, y te aseguro que tiene más trabajo del que parece.',
+    'Lo has cambiado entero y hace lo mismo que antes. Eso, hecho bien, es medio oficio.',
+  ],
+}
+
+/**
  * Eventos que Wayne suelta incluso con la verborrea al mínimo: son los que
  * llevan información útil, no los que solo llevan a Wayne.
  */

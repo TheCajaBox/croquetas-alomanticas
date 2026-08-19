@@ -22,7 +22,7 @@ El progreso se guarda en el navegador (`localStorage`), sin cuentas ni servidore
 y el ordenador son partidas distintas; en **Ajustes** hay exportar e importar para pasarla
 de uno a otro.
 
-## Los cuatro mundos
+## Los cinco mundos
 
 | Mundo | Qué se aprende | Retos |
 |---|---|---|
@@ -30,16 +30,19 @@ de uno a otro.
 | **Los Áridos** | JavaScript ES6: ámbito, flechas y `this`, desestructuración, `map`/`filter`/`reduce`, `?.` y `??`, promesas | 10 |
 | **La mansión Ladrian** | Vue 2 con Options API: `data`, directivas, `computed` frente a `methods`, los caveats de reactividad y `$set`, props y `$emit`, ciclo de vida | 7 |
 | **La Nueva Seran** | Vue 3 con Composition API: `ref` y `reactive`, `computed`, `watch` frente a `watchEffect`, `provide`/`inject`, composables | 7 |
+| **Cambio de forma** | Refactorizar: bucles a métodos, `var` a `const`, repetición a función, `.then` a `async`/`await`, Options API a Composition | 7 |
 
 El primer día es la rampa de entrada: se empieza señalando y colocando piezas, no
 escribiendo. Los Áridos son la base común de JavaScript, y a partir de ahí las dos rutas de
-Vue son independientes y se juegan en el orden que se quiera.
+Vue son independientes y se juegan en el orden que se quiera. Cambio de forma se abre al
+terminar La Nueva Seran y es el único mundo donde se empieza con el código ya funcionando:
+lo que se aprende ahí no es hacer que funcione, es dejarlo legible sin romperlo.
 
 Dentro de Los Áridos hay tres retos puente colocados justo antes de los dos escalones que
 más se notan: uno sobre pasar una función a otra función, antes de pelearse con `this`, y dos
 sobre los métodos de las listas, antes de escribir `map` y `reduce` a pelo.
 
-Hay siete clases de reto, y solo tres piden escribir código:
+Hay ocho clases de reto, y solo cuatro piden escribir código:
 
 - **Elegir** la respuesta, con el porqué de todas las opciones, también de las falsas.
 - **Emparejar** conceptos con lo que significan.
@@ -48,16 +51,18 @@ Hay siete clases de reto, y solo tres piden escribir código:
 - **Predecir** qué va a imprimir un código, que después se ejecuta delante de ti.
 - **Escribir** una solución desde cero.
 - **Cazar el fallo** en código que casi funciona.
+- **Reescribir** código que ya funciona, con los tests verdes desde el principio como red.
 
-## Los tres que te acompañan
+## Los cinco que te acompañan
 
 **Wayne** es el juego. Preside la portada, narra, se burla y te vende pistas: la primera
 gratis, las otras a precio de amigo. Habla también cuando no ha pasado nada, porque se
 aburre.
 
-Los dos tienen su cara: las ilustraciones de los personajes, recortadas del fondo y
+Todos tienen su cara: las ilustraciones de los personajes, recortadas del fondo y
 compuestas sobre un disco con el color que cada uno lleva en la interfaz — el cobre de Wayne,
-el azul acero de Wax. Viven en `src/recursos/`, pesan 73 kB entre las tres y se importan como
+el azul acero de Wax, el gris ordenado de Steris, el vino de Marasi, el jade de MeLaan.
+Viven en `src/recursos/`, pesan 126 kB entre las seis y se importan como
 módulos para que Vite les ponga su hash y su ruta base; escritas a mano, esas rutas se
 romperían al publicar en Pages.
 
@@ -91,6 +96,18 @@ Y antes de todo está **la antesala**: su orientación para quien no ha visto c�
 vida. Qué es un programa, qué es JavaScript, qué pinta Vue y por qué aquí hay dos versiones,
 cómo funciona el juego y qué hacer cuando algo se atasca. Dos minutos, y se puede volver
 cuando sea.
+
+**Marasi** llega al final de cada mundo con el expediente debajo del brazo: seis preguntas
+sobre lo que se acaba de ver, con el porqué de todas las opciones, también de las que no
+elegiste. No cuentan para el progreso y se pueden repetir tantas veces como quieras, pero
+**solo se cobra lo que se mejore**: repetir un repaso bordado no da ni una croqueta más.
+Resolver algo una vez y no volver a verlo nunca es la forma más rápida de olvidarlo.
+
+**MeLaan** es la única que aparece con un mundo propio. Cambiar de forma se le da bien, así
+que le toca el mundo donde nada cambia de comportamiento y todo cambia de aspecto: los siete
+retos de Cambio de forma parten de código que ya pasa sus tests, y el reto es dejarlo mejor
+sin ponerlos rojos ni una vez. Es el único sitio del juego donde el enunciado empieza
+diciendo «esto funciona».
 
 ## Los gatos
 
@@ -134,7 +151,7 @@ de lo que se anima hace falta para jugar.
 ```bash
 npm install     # instala y copia los runtimes de Vue a public/vendor/
 npm run dev
-npm test        # motor, almacenes y las 21 soluciones de referencia
+npm test        # motor, almacenes y las soluciones de referencia de los 38 retos
 npm run test:e2e
 ```
 

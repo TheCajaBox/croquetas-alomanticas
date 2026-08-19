@@ -36,7 +36,7 @@ const mundo = computed(() => MUNDOS_POR_ID[reto?.mundo])
 const siguiente = computed(() => (reto ? retoSiguiente(reto) : null))
 const esPrediccion = computed(() => reto?.tipo === 'prediccion')
 /** Los que se escriben a mano: editor, botón de ejecutar y requisitos en vivo. */
-const seEscribe = computed(() => ['codigo', 'bug'].includes(reto?.tipo))
+const seEscribe = computed(() => ['codigo', 'bug', 'refactor'].includes(reto?.tipo))
 /** Los que se resuelven señalando y colocando: traen su propio botón. */
 const esTactil = computed(() => ['eleccion', 'emparejar', 'ordenar', 'completar'].includes(reto?.tipo))
 

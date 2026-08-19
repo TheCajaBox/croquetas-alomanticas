@@ -50,12 +50,13 @@ test.beforeEach(async ({ page }) => {
   await page.evaluate(() => localStorage.clear())
 })
 
-test('la portada presenta los cuatro mundos', async ({ page }) => {
+test('la portada presenta los cinco mundos', async ({ page }) => {
   await page.goto('')
   await expect(page.getByRole('heading', { name: 'El primer día' })).toBeVisible()
   await expect(page.getByRole('heading', { name: 'Los Áridos' })).toBeVisible()
   await expect(page.getByRole('heading', { name: 'La mansión Ladrian' })).toBeVisible()
   await expect(page.getByRole('heading', { name: 'La Nueva Seran' })).toBeVisible()
+  await expect(page.getByRole('heading', { name: 'Cambio de forma' })).toBeVisible()
 })
 
 for (const [retoId, solucion] of Object.entries(SOLUCIONES)) {
@@ -239,4 +240,83 @@ test('la antesala explica de qué va todo esto', async ({ page }) => {
   // Leída una vez, la portada deja de insistir.
   await page.goto('')
   await expect(page.getByText('¿No has programado nunca?')).toHaveCount(0)
+})
+
+test('un reto de refactor de MeLaan valida la forma, no solo el resultado', async ({ page }) => {
+  await irAlReto(page, 'melaan-01-de-bucle-a-metodo')
+
+  // El código de partida ya pasa los tests: lo que suspende es la forma.
+  await page.getByRole('button', { name: 'Ejecutar' }).click()
+  await expect(page.locator('.resultados')).toContainText('Las normas del reto')
+  await expect(page.locator('.resultados')).not.toContainText('Reto superado')
+
+  await escribirCodigo(page, `function nombresCaros(metales, minimo) {
+  return metales
+    .filter((metal) => metal.precio >= minimo)
+    .map((metal) => metal.nombre.toUpperCase())
+}
+
+function valorTotal(metales) {
+  return metales.reduce((suma, metal) => suma + metal.precio, 0)
+}`)
+  await page.getByRole('button', { name: 'Ejecutar' }).click()
+  await expect(page.locator('.resultados')).toContainText('Reto superado')
+})
+
+test('el repaso de Marasi corrige, explica y paga una sola vez', async ({ page }) => {
+  /** Contesta el repaso entero eligiendo siempre la primera opción. */
+  async function contestarloEntero() {
+    const repaso = page.locator('.repaso')
+    for (let i = 0; i < 30; i += 1) {
+      if (await repaso.locator('.resultado').isVisible()) return
+      const opciones = repaso.locator('.eleccion')
+      await expect(opciones.first()).toBeVisible()
+      await opciones.first().click()
+      // Al contestar se revela el porqué de cada opción, también de las falsas.
+      await expect(repaso.locator('.porque').first()).toBeVisible()
+      await repaso.locator('.siguiente').click()
+      // Hasta que el porqué desaparece, la pregunta que se ve sigue siendo la vieja.
+      await expect(repaso.locator('.porque')).toHaveCount(0)
+    }
+    throw new Error('el repaso no termina')
+  }
+
+  // El repaso solo se abre con el mundo terminado: se da por resuelto de antemano
+  // para no repetir aquí los siete retos del primer día, que ya se prueban aparte.
+  // Se siembra antes de que arranque la app, porque el autoguardado pisa
+  // cualquier cosa que se escriba en localStorage con la partida ya en marcha.
+  await page.addInitScript(() => {
+    const ids = [
+      'dia1-01-variables',
+      'dia1-02-tipos',
+      'dia1-03-const-o-let',
+      'dia1-04-rellenar',
+      'dia1-05-ordenar',
+      'dia1-06-que-imprime',
+      'dia1-07-primera-funcion',
+    ]
+    const retos = {}
+    for (const id of ids) {
+      retos[id] = { superado: true, intentos: 1, pistasUsadas: 0, superadoEn: Date.now() }
+    }
+    localStorage.setItem('gatosYCodigo', JSON.stringify({ version: 1, progreso: { retos } }))
+  })
+
+  // Recargar de verdad: el guion sembrado solo corre al cargar el documento, y
+  // saltar de almohadilla en almohadilla no recarga nada.
+  await page.goto('#/repaso/primer-dia')
+  await page.reload()
+  await expect(page.locator('.repaso .quien')).toHaveText('El caso de Marasi')
+
+  await contestarloEntero()
+  await expect(page.locator('.marcador')).toBeVisible()
+  await expect(page.locator('.pago')).toBeVisible()
+
+  const croquetas = await page.locator('.contador.croquetas').textContent()
+
+  // Repetirlo con el mismo acierto no vuelve a pagar: solo se cobra la mejora.
+  await page.getByRole('button', { name: 'Repetirlo' }).click()
+  await contestarloEntero()
+  await expect(page.locator('.pago')).toContainText('Solo se cobra lo que se mejora')
+  await expect(page.locator('.contador.croquetas')).toHaveText(croquetas)
 })

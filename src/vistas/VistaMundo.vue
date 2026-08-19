@@ -5,20 +5,36 @@ import { useRouter } from 'vue-router'
 
 import { MUNDOS_POR_ID } from '../contenido/mundos.js'
 import { retosDelMundo } from '../contenido/retos/index.js'
+import Avatar from '../componentes/Avatar.vue'
+import { REPASOS_POR_MUNDO } from '../contenido/repasos.js'
+import { usarNarrador } from '../almacen/narrador.js'
 import { usarProgreso } from '../almacen/progreso.js'
+import { usarRepasos } from '../almacen/repasos.js'
 
 const props = defineProps({ mundoId: { type: String, required: true } })
 
 const router = useRouter()
 const progreso = usarProgreso()
+const repasos = usarRepasos()
+const narrador = usarNarrador()
+
+const repaso = computed(() =>
+  progreso.mundoCompletado(props.mundoId) ? REPASOS_POR_MUNDO[props.mundoId] : null,
+)
 
 const mundo = computed(() => MUNDOS_POR_ID[props.mundoId])
+
+narrador.entrarAlMundo(mundo.value)
 
 const TIPOS = {
   codigo: 'escribir',
   bug: 'cazar el fallo',
+  refactor: 'reescribir',
   prediccion: 'acertijo',
-  orden: 'ordenar',
+  eleccion: 'elegir',
+  emparejar: 'emparejar',
+  ordenar: 'ordenar',
+  completar: 'rellenar',
 }
 
 const retos = computed(() =>
@@ -49,6 +65,20 @@ if (!mundo.value || !progreso.mundoDisponible(props.mundoId)) router.replace('/'
       <p class="presentacion">{{ mundo.presentacion }}</p>
       <p v-if="progreso.mundoCompletado(mundoId)" class="despedida">{{ mundo.despedida }}</p>
     </section>
+
+    <RouterLink v-if="repaso" :to="{ name: 'repaso', params: { mundoId } }" class="panel caso">
+      <Avatar quien="marasi" :tamano="48" />
+      <div>
+        <p class="titulo-caso">{{ repaso.titulo }}</p>
+        <p class="tenue">
+          Marasi repasa lo de este mundo con {{ repaso.preguntas.length }} preguntas.
+          <template v-if="repasos.hecho(repaso.id)">
+            Tu mejor marca: {{ repasos.mejor(repaso.id) }} de {{ repaso.preguntas.length }}.
+          </template>
+        </p>
+      </div>
+      <span class="flecha" aria-hidden="true">→</span>
+    </RouterLink>
 
     <ol class="retos escalonado">
       <li v-for="(reto, orden) in retos" :key="reto.id" :style="{ '--orden': orden }">
@@ -89,6 +119,20 @@ if (!mundo.value || !progreso.mundoDisponible(props.mundoId)) router.replace('/'
   border-radius: 0 8px 8px 0;
   font-size: 0.9rem;
 }
+
+.caso {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  text-decoration: none;
+  color: inherit;
+  border-left: 3px solid #c0697e;
+  transition: transform 0.14s, background 0.14s;
+}
+.caso:hover { transform: translateX(3px); background: var(--panel-alto); }
+.titulo-caso { margin: 0 0 3px; font-weight: 650; }
+.caso p.tenue { margin: 0; font-size: 0.87rem; }
+.caso .flecha { margin-left: auto; color: #c0697e; font-size: 1.2rem; }
 
 .retos { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 10px; }
 .reto {

@@ -125,6 +125,10 @@ export const COMPROBACIONES = {
     mensaje: (valor) => `Aquí falta \`${valor}\` por alguna parte.`,
     cumple: (r, valor) => r.identificadores.has(valor),
   },
+  prohibePropiedad: {
+    mensaje: (valor) => `Aquí sobra \`${valor}\`: precisamente se trata de escribirlo de otra manera.`,
+    cumple: (r, valor) => !r.propiedades.has(valor),
+  },
   usaPropiedad: {
     mensaje: (valor) => `Al objeto le falta la propiedad \`${valor}\`.`,
     cumple: (r, valor) => r.propiedades.has(valor),

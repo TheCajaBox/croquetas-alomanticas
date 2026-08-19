@@ -9,6 +9,7 @@ import { engancharGlosario, usarGlosario } from './almacen/glosario.js'
 import { engancharNarrador, usarNarrador } from './almacen/narrador.js'
 import { engancharProgreso, usarProgreso } from './almacen/progreso.js'
 import { engancharRecortes, usarRecortes } from './almacen/recortes.js'
+import { engancharRepasos, usarRepasos } from './almacen/repasos.js'
 import { engancharSombreros, usarSombreros } from './almacen/sombreros.js'
 import { usarJuego } from './almacen/juego.js'
 import './estilos/base.css'
@@ -30,6 +31,7 @@ engancharNarrador(usarNarrador(pinia))
 engancharSombreros(usarSombreros(pinia))
 engancharRecortes(usarRecortes(pinia))
 engancharGlosario(usarGlosario(pinia))
+engancharRepasos(usarRepasos(pinia))
 
 usarJuego(pinia).arrancarSesion()
 
