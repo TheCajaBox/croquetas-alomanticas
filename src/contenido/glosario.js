@@ -445,6 +445,170 @@ export const GLOSARIO = [
     definicion:
       "Un hueco que un componente deja para que quien lo use meta dentro lo que quiera. Es lo que convierte un componente en algo reutilizable de verdad.",
   },
+  {
+    id: "falsy",
+    termino: "falsy",
+    alias: ["truthy"],
+    definicion:
+      "Los seis valores que un `if` considera falsos: `false`, `0`, el texto vacío, `null`, `undefined` y `NaN`. Todo lo demás entra en el `if`, incluidos `'0'`, `[]` y `{}`.",
+    ejemplo: "if ([]) { /* entra: una lista vacía no es falsy */ }",
+  },
+  {
+    id: "expresion",
+    termino: "expresión",
+    alias: ["expresiones"],
+    definicion:
+      "Un trozo de código que **vale algo**: un número, una cuenta, una comparación, una llamada. Se puede poner donde se espera un valor.",
+    ejemplo: "edad >= 18",
+  },
+  {
+    id: "propagacion",
+    termino: "propagación",
+    alias: ["spread"],
+    definicion:
+      "Esparcir lo que hay dentro de una lista o un objeto en otro sitio, con tres puntos. Es la forma de copiar un nivel y de juntar dos cosas.",
+    ejemplo: "const copia = { ...original, rango: 'inspector' }",
+  },
+  {
+    id: "resto",
+    termino: "resto",
+    alias: ["rest"],
+    definicion:
+      "Los mismos tres puntos al revés: recoger en una variable todo lo que no se nombró.",
+    ejemplo: "const { nombre, ...loDemas } = ficha",
+  },
+  {
+    id: "ternario",
+    termino: "ternario",
+    definicion:
+      "Un `if` que vale un valor, en una línea: condición, interrogación, lo de sí, dos puntos, lo de no. Para elegir entre dos valores, no para hacer dos cosas.",
+    ejemplo: "const tarifa = esSocio ? 10 : 25",
+  },
+  {
+    id: "guarda",
+    termino: "cláusula de guarda",
+    alias: ["guarda"],
+    definicion:
+      "Quitar de en medio los casos raros al principio de una función con un `return`, para que el caso normal quede al final y sin sangrar.",
+    ejemplo: "if (!ficha) return null",
+  },
+  {
+    id: "efecto",
+    termino: "efecto secundario",
+    alias: ["efecto"],
+    definicion:
+      "Todo lo que una función hace además de devolver un valor: guardar algo, pedir datos, cambiar una variable de fuera. Es lo que hace que llamarla dos veces no dé lo mismo.",
+  },
+  {
+    id: "cache",
+    termino: "caché",
+    definicion:
+      "Guardarse el resultado de un cálculo para no repetirlo mientras no cambie nada de lo que depende. Es lo que hace un `computed`.",
+  },
+  {
+    id: "refactorizar",
+    termino: "refactorizar",
+    alias: ["refactorización"],
+    definicion:
+      "Cambiar cómo está escrito algo sin cambiar lo que hace. Si el comportamiento cambia, aunque sea a mejor, ya no es refactorizar.",
+  },
+  {
+    id: "depurar",
+    termino: "depurar",
+    alias: ["depuración"],
+    definicion:
+      "Buscar por qué un programa hace algo distinto de lo que esperabas. No es adivinar: es acorralar el fallo mirando qué vale cada cosa en cada paso.",
+  },
+  {
+    id: "clase",
+    termino: "clase",
+    alias: ["clases"],
+    definicion:
+      "Un molde para fabricar objetos que traen su propio comportamiento. La clase es el molde; cada objeto hecho con ella es una instancia.",
+    ejemplo: "class Agente extends Persona { ... }",
+  },
+  {
+    id: "constructor",
+    termino: "constructor",
+    definicion:
+      "La función que prepara un objeto recién creado. La llama `new` por ti, una sola vez, y es donde se le ponen sus datos.",
+    ejemplo: "constructor(nombre) { this.nombre = nombre }",
+  },
+  {
+    id: "herencia",
+    termino: "herencia",
+    alias: ["heredar"],
+    definicion:
+      "Que una clase se quede con todo lo de otra y añada lo suyo. Solo encaja cuando una **es** un tipo de la otra, no cuando la tiene dentro.",
+  },
+  {
+    id: "getter",
+    termino: "getter",
+    alias: ["getters"],
+    definicion:
+      "Una función de una clase que se lee como si fuera un dato, sin paréntesis. Para lo que se puede deducir de lo que ya hay.",
+    ejemplo: "get caro() { return this.precio > 20 }",
+  },
+  {
+    id: "conjunto",
+    termino: "Set",
+    definicion:
+      "Una colección sin repetidos. Preguntarle si algo está es inmediato, por muchos elementos que tenga.",
+    ejemplo: "const sinRepetir = [...new Set(lista)]",
+  },
+  {
+    id: "diccionario",
+    termino: "diccionario",
+    definicion:
+      "Una colección de pares clave-valor. En JavaScript, un objeto normal si las claves son texto y las conoces, o un `Map` si admiten cualquier cosa y crecen. (No lleva alias `Map` a propósito: chocaría con el método `map` de las listas, que es otra cosa.)",
+    ejemplo: "porAgente.set(wax, ['Bleeder'])",
+  },
+  {
+    id: "ruta",
+    termino: "ruta",
+    alias: ["rutas", "enrutador"],
+    definicion:
+      "La dirección que identifica una pantalla. Es lo que permite compartir un enlace, volver atrás y recargar sin perder dónde estabas.",
+    ejemplo: "{ path: '/reto/:retoId', component: Reto }",
+  },
+  {
+    id: "almacen",
+    termino: "almacén",
+    alias: ["almacenes"],
+    definicion:
+      "Un sitio donde vive un dato que miran varios componentes que no son padre e hijo. Por debajo es un objeto reactivo declarado fuera de toda función.",
+  },
+  {
+    id: "gancho",
+    termino: "gancho",
+    alias: ["ganchos"],
+    definicion:
+      "Una función que le das a Vue para que la llame en un momento concreto de la vida de un componente: al montarse, al desaparecer.",
+    ejemplo: "onMounted(() => caja.value.focus())",
+  },
+  {
+    id: "funcion-de-vuelta",
+    termino: "función de vuelta",
+    alias: ["callback"],
+    definicion:
+      "Una función que le pasas a otra para que la llame ella cuando toque. Quien la recibe decide cuándo y con qué argumentos.",
+    ejemplo: "lista.map((n) => n * 2)",
+  },
+  {
+    id: "inmutable",
+    termino: "inmutable",
+    alias: ["inmutabilidad"],
+    definicion:
+      "La costumbre de no tocar lo que ya existe y devolver algo nuevo en su lugar. Evita de golpe la clase entera de fallos de las copias que no eran copias.",
+    ejemplo: "return { ...agente, rango: 'inspector' }",
+  },
+  {
+    id: "traza",
+    termino: "traza",
+    alias: ["trazar"],
+    definicion:
+      "Seguir la ejecución paso a paso anotando qué vale cada cosa. También, la lista de llamadas que trae un error, de la más reciente a la más antigua.",
+  },
 ]
 
 export const GLOSARIO_POR_ID = Object.fromEntries(GLOSARIO.map((entrada) => [entrada.id, entrada]))

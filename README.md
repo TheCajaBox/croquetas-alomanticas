@@ -127,14 +127,17 @@ de La comisaría —el mundo de los cimientos— y del ferrocarril —donde se m
 entera—, y
 lleva además dos listas, y las dos hacen falta:
 
-- **El glosario.** Sesenta y seis términos explicados sin usar otras palabras técnicas
+- **El glosario.** Ochenta y ocho términos explicados sin usar otras palabras técnicas
   sin explicar. No hay que ir a buscarlos: aparecen **subrayados con puntitos allá donde
   salgan**, en los enunciados y en los apuntes, y se pulsan sin salir del reto. Nunca dentro
   de un bloque de código, donde `map` es una llamada y no una palabra que definir.
 - **La lista de imprevistos.** Los errores de JavaScript salen en inglés y no dicen nada
-  útil: `Cannot read properties of undefined` es un muro para quien empieza. Steris los tiene
-  previstos y los traduce automáticamente a qué significan y a qué suele haberlos causado,
-  justo debajo del error.
+  útil: `Cannot read properties of undefined` es un muro para quien empieza. Steris tiene
+  **veinte** previstos y los traduce automáticamente a qué significan y a qué suele haberlos
+  causado, justo debajo del error. El orden de la lista importa: los patrones concretos van
+  antes que los generales, porque gana el primero que casa. Un HTML devuelto en vez de datos
+  encajaba con el genérico y salía traducido como «hay un símbolo donde no tocaba», que es
+  verdad y no ayuda; ahora dice que el servidor ha mandado una página de error.
 
 Y antes de todo está **la antesala**: su orientación para quien no ha visto código en su
 vida. Qué es un programa, qué es JavaScript, qué pinta Vue y por qué aquí hay dos versiones,

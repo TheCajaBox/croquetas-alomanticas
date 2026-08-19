@@ -67,6 +67,19 @@ las pruebas — antes eran cuatro listas sueltas que había que tocar a la vez:
 - **`completar`** — trae `plantilla` con huecos marcados `___`, un montón de `fichas` (con
   alguna de más, para que no salga por descarte) y una `solucion` de referencia para las
   pruebas. Al enviar también se ejecuta de verdad.
+- **`trazar`** — trae `codigoMostrado`, `variables`, `pasos: [{ etiqueta, valores }]` y
+  `valoresPosibles` (con señuelos). Se rellena la tabla de la ejecución; se corrige
+  comparándola, pero el código sí se ejecuta en las pruebas para que nadie publique una
+  traza que no es la que de verdad pasa.
+- **`cazar-linea`** — trae `codigoMostrado`, `errorMostrado`, `lineaCulpable` (numerada
+  desde 1) y `explicaciones` por número de línea, con al menos dos señuelos explicados.
+- **`etiquetar`** — trae `fragmentos: [{ texto, etiqueta? }]` y `etiquetas` con señuelos.
+  Los fragmentos con `etiqueta` se pueden pulsar; los demás son decorado.
+- **`verdadero-o-falso`** — trae `afirmaciones: [{ texto, verdadera?, porque }]`, entre
+  cuatro y ocho, con `porque` obligatorio en todas y sin que sean todas del mismo signo.
+
+Los señuelos no son adorno: sin ellos, los cuatro se resuelven por descarte, que no es
+reconocer nada. Los mínimos están comprobados en `revisarTactil`, en tests/revisarRetos.js.
 
 ## Retos de predicción
 
