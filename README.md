@@ -11,12 +11,12 @@ del juego a tu favor.
 
 ## Jugar
 
-Está publicado en **https://thecajabox.github.io/Dynamic-Quality-Forms/** — se abre en
+Está publicado en **https://thecajabox.github.io/croquetas-alomanticas/** — se abre en
 cualquier navegador, también en el móvil, y no hace falta instalar nada.
 
-> La primera vez hay que activarlo a mano en el repositorio:
-> **Settings → Pages → Source: GitHub Actions**. A partir de ahí, cada empujón a la rama
-> lo vuelve a publicar solo.
+> Cada empujón a la rama lo vuelve a publicar solo. La ruta de la que cuelga el juego se
+> deduce del nombre del repositorio (ver `scripts/base-del-sitio.mjs`), así que renombrarlo
+> no rompe nada: basta con volver a desplegar.
 
 El progreso se guarda en el navegador (`localStorage`), sin cuentas ni servidores. El móvil
 y el ordenador son partidas distintas; en **Ajustes** hay exportar e importar para pasarla

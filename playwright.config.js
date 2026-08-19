@@ -1,6 +1,10 @@
 import { defineConfig, devices } from '@playwright/test'
 
-const BASE = '/Dynamic-Quality-Forms/'
+import { baseDelSitio } from './scripts/base-del-sitio.mjs'
+
+// La misma ruta base que usa el build: así las pruebas van contra exactamente
+// lo que se publica, incluido el prefijo del que cuelga todo.
+const BASE = baseDelSitio()
 const PUERTO = 4173
 
 /**
