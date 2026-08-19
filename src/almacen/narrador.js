@@ -3,6 +3,7 @@ import { defineStore } from 'pinia'
 import {
   EVENTOS_IMPORTANTES,
   LINEAS,
+  LINEAS_DE_ARMONIA,
   LINEAS_DE_MARASI,
   LINEAS_DE_MELAAN,
   LINEAS_DE_STERIS,
@@ -18,6 +19,7 @@ const SOLO_CON_VERBORREA_ALTA = new Set(['primerIntento', 'gatoCuidado'])
 
 const SACOS = {
   wayne: LINEAS,
+  armonia: LINEAS_DE_ARMONIA,
   wax: LINEAS_DE_WAX,
   steris: LINEAS_DE_STERIS,
   marasi: LINEAS_DE_MARASI,
@@ -27,6 +29,7 @@ const SACOS = {
 export const PERSONAJES = {
   wayne: { nombre: 'Wayne' },
   wax: { nombre: 'Wax' },
+  armonia: { nombre: 'Armonía' },
   steris: { nombre: 'Steris' },
   marasi: { nombre: 'Marasi' },
   melaan: { nombre: 'MeLaan' },

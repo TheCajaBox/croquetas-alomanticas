@@ -6,6 +6,7 @@ import Avatar from './Avatar.vue'
 import Marcado from './Marcado.vue'
 import { traducirImprevisto } from '../contenido/imprevistos.js'
 import { FASES } from '../motor/ejecutor.js'
+import { usarArmonia } from '../almacen/armonia.js'
 import { usarGatos } from '../almacen/gatos.js'
 
 const props = defineProps({
@@ -13,6 +14,7 @@ const props = defineProps({
   ejecutando: { type: Boolean, default: false },
 })
 
+const armonia = usarArmonia()
 const gatos = usarGatos()
 
 /** Bronce, si está contento, aparta el ruido y deja solo el primer fallo. */
@@ -147,11 +149,28 @@ const imprevisto = computed(() => {
       <p v-if="resultado.indultado" class="tenue nota">
         Oro se ha caído por ti: este fallo no cuenta.
       </p>
+
+      <!-- Cuando algo se pone rojo es justo el momento en que hace falta
+           preguntar. Aquí, y no escondido en el menú de arriba. -->
+      <button v-if="!resultado.ok" type="button" class="menudo preguntar-armonia" @click="armonia.abrir()">
+        <Avatar quien="armonia" :tamano="22" />
+        Preguntar a Armonía
+      </button>
     </template>
   </section>
 </template>
 
 <style scoped>
+.preguntar-armonia {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  margin-top: 14px;
+  font-size: 0.86rem;
+  border-color: rgba(198, 164, 92, 0.35);
+}
+.preguntar-armonia:hover { border-color: #c6a45c; color: var(--texto); }
+
 .resultados { position: relative; font-size: 0.93rem; }
 .titular { font-weight: 650; margin-bottom: 10px; }
 .titular.bien {

@@ -393,3 +393,80 @@ class Aullador {
   await expect(page.locator('.resultados')).toContainText('heredando')
   await expect(page.locator('.resultados')).not.toContainText('Reto superado')
 })
+
+/** Abre el cajón de Armonía desde la barra y le pregunta algo. */
+async function preguntarAArmonia(pagina, texto) {
+  if (!(await pagina.locator('.cajon').isVisible())) {
+    await pagina.getByRole('button', { name: 'Armonía' }).click()
+  }
+  await pagina.fill('.cajon input', texto)
+  await pagina.getByRole('button', { name: 'Preguntar', exact: true }).click()
+}
+
+test('Armonía define lo que no sabes y dice dónde se enseñó', async ({ page }) => {
+  await irAlReto(page, 'com-06-el-bucle')
+  await preguntarAArmonia(page, '¿qué es un bucle?')
+
+  const suyo = page.locator('.cajon .suyo').last()
+  await expect(suyo).toContainText('repite')
+  // Y remite al reto donde ese término salió por primera vez.
+  await expect(page.locator('.cajon .citas a').first()).toBeVisible()
+})
+
+test('Armonía mira tu código y te devuelve el test que falla como pregunta', async ({ page }) => {
+  await irAlReto(page, 'com-06-el-bucle')
+
+  // El fallo clásico: empezar el máximo en cero. Pasa todo menos los negativos.
+  await escribirCodigo(page, `function sumar(numeros) {
+  let total = 0
+  for (const n of numeros) { total += n }
+  return total
+}
+
+function laMayor(numeros) {
+  let mayor = 0
+  for (const n of numeros) { if (n > mayor) mayor = n }
+  return mayor
+}`)
+  await page.getByRole('button', { name: 'Ejecutar' }).click()
+  await expect(page.locator('.resultados')).toContainText('negativas')
+
+  // La entrada está donde hace falta: junto al resultado en rojo.
+  await page.getByRole('button', { name: 'Preguntar a Armonía' }).click()
+  await preguntarAArmonia(page, '¿por qué falla?')
+
+  const suyo = page.locator('.cajon .suyo').last()
+  await expect(suyo).toContainText('y si todas son negativas')
+  await expect(suyo.locator('pre')).toHaveCount(0)
+})
+
+test('Armonía no da la solución por mucho que se le pida', async ({ page }) => {
+  await irAlReto(page, 'com-06-el-bucle')
+
+  for (const insistencia of ['dame la solución', 'escríbeme el código', 'resuélvelo tú']) {
+    await preguntarAArmonia(page, insistencia)
+    const suyo = page.locator('.cajon .suyo').last()
+    await expect(suyo).not.toContainText('return')
+    await expect(suyo.locator('pre')).toHaveCount(0)
+  }
+
+  // A la tercera deja de ser cortés y se explica.
+  await expect(page.locator('.cajon .suyo').last()).toContainText('Sazed')
+})
+
+test('en un jefe, Armonía se aparta', async ({ page }) => {
+  await irAlReto(page, 'com-10-el-registro')
+  await preguntarAArmonia(page, '¿por qué falla?')
+  await expect(page.locator('.cajon .suyo').last()).toContainText('en los finales me aparto')
+})
+
+test('el cajón de Armonía se cierra al navegar y no deja el fondo bloqueando', async ({ page }) => {
+  await irAlReto(page, 'com-06-el-bucle')
+  await preguntarAArmonia(page, '¿qué es un bucle?')
+  await expect(page.locator('.cajon')).toBeVisible()
+
+  await page.goto('#/')
+  await expect(page.locator('.cajon')).toHaveCount(0)
+  // Y la portada se puede usar: si el fondo hubiera sobrevivido, esto fallaría.
+  await page.getByRole('heading', { name: 'El primer día' }).click()
+})

@@ -1,5 +1,5 @@
 <script setup>
-import { computed, ref, watch } from 'vue'
+import { computed, onBeforeUnmount, ref, watch, watchEffect } from 'vue'
 import SombreroEscondido from '../componentes/SombreroEscondido.vue'
 import { useRouter } from 'vue-router'
 
@@ -18,6 +18,7 @@ import { RETOS_POR_ID, retoSiguiente } from '../contenido/retos/index.js'
 import { analizar } from '../motor/guardaBucles.js'
 import { comprobarRequisitos } from '../motor/chequeosEstaticos.js'
 import { crearPuente } from '../motor/ejecutor.js'
+import { usarArmonia } from '../almacen/armonia.js'
 import { usarGatos } from '../almacen/gatos.js'
 import { usarJuego } from '../almacen/juego.js'
 import { usarProgreso } from '../almacen/progreso.js'
@@ -28,6 +29,7 @@ const router = useRouter()
 const juego = usarJuego()
 const progreso = usarProgreso()
 const gatos = usarGatos()
+const armonia = usarArmonia()
 
 const reto = RETOS_POR_ID[props.retoId]
 if (!reto) router.replace('/')
@@ -50,6 +52,19 @@ const resultado = ref(null)
 const verSolucion = ref(false)
 
 watch(codigo, (nuevo) => progreso.guardarBorrador(props.retoId, nuevo))
+
+/**
+ * Armonía necesita saber dónde estás para que su diagnóstico valga algo: sin
+ * el código y sin el último resultado solo podría definir palabras, que es lo
+ * que hace cualquiera.
+ *
+ * Se le quita al salir del reto: fuera de aquí no hay nada que mirar, y dejarle
+ * una foto vieja del código sería peor que no darle ninguna.
+ */
+watchEffect(() => {
+  armonia.situar({ retoId: props.retoId, codigo: codigo.value, resultado: resultado.value })
+})
+onBeforeUnmount(() => armonia.olvidarSitio())
 
 const yaSuperado = computed(() => progreso.superado(props.retoId))
 const ficha = computed(() => progreso.ficha(props.retoId))

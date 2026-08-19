@@ -3,6 +3,7 @@ import { createPinia } from 'pinia'
 
 import App from './App.vue'
 import { crearEnrutador } from './router/index.js'
+import { engancharArmonia, usarArmonia } from './almacen/armonia.js'
 import { engancharEconomia, usarEconomia } from './almacen/economia.js'
 import { engancharGatos, usarGatos } from './almacen/gatos.js'
 import { engancharGlosario, usarGlosario } from './almacen/glosario.js'
@@ -32,6 +33,7 @@ engancharSombreros(usarSombreros(pinia))
 engancharRecortes(usarRecortes(pinia))
 engancharGlosario(usarGlosario(pinia))
 engancharRepasos(usarRepasos(pinia))
+engancharArmonia(usarArmonia(pinia))
 
 usarJuego(pinia).arrancarSesion()
 

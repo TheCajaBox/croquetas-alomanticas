@@ -3,8 +3,10 @@ import { computed, ref, watch } from 'vue'
 import { storeToRefs } from 'pinia'
 
 import Narrador from './componentes/Narrador.vue'
+import PanelArmonia from './componentes/PanelArmonia.vue'
 import PanelGlosario from './componentes/PanelGlosario.vue'
 import SombreroEscondido from './componentes/SombreroEscondido.vue'
+import { usarArmonia } from './almacen/armonia.js'
 import { usarEconomia } from './almacen/economia.js'
 import { usarGatos } from './almacen/gatos.js'
 import { usarProgreso } from './almacen/progreso.js'
@@ -14,6 +16,7 @@ import { RETOS } from './contenido/retos/index.js'
 import { RECORTES_POR_ID } from './contenido/recortes.js'
 import { SOMBREROS_POR_ID } from './contenido/sombreros.js'
 
+const armonia = usarArmonia()
 const economia = usarEconomia()
 const gatos = usarGatos()
 const progreso = usarProgreso()
@@ -74,6 +77,10 @@ watch(ultimoRecorte, (nuevo) => {
           <RouterLink to="/">Mundos</RouterLink>
           <RouterLink to="/colonia">Colonia</RouterLink>
           <RouterLink to="/glosario">Glosario</RouterLink>
+          <!-- Armonía no es una pantalla, es un cajón que se abre encima: va
+               como botón, pero se viste igual que sus vecinos para que no
+               parezca otra cosa. -->
+          <button type="button" class="como-enlace" @click="armonia.abrir()">Armonía</button>
           <RouterLink to="/refugio" class="con-aviso">
             Refugio
             <span v-if="enElRefugio" class="aviso">{{ enElRefugio }}</span>
@@ -141,6 +148,7 @@ watch(ultimoRecorte, (nuevo) => {
       </RouterLink>
     </Transition>
 
+    <PanelArmonia />
     <PanelGlosario />
 
     <Narrador />
@@ -173,7 +181,8 @@ watch(ultimoRecorte, (nuevo) => {
 .lema { font-size: 0.72rem; }
 
 .navegacion { display: flex; gap: 4px; margin-left: auto; flex-wrap: wrap; }
-.navegacion a {
+.navegacion a,
+.navegacion .como-enlace {
   position: relative;
   color: var(--texto-tenue);
   text-decoration: none;
@@ -182,7 +191,12 @@ watch(ultimoRecorte, (nuevo) => {
   font-size: 0.92rem;
   transition: color 0.15s, background 0.15s;
 }
-.navegacion a:hover { color: var(--texto); background: var(--panel); }
+.navegacion a:hover,
+.navegacion .como-enlace:hover { color: var(--texto); background: var(--panel); }
+
+/* El botón de Armonía tiene que pesar lo mismo que sus vecinos: sin borde, sin
+   fondo y con la misma tipografía, o se lee como un botón perdido en un menú. */
+.navegacion .como-enlace { background: none; border: none; font: inherit; cursor: pointer; }
 .navegacion a.router-link-active { color: var(--cobre-claro); background: rgba(201, 139, 75, 0.12); }
 
 .con-aviso { display: inline-flex; align-items: center; gap: 6px; }

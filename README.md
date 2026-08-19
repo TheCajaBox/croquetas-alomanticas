@@ -61,7 +61,7 @@ Hay ocho clases de reto, y solo cuatro piden escribir código:
 - **Cazar el fallo** en código que casi funciona.
 - **Reescribir** código que ya funciona, con los tests verdes desde el principio como red.
 
-## Los cinco que te acompañan
+## Los seis que te acompañan
 
 **Wayne** es el juego. Preside la portada, narra, se burla y te vende pistas: la primera
 gratis, las otras a precio de amigo. Habla también cuando no ha pasado nada, porque se
@@ -118,6 +118,29 @@ retos de Cambio de forma parten de código que ya pasa sus tests, y el reto es d
 sin ponerlos rojos ni una vez. Es el único sitio del juego donde el enunciado empieza
 diciendo «esto funciona».
 
+**Armonía** es a quien se le pregunta. Los demás te hablan; él solo contesta, y solo lo que
+le preguntes: qué significa una palabra, qué significa el error que te ha salido, dónde se
+explicaba aquello que ya viste, y —lo que de verdad lo distingue— **qué le pasa a tu código
+ahora mismo**, porque lee lo que has escrito y mira qué test se ha puesto rojo.
+
+Lo que no hace, nunca, es darte la solución. Y no porque se lo hayamos prohibido: es que no
+la tiene. Lo que Armonía recuerda se construye con una lista blanca de tres campos —título,
+enunciado y apunte—, así que las soluciones, los tests y las pistas quedan fuera por
+construcción. Un test recorre los 56 retos y comprueba que **cada palabra que puede decir
+sale de material que ya tienes gratis y abierto en la misma pantalla**.
+
+Que se contenga es el personaje, no una norma nuestra: en la era 2, Armonía podría
+intervenir y no lo hace, porque intervenir de más estropea justo lo que intenta sostener.
+Es su discusión con Wax durante toda la saga. Aquí queda como un reparto limpio: **Wayne
+cobra y te acerca la respuesta; Armonía no cobra y no te la da jamás.** Y en los jefes se
+aparta todavía más — ahí solo traduce errores y define palabras.
+
+Su cara se procesa distinta a las otras cinco. A los demás les quité el fondo por
+inundación desde los bordes; su ilustración tiene bruma detrás, un degradado, y el recorte
+ni la limpiaría ni respetaría la túnica. Tampoco hacía falta: la bruma es suya. Va recortado
+en círculo con ella dentro y un aro dorado de sus pendientes terrisanos, y queda el único
+avatar de disco oscuro de los seis.
+
 ## Los gatos
 
 Diez gatos, uno por metal alomántico, con la personalidad y el beneficio que le corresponde
@@ -160,7 +183,7 @@ de lo que se anima hace falta para jugar.
 ```bash
 npm install     # instala y copia los runtimes de Vue a public/vendor/
 npm run dev
-npm test        # motor, almacenes y las soluciones de referencia de los 56 retos
+npm test        # motor, almacenes, Armonía y las soluciones de referencia de los 56 retos
 npm run test:e2e
 ```
 

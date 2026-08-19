@@ -107,9 +107,27 @@ export function borrarPartida() {
 /**
  * Engancha un almacén a la partida: lo rellena con lo guardado y se apunta
  * para guardar cada cambio.
+ *
+ * `omitir` deja fuera campos que no son partida: estado de trabajo que se
+ * recalcula al vuelo y que solo ocuparía sitio y se quedaría rancio. El
+ * contexto de Armonía es el caso: guarda una foto de tu código y del último
+ * resultado, y las dos cosas ya viven en su sitio.
  */
-export function autoguardar(almacen, clave) {
+export function autoguardar(almacen, clave, { omitir = [] } = {}) {
   const guardado = trozoGuardado(clave)
-  if (guardado) almacen.$patch(guardado)
-  almacen.$subscribe((_mutacion, estado) => programarGuardado(clave, estado), { detached: true })
+  if (guardado) {
+    const limpio = { ...guardado }
+    for (const campo of omitir) delete limpio[campo]
+    almacen.$patch(limpio)
+  }
+
+  almacen.$subscribe(
+    (_mutacion, estado) => {
+      if (omitir.length === 0) return programarGuardado(clave, estado)
+      const recortado = { ...estado }
+      for (const campo of omitir) delete recortado[campo]
+      return programarGuardado(clave, recortado)
+    },
+    { detached: true },
+  )
 }
