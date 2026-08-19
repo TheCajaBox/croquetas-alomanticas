@@ -254,6 +254,22 @@ Los indicadores bajan con el tiempo real, estés o no estés delante. **Ningún 
 ni se va nunca**: esto es un juego para aprender, no para castigar. Un gato desatendido solo
 se pone triste y deja de echarte una mano hasta que le hagas caso.
 
+### La casa y el jardín
+
+Los gatos no viven en una lista de fichas: viven en una casa con jardín, dibujada en SVG como
+todo lo demás —el juego es un sitio estático y no depende de ninguna imagen—. Duermen en el
+sofá, se sientan junto a la ventana, cruzan la puerta y se van a la charca o al pie del árbol,
+y vuelven. El deambular vive en `src/motor/paseo.js`, aparte de lo que pinta, para poder
+probarlo: hay una prueba que pasea a cinco gatos media hora y comprueba que ninguno acaba
+andando por el tejado.
+
+Se pulsa un gato para atenderlo. Y **cepillar no es pulsar un botón: es arrastrar por encima
+del gato**, con el dedo o con el ratón, hasta que deja de soltar pelo. Se maneja con eventos
+de puntero, que valen para las dos cosas sin detectar nada. Queda un botón para terminar sin
+arrastrar, porque hay quien navega con teclado y dejarle el gato sucio no tendría gracia.
+
+Las fichas de siempre siguen ahí, en la otra pestaña, para quien quiera ver los números.
+
 ## Lo que se colecciona
 
 ### Los sombreros
@@ -294,8 +310,9 @@ había que arreglar era que la motivación se apagaba justo donde el juego se po
 
 Bruma de fondo en tres capas que se cruzan muy despacio, gatos que respiran, parpadean y
 menean la cola —cada uno con su propio ritmo, sacado de sus colores, para que la colonia no
-parezca un escaparate—, resultados de los tests que entran escalonados, croquetas que suben
-flotando al ganarlas y transiciones entre pantallas.
+parezca un escaparate—, la casa de noche con su lámpara encendida y su luna, resultados de
+los tests que entran escalonados, croquetas que suben flotando al ganarlas y transiciones
+entre pantallas.
 
 Todo eso se apaga solo si el sistema pide menos movimiento (`prefers-reduced-motion`): nada
 de lo que se anima hace falta para jugar.

@@ -2,6 +2,7 @@
 import { computed, ref } from 'vue'
 
 import BarraEstado from './BarraEstado.vue'
+import CepilloGato from './CepilloGato.vue'
 import GatoSvg from './GatoSvg.vue'
 import { CUIDADOS, FELICIDAD_PARA_BONUS } from '../contenido/gatos.js'
 import { usarGatos } from '../almacen/gatos.js'
@@ -10,6 +11,8 @@ const props = defineProps({ gato: { type: Object, required: true } })
 
 const gatos = usarGatos()
 const aviso = ref('')
+/** Cepillar no es pulsar un botón: es arrastrar por encima del gato. */
+const cepillando = ref(false)
 
 const animo = computed(() => {
   if (props.gato.felicidad >= 60) return 'contento'
@@ -30,18 +33,46 @@ function cuidar(accion) {
   const resultado = gatos.cuidar(props.gato.id, accion)
   aviso.value = resultado.ok ? '' : resultado.motivo
 }
+
+/**
+ * El cepillado se cobra y se aplica al terminar de arrastrar, no al empezar:
+ * quien deja el cepillo a medias no ha cepillado a nadie.
+ */
+function empezarACepillar() {
+  const espera = gatos.esperaRestante(props.gato.id, 'cepillar')
+  if (espera > 0) {
+    aviso.value = `Acabas de hacerlo. Vuelve dentro de ${espera} min.`
+    return
+  }
+  aviso.value = ''
+  cepillando.value = true
+}
+
+function cepillado() {
+  cuidar('cepillar')
+  setTimeout(() => { cepillando.value = false }, 700)
+}
 </script>
 
 <template>
   <article class="tarjeta panel" :class="{ triste: animo === 'triste' }">
     <div class="retrato" :style="{ '--pelo': gato.aspecto.pelo }">
-      <GatoSvg :aspecto="gato.aspecto" :animo="animo" :tamano="118" />
+      <CepilloGato
+        v-if="cepillando"
+        :gato="gato"
+        :animo="animo"
+        @completado="cepillado"
+        @salir="cepillando = false"
+      />
+      <GatoSvg v-else :aspecto="gato.aspecto" :animo="animo" :tamano="118" />
     </div>
 
     <div class="ficha">
       <div class="fila titulo">
         <h3>{{ gato.nombre }}</h3>
         <span class="etiqueta">{{ gato.poder }}</span>
+        <!-- Lo usa la vista de la casa para poder cerrar la ficha que abre. -->
+        <slot name="cerrar" />
       </div>
       <p class="tenue personalidad">{{ gato.personalidad }}</p>
 
@@ -63,9 +94,9 @@ function cuidar(accion) {
         <button
           v-for="accion in acciones"
           :key="accion.id"
-          :disabled="accion.espera > 0"
+          :disabled="accion.espera > 0 || (accion.id === 'cepillar' && cepillando)"
           class="menudo"
-          @click="cuidar(accion.id)"
+          @click="accion.id === 'cepillar' ? empezarACepillar() : cuidar(accion.id)"
         >
           {{ accion.titulo }}
           <span v-if="accion.espera > 0" class="tenue"> · {{ accion.espera }} min</span>

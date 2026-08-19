@@ -258,6 +258,76 @@ test('a una lección cerrada no se entra, ni por la barra ni por Armonía', asyn
   await expect(citas.filter({ hasText: 'todavía cerrado' }).first()).toBeVisible()
 })
 
+/** Mete gatos ya adoptados en la partida, sin tener que ganárselos aquí. */
+async function sembrarColonia(pagina, ids, { limpieza = 40, felicidad = 88 } = {}) {
+  await pagina.addInitScript(
+    ([gatos, cuanta, animo]) => {
+      const colonia = {}
+      for (const id of gatos) {
+        colonia[id] = {
+          adoptado: true,
+          comida: 90,
+          felicidad: animo,
+          limpieza: cuanta,
+          ultimoCuidado: {},
+          adoptadoEn: Date.now(),
+        }
+      }
+      const partida = JSON.parse(localStorage.getItem('gatosYCodigo') ?? '{"version":1}')
+      partida.gatos = { colonia, ultimaActualizacion: Date.now(), bonusUsadosHoy: {} }
+      localStorage.setItem('gatosYCodigo', JSON.stringify(partida))
+    },
+    [ids, limpieza, felicidad],
+  )
+}
+
+test('la colonia es una casa con jardín y los gatos se mueven por ella', async ({ page }) => {
+  await sembrarColonia(page, ['acero', 'hierro', 'peltre'])
+  await page.goto('#/colonia')
+  await page.reload()
+
+  await expect(page.locator('.escena .lienzo')).toBeVisible()
+  await expect(page.locator('.paseante')).toHaveCount(3)
+
+  // Se mueven de verdad: la misma escena un segundo después no está igual.
+  const donde = () => page.locator('.paseante').first().getAttribute('transform')
+  const antes = await donde()
+  await expect.poll(donde, { timeout: 15_000 }).not.toBe(antes)
+
+  // Y se pulsan para atenderlos, que es a lo que se viene.
+  await page.locator('.paseante').first().click()
+  await expect(page.locator('.tarjeta .acciones')).toBeVisible()
+  await page.getByRole('button', { name: 'Cerrar' }).click()
+  await expect(page.locator('.tarjeta')).toHaveCount(0)
+})
+
+test('cepillar a un gato es arrastrar por encima', async ({ page }) => {
+  await sembrarColonia(page, ['acero'], { limpieza: 20 })
+  await page.goto('#/colonia')
+  await page.reload()
+
+  await page.locator('.paseante').first().click()
+  await expect(page.getByText('Aseo')).toBeVisible()
+  await page.getByRole('button', { name: 'Cepillar' }).click()
+
+  const zona = page.locator('.zona')
+  const caja = await zona.boundingBox()
+  await page.mouse.move(caja.x + 30, caja.y + caja.height / 2)
+  await page.mouse.down()
+  // El cepillo se ve mientras se arrastra, y solo mientras se arrastra.
+  await page.mouse.move(caja.x + caja.width - 30, caja.y + 60, { steps: 6 })
+  await expect(page.locator('.brocha')).toBeVisible()
+
+  for (let vuelta = 0; vuelta < 5; vuelta += 1) {
+    await page.mouse.move(caja.x + 30, caja.y + 50 + vuelta * 12, { steps: 6 })
+    await page.mouse.move(caja.x + caja.width - 30, caja.y + 56 + vuelta * 12, { steps: 6 })
+  }
+  await page.mouse.up()
+
+  // Y el aseo sube de verdad: el cuidado se aplica al terminar el arrastre.
+  await expect(page.locator('.estado', { hasText: 'Aseo' })).toContainText('70')
+})
+
 test('los sombreros se encuentran, se pagan y se guardan', async ({ page }) => {
   await page.goto('')
 

@@ -13,9 +13,16 @@ const props = defineProps({
   aspecto: { type: Object, required: true },
   animo: { type: String, default: 'normal' }, // contento | normal | triste
   tamano: { type: Number, default: 120 },
+  /**
+   * Qué está haciendo, cuando el gato vive en la casa y no en una ficha:
+   * andando | durmiendo | comiendo | jugando | sentado | quieto. El ánimo dice
+   * cómo está; la postura, qué hace. Un gato contento también duerme.
+   */
+  pose: { type: String, default: null },
 })
 
-const durmiendo = computed(() => props.animo === 'triste')
+const durmiendo = computed(() => props.pose === 'durmiendo' || props.animo === 'triste')
+const andando = computed(() => props.pose === 'andando')
 const contento = computed(() => props.animo === 'contento')
 
 /** Desfase estable por gato: mismo gato, mismo ritmo, siempre. */
@@ -33,7 +40,7 @@ const retardo = computed(() => {
     :height="tamano"
     viewBox="0 0 120 120"
     class="gato"
-    :class="{ contento, durmiendo }"
+    :class="{ contento, durmiendo, andando }"
     :style="{ '--retardo': retardo }"
     role="img"
     aria-hidden="true"
@@ -117,6 +124,11 @@ const retardo = computed(() => {
   animation: menear-cola 3.8s ease-in-out infinite;
   animation-delay: var(--retardo);
 }
+/* Andar es un balanceo corto: no hay patas que animar, así que el paso se
+   cuenta con el cuerpo. */
+.gato.andando .respiracion { animation: pasitos 0.52s ease-in-out infinite; }
+.gato.andando .cola { animation-duration: 1.4s; }
+
 /* Contento menea más y más rápido; triste, casi nada. */
 .gato.contento .cola { animation-duration: 2.1s; }
 .gato.durmiendo .cola { animation-duration: 7.5s; }
@@ -126,6 +138,11 @@ const retardo = computed(() => {
   transform-origin: center center;
   animation: parpadear 6.5s ease-in-out infinite;
   animation-delay: var(--retardo);
+}
+
+@keyframes pasitos {
+  0%, 100% { transform: translateY(0) rotate(-1.2deg); }
+  50% { transform: translateY(-3px) rotate(1.2deg); }
 }
 
 @media (prefers-reduced-motion: reduce) {
