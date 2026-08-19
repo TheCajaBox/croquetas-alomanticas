@@ -2,7 +2,7 @@
 import { computed, onBeforeUnmount, onMounted, ref, watch } from 'vue'
 import { storeToRefs } from 'pinia'
 
-import WayneAvatar from './WayneAvatar.vue'
+import Avatar from './Avatar.vue'
 import { PERSONAJES, usarNarrador } from '../almacen/narrador.js'
 
 /** Lo que tarda el bocadillo en quitarse solo. Suficiente para leerlo sin prisa. */
@@ -50,20 +50,7 @@ onBeforeUnmount(() => {
 <template>
   <Transition name="asoma">
     <aside v-if="mensaje" class="narrador" :class="[`es-${quien}`, { callado: verborrea === 'callado' }]">
-      <WayneAvatar v-if="quien === 'wayne'" class="retrato" :tamano="60" animado />
-
-      <!-- Wax: sombrero de ala recta, cara larga y ni un gesto de más. -->
-      <svg v-else class="retrato" viewBox="0 0 64 64" width="52" height="52" aria-hidden="true">
-        <ellipse cx="32" cy="56" rx="20" ry="8" fill="#2f3a44" />
-        <ellipse cx="32" cy="36" rx="13" ry="16" fill="#d9b48e" />
-        <rect x="11" y="25" width="42" height="4" rx="2" fill="#1f2630" />
-        <rect x="21" y="8" width="22" height="18" rx="2" fill="#2b3540" />
-        <rect x="21" y="20" width="22" height="4" fill="#4a5866" />
-        <circle cx="27" cy="36" r="2" fill="#1f2630" />
-        <circle cx="37" cy="36" r="2" fill="#1f2630" />
-        <path d="M27 45 L37 45" stroke="#1f2630" stroke-width="2" stroke-linecap="round" />
-        <path d="M22 50 L32 54 L42 50" fill="none" stroke="#4a5866" stroke-width="3" stroke-linecap="round" />
-      </svg>
+      <Avatar class="retrato" :quien="quien" :tamano="60" animado />
 
       <div class="bocadillo">
         <p class="quien">{{ nombre }}</p>

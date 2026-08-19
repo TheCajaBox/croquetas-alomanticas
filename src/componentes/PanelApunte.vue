@@ -1,6 +1,7 @@
 <script setup>
 import { ref } from 'vue'
 
+import Avatar from './Avatar.vue'
 import Marcado from './Marcado.vue'
 
 /**
@@ -21,15 +22,7 @@ const abierto = ref(props.empiezaAbierto)
 <template>
   <section class="apunte panel" :class="{ cerrado: !abierto }">
     <button class="titulo" :aria-expanded="abierto" @click="abierto = !abierto">
-      <svg class="retrato" viewBox="0 0 64 64" aria-hidden="true">
-        <ellipse cx="32" cy="36" rx="13" ry="16" fill="#d9b48e" />
-        <rect x="11" y="25" width="42" height="4" rx="2" fill="#1f2630" />
-        <rect x="21" y="8" width="22" height="18" rx="2" fill="#2b3540" />
-        <rect x="21" y="20" width="22" height="4" fill="#4a5866" />
-        <circle cx="27" cy="36" r="2" fill="#1f2630" />
-        <circle cx="37" cy="36" r="2" fill="#1f2630" />
-        <path d="M27 45 L37 45" stroke="#1f2630" stroke-width="2" stroke-linecap="round" />
-      </svg>
+      <Avatar class="retrato" quien="wax" :tamano="38" />
       <span class="texto-titulo">
         <span class="quien">El apunte de Wax</span>
         <span class="coletilla">gratis, esto no se cobra</span>
@@ -65,7 +58,7 @@ const abierto = ref(props.empiezaAbierto)
 }
 .titulo:hover { background: rgba(143, 180, 208, 0.07); }
 
-.retrato { width: 32px; height: 32px; flex-shrink: 0; }
+.retrato { flex-shrink: 0; }
 .texto-titulo { display: flex; flex-direction: column; line-height: 1.25; flex: 1; }
 .quien { font-weight: 650; color: #8fb4d0; }
 .coletilla { font-size: 0.76rem; color: var(--texto-apagado); }

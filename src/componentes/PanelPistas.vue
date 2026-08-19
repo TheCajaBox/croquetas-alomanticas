@@ -3,7 +3,7 @@ import { computed, ref } from 'vue'
 import SombreroEscondido from './SombreroEscondido.vue'
 
 import Marcado from './Marcado.vue'
-import WayneAvatar from './WayneAvatar.vue'
+import Avatar from './Avatar.vue'
 import { usarEconomia } from '../almacen/economia.js'
 import { usarGatos } from '../almacen/gatos.js'
 import { usarJuego } from '../almacen/juego.js'
@@ -57,7 +57,7 @@ function pedir(nivel) {
     <SombreroEscondido id="pistas" :posicion="{ bottom: '12px', right: '14px' }" :tamano="17" />
     <div class="cabecera">
       <!-- Que se vea quién cobra. -->
-      <WayneAvatar class="vendedor" :tamano="46" />
+      <Avatar class="vendedor" quien="wayne" :tamano="46" />
       <div class="titulo-pistas">
         <h3>Pistas de Wayne</h3>
         <span class="tenue coletilla">la primera invita la casa</span>

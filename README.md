@@ -51,11 +51,13 @@ Hay siete clases de reto, y solo tres piden escribir código:
 gratis, las otras a precio de amigo. Habla también cuando no ha pasado nada, porque se
 aburre.
 
-Su retrato es la ilustración del personaje, recortada del fondo y servida en dos piezas
-desde `src/recursos/`: el retrato entero con su bastón para la portada, y un avatar circular
-sobre un disco con los colores del juego para cuando habla y para el panel de pistas. Se
-importan como módulos para que Vite les ponga su hash y su ruta base; escritas a mano, esas
-rutas se romperían al publicar en Pages.
+Los dos tienen su cara: las ilustraciones de los personajes, recortadas del fondo y
+compuestas sobre un disco con el color que cada uno lleva en la interfaz — el cobre de Wayne,
+el azul acero de Wax. Viven en `src/recursos/`, pesan 73 kB entre las tres y se importan como
+módulos para que Vite les ponga su hash y su ruta base; escritas a mano, esas rutas se
+romperían al publicar en Pages.
+
+Wayne sale además de cuerpo entero, con el bastón al hombro, presidiendo la portada.
 
 **Wax** aparece cuando la cosa se pone seria: si un reto se te resiste tres veces, se planta
 ahí y te manda a leer. Y cada reto lleva **un apunte suyo, gratis y a todo lo ancho**, con la
