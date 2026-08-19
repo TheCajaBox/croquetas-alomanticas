@@ -6,16 +6,25 @@ import Avatar from './Avatar.vue'
 import Marcado from './Marcado.vue'
 import { traducirImprevisto } from '../contenido/imprevistos.js'
 import { FASES } from '../motor/ejecutor.js'
+import { revisar } from '../motor/marasi/revisar.js'
 import { usarArmonia } from '../almacen/armonia.js'
 import { usarGatos } from '../almacen/gatos.js'
 
 const props = defineProps({
   resultado: { type: Object, default: null },
   ejecutando: { type: Boolean, default: false },
+  /** Lo que el jugador tiene escrito, para que Marasi pueda revisarlo. */
+  codigo: { type: String, default: '' },
 })
 
 const armonia = usarArmonia()
 const gatos = usarGatos()
+
+/**
+ * La revisión solo cuando ya está superado. Antes sería un reproche a alguien
+ * que todavía está peleando, y esto no viene a eso.
+ */
+const informe = computed(() => (props.resultado?.ok ? revisar(props.codigo) : []))
 
 /** Bronce, si está contento, aparta el ruido y deja solo el primer fallo. */
 const rastreando = computed(() => gatos.tieneBonus('primerFalloDestacado'))
@@ -150,6 +159,37 @@ const imprevisto = computed(() => {
         Oro se ha caído por ti: este fallo no cuenta.
       </p>
 
+      <!-- El informe de Marasi: solo cuando ya está superado. Que funcione y
+           que esté bien escrito son dos preguntas distintas, y esta es la
+           segunda; preguntarla antes de tiempo solo desanima. -->
+      <section v-if="informe.length" class="informe">
+        <header>
+          <Avatar quien="marasi" :tamano="34" />
+          <div>
+            <p class="quien">El informe de Marasi</p>
+            <p class="tenue nota-informe">Funciona. Ahora hablemos de cómo está escrito.</p>
+          </div>
+        </header>
+
+        <ul class="apuntado">
+          <li v-for="aviso in informe" :key="aviso.id">
+            <Marcado class="que" :texto="aviso.titulo" />
+            <Marcado
+              v-if="aviso.ejemplos.length"
+              class="tenue cuales"
+              :texto="aviso.ejemplos.map((e) => '`' + e + '`').join(', ')"
+              :enlazar="false"
+            />
+            <Marcado class="tenue porque" :texto="aviso.porque" />
+          </li>
+        </ul>
+
+        <p class="tenue cierre">
+          No hace falta que lo cambies: el reto está superado y las croquetas son tuyas.
+          Pero si vas a escribir código el resto de tu vida, más vale que te lo diga yo ahora.
+        </p>
+      </section>
+
       <!-- Cuando algo se pone rojo es justo el momento en que hace falta
            preguntar. Aquí, y no escondido en el menú de arriba. -->
       <button v-if="!resultado.ok" type="button" class="menudo preguntar-armonia" @click="armonia.abrir()">
@@ -161,6 +201,32 @@ const imprevisto = computed(() => {
 </template>
 
 <style scoped>
+.informe {
+  margin-top: 18px;
+  padding: 14px 16px;
+  background: rgba(192, 105, 126, 0.06);
+  border: 1px solid rgba(192, 105, 126, 0.28);
+  border-radius: var(--radio-menudo);
+}
+.informe header { display: flex; align-items: center; gap: 10px; margin-bottom: 12px; }
+.informe .quien {
+  margin: 0;
+  font-size: 0.72rem;
+  font-weight: 700;
+  letter-spacing: 0.09em;
+  text-transform: uppercase;
+  color: #c0697e;
+}
+.nota-informe { margin: 2px 0 0; font-size: 0.82rem; font-style: italic; }
+
+.apuntado { list-style: none; margin: 0; padding: 0; }
+.apuntado > li { margin-bottom: 14px; padding-left: 14px; border-left: 2px solid rgba(192, 105, 126, 0.35); }
+.apuntado > li:last-child { margin-bottom: 0; }
+.que :deep(p) { margin: 0; font-size: 0.92rem; font-weight: 600; }
+.cuales :deep(p) { margin: 2px 0 0; font-size: 0.84rem; }
+.porque :deep(p) { margin: 4px 0 0; font-size: 0.86rem; }
+.cierre { margin: 14px 0 0; padding-top: 10px; border-top: 1px solid var(--borde-suave); font-size: 0.84rem; }
+
 .preguntar-armonia {
   display: inline-flex;
   align-items: center;

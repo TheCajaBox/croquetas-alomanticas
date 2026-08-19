@@ -78,7 +78,17 @@ romperían al publicar en Pages.
 
 Wayne sale además de cuerpo entero, con el bastón al hombro, presidiendo la portada.
 
-**Wax** aparece cuando la cosa se pone seria: si un reto se te resiste tres veces, se planta
+**Wax** escribe el temario, y es lo más largo del juego: **56 lecciones, 230.000
+caracteres**, una por reto. No son notas al margen — cada una tiene la estructura de
+un artículo: el problema que resuelve, la idea, el modelo mental, lo que despista,
+los errores clásicos con el mensaje que sale de verdad, y el criterio para decidir
+cuándo se usa y cuándo no. Esa última parte es la que convierte saber la sintaxis
+en saber plantear.
+
+Viven fuera del paquete inicial y se piden al abrir su reto, así que pueden crecer
+todo lo que haga falta sin que le cuesten un byte a quien no las abra.
+
+Además, aparece cuando la cosa se pone seria: si un reto se te resiste tres veces, se planta
 ahí y te manda a leer. Y cada reto lleva **un apunte suyo, gratis y a todo lo ancho**, con la
 explicación del concepto y sus ejemplos — al estilo de un artículo de
 [javascript.info](https://es.javascript.info): primero se lee, después se pelea uno con el
@@ -108,7 +118,21 @@ vida. Qué es un programa, qué es JavaScript, qué pinta Vue y por qué aquí h
 cómo funciona el juego y qué hacer cuando algo se atasca. Dos minutos, y se puede volver
 cuando sea.
 
-**Marasi** llega al final de cada mundo con el expediente debajo del brazo: seis preguntas
+**Marasi** hace dos cosas, y la primera es la que más se nota.
+
+**Te revisa el código cuando ya funciona.** Superas un reto y ella lee lo que
+escribiste: un `let` que nunca cambia, tres `if` metidos uno dentro de otro, un
+parámetro reasignado, un `catch` vacío, el mismo número suelto tres veces. Diez
+comprobaciones sobre el árbol de sintaxis, nombrando siempre lo concreto que ha
+visto y explicando por qué importa.
+
+Aparece **solo después de superar**, nunca antes: primero se resuelve, después se
+mira si se puede dejar mejor. Ese es el orden del oficio y es el único que no
+desanima. Y no paga croquetas a propósito — pagar por seguir consejos los
+convertiría en requisitos, y las buenas prácticas son criterio, no reglamento.
+El criterio incluye saber cuándo no aplican.
+
+Y llega al final de cada mundo con el expediente debajo del brazo: seis preguntas
 sobre lo que se acaba de ver, con el porqué de todas las opciones, también de las que no
 elegiste. No cuentan para el progreso y se pueden repetir tantas veces como quieras, pero
 **solo se cobra lo que se mejore**: repetir un repaso bordado no da ni una croqueta más.
@@ -229,7 +253,7 @@ de lo que se anima hace falta para jugar.
 ```bash
 npm install     # instala y copia los runtimes de Vue a public/vendor/
 npm run dev
-npm test        # motor, almacenes, Armonía y las soluciones de referencia de los 56 retos
+npm test        # motor, almacenes, Armonía, Marasi y las soluciones de los 56 retos
 npm run test:e2e
 ```
 

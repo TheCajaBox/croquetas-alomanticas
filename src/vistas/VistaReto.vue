@@ -239,6 +239,7 @@ function reiniciarCodigo() {
           v-if="!esTactil || resultado"
           :resultado="resultado"
           :ejecutando="juego.ejecutando"
+          :codigo="seEscribe ? codigo : ''"
         />
 
         <section v-if="resultado?.ok && esPrediccion" class="panel bloque">

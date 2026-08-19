@@ -65,7 +65,7 @@ for (const [retoId, solucion] of Object.entries(SOLUCIONES)) {
   test(`se puede resolver un reto en el entorno de ${retoId.split('-')[0]}`, async ({ page }) => {
     await irAlReto(page, retoId)
     await escribirCodigo(page, solucion)
-    await page.getByRole('button', { name: 'Ejecutar' }).click()
+    await page.getByRole('button', { name: 'Ejecutar', exact: true }).click()
 
     await expect(page.getByText('Reto superado.')).toBeVisible({ timeout: 20_000 })
     // Y las croquetas llegan de verdad al marcador.
@@ -76,7 +76,7 @@ for (const [retoId, solucion] of Object.entries(SOLUCIONES)) {
 test('la vista previa pinta el componente de Vue', async ({ page }) => {
   await irAlReto(page, 'vue2-01-instancia')
   await escribirCodigo(page, SOLUCIONES['vue2-01-instancia'])
-  await page.getByRole('button', { name: 'Ejecutar' }).click()
+  await page.getByRole('button', { name: 'Ejecutar', exact: true }).click()
   await expect(page.getByText('Reto superado.')).toBeVisible({ timeout: 20_000 })
 
   const sandbox = page.frameLocator('.marco-sandbox')
@@ -86,7 +86,7 @@ test('la vista previa pinta el componente de Vue', async ({ page }) => {
 test('un bucle infinito se corta y la página sigue viva', async ({ page }) => {
   await irAlReto(page, 'es6-01-const-let')
   await escribirCodigo(page, 'const TARIFA_DIARIA = 25\nfunction cobrar(dias) { while (true) {} }')
-  await page.getByRole('button', { name: 'Ejecutar' }).click()
+  await page.getByRole('button', { name: 'Ejecutar', exact: true }).click()
 
   await expect(page.getByText(/Bucle sin salida|Se acabó el tiempo/)).toBeVisible({ timeout: 20_000 })
   // Si la pestaña se hubiera congelado, esto no respondería.
@@ -97,7 +97,7 @@ test('un bucle infinito se corta y la página sigue viva', async ({ page }) => {
 test('la partida sobrevive a recargar la página', async ({ page }) => {
   await irAlReto(page, 'es6-01-const-let')
   await escribirCodigo(page, SOLUCIONES['es6-01-const-let'])
-  await page.getByRole('button', { name: 'Ejecutar' }).click()
+  await page.getByRole('button', { name: 'Ejecutar', exact: true }).click()
   await expect(page.getByText('Reto superado.')).toBeVisible({ timeout: 20_000 })
 
   const croquetas = await page.locator('.contador.croquetas').textContent()
@@ -127,7 +127,7 @@ test('el sandbox no alcanza la partida guardada', async ({ page }) => {
 }
 const robado = window.parent.localStorage.getItem('gatosYCodigo')`,
   )
-  await page.getByRole('button', { name: 'Ejecutar' }).click()
+  await page.getByRole('button', { name: 'Ejecutar', exact: true }).click()
 
   await expect(page.getByText('Ha reventado al ejecutarlo')).toBeVisible({ timeout: 20_000 })
 })
@@ -207,7 +207,7 @@ test('Steris traduce los errores que asustan', async ({ page }) => {
   await irAlReto(page, 'es6-01-const-let')
   // Una errata, que es el fallo más común de quien empieza.
   await escribirCodigo(page, 'const TARIFA_DIARIA = 25\nfunction cobrar(dias) { return TARIFA_DIARIA * diaz }')
-  await page.getByRole('button', { name: 'Ejecutar' }).click()
+  await page.getByRole('button', { name: 'Ejecutar', exact: true }).click()
 
   await expect(page.getByText('Steris lo tenía previsto')).toBeVisible({ timeout: 20_000 })
   await expect(page.getByText('Estás usando un nombre que no existe')).toBeVisible()
@@ -248,7 +248,7 @@ test('un reto de refactor de MeLaan valida la forma, no solo el resultado', asyn
   await irAlReto(page, 'melaan-01-de-bucle-a-metodo')
 
   // El código de partida ya pasa los tests: lo que suspende es la forma.
-  await page.getByRole('button', { name: 'Ejecutar' }).click()
+  await page.getByRole('button', { name: 'Ejecutar', exact: true }).click()
   await expect(page.locator('.resultados')).toContainText('Las normas del reto')
   await expect(page.locator('.resultados')).not.toContainText('Reto superado')
 
@@ -261,7 +261,7 @@ test('un reto de refactor de MeLaan valida la forma, no solo el resultado', asyn
 function valorTotal(metales) {
   return metales.reduce((suma, metal) => suma + metal.precio, 0)
 }`)
-  await page.getByRole('button', { name: 'Ejecutar' }).click()
+  await page.getByRole('button', { name: 'Ejecutar', exact: true }).click()
   await expect(page.locator('.resultados')).toContainText('Reto superado')
 })
 
@@ -339,7 +339,7 @@ function laMayor(numeros) {
   for (const n of numeros) { if (n > mayor) mayor = n }
   return mayor
 }`)
-  await page.getByRole('button', { name: 'Ejecutar' }).click()
+  await page.getByRole('button', { name: 'Ejecutar', exact: true }).click()
   await expect(page.locator('.resultados')).toContainText('la mayor sigue estando en la lista')
   await expect(page.locator('.resultados')).not.toContainText('Reto superado')
 
@@ -354,7 +354,7 @@ function laMayor(numeros) {
   for (const n of numeros) { if (mayor === null || n > mayor) mayor = n }
   return mayor
 }`)
-  await page.getByRole('button', { name: 'Ejecutar' }).click()
+  await page.getByRole('button', { name: 'Ejecutar', exact: true }).click()
   await expect(page.locator('.resultados')).toContainText('Reto superado')
 })
 
@@ -389,7 +389,7 @@ class Aullador {
     return \`\${this.efecto} con \${this.metal}\`
   }
 }`)
-  await page.getByRole('button', { name: 'Ejecutar' }).click()
+  await page.getByRole('button', { name: 'Ejecutar', exact: true }).click()
   await expect(page.locator('.resultados')).toContainText('heredando')
   await expect(page.locator('.resultados')).not.toContainText('Reto superado')
 })
@@ -428,7 +428,7 @@ function laMayor(numeros) {
   for (const n of numeros) { if (n > mayor) mayor = n }
   return mayor
 }`)
-  await page.getByRole('button', { name: 'Ejecutar' }).click()
+  await page.getByRole('button', { name: 'Ejecutar', exact: true }).click()
   await expect(page.locator('.resultados')).toContainText('negativas')
 
   // La entrada está donde hace falta: junto al resultado en rojo.
@@ -543,4 +543,62 @@ test('con clave, pedirle la solución ni siquiera sale a la red', async ({ page 
 
   await expect(page.locator('.cajon .suyo').last()).toContainText('Wayne te lo vendería')
   expect(salioALaRed).toBe(false)
+})
+
+test('Marasi revisa tu código, pero solo cuando ya funciona', async ({ page }) => {
+  await irAlReto(page, 'com-06-el-bucle')
+
+  // Con el reto sin superar, Marasi no dice nada: no viene a reprochar a quien
+  // todavía está peleando.
+  await escribirCodigo(page, `function sumar(numeros) {
+  let q = 0
+  return q
+}
+function laMayor(numeros) { return null }`)
+  await page.getByRole('button', { name: 'Ejecutar', exact: true }).click()
+  await expect(page.locator('.resultados')).not.toContainText('Reto superado')
+  await expect(page.locator('.informe')).toHaveCount(0)
+
+  // Superado y con margen de mejora: ahora sí, y nombra lo que ha visto.
+  await escribirCodigo(page, `function sumar(numeros) {
+  let total = 0
+  for (const n of numeros) { total += n }
+  return total
+}
+
+function laMayor(numeros) {
+  let mayor = null
+  let q = 0
+  for (const n of numeros) {
+    if (mayor === null || n > mayor) { mayor = n }
+  }
+  return mayor
+}`)
+  await page.getByRole('button', { name: 'Ejecutar', exact: true }).click()
+  await expect(page.locator('.resultados')).toContainText('Reto superado')
+
+  await expect(page.locator('.informe')).toContainText('El informe de Marasi')
+  await expect(page.locator('.informe')).toContainText('nunca cambia')
+  // Y deja claro que no bloquea nada.
+  await expect(page.locator('.informe')).toContainText('las croquetas son tuyas')
+})
+
+test('un código limpio no recibe reproches', async ({ page }) => {
+  await irAlReto(page, 'com-06-el-bucle')
+  await escribirCodigo(page, `function sumar(numeros) {
+  let total = 0
+  for (const n of numeros) { total += n }
+  return total
+}
+
+function laMayor(numeros) {
+  let mayor = null
+  for (const n of numeros) {
+    if (mayor === null || n > mayor) { mayor = n }
+  }
+  return mayor
+}`)
+  await page.getByRole('button', { name: 'Ejecutar', exact: true }).click()
+  await expect(page.locator('.resultados')).toContainText('Reto superado')
+  await expect(page.locator('.informe')).toHaveCount(0)
 })
