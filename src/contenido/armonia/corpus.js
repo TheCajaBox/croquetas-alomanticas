@@ -17,6 +17,7 @@
  * De ahí sale la única garantía que de verdad vale: Armonía no puede filtrar
  * una solución porque no la tiene. No es una promesa suya, es que no está.
  */
+import { cargarTodosLosApuntes } from '../apuntes/index.js'
 import { GLOSARIO } from '../glosario.js'
 import { IMPREVISTOS } from '../imprevistos.js'
 import { MUNDOS_POR_ID } from '../mundos.js'
@@ -123,8 +124,8 @@ function porParrafos(texto) {
     .filter(Boolean)
 }
 
-function trozosDeApunte(reto) {
-  const porTitulares = trocearApunte(reto.apunte)
+function trozosDeApunte(apunte) {
+  const porTitulares = trocearApunte(apunte)
   // Si no había titulares, `trocearApunte` devuelve un bloque enorme: se
   // reparte por párrafos, que en la prosa es la unidad que toca.
   if (porTitulares.length > 1 || porTitulares.some((t) => t.titular)) return porTitulares
@@ -133,7 +134,8 @@ function trozosDeApunte(reto) {
   return pegarCodigoHuerfano(porParrafos(entero).map((texto) => ({ titular: null, texto })))
 }
 
-function construir() {
+async function construir() {
+  const apuntes = await cargarTodosLosApuntes()
   const trozos = []
 
   for (const entrada of GLOSARIO) {
@@ -160,8 +162,10 @@ function construir() {
   }
 
   for (const reto of RETOS) {
-    // ---- Lista blanca. Todo lo que se lee del reto sale de estas tres líneas.
-    const { id, mundo, titulo, enunciado, apunte } = reto
+    // ---- Lista blanca. Todo lo que se lee del reto sale de estas dos líneas
+    // ---- y del apunte, que ahora vive aparte y se ha traído arriba.
+    const { id, mundo, titulo, enunciado } = reto
+    const apunte = apuntes[id]
     // -------------------------------------------------------------------------
 
     trozos.push({
@@ -173,7 +177,7 @@ function construir() {
       mundoId: mundo,
     })
 
-    trozosDeApunte({ apunte }).forEach((trozo, indice) => {
+    trozosDeApunte(apunte).forEach((trozo, indice) => {
       trozos.push({
         tipo: 'apunte',
         id: `apunte:${id}:${indice}`,
@@ -189,7 +193,27 @@ function construir() {
   return trozos
 }
 
-export const CORPUS = construir()
+let corpus = null
+let construyendo = null
+
+/**
+ * El corpus, construido la primera vez que se pide y guardado desde entonces.
+ *
+ * Antes se armaba al cargar el módulo, lo que obligaba a traer los 56 apuntes
+ * en el arranque aunque nadie fuera a preguntarle nada a Armonía. Ahora se
+ * construye cuando se abre su panel: se nota una vez, y solo si lo abres.
+ *
+ * Si dos sitios lo piden a la vez comparten la misma promesa, que si no se
+ * construiría dos veces por nada.
+ */
+export async function obtenerCorpus() {
+  if (corpus) return corpus
+  if (!construyendo) construyendo = construir().then((hecho) => (corpus = hecho))
+  return construyendo
+}
+
+/** Para los tests y para quien ya sepa que está construido. */
+export const corpusYaConstruido = () => corpus
 
 /**
  * De dónde salía un trozo, en datos y no en texto.

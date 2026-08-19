@@ -2,6 +2,7 @@ import { readFileSync } from 'node:fs'
 import { createContext, runInContext } from 'node:vm'
 import { describe, expect, it } from 'vitest'
 
+import { hayApunte } from '../src/contenido/apuntes/index.js'
 import { RETOS } from '../src/contenido/retos/index.js'
 import { SIN_CODIGO, codigoDeReferencia, revisarTactil } from './revisarRetos.js'
 import { analizar, inyectarGuardaDeBucles } from '../src/motor/guardaBucles.js'
@@ -69,7 +70,7 @@ describe('los retos de señalar están bien montados', () => {
 describe('todos los retos traen apunte, y pistas los que deben', () => {
   for (const reto of RETOS) {
     it(reto.id, () => {
-      expect(reto.apunte, 'sin apunte de Wax').toBeTruthy()
+      expect(hayApunte(reto.id), 'sin apunte de Wax').toBe(true)
 
       // Los jefes no llevan pistas: cierran un mundo y todo lo que hace falta
       // ya se ha visto en los retos de antes. Ahí solo queda Armonía, y poco.

@@ -1,0 +1,68 @@
+/**
+ * El apunte de Wax para «taller-02-herencia».
+ *
+ * Vive fuera del reto y se carga cuando se abre, no al arrancar el juego.
+ * Los apuntes son lo más largo que hay aquí -y tienen que serlo, porque son
+ * la lección- así que si viajaran en el paquete inicial cada lección nueva
+ * haría más lento el arranque para todo el mundo.
+ */
+import { codigo } from '../retos/comun.js'
+
+export default codigo(
+    "Cuando dos clases comparten casi todo, copiar y pegar es la peor opción: el día",
+    "que arregles un fallo lo arreglarás en un sitio y no en el otro.",
+    "",
+    "Con `extends`, una clase parte de otra:",
+    "",
+    "```js",
+    "class Alomantico {",
+    "  constructor(reservas) {",
+    "    this.reservas = reservas",
+    "  }",
+    "",
+    "  quemar() {",
+    "    if (this.reservas === 0) return null",
+    "    this.reservas -= 1",
+    "    return `${this.efecto} con ${this.metal}`",
+    "  }",
+    "}",
+    "",
+    "class Lanzamonedas extends Alomantico {",
+    "  constructor(reservas) {",
+    "    super(reservas)          // primero, lo de arriba",
+    "    this.metal = 'acero'",
+    "    this.efecto = 'empuja'",
+    "  }",
+    "}",
+    "```",
+    "",
+    "`Lanzamonedas` no escribe `quemar` en ninguna parte y sin embargo lo tiene: cuando",
+    "se le pide algo a un objeto y su clase no lo tiene, se busca en la de arriba.",
+    "",
+    "## `super`, y por qué va primero",
+    "",
+    "`super(...)` llama al constructor de la clase padre. **Tiene que ir antes de tocar",
+    "`this`**, y no es una manía: hasta que el padre no termina, el objeto no está",
+    "construido del todo. Si escribes `this.metal = 'acero'` antes del `super`,",
+    "JavaScript te para con un error bastante seco.",
+    "",
+    "## Cambiar un método heredado",
+    "",
+    "Una hija puede reescribir un método del padre, y llamar al original si quiere:",
+    "",
+    "```js",
+    "class Sabueso extends Alomantico {",
+    "  quemar() {",
+    "    const resultado = super.quemar()",
+    "    return resultado === null ? 'sin reservas' : resultado",
+    "  }",
+    "}",
+    "```",
+    "",
+    "## El consejo que importa",
+    "",
+    "La herencia engancha y se usa de más. La pregunta antes de escribir `extends` es",
+    "si de verdad **es un** tipo de lo otro (un lanzamonedas es un alomántico: sí), y no",
+    "solo si se parecen o si te ahorra teclear. Cuando la respuesta es dudosa, casi",
+    "siempre sale mejor tener dos clases sueltas y compartir una función.",
+)

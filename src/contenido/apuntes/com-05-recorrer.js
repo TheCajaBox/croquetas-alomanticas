@@ -1,0 +1,67 @@
+/**
+ * El apunte de Wax para «com-05-recorrer».
+ *
+ * Vive fuera del reto y se carga cuando se abre, no al arrancar el juego.
+ * Los apuntes son lo más largo que hay aquí -y tienen que serlo, porque son
+ * la lección- así que si viajaran en el paquete inicial cada lección nueva
+ * haría más lento el arranque para todo el mundo.
+ */
+import { codigo } from '../retos/comun.js'
+
+export default codigo(
+    "Repetir a mano no escala:",
+    "",
+    "```js",
+    "console.log(avisos[0])",
+    "console.log(avisos[1])",
+    "console.log(avisos[2])   // ...¿y si mañana hay cuarenta?",
+    "```",
+    "",
+    "Para eso está el bucle `for`, que tiene tres partes separadas por punto y coma:",
+    "",
+    "```js",
+    "for (let i = 0; i < avisos.length; i += 1) {",
+    "  console.log(avisos[i])",
+    "}",
+    "```",
+    "",
+    "1. `let i = 0` — **de dónde salgo**. Se ejecuta una vez, al principio.",
+    "2. `i < avisos.length` — **mientras qué**. Se comprueba antes de cada vuelta.",
+    "3. `i += 1` — **qué hago entre vuelta y vuelta**. Se ejecuta al final de cada una.",
+    "",
+    "Y `i += 1` es la forma corta de `i = i + 1`. Se lee «súmale uno a lo que ya tenía».",
+    "",
+    "## Por qué `<` y no `<=`",
+    "",
+    "Con 3 elementos, las posiciones son 0, 1 y 2. `i < 3` recorre exactamente esas",
+    "tres. Si pusieras `i <= 3` entrarías también en la 3, que está vacía, y te llevarías",
+    "un `undefined` de recuerdo. Ese fallo tiene nombre propio en la profesión: **el error",
+    "de uno**, y se comete toda la vida.",
+    "",
+    "## El acumulador",
+    "",
+    "El patrón más común del mundo: una variable fuera del bucle que va creciendo dentro.",
+    "",
+    "```js",
+    "let total = 0",
+    "for (let i = 0; i < precios.length; i += 1) {",
+    "  total += precios[i]",
+    "}",
+    "```",
+    "",
+    "**Fuera**, porque si la declaras dentro se crea nueva en cada vuelta y siempre",
+    "acabas con el último valor en vez de con la suma.",
+    "",
+    "## Cuando no necesitas la posición",
+    "",
+    "Si solo quieres los elementos y te da igual en qué hueco están, hay una forma más",
+    "limpia y sin errores de uno posibles:",
+    "",
+    "```js",
+    "for (const aviso of avisos) {",
+    "  console.log(aviso)",
+    "}",
+    "```",
+    "",
+    "Se lee tal cual: «para cada aviso de avisos». Cuando puedas usar `for...of`, úsalo.",
+)

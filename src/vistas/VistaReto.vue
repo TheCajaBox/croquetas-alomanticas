@@ -14,6 +14,7 @@ import PanelPistas from '../componentes/PanelPistas.vue'
 import PanelResultados from '../componentes/PanelResultados.vue'
 import VistaPreviaSandbox from '../componentes/VistaPreviaSandbox.vue'
 import { MUNDOS_POR_ID } from '../contenido/mundos.js'
+import { cargarApunte } from '../contenido/apuntes/index.js'
 import { RETOS_POR_ID, retoSiguiente } from '../contenido/retos/index.js'
 import { analizar } from '../motor/guardaBucles.js'
 import { comprobarRequisitos } from '../motor/chequeosEstaticos.js'
@@ -45,6 +46,14 @@ const esTactil = computed(() => ['eleccion', 'emparejar', 'ordenar', 'completar'
 // El puente se crea aquí y se destruye con la vista. La clave por ruta del
 // RouterView garantiza que cambiar de reto levante un sandbox limpio.
 const puente = reto ? crearPuente(reto.entorno) : null
+
+/**
+ * El apunte vive fuera del reto y se pide al abrirlo. Es una carga local, así
+ * que se ve al momento; y a cambio, la lección puede ser todo lo larga que
+ * haga falta sin pesar en el arranque del juego.
+ */
+const apunte = ref('')
+if (reto) cargarApunte(reto.id).then((texto) => { apunte.value = texto ?? '' })
 
 const codigo = ref(progreso.ficha(props.retoId).codigoGuardado ?? reto?.inicial ?? '')
 const respuesta = ref('')
@@ -121,9 +130,9 @@ function reiniciarCodigo() {
     </header>
 
     <PanelApunte
-      v-if="reto.apunte"
+      v-if="apunte"
       class="apunte-ancho"
-      :texto="reto.apunte"
+      :texto="apunte"
       :empieza-abierto="!yaSuperado"
     />
 

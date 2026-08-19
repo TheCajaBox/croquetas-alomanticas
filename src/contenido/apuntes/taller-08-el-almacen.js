@@ -1,0 +1,65 @@
+/**
+ * El apunte de Wax para «taller-08-el-almacen».
+ *
+ * Vive fuera del reto y se carga cuando se abre, no al arrancar el juego.
+ * Los apuntes son lo más largo que hay aquí -y tienen que serlo, porque son
+ * la lección- así que si viajaran en el paquete inicial cada lección nueva
+ * haría más lento el arranque para todo el mundo.
+ */
+import { codigo } from '../retos/comun.js'
+
+export default codigo(
+    "No hay nada nuevo. Está todo, eso sí, y hay dos decisiones que tomar.",
+    "",
+    "## Dónde se guardan las existencias",
+    "",
+    "Las claves vienen de los datos (los metales que alguien traiga), así que `Map`, no",
+    "objeto. Y como se pide que sea privado, no puede ser `this.inventario`: eso lo ve",
+    "cualquiera.",
+    "",
+    "Las clases tienen campos privados de verdad. Se marcan con almohadilla:",
+    "",
+    "```js",
+    "class Almacen {",
+    "  #inventario = new Map()",
+    "",
+    "  cuanto(metal) {",
+    "    return this.#inventario.get(metal) ?? 0",
+    "  }",
+    "}",
+    "",
+    "const a = new Almacen()",
+    "a.#inventario        // error de sintaxis: desde fuera no existe",
+    "```",
+    "",
+    "Es la misma idea del cierre del reto anterior, pero dentro de una clase y con",
+    "sintaxis propia. Las dos formas son válidas; esta se lee mejor cuando ya hay",
+    "métodos de por medio.",
+    "",
+    "## Los errores, antes de tocar nada",
+    "",
+    "```js",
+    "guardar(metal, cantidad) {",
+    "  if (cantidad <= 0) throw new Error('La cantidad tiene que ser positiva')",
+    "  // ...y solo entonces se guarda",
+    "}",
+    "```",
+    "",
+    "Comprobar primero y actuar después no es una manía de estilo: si lanzas a mitad de",
+    "una operación, dejas el almacén a medio actualizar, y ese es un fallo mucho peor",
+    "que el que estabas evitando.",
+    "",
+    "## El detalle que se olvida",
+    "",
+    "Si sacas todas las existencias de un metal, ese metal ya no debería salir en la",
+    "lista. Un `0` guardado es una entrada que sigue estando ahí. `Map` tiene",
+    "`.delete(clave)` justo para eso.",
+    "",
+    "## Recordatorio de los `get`",
+    "",
+    "```js",
+    "get metales() { ... }     // se usa como a.metales, sin paréntesis",
+    "```",
+    "",
+    "Y para sacar los datos de un `Map`: `[...mapa.keys()]` y `[...mapa.values()]`.",
+)

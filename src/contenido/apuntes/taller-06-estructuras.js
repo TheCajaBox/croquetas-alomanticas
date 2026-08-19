@@ -1,0 +1,68 @@
+/**
+ * El apunte de Wax para «taller-06-estructuras».
+ *
+ * Vive fuera del reto y se carga cuando se abre, no al arrancar el juego.
+ * Los apuntes son lo más largo que hay aquí -y tienen que serlo, porque son
+ * la lección- así que si viajaran en el paquete inicial cada lección nueva
+ * haría más lento el arranque para todo el mundo.
+ */
+import { codigo } from '../retos/comun.js'
+
+export default codigo(
+    "## Set: una bolsa sin repetidos",
+    "",
+    "```js",
+    "const vistos = new Set()",
+    "vistos.add('Wax')",
+    "vistos.add('Wax')     // no pasa nada: ya estaba",
+    "vistos.size           // 1",
+    "vistos.has('Wax')     // true",
+    "```",
+    "",
+    "Y el truco que se usa a diario, quitar repetidos de una lista de un tirón:",
+    "",
+    "```js",
+    "const sinRepetir = [...new Set(nombres)]",
+    "```",
+    "",
+    "Se mete la lista en un `Set` (que descarta los repetidos solo) y se saca otra vez",
+    "a lista con los tres puntos. Conserva el orden de la primera aparición.",
+    "",
+    "Con `includes` dentro de un bucle también sale, pero `includes` recorre la lista",
+    "entera cada vez: con diez elementos da igual, con diez mil no. Un `Set` lo",
+    "encuentra directamente, sin recorrer.",
+    "",
+    "## Map: un objeto con las claves que quieras",
+    "",
+    "```js",
+    "const cuenta = new Map()",
+    "cuenta.set('Wax', 3)",
+    "cuenta.get('Wax')          // 3",
+    "cuenta.get('Nadie')        // undefined",
+    "cuenta.has('Wax')          // true",
+    "cuenta.size                // 1",
+    "```",
+    "",
+    "Y el patrón de contar, que es para lo que más se usa:",
+    "",
+    "```js",
+    "for (const nombre of nombres) {",
+    "  cuenta.set(nombre, (cuenta.get(nombre) ?? 0) + 1)",
+    "}",
+    "```",
+    "",
+    "El `?? 0` es lo que hace que la primera vez funcione: si todavía no había nada,",
+    "empieza en cero en vez de en `undefined`.",
+    "",
+    "## ¿Y por qué no un objeto normal?",
+    "",
+    "Un objeto también contaría. Pero un `Map`:",
+    "",
+    "- Admite **cualquier cosa** como clave, no solo textos.",
+    "- Sabe cuántos tiene con `.size`; un objeto hay que preguntárselo a `Object.keys`.",
+    "- No trae propiedades heredadas de fábrica, así que una clave llamada",
+    "  `constructor` o `toString` no te da un susto.",
+    "",
+    "La regla corta: si las claves las decides tú al escribir el código, objeto. Si las",
+    "claves vienen de los datos, `Map`.",
+)

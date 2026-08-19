@@ -4,11 +4,12 @@
 // sin `localStorage` de verdad, los tests de persistencia pasarían por no haber
 // guardado nada, que es justo lo contrario de lo que se quiere demostrar.
 import { createPinia, setActivePinia } from 'pinia'
-import { beforeEach, describe, expect, it } from 'vitest'
+import { beforeAll, beforeEach, describe, expect, it } from 'vitest'
 
-import { CORPUS, citar, trocearApunte } from '../src/contenido/armonia/corpus.js'
+import { citar, obtenerCorpus, trocearApunte } from '../src/contenido/armonia/corpus.js'
+import { cargarTodosLosApuntes } from '../src/contenido/apuntes/index.js'
 import { clasificar } from '../src/motor/armonia/intencion.js'
-import { responder } from '../src/motor/armonia/responder.js'
+import { prepararArmonia, responder } from '../src/motor/armonia/responder.js'
 import { engancharArmonia, usarArmonia } from '../src/almacen/armonia.js'
 import { leerAjustesDeProveedor, olvidarAjustesDeProveedor } from '../src/almacen/clave.js'
 import { contexto, instrucciones, sinCodigo } from '../src/motor/armonia/proveedores.js'
@@ -27,15 +28,29 @@ const aplanar = (texto) => (texto ?? '').replace(/\s+/g, ' ').trim()
  * Todo lo que el jugador tiene GRATIS y delante mientras hace un reto: el
  * enunciado, el apunte de Wax, el glosario de Steris y la lista de imprevistos.
  */
-function materialGratuito() {
+function materialGratuito(apuntes) {
   const partes = []
-  for (const reto of RETOS) partes.push(reto.titulo, reto.enunciado, reto.apunte)
+  for (const reto of RETOS) partes.push(reto.titulo, reto.enunciado, apuntes[reto.id])
   for (const entrada of GLOSARIO) partes.push(entrada.termino, entrada.definicion, entrada.ejemplo)
   for (const imprevisto of IMPREVISTOS) partes.push(imprevisto.titulo, ...(imprevisto.causas ?? []))
   return aplanar(partes.filter(Boolean).join(' '))
 }
 
-const GRATIS = materialGratuito()
+/**
+ * Los apuntes y el corpus se traen antes de nada: desde que viven fuera del
+ * paquete inicial hay que pedirlos, y sin ellos estos tests comprobarían el
+ * vacío y pasarían por no haber mirado nada.
+ */
+let GRATIS = ''
+let CORPUS = []
+let APUNTES = {}
+
+beforeAll(async () => {
+  APUNTES = await cargarTodosLosApuntes()
+  GRATIS = materialGratuito(APUNTES)
+  CORPUS = await obtenerCorpus()
+  await prepararArmonia()
+})
 
 describe('Armonía no puede decir nada que no esté ya gratis en pantalla', () => {
   /**
@@ -306,22 +321,22 @@ describe('lo que contesta', () => {
 describe('el almacén', () => {
   beforeEach(() => setActivePinia(createPinia()))
 
-  it('guarda la conversación y cuenta las veces que le piden la solución', () => {
+  it('guarda la conversación y cuenta las veces que le piden la solución', async () => {
     const armonia = usarArmonia()
-    armonia.preguntar('qué es un bucle')
+    await armonia.preguntar('qué es un bucle')
     expect(armonia.turnos).toHaveLength(2)
     expect(armonia.turnos[0].de).toBe('jugador')
     expect(armonia.turnos[1].de).toBe('armonia')
 
-    armonia.preguntar('dame la solución')
+    await armonia.preguntar('dame la solución')
     expect(armonia.vecesQuePidioSolucion).toBe(1)
-    armonia.preguntar('dame la solución')
+    await armonia.preguntar('dame la solución')
     expect(armonia.vecesQuePidioSolucion).toBe(2)
   })
 
-  it('una pregunta vacía no cuenta como turno', () => {
+  it('una pregunta vacía no cuenta como turno', async () => {
     const armonia = usarArmonia()
-    armonia.preguntar('   ')
+    await armonia.preguntar('   ')
     expect(armonia.turnos).toHaveLength(0)
   })
 
@@ -383,7 +398,7 @@ describe('la voz prestada', () => {
       )
       for (const linea of (reto.solucion ?? '').split('\n').map(aplanar).filter((l) => l.length >= 20)) {
         // Salvo que esa línea ya estuviera en el apunte, que es gratis y visible.
-        if (aplanar(reto.apunte ?? '').includes(linea)) continue
+        if (aplanar(APUNTES[reto.id] ?? '').includes(linea)) continue
         expect(enviado, `${reto.id} manda su solución al modelo`).not.toContain(linea)
       }
       for (const prueba of reto.tests ?? []) {

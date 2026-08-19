@@ -10,7 +10,7 @@
 import { MUNDOS } from '../../contenido/mundos.js'
 import { RETOS } from '../../contenido/retos/index.js'
 import { TERMINOS_BUSCABLES } from '../../contenido/glosario.js'
-import { CORPUS } from '../../contenido/armonia/corpus.js'
+import { obtenerCorpus } from '../../contenido/armonia/corpus.js'
 
 /**
  * Palabras que salen en todas las frases y no distinguen nada. Sin quitarlas,
@@ -83,8 +83,8 @@ export function simbolosMencionados(texto) {
   return encontrados
 }
 
-function construirIndice() {
-  const documentos = CORPUS.map((trozo) => {
+function construirIndice(corpus) {
+  const documentos = corpus.map((trozo) => {
     const cuenta = new Map()
     // El titular pesa como si estuviera tres veces: es el resumen de la sección.
     const texto = [trozo.texto, trozo.titulo, trozo.titular, trozo.titular, trozo.titular]
@@ -133,7 +133,27 @@ const K1 = 1.2
 // menciona «variable» de pasada y el apunte que la explica, queremos el apunte.
 const B = 0.25
 
-const INDICE = construirIndice()
+let INDICE = null
+
+/**
+ * Trae los apuntes y monta el índice. Se llama una vez, al abrir a Armonía.
+ *
+ * Se separa de `buscar` a propósito: si buscar fuera asíncrono, lo serían
+ * también responder y todo lo que cuelga, y eso son cinco funciones esperando
+ * a algo que en realidad ya está listo desde la primera pregunta.
+ */
+export async function prepararBusqueda() {
+  if (INDICE) return
+  const { cargarTodosLosApuntes } = await import('../../contenido/apuntes/index.js')
+  INDICE = construirIndice(await obtenerCorpus())
+  quienEnsena = construirQuienEnsena(await cargarTodosLosApuntes())
+}
+
+/** Si alguien busca antes de tiempo, mejor saberlo que devolver nada en silencio. */
+function exigirIndice() {
+  if (!INDICE) throw new Error('Hay que llamar a prepararBusqueda() antes de buscar.')
+  return INDICE
+}
 
 /**
  * Los términos del glosario que aparecen literalmente en un texto.
@@ -185,10 +205,10 @@ export function terminosMencionados(texto) {
  * `RETOS` ya viene ordenado por mundo y por número, así que el orden del array
  * es el orden en que se juega.
  */
-function construirQuienEnsena() {
+function construirQuienEnsena(apuntes) {
   const porTermino = new Map()
   for (const reto of RETOS) {
-    const texto = [reto.titulo, reto.enunciado, reto.apunte].filter(Boolean).join('\n')
+    const texto = [reto.titulo, reto.enunciado, apuntes[reto.id]].filter(Boolean).join('\n')
     for (const { id } of terminosMencionados(texto)) {
       if (!porTermino.has(id)) porTermino.set(id, [])
       porTermino.get(id).push(reto)
@@ -201,10 +221,7 @@ let quienEnsena = null
 
 /** Los retos donde sale ese término, del primero al último. */
 export function retosQueEnsenan(terminoId) {
-  // Perezoso: recorrer los 56 apuntes cuesta, y quien no abra a Armonía no
-  // tiene por qué pagarlo al cargar el juego.
-  if (!quienEnsena) quienEnsena = construirQuienEnsena()
-  return quienEnsena.get(terminoId) ?? []
+  return quienEnsena?.get(terminoId) ?? []
 }
 
 /**
@@ -214,7 +231,7 @@ export function retosQueEnsenan(terminoId) {
  * @param {{retoId?: string, cuantos?: number, tipos?: string[]}} opciones
  */
 export function buscar(consulta, { retoId = null, cuantos = 4, tipos = null, mundoId = null } = {}) {
-  const mundoActual = mundoId != null ? INDICE.ordenDeMundo[mundoId] ?? null : null
+  const mundoActual = mundoId != null ? exigirIndice().ordenDeMundo[mundoId] ?? null : null
   const simbolos = simbolosMencionados(consulta)
 
   // Las palabras de los símbolos se suman a las de la pregunta: así «¿qué es
@@ -228,15 +245,15 @@ export function buscar(consulta, { retoId = null, cuantos = 4, tipos = null, mun
   const mencionados = new Set(terminosMencionados(consulta).map((t) => t.id))
 
   const puntuados = []
-  for (const doc of INDICE.documentos) {
+  for (const doc of exigirIndice().documentos) {
     if (tipos && !tipos.includes(doc.trozo.tipo)) continue
 
     let punto = 0
     for (const palabra of consultadas) {
       const veces = doc.cuenta.get(palabra)
       if (!veces) continue
-      const normalizado = 1 - B + B * (doc.largo / INDICE.largoMedio)
-      punto += (INDICE.idf.get(palabra) ?? 0) * ((veces * (K1 + 1)) / (veces + K1 * normalizado))
+      const normalizado = 1 - B + B * (doc.largo / exigirIndice().largoMedio)
+      punto += (exigirIndice().idf.get(palabra) ?? 0) * ((veces * (K1 + 1)) / (veces + K1 * normalizado))
     }
     // Los símbolos también se buscan sobre el texto crudo, que es donde siguen
     // vivos, pero pesan poco: casi cualquier apunte tiene un `=>` por ahí.
@@ -257,7 +274,7 @@ export function buscar(consulta, { retoId = null, cuantos = 4, tipos = null, mun
     // día no se le manda a un apunte de Vue 3 que da por sabido todo lo de en
     // medio. Que exista la respuesta no la hace útil si llega antes de tiempo.
     if (mundoActual != null && doc.trozo.mundoId != null) {
-      const suyo = INDICE.ordenDeMundo[doc.trozo.mundoId] ?? 0
+      const suyo = exigirIndice().ordenDeMundo[doc.trozo.mundoId] ?? 0
       if (suyo > mundoActual) punto *= 0.35
     }
 

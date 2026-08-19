@@ -2,7 +2,7 @@ import { defineStore } from 'pinia'
 
 import { RETOS_POR_ID } from '../contenido/retos/index.js'
 import { contexto, instrucciones, preguntarAlProveedor, sinCodigo } from '../motor/armonia/proveedores.js'
-import { responder } from '../motor/armonia/responder.js'
+import { prepararArmonia, responder } from '../motor/armonia/responder.js'
 import { guardarAjustesDeProveedor, hayClave, leerAjustesDeProveedor } from './clave.js'
 import { autoguardar } from './persistencia.js'
 
@@ -62,9 +62,15 @@ export const usarArmonia = defineStore('armonia', {
       this.contexto = { retoId: null, codigo: '', resultado: null }
     },
 
-    preguntar(texto) {
+    /** Trae los apuntes y monta el índice. Idempotente: se puede llamar siempre. */
+    async preparar() {
+      await prepararArmonia()
+    },
+
+    async preguntar(texto) {
       const pregunta = (texto ?? '').trim()
       if (!pregunta) return null
+      await prepararArmonia()
 
       const contestada = responder(pregunta, {
         ...this.contexto,
@@ -101,6 +107,7 @@ export const usarArmonia = defineStore('armonia', {
       const pregunta = (texto ?? '').trim()
       if (!pregunta) return null
 
+      await prepararArmonia()
       const reto = this.contexto.retoId ? RETOS_POR_ID[this.contexto.retoId] : null
 
       // El diagnóstico local se calcula igual y se le pasa al modelo: es lo que

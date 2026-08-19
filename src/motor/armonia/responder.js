@@ -13,11 +13,11 @@
  * intervenir, y intervenir de más estropea justo lo que intenta sostener.
  */
 import { traducirImprevisto } from '../../contenido/imprevistos.js'
-import { CORPUS, citar } from '../../contenido/armonia/corpus.js'
+import { citar, corpusYaConstruido } from '../../contenido/armonia/corpus.js'
 import { RETOS_POR_ID } from '../../contenido/retos/index.js'
 import { comprobarRequisitos } from '../chequeosEstaticos.js'
 import { analizar } from '../guardaBucles.js'
-import { buscar, retosQueEnsenan } from './buscar.js'
+import { buscar, prepararBusqueda, retosQueEnsenan } from './buscar.js'
 import { clasificar } from './intencion.js'
 
 /** Cuántas veces hay que pedirle la solución para que te llame la atención. */
@@ -192,7 +192,7 @@ function diagnosticar(reto, codigo, resultado) {
 
 function definir(terminos, pregunta, reto) {
   const fichas = terminos
-    .map((t) => CORPUS.find((trozo) => trozo.terminoId === t.id))
+    .map((t) => (corpusYaConstruido() ?? []).find((trozo) => trozo.terminoId === t.id))
     .filter(Boolean)
 
   if (fichas.length === 0) return general(pregunta, reto)
@@ -266,6 +266,18 @@ function seRetira() {
 }
 
 // ---------------------------------------------------------------------------
+
+/**
+ * Trae los apuntes y monta el índice de búsqueda.
+ *
+ * Hay que llamarlo una vez antes de la primera pregunta. Se separa de
+ * `responder` para que responder pueda seguir siendo síncrono: es lo que se
+ * llama en cada turno, y a partir de la segunda pregunta no hay nada que
+ * esperar.
+ */
+export async function prepararArmonia() {
+  await prepararBusqueda()
+}
 
 /**
  * @param {string} pregunta
