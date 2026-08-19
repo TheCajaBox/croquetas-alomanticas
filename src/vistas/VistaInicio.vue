@@ -7,7 +7,7 @@ import { retosDelMundo } from '../contenido/retos/index.js'
 import { usarGatos } from '../almacen/gatos.js'
 import { usarProgreso } from '../almacen/progreso.js'
 import GatoSvg from '../componentes/GatoSvg.vue'
-import WayneSvg from '../componentes/WayneSvg.vue'
+import wayneRetrato from '../recursos/wayne-retrato.webp'
 
 const progreso = usarProgreso()
 const gatos = usarGatos()
@@ -51,7 +51,13 @@ const colonia = computed(() => gatos.adoptados)
 
       <!-- Wayne, en grande y presidiendo. Es su juego, al fin y al cabo. -->
       <figure class="anfitrion">
-        <WayneSvg :tamano="172" animo="guasa" />
+        <img
+          :src="wayneRetrato"
+          class="retrato-wayne"
+          width="480"
+          height="700"
+          alt="Wayne, con su sombrero y el bastón al hombro"
+        />
         <figcaption>«Yo no robo. Intercambio.»</figcaption>
       </figure>
     </section>
@@ -129,6 +135,13 @@ const colonia = computed(() => gatos.adoptados)
 .entradilla:last-child { margin-bottom: 0; }
 
 .anfitrion { flex-shrink: 0; margin: 0; text-align: center; }
+.retrato-wayne {
+  display: block;
+  width: 200px;
+  height: auto;
+  /* Un poco de sombra para que no parezca pegado sobre el panel. */
+  filter: drop-shadow(0 12px 22px rgba(0, 0, 0, 0.45));
+}
 .anfitrion figcaption {
   margin-top: 4px;
   font-size: 0.8rem;

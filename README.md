@@ -47,9 +47,15 @@ Hay siete clases de reto, y solo tres piden escribir código:
 
 ## Wayne explica mal, Wax explica bien
 
-**Wayne** es el juego. Preside la portada, narra, se burla, cambia de cara según lo que
-cuente —guasa, orgullo, sorpresa, fastidio— y te vende pistas: la primera gratis, las otras a
-precio de amigo. Habla también cuando no ha pasado nada, porque se aburre.
+**Wayne** es el juego. Preside la portada, narra, se burla y te vende pistas: la primera
+gratis, las otras a precio de amigo. Habla también cuando no ha pasado nada, porque se
+aburre.
+
+Su retrato es la ilustración del personaje, recortada del fondo y servida en dos piezas
+desde `src/recursos/`: el retrato entero con su bastón para la portada, y un avatar circular
+sobre un disco con los colores del juego para cuando habla y para el panel de pistas. Se
+importan como módulos para que Vite les ponga su hash y su ruta base; escritas a mano, esas
+rutas se romperían al publicar en Pages.
 
 **Wax** aparece cuando la cosa se pone seria: si un reto se te resiste tres veces, se planta
 ahí y te manda a leer. Y cada reto lleva **un apunte suyo, gratis y a todo lo ancho**, con la
