@@ -1,0 +1,71 @@
+import { codigo, pista } from '../comun.js'
+
+export default {
+  id: "vue2-02b-la-linea-culpable",
+  mundo: "vue2",
+  entorno: "vue2",
+  tipo: "cazar-linea",
+  titulo: "El botón que no dispara",
+  enunciado: codigo(
+    "Este componente se pinta bien. Al pulsar el botón no pasa nada y la consola suelta",
+    "un aviso de Vue.",
+    "",
+    "Pulsa la línea que tiene la culpa. Aviso: la línea donde se rompe no es la misma.",
+  ),
+  codigoMostrado: codigo(
+    "const componente = {",
+    "  data() {",
+    "    return { balas: 6 }",
+    "  },",
+    "  methods: {",
+    "    disparar: () => {",
+    "      this.balas = this.balas - 1",
+    "    },",
+    "  },",
+    "  template: `<button @click=\"disparar\">{{ balas }}</button>`,",
+    "}",
+    "",
+    "const vista = montar(componente)",
+    "vista.click('button')",
+  ),
+  errorMostrado: codigo(
+    "[Vue warn]: Error in v-on handler: \"TypeError: Cannot read properties",
+    "of undefined (reading 'balas')\"",
+    "",
+    "(found in <Root>)",
+  ),
+  lineaCulpable: 6,
+  explicaciones: {
+    6: codigo(
+      "Esta. `disparar` está escrita como **función flecha**, y una flecha no tiene `this`",
+      "propio: se queda con el de fuera, que aquí no es el componente.",
+      "",
+      "Los métodos de un componente tienen que ser funciones normales —`disparar() { ... }`—",
+      "porque Vue necesita poder darles el componente como `this` al llamarlas. Con una",
+      "flecha no puede, por mucho que quiera.",
+      "",
+      "Es la razón de que en las opciones de un componente nunca se usen flechas: ni en",
+      "`methods`, ni en `computed`, ni en los hooks del ciclo de vida.",
+    ),
+    7: codigo(
+      "Aquí es donde revienta, y por eso el aviso habla de `balas`. Pero la línea está",
+      "bien escrita: leer y asignar `this.balas` es exactamente lo que hay que hacer en un",
+      "método. El problema es que `this` no es lo que debería, y eso se decidió arriba.",
+    ),
+    10: codigo(
+      "La plantilla está perfecta: `@click=\"disparar\"` es la forma correcta de enganchar",
+      "un método a un evento, y el `{{ balas }}` pinta bien —de hecho se ve el 6 en",
+      "pantalla—. El fallo no está en cómo se llama al método, sino en cómo está escrito.",
+    ),
+    13: codigo(
+      "Montar el componente funciona sin problemas: si el fallo estuviera aquí, no se",
+      "vería nada en pantalla. Y se ve. El error solo aparece al pulsar.",
+    ),
+  },
+  pistas: [
+    pista("El aviso dice que algo es `undefined` al pedirle `balas`. En ese método, ¿qué debería ser `this`?", 0),
+    pista("Compara cómo está escrita `data()` y cómo está escrita `disparar`. No son la misma clase de función.", 1),
+    pista("Una función flecha no trae `this` propio: hereda el de donde se escribió. Y donde se escribió esa no hay ningún componente.", 2),
+  ],
+  recompensa: { croquetas: 11 },
+}
