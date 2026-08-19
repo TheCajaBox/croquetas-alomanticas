@@ -2,16 +2,26 @@
 import { computed } from 'vue'
 import SombreroEscondido from '../componentes/SombreroEscondido.vue'
 
-import { MUNDOS } from '../contenido/mundos.js'
+import { LEMAS_DE_WAYNE } from '../contenido/narrador/lineas.js'
+import { MUNDOS, MUNDOS_POR_ID } from '../contenido/mundos.js'
 import { retosDelMundo } from '../contenido/retos/index.js'
+import { usarEconomia } from '../almacen/economia.js'
 import { usarGatos } from '../almacen/gatos.js'
+import { usarInsignias } from '../almacen/insignias.js'
 import { usarProgreso } from '../almacen/progreso.js'
+import { usarSombreros } from '../almacen/sombreros.js'
 import Avatar from '../componentes/Avatar.vue'
 import GatoSvg from '../componentes/GatoSvg.vue'
 import wayneRetrato from '../recursos/wayne-retrato.webp'
 
 const progreso = usarProgreso()
 const gatos = usarGatos()
+const economia = usarEconomia()
+const insignias = usarInsignias()
+const sombreros = usarSombreros()
+
+/** Una frase distinta cada vez que se entra. Es su casa; que hable. */
+const lema = LEMAS_DE_WAYNE[Math.floor(Math.random() * LEMAS_DE_WAYNE.length)]
 
 const NUMEROS = ['Cero', 'Un', 'Dos', 'Tres', 'Cuatro', 'Cinco', 'Seis', 'Siete', 'Ocho', 'Nueve']
 
@@ -51,6 +61,31 @@ const mundos = computed(() =>
 )
 
 const colonia = computed(() => gatos.adoptados)
+
+/**
+ * Por dónde iba y qué lleva hecho.
+ *
+ * La portada enseñaba nueve mundos y ni una palabra de dónde te habías
+ * quedado: para seguir jugando había que acordarse. Ahora lo primero que hay
+ * al entrar, si ya has empezado, es el reto siguiente y un botón.
+ */
+const siguiente = computed(() => {
+  const reto = progreso.porDondeIba
+  if (!reto) return null
+  return { ...reto, mundo: MUNDOS_POR_ID[reto.mundo] }
+})
+
+const empezado = computed(() => progreso.retosSuperados > 0)
+
+const marcadores = computed(() =>
+  [
+    { id: 'retos', valor: `${progreso.retosSuperados}/${cuantosRetos.value}`, que: 'retos' },
+    progreso.rachaSinPistas >= 2 && { id: 'racha', valor: progreso.rachaSinPistas, que: 'de racha' },
+    insignias.cuantas > 0 && { id: 'insignias', valor: `${insignias.cuantas}/${insignias.total}`, que: 'insignias' },
+    sombreros.cuantos > 0 && { id: 'sombreros', valor: `${sombreros.cuantos}/${sombreros.total}`, que: 'sombreros' },
+    { id: 'croquetas', valor: economia.croquetas, que: 'croquetas' },
+  ].filter(Boolean),
+)
 </script>
 
 <template>
@@ -61,14 +96,17 @@ const colonia = computed(() => gatos.adoptados)
       <div class="texto-portada">
         <h1>Aprende a programar y págalo en croquetas</h1>
         <p class="tenue entradilla">
-          {{ cuantosMundos }} mundos, {{ cuantosRetos }} retos y código que se ejecuta de verdad: nada de elegir
-          la respuesta correcta de una lista. Se empieza señalando y colocando piezas, y se
-          acaba montando componentes de Vue.
+          {{ cuantosMundos }} mundos, {{ cuantosRetos }} retos y código que se ejecuta de verdad, con sus
+          tests: nada de elegir la respuesta correcta de una lista. Se empieza señalando y
+          colocando piezas, se pasa por seguir la ejecución paso a paso o cazar la línea
+          culpable, y se acaba montando una aplicación entera de Vue.
         </p>
         <p class="tenue entradilla">
-          Wayne lo cuenta todo, se ríe de lo que haces y te vende pistas a precio de amigo.
-          Con lo que ganes das de comer a una colonia de gatos que, cuando están contentos,
-          te devuelven el favor.
+          Wayne lo cuenta todo, se ríe de lo que haces y te vende pistas a precio de amigo. Wax
+          escribe los apuntes, Steris traduce los errores que asustan, Marasi te revisa el
+          código y Armonía contesta dudas sin darte nunca la solución. Con lo que ganes das de
+          comer a una colonia de gatos que vive en su casa y que, cuando están contentos, te
+          devuelven el favor.
         </p>
       </div>
 
@@ -81,8 +119,42 @@ const colonia = computed(() => gatos.adoptados)
           height="700"
           alt="Wayne, con su sombrero y el bastón al hombro"
         />
-        <figcaption>«Yo no robo. Intercambio.»</figcaption>
+        <figcaption>«{{ lema }}»</figcaption>
       </figure>
+    </section>
+
+    <section v-if="siguiente" class="panel seguir">
+      <div class="donde">
+        <p class="tenue etiqueta-seguir">{{ empezado ? 'Por dónde ibas' : 'Por aquí se empieza' }}</p>
+        <h2>{{ siguiente.titulo }}</h2>
+        <p class="tenue">
+          {{ siguiente.mundo?.nombre }}
+          <span v-if="siguiente.jefe" class="etiqueta jefe">jefe</span>
+        </p>
+      </div>
+
+      <ul v-if="empezado" class="marcadores">
+        <li v-for="marcador in marcadores" :key="marcador.id">
+          <strong>{{ marcador.valor }}</strong>
+          <span class="tenue">{{ marcador.que }}</span>
+        </li>
+      </ul>
+
+      <RouterLink class="principal seguir-boton" :to="{ name: 'reto', params: { retoId: siguiente.id } }">
+        {{ empezado ? 'Seguir' : 'Empezar' }} →
+      </RouterLink>
+    </section>
+
+    <section v-else-if="empezado" class="panel seguir">
+      <div class="donde">
+        <p class="tenue etiqueta-seguir">Ya está</p>
+        <h2>No queda un solo reto sin resolver</h2>
+        <p class="tenue">
+          Quedan los repasos de Marasi, las insignias que falten y unos gatos a los que no les
+          vendría mal que les hicieras caso.
+        </p>
+      </div>
+      <RouterLink class="principal seguir-boton" to="/colonia">A la casa →</RouterLink>
     </section>
 
     <RouterLink v-if="!progreso.vistoLaAntesala" to="/antesala" class="panel antesala-aviso">
@@ -133,8 +205,12 @@ const colonia = computed(() => gatos.adoptados)
     <section v-if="colonia.length" class="colonia panel">
       <div class="fila cabecera-colonia">
         <h2>Tu colonia</h2>
-        <RouterLink to="/colonia" class="tenue">Ir a cuidarlos →</RouterLink>
+        <RouterLink to="/colonia" class="tenue">Ir a la casa →</RouterLink>
       </div>
+      <p class="tenue vive-aqui">
+        Viven en una casa con jardín y se mueven por ella. Se les da de comer, se les cepilla
+        arrastrando por encima y se juega con ellos moviéndoles una pluma.
+      </p>
       <div class="miniaturas">
         <RouterLink v-for="gato in colonia" :key="gato.id" to="/colonia" class="miniatura" :title="gato.nombre">
           <GatoSvg
@@ -149,7 +225,8 @@ const colonia = computed(() => gatos.adoptados)
 
     <section v-else class="panel centrado sin-gatos">
       <p class="tenue">
-        Todavía no tienes ningún gato. Supera un reto y Wayne te llevará al refugio.
+        Todavía no tienes ningún gato. Supera un reto y Wayne te llevará al refugio; de ahí se
+        vienen a la casa, donde se les cuida.
       </p>
     </section>
   </div>
@@ -189,6 +266,33 @@ const colonia = computed(() => gatos.adoptados)
   .anfitrion { align-self: center; }
 }
 
+.seguir {
+  display: flex;
+  align-items: center;
+  gap: 20px;
+  flex-wrap: wrap;
+  border-left: 3px solid var(--cobre);
+  background: linear-gradient(180deg, #2b2437, #221e30);
+}
+.donde { flex: 1; min-width: 220px; }
+.donde h2 { margin: 2px 0 4px; font-size: 1.15rem; }
+.donde p { margin: 0; font-size: 0.88rem; }
+.etiqueta-seguir {
+  margin: 0;
+  font-size: 0.7rem;
+  letter-spacing: 0.09em;
+  text-transform: uppercase;
+  color: var(--cobre-claro);
+}
+.jefe { margin-left: 6px; border-color: var(--rojo); color: var(--rojo); }
+
+.marcadores { display: flex; gap: 18px; flex-wrap: wrap; list-style: none; margin: 0; padding: 0; }
+.marcadores li { display: flex; flex-direction: column; line-height: 1.2; }
+.marcadores strong { font-size: 1.05rem; color: var(--texto); }
+.marcadores span { font-size: 0.76rem; }
+
+.seguir-boton { text-decoration: none; white-space: nowrap; }
+
 .antesala-aviso {
   display: flex;
   align-items: center;
@@ -225,6 +329,7 @@ a.mundo:hover { transform: translateY(-2px); background: var(--panel-alto); }
 .cabecera-colonia { justify-content: space-between; margin-bottom: 14px; }
 .cabecera-colonia h2 { margin: 0; }
 .cabecera-colonia a { text-decoration: none; font-size: 0.88rem; }
+.vive-aqui { margin: -6px 0 14px; font-size: 0.88rem; max-width: 72ch; }
 .miniaturas { display: flex; flex-wrap: wrap; gap: 14px; }
 .miniatura { display: flex; flex-direction: column; align-items: center; gap: 2px; text-decoration: none; }
 .miniatura .nombre { font-size: 0.78rem; }

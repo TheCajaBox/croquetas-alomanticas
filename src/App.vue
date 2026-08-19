@@ -189,7 +189,7 @@ watch(ultimoRecorte, (nuevo) => {
   backdrop-filter: blur(10px);
   border-bottom: 1px solid var(--borde-suave);
 }
-.barra-superior { display: flex; align-items: center; gap: 22px; height: 62px; }
+.barra-superior { display: flex; align-items: center; gap: 16px; height: 62px; }
 
 .marca {
   position: relative;
@@ -208,9 +208,12 @@ watch(ultimoRecorte, (nuevo) => {
   position: relative;
   color: var(--texto-tenue);
   text-decoration: none;
-  padding: 7px 12px;
+  /* Justo lo que hace falta para que las ocho secciones y los contadores
+     quepan en una línea: con más aire, la navegación se doblaba dentro de una
+     barra de altura fija y la última fila se salía por abajo. */
+  padding: 7px 9px;
   border-radius: 8px;
-  font-size: 0.92rem;
+  font-size: 0.88rem;
   transition: color 0.15s, background 0.15s;
 }
 .navegacion a:hover,
@@ -340,9 +343,15 @@ watch(ultimoRecorte, (nuevo) => {
 
 .principal { padding-top: 28px; padding-bottom: 120px; flex: 1; }
 
-@media (max-width: 860px) {
+/* La barra dejó de caber en una línea cuando aparecieron el contador de racha y
+   dos secciones más: a partir de aquí la navegación baja a su propia fila, en
+   vez de doblarse dentro de una barra de altura fija y salirse por abajo. */
+@media (max-width: 1150px) {
   .barra-superior { height: auto; padding-top: 12px; padding-bottom: 12px; flex-wrap: wrap; }
   .navegacion { order: 3; width: 100%; margin-left: 0; }
+}
+
+@media (max-width: 860px) {
   .hallazgo { right: 10px; left: 10px; }
 }
 </style>

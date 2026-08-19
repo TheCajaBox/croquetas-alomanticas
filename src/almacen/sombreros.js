@@ -40,7 +40,11 @@ export const usarSombreros = defineStore('sombreros', {
       if (this.encontrados.length >= 6) usarRecortes().desbloquear('seis-sombreros')
 
       const narrador = usarNarrador()
-      if (this.estanTodos) narrador.decir('todosLosSombreros', {}, { forzar: true })
+      // El número se le pasa: escrito dentro de la frase se quedaba viejo en
+      // cuanto aparecía un sombrero nuevo, y ya pasó una vez.
+      if (this.estanTodos) {
+        narrador.decir('todosLosSombreros', { cuantos: SOMBREROS.length }, { forzar: true })
+      }
       else narrador.decir('sombreroEncontrado', { dice: sombrero.dice }, { forzar: true })
 
       return sombrero

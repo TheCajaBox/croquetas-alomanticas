@@ -238,6 +238,17 @@ ha visto en los retos de antes: saber que lo sabes es resolverlo sin nadie detr�
 queda Armonía, y en los jefes él tampoco diagnostica — únicamente traduce errores y define
 palabras, que es la válvula para que nadie se quede mirando un muro en inglés.
 
+## La portada
+
+Lo primero que hay al entrar, si ya has empezado, es **por dónde ibas**: el reto que toca, en
+qué mundo, lo que llevas hecho —retos, racha, insignias, sombreros, croquetas— y un botón que
+lleva justo ahí. Antes la portada enseñaba nueve mundos y ni una palabra de dónde te habías
+quedado, así que para seguir jugando había que acordarse. Recién llegado dice «por aquí se
+empieza» y señala el primero.
+
+Debajo del retrato de Wayne va un lema distinto cada vez que se entra: el mismo siempre
+acababa siendo parte del mueble.
+
 ## Los gatos
 
 Diez gatos, uno por metal alomántico, con la personalidad y el beneficio que le corresponde

@@ -80,6 +80,22 @@ export const usarProgreso = defineStore('progreso', {
       }
     },
 
+    /**
+     * El primer reto abierto y sin superar, en el orden en que se juega.
+     *
+     * Es lo que la portada necesita para poder decir «sigue por aquí» en vez de
+     * dejarte buscando en qué mundo te habías quedado. Dentro de un mundo el
+     * primero sin superar es justo el que está abierto, porque se abren en fila.
+     */
+    porDondeIba() {
+      for (const mundo of MUNDOS) {
+        if (!this.mundoDisponible(mundo.id)) continue
+        const reto = retosDelMundo(mundo.id).find((r) => !this.superado(r.id))
+        if (reto) return reto
+      }
+      return null
+    },
+
     jefesDerrotados: (estado) =>
       RETOS.filter((reto) => reto.jefe && estado.retos[reto.id]?.superado).length,
 

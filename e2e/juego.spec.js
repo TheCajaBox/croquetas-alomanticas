@@ -158,15 +158,63 @@ test.beforeEach(async ({ page }) => {
   await page.evaluate(() => localStorage.clear())
 })
 
-test('la portada presenta los siete mundos', async ({ page }) => {
+test('la portada presenta todos los mundos que hay', async ({ page }) => {
   await page.goto('')
-  await expect(page.getByRole('heading', { name: 'El primer día' })).toBeVisible()
-  await expect(page.getByRole('heading', { name: 'Los Áridos' })).toBeVisible()
-  await expect(page.getByRole('heading', { name: 'La mansión Ladrian' })).toBeVisible()
-  await expect(page.getByRole('heading', { name: 'La Nueva Seran' })).toBeVisible()
-  await expect(page.getByRole('heading', { name: 'Cambio de forma' })).toBeVisible()
-  await expect(page.getByRole('heading', { name: 'La comisaría' })).toBeVisible()
-  await expect(page.getByRole('heading', { name: 'El taller' })).toBeVisible()
+  // Escritos a mano se quedaban cortos: la prueba decía «los siete mundos»
+  // cuando ya eran nueve, y pasaba igual.
+  for (const mundo of MUNDOS) {
+    await expect(page.getByRole('heading', { name: mundo.nombre, exact: true })).toBeVisible()
+  }
+})
+
+test('la portada dice por dónde ibas y lleva a ese reto', async ({ page }) => {
+  // Recién llegado: por dónde se empieza.
+  await page.goto('')
+  const seguir = page.locator('.seguir')
+  await expect(seguir).toContainText('Por aquí se empieza')
+  await expect(seguir.getByRole('link', { name: /Empezar/ })).toBeVisible()
+
+  // Con algo hecho: el siguiente, con lo que llevas.
+  const ids = await idsDelMundo('primer-dia')
+  await page.addInitScript((hechos) => {
+    const retos = {}
+    for (const id of hechos) {
+      retos[id] = { superado: true, intentos: 1, fallos: 0, pistasUsadas: [], superadoEn: Date.now() }
+    }
+    localStorage.setItem('gatosYCodigo', JSON.stringify({ version: 1, progreso: { retos } }))
+  }, ids.slice(0, 3))
+  await page.goto('')
+  await page.reload()
+
+  await expect(seguir).toContainText('Por dónde ibas')
+  await expect(seguir.locator('.marcadores')).toContainText('3/')
+  await seguir.getByRole('link', { name: /Seguir/ }).click()
+
+  // Y es justo el cuarto, que es donde se había quedado. Con `toHaveURL`, que
+  // reintenta: leer `page.url()` a pelo lo mira antes de que el router llegue.
+  await expect(page).toHaveURL(new RegExp(ids[3]))
+  await expect(page.locator('h1')).toBeVisible()
+})
+
+test('la cabecera cabe en una línea, con racha y todo', async ({ page }) => {
+  // Con ocho secciones y cinco contadores dejó de caber, y como la barra tiene
+  // altura fija la segunda fila se salía por abajo encima del contenido.
+  await page.addInitScript(() => {
+    localStorage.setItem(
+      'gatosYCodigo',
+      JSON.stringify({ version: 1, progreso: { retos: {}, rachaSinPistas: 7, mejorRacha: 7 } }),
+    )
+  })
+  await page.setViewportSize({ width: 1280, height: 800 })
+  await page.goto('')
+  await page.reload()
+  await expect(page.locator('.contador.racha')).toBeVisible()
+
+  const filas = await page.evaluate(() => {
+    const enlaces = [...document.querySelectorAll('.navegacion > *')]
+    return new Set(enlaces.map((enlace) => Math.round(enlace.getBoundingClientRect().top))).size
+  })
+  expect(filas).toBe(1)
 })
 
 for (const [retoId, solucion] of Object.entries(SOLUCIONES)) {

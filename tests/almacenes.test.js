@@ -1,6 +1,7 @@
 import { readFileSync, readdirSync } from 'node:fs'
 
 import { GATOS } from '../src/contenido/gatos.js'
+import { LEMAS_DE_WAYNE, LINEAS } from '../src/contenido/narrador/lineas.js'
 import { MUNDOS } from '../src/contenido/mundos.js'
 import { retosDelMundo } from '../src/contenido/retos/index.js'
 import { SOMBREROS, SOMBREROS_POR_ID } from '../src/contenido/sombreros.js'
@@ -177,6 +178,31 @@ describe('progreso', () => {
     expect(progreso.rachaSinPistas).toBe(0)
   })
 
+  it('sabe por dónde ibas, que es lo que enseña la portada', () => {
+    const progreso = usarProgreso()
+    const primerMundo = MUNDOS[0].id
+    const retos = retosDelMundo(primerMundo)
+
+    // Recién llegado: por el primero de todos.
+    expect(progreso.porDondeIba?.id).toBe(retos[0].id)
+
+    // Con dos hechos: por el tercero.
+    progreso.registrarVictoria(retos[0].id)
+    progreso.registrarVictoria(retos[1].id)
+    expect(progreso.porDondeIba?.id).toBe(retos[2].id)
+
+    // Y siempre es uno al que se puede entrar de verdad.
+    expect(progreso.retoDisponible(progreso.porDondeIba.id)).toBe(true)
+  })
+
+  it('cuando no queda nada, no señala ningún reto', () => {
+    const progreso = usarProgreso()
+    for (const mundo of MUNDOS) {
+      for (const reto of retosDelMundo(mundo.id)) progreso.registrarVictoria(reto.id)
+    }
+    expect(progreso.porDondeIba).toBe(null)
+  })
+
   it('rehacer un reto ya superado no vuelve a subir la racha', () => {
     const progreso = usarProgreso()
     progreso.registrarVictoria('es6-01-const-let')
@@ -220,6 +246,40 @@ describe('progreso', () => {
     it('un reto que no existe nunca está disponible', () => {
       expect(usarProgreso().retoDisponible('esto-no-existe')).toBe(false)
     })
+  })
+})
+
+describe('las frases de Wayne', () => {
+  const sacos = Object.entries(LINEAS).flatMap(([evento, saco]) =>
+    Array.isArray(saco)
+      ? [[evento, saco]]
+      : Object.entries(saco).map(([nivel, lineas]) => [`${evento}.${nivel}`, lineas]),
+  )
+
+  it('ningún saco se queda con una sola frase', () => {
+    // Con una sola, el narrador la repite siempre y deja de ser una gracia
+    // para pasar a ser un cartel.
+    const escasos = sacos.filter(([, lineas]) => lineas.length < 2).map(([evento]) => evento)
+    expect(escasos).toEqual([])
+  })
+
+  it('los que más salen tienen de sobra', () => {
+    for (const evento of ['charla', 'testFallado', 'retoSuperado']) {
+      const saco = LINEAS[evento]
+      expect(saco.length, evento).toBeGreaterThanOrEqual(5)
+    }
+  })
+
+  it('no hay dos frases iguales en todo el juego', () => {
+    const dichas = sacos.flatMap(([, lineas]) => lineas).filter((linea) => typeof linea === 'string')
+    const repetidas = dichas.filter((linea, indice) => dichas.indexOf(linea) !== indice)
+    expect(repetidas).toEqual([])
+  })
+
+  it('el retrato de la portada tiene lemas de sobra y todos cortos', () => {
+    expect(LEMAS_DE_WAYNE.length).toBeGreaterThanOrEqual(4)
+    // Van debajo de una cara, en cursiva: uno largo rompe la portada.
+    expect(LEMAS_DE_WAYNE.filter((lema) => lema.length > 70)).toEqual([])
   })
 })
 
@@ -301,6 +361,9 @@ describe('sombreros escondidos', () => {
 
     expect(sombreros.estanTodos).toBe(true)
     expect(narrador.mensaje.evento).toBe('todosLosSombreros')
+    // Y dice cuántos son de verdad: la frase llevaba «los doce» escrito a mano
+    // y se quedó vieja el día que aparecieron dos sombreros más.
+    expect(narrador.mensaje.texto).toContain(String(SOMBREROS.length))
   })
 
   it('cada sombrero tiene su sitio, su pista y su frase', () => {
