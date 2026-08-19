@@ -9,7 +9,18 @@
  * (el nombre del gato, el del reto, el error real) y devuelve la cadena.
  *
  * Todos los diálogos son originales, escritos imitando el registro del
- * personaje. No hay texto copiado de los libros.
+ * personaje. **No hay una sola línea copiada de los libros**, y no la va a
+ * haber: esto es un repositorio público y ese texto tiene dueño y traductor.
+ * Lo que sí se imita, a propósito y por escrito para que no se pierda, son sus
+ * manías:
+ *
+ * - **Le habla al sombrero** como si fuera alguien, y a veces le hace caso.
+ * - **Corrige la gramática** en el peor momento posible.
+ * - **Consuela fatal**: siempre hay alguien peor, y lo dice.
+ * - **Infla las historias** hasta que no queda nada de verdad, y lo reconoce a
+ *   mitad de frase.
+ * - **Nunca dice que bebe**: investiga estados.
+ * - **No roba**: intercambia, y te deja algo peor a cambio.
  */
 
 /**
@@ -28,6 +39,9 @@ export const LEMAS_DE_WAYNE = [
   'Wax dice muchas cosas. Yo digo las buenas.',
   'Todo se arregla hablando. Casi todo. Bueno, algunas cosas.',
   'Aquí se paga en croquetas, que es la única moneda seria.',
+  'Le hablo al sombrero. Él me contesta menos.',
+  'Investigo estados alternativos a la sobriedad.',
+  'Consuélate: podría ser peor. Casi siempre puede.',
 ]
 
 export const LINEAS = {
@@ -39,6 +53,7 @@ export const LINEAS = {
     'Yo he sido muchas cosas: vaquero, abogado, viuda una vez. Profesor todavía no, así que tú tranquilo, que estrenamos los dos.',
     'Lo primero, las presentaciones. Yo soy Wayne. Lo segundo, cuenta los sombreros que llevas puestos, y luego los cuentas otra vez al salir.',
     'Aquí se paga en croquetas y se cobra en gatos. Es un sistema mejor que el de los bancos de Elendel, y más honrao.',
+    'Antes de nada: si le hablo al sombrero, tú disimula. Lleva conmigo más años que cualquiera y se ofende si lo ignoran.',
   ],
 
   entrarAlMundo: [
@@ -48,6 +63,7 @@ export const LINEAS = {
     'Espera, que me pongo el acento de por aquí. Es de mala educación entrar en un sitio hablando como el de al lado.',
     'Sitio nuevo, reglas nuevas. Las reglas nuevas también las pongo yo, por cierto.',
     'A ver qué se nos ha perdido aquí. Algo se nos habrá perdido, siempre pasa.',
+    'Quédate cerca y no toques nada. Se lo digo al sombrero, pero tú aplícatelo también.',
   ],
 
   primerIntento: [
@@ -73,6 +89,8 @@ export const LINEAS = {
     'No ha colao. Y mira que yo he colao cosas peores con menos.',
     'Eso no es. Respira, que no te persigue nadie. Que yo sepa.',
     'Nada. Si esto fuera una coartada, ya estarías detenío.',
+    'Consuélate: podría haber fallado delante de más gente.',
+    'Ha fallao, pero mírale el lado bueno: te está diciendo exactamente qué esperaba. Poca gente es así de clara contigo.',
   ],
 
   errorDeSintaxis: [
@@ -86,6 +104,8 @@ export const LINEAS = {
         : 'Está mal escrito, y ni el ordenador ni yo sabemos qué querías decir.',
     'Esto es como cuando finjo un acento que no me sé: se nota enseguida y encima queda raro.',
     'Ni empieza. Y para no empezar ya estoy yo, que llevo así toda la vida.',
+    '«Esperaba una coma», dice. Fíjate: hasta la máquina conjuga mejor que la mitad de la gente que conozco.',
+    'Esto no está mal escrito. Está CASI escrito, que es otra cosa y encima peor.',
   ],
 
   bucleInfinito: [
@@ -95,6 +115,7 @@ export const LINEAS = {
     'Cien mil vueltas y subiendo. Eso ya no es un bucle, es una condena.',
     'Le has quitao la puerta a la habitación. Ahora está dentro y no sabe salir, pobre.',
     'Yo he estado en una burbuja de esas donde el tiempo va raro. Se sale. Tu bucle no.',
+    'Al último que dejó uno así abierto se lo tragó la máquina. Bueno, eso no es verdad. Se quedó sin tarde, que es peor y además pasa.',
   ],
 
   tiempoAgotado: [
@@ -103,6 +124,7 @@ export const LINEAS = {
     'Sigue pensándoselo. Yo tengo cosas que hacer.',
     'Ni metiéndolo en una burbuja de bendalloy te da tiempo, y mira que ahí cunde.',
     'Demasiado lento. Y te lo dice uno que se pasa el día esperando a Wax.',
+    'Demasiado rato pensando. Yo también hago eso, pero investigando otros estados.',
   ],
 
   requisitoIncumplido: [
@@ -126,6 +148,7 @@ export const LINEAS = {
       'Vale, pero se paga. Yo no regalo dos veces seguidas, que tengo una reputación.',
       'Croquetas por delante. Y no te quejes, que te estoy haciendo un favor a precio de amigo.',
       'Esta se paga. Y no es robar: te llevas la pista y me dejas las croquetas. Intercambio de manual.',
+      'Te la vendo, aunque el sombrero opina que podrías sacarlo tú solo. El sombrero es muy optimista.',
     ],
     3: [
       'Esto ya es prácticamente la respuesta, así que te va a costar. Y no me mires así: yo no robo, te dejo algo a cambio.',
@@ -145,6 +168,7 @@ export const LINEAS = {
     'Bien hecho. Y lo digo sin acento raro ni nada, que eso conmigo es una medalla.',
     'Funciona a la primera y todo. A ver si va a resultar que se te da.',
     'Toma. Y no te lo gastes todo en pistas, que luego venís llorando.',
+    'Bien. Se lo cuento al sombrero, que se alegra por ti más que yo.',
   ],
 
   superadoSinPistas: [
@@ -153,6 +177,7 @@ export const LINEAS = {
     'Ni una pista. Estás empezando a caerme regular.',
     'Sin pistas. Con esa cabeza podrías dedicarte a algo peor pagao, como la ley.',
     'Cero pistas. Como sigas así me tendré que buscar un sombrero más barato.',
+    'Sin pistas. Al sombrero le ha impresionado, y él no se impresiona con nada.',
   ],
 
   rachaSube: [
@@ -189,6 +214,7 @@ export const LINEAS = {
     'Fin del asunto. Voy a contarlo por ahí cambiando algún detalle.',
     'Eso ya está. Y sin sacar un arma, que es como más me gusta terminar las cosas.',
     'Se acabó. Yo lo habría resuelto hablando, pero cada uno tiene lo suyo.',
+    'Hecho. Esta noche lo cuento con el doble de sangre y un caballo, que es como se cuentan estas cosas.',
   ],
 
   gatoAdoptado: [
@@ -205,6 +231,7 @@ export const LINEAS = {
     (contexto) => `Yo no me meto, pero ${contexto.gato} está la mar de triste y aquí solo estamos tú y yo.`,
     (contexto) => `${contexto.gato} te mira como Marasi cuando llegas tarde y encima traes excusas malas.`,
     (contexto) => `Hazle caso a ${contexto.gato}, anda. Un gato aburrido acaba tomando decisiones.`,
+    (contexto) => `Le he preguntado al sombrero qué hacemos con ${contexto.gato} y me ha mirado a mí. O sea que muy mal.`,
   ],
 
   gatoCuidado: [
@@ -221,6 +248,7 @@ export const LINEAS = {
     'Estás sin blanca. Te prestaría, pero es que no.',
     'Ni una croqueta. Y yo fío a mucha gente, pero justo hoy no.',
     'Sin fondos. Resuelve algo, que es la única manera honrada de arreglarlo. La otra la conozco yo y no te la voy a contar.',
+    'Consuélate: hay gente con menos croquetas que tú. Poca. Pero haberla, hayla.',
   ],
 
   vuelvesTrasUnaSemana: [
@@ -229,6 +257,7 @@ export const LINEAS = {
     'Ya pensaba que te habías ido a Elendel a hacer algo de provecho.',
     'Mira quién vuelve. He tenido tu sitio guardao y todo. Bueno, lo he usao, pero guardao.',
     'Cuánto sin verte. Los gatos preguntaban por ti; yo les decía que estabas trabajando.',
+    'Le dije al sombrero que volverías. Él decía que no. Ahora me debe una ronda.',
   ],
 
   inactividad: [
@@ -238,6 +267,7 @@ export const LINEAS = {
     'Aquí seguimos. Yo ya me he cambiado de acento dos veces y tú sin escribir una línea.',
     'Oye, ¿te lo estás pensando o te has ido a por algo de beber? Porque si es lo segundo, tráeme.',
     'Nada, tú a tu ritmo. Yo tengo un bastón, un sombrero y toda la tarde.',
+    'Ya le he contado al sombrero cómo va tu código. Se ha quedao callado, que en él es mucho decir.',
   ],
 
   /**
@@ -274,12 +304,21 @@ export const LINEAS = {
     'Cuando algo se pone feo, yo hablo. Hablo mucho. Y mientras hablo, pienso. Prueba a explicarle el código en voz alta al gato, verás.',
     'Un buen sombrero, un buen bastón y saber cuándo callarse. Dos de tres no está mal.',
     'Yo el dinero lo entiendo mejor en croquetas. Los números grandes son cosa de Elendel y de la gente que lleva chaleco.',
+    'Le he explicado al sombrero que hoy no salimos, que ahí fuera hay corriente. Ha protestado, pero se ha quedao.',
+    'Mi sombrero dice que esa variable no se llama así. Y mira, el sombrero suele acertar.',
+    'No estoy bebiendo: estoy investigando cómo se programa desde otros estados. Es prácticamente ciencia.',
+    'Hay cosas que cuanto más las haces, peor se te dan. Copiar y pegar es una. Las otras no vienen al caso.',
+    'Consuélate: por lo menos tú puedes borrar y escribirlo otra vez. Yo, de lo que digo, no borro nada.',
+    'A mí me gustan los tests que te devuelven el golpe. Los que pasan a la primera no tienen carácter ninguno.',
+    'Con el sombrero tengo dos normas: no se presta y no se moja. Ponte tú dos con el código, las que quieras, pero cúmplelas.',
+    'Eso que has escrito ahí no es un error todavía. Lo será. Pretérito imperfecto, creo que se llama. O el otro.',
   ],
 
   verborreaBaja: [
     '¿Que me calle? Muy bien. Perfecto. No diré ni una palabra más. ...¿Ves? Ni una.',
     'Callao. Como una tumba. Una tumba con muy buenas ideas que no comparte.',
     'Silencio absoluto. Como en una burbuja, pero sin lo bonito.',
+    'Ni una palabra. Se lo cuento todo al sombrero, que no se chiva.',
   ],
 
   sombreroEncontrado: [

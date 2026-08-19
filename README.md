@@ -238,6 +238,20 @@ ha visto en los retos de antes: saber que lo sabes es resolverlo sin nadie detr�
 queda Armonía, y en los jefes él tampoco diagnostica — únicamente traduce errores y define
 palabras, que es la válvula para que nadie se quede mirando un muro en inglés.
 
+## La voz de Wayne
+
+Casi doscientas frases repartidas por todo lo que puede pasar, y ninguna copiada de los
+libros: el registro se imita, el texto es propio —el repositorio es público y ese texto tiene
+dueño y traductor—. Lo que se imita está escrito en la cabecera de
+`src/contenido/narrador/lineas.js` para que no se pierda por el camino: Wayne le habla al
+sombrero como si fuera alguien, corrige la gramática en el peor momento, consuela fatal
+—siempre hay alguien peor—, infla las historias hasta que no queda nada de verdad y lo
+reconoce a mitad de frase, nunca dice que bebe sino que investiga estados, y no roba:
+intercambia.
+
+Hay pruebas que vigilan que ningún saco de frases se quede con una sola, que los que más
+salen tengan de sobra y que no haya dos frases repetidas en todo el juego.
+
 ## La portada
 
 Lo primero que hay al entrar, si ya has empezado, es **por dónde ibas**: el reto que toca, en
