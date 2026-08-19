@@ -1,14 +1,37 @@
 <script setup>
 import { computed } from 'vue'
 
+import { TERMINOS_BUSCABLES } from '../contenido/glosario.js'
+import { enlazarTerminos } from '../motor/enlazarTerminos.js'
+import { usarGlosario } from '../almacen/glosario.js'
+
 /**
- * Markdown mínimo para los enunciados: párrafos, listas, titulares, negrita,
- * código en línea y bloques de código. Nada más, que es todo lo que usan.
+ * Markdown mínimo para los enunciados: párrafos, listas (con guiones o
+ * numeradas), titulares, negrita, código en línea y bloques de código. Nada
+ * más, que es todo lo que usan.
  *
  * Prefiero cincuenta líneas propias a una dependencia entera para esto, y
  * escapando el HTML antes de tocar nada no hace falta sanear después.
  */
-const props = defineProps({ texto: { type: String, default: '' } })
+const props = defineProps({
+  texto: { type: String, default: '' },
+  /** Se apaga donde enlazar sobra: en el propio glosario, por ejemplo. */
+  enlazar: { type: Boolean, default: true },
+})
+
+const glosario = usarGlosario()
+
+/**
+ * Los términos se pulsan por delegación en la raíz y no con un @click por
+ * botón: los botones los inserta el enlazador dentro del HTML, así que Vue no
+ * los conoce y no puede ponerles escuchas.
+ */
+function alPulsar(evento) {
+  const boton = evento.target.closest?.('.termino')
+  if (!boton) return
+  evento.preventDefault()
+  glosario.abrir(boton.dataset.termino)
+}
 
 const escapar = (texto) =>
   texto.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;')
@@ -23,6 +46,7 @@ const html = computed(() => {
   const salida = []
   let parrafo = []
   let lista = []
+  let tipoDeLista = 'ul'
   let bloqueDeCodigo = null
 
   const cerrarParrafo = () => {
@@ -30,7 +54,10 @@ const html = computed(() => {
     parrafo = []
   }
   const cerrarLista = () => {
-    if (lista.length) salida.push(`<ul>${lista.map((l) => `<li>${enLinea(l)}</li>`).join('')}</ul>`)
+    if (lista.length) {
+      const puntos = lista.map((l) => `<li>${enLinea(l)}</li>`).join('')
+      salida.push(`<${tipoDeLista}>${puntos}</${tipoDeLista}>`)
+    }
     lista = []
   }
 
@@ -58,7 +85,17 @@ const html = computed(() => {
     }
     if (linea.startsWith('- ')) {
       cerrarParrafo()
+      if (tipoDeLista !== 'ul') cerrarLista()
+      tipoDeLista = 'ul'
       lista.push(linea.slice(2))
+      continue
+    }
+    const numerada = linea.match(/^(\d+)\.\s+(.*)$/)
+    if (numerada) {
+      cerrarParrafo()
+      if (tipoDeLista !== 'ol') cerrarLista()
+      tipoDeLista = 'ol'
+      lista.push(numerada[2])
       continue
     }
     const titular = linea.match(/^(#{1,3})\s+(.*)$/)
@@ -81,12 +118,13 @@ const html = computed(() => {
   cerrarLista()
   if (bloqueDeCodigo !== null) salida.push(`<pre><code>${escapar(bloqueDeCodigo.join('\n'))}</code></pre>`)
 
-  return salida.join('\n')
+  const montado = salida.join('\n')
+  return props.enlazar ? enlazarTerminos(montado, TERMINOS_BUSCABLES) : montado
 })
 </script>
 
 <template>
-  <div class="marcado" v-html="html" />
+  <div class="marcado" v-html="html" @click="alPulsar" />
 </template>
 
 <style scoped>
@@ -95,4 +133,22 @@ const html = computed(() => {
 .marcado :deep(h2) { margin-top: 1.2em; font-size: 1.15rem; }
 .marcado :deep(h3) { margin-top: 1em; font-size: 1rem; }
 .marcado :deep(p:last-child) { margin-bottom: 0; }
+
+/* Un término del glosario. Se marca con un subrayado de puntos y no con color:
+   dentro de un párrafo, media docena de palabras en otro color se lee fatal. */
+.marcado :deep(.termino) {
+  padding: 0;
+  border: none;
+  background: none;
+  font: inherit;
+  color: inherit;
+  border-radius: 3px;
+  border-bottom: 1px dotted var(--texto-apagado);
+  cursor: help;
+  transition: color 0.15s, border-color 0.15s;
+}
+.marcado :deep(.termino:hover) {
+  color: var(--cobre-claro);
+  border-bottom-color: var(--cobre-claro);
+}
 </style>

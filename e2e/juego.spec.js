@@ -199,3 +199,44 @@ test('un reto de ordenar ejecuta el código en el orden que lo dejes', async ({ 
     timeout: 20_000,
   })
 })
+
+test('Steris traduce los errores que asustan', async ({ page }) => {
+  await irAlReto(page, 'es6-01-const-let')
+  // Una errata, que es el fallo más común de quien empieza.
+  await escribirCodigo(page, 'const TARIFA_DIARIA = 25\nfunction cobrar(dias) { return TARIFA_DIARIA * diaz }')
+  await page.getByRole('button', { name: 'Ejecutar' }).click()
+
+  await expect(page.getByText('Steris lo tenía previsto')).toBeVisible({ timeout: 20_000 })
+  await expect(page.getByText('Estás usando un nombre que no existe')).toBeVisible()
+  await expect(page.locator('.imprevisto .causas li').first()).toContainText('errata')
+})
+
+test('los términos del glosario se pueden pulsar sin salir del reto', async ({ page }) => {
+  await irAlReto(page, 'dia1-07-primera-funcion')
+
+  // Los términos se detectan solos en el enunciado y en el apunte.
+  await expect(page.locator('.termino').first()).toBeVisible()
+  await page.locator('.termino').first().click()
+
+  await expect(page.getByText('Del glosario de Steris')).toBeVisible()
+  await expect(page.locator('.ficha .definicion')).not.toBeEmpty()
+
+  // Y al cambiar de pantalla se cierra: si no, su fondo bloquea la siguiente.
+  await page.goto('#/glosario')
+  await expect(page.locator('.fondo')).toHaveCount(0)
+  await expect(page.getByRole('heading', { name: 'El glosario de Steris' })).toBeVisible()
+})
+
+test('la antesala explica de qué va todo esto', async ({ page }) => {
+  await page.goto('')
+  // Mientras no se haya leído, la portada la ofrece.
+  await page.getByText('¿No has programado nunca?').click()
+
+  await expect(page.getByRole('heading', { name: 'Antes de empezar' })).toBeVisible()
+  await expect(page.getByRole('heading', { name: 'Qué es un programa' })).toBeVisible()
+  await expect(page.getByRole('heading', { name: 'Contingencias previstas' })).toBeVisible()
+
+  // Leída una vez, la portada deja de insistir.
+  await page.goto('')
+  await expect(page.getByText('¿No has programado nunca?')).toHaveCount(0)
+})

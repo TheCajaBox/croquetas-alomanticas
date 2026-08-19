@@ -3,6 +3,7 @@ import { computed, ref, watch } from 'vue'
 import { storeToRefs } from 'pinia'
 
 import Narrador from './componentes/Narrador.vue'
+import PanelGlosario from './componentes/PanelGlosario.vue'
 import SombreroEscondido from './componentes/SombreroEscondido.vue'
 import { usarEconomia } from './almacen/economia.js'
 import { usarGatos } from './almacen/gatos.js'
@@ -72,6 +73,7 @@ watch(ultimoRecorte, (nuevo) => {
         <nav class="navegacion">
           <RouterLink to="/">Mundos</RouterLink>
           <RouterLink to="/colonia">Colonia</RouterLink>
+          <RouterLink to="/glosario">Glosario</RouterLink>
           <RouterLink to="/refugio" class="con-aviso">
             Refugio
             <span v-if="enElRefugio" class="aviso">{{ enElRefugio }}</span>
@@ -138,6 +140,8 @@ watch(ultimoRecorte, (nuevo) => {
         <p class="pie">Recorte nuevo en el cajón →</p>
       </RouterLink>
     </Transition>
+
+    <PanelGlosario />
 
     <Narrador />
   </div>

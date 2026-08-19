@@ -27,6 +27,8 @@ export function crearEnrutador() {
       { path: '/colonia', name: 'colonia', component: () => import('../vistas/VistaColonia.vue') },
       { path: '/refugio', name: 'refugio', component: () => import('../vistas/VistaRefugio.vue') },
       { path: '/trastos', name: 'trastos', component: () => import('../vistas/VistaTrastos.vue') },
+      { path: '/antesala', name: 'antesala', component: () => import('../vistas/VistaAntesala.vue') },
+      { path: '/glosario', name: 'glosario', component: () => import('../vistas/VistaGlosario.vue') },
       { path: '/sombrerera', name: 'sombrerera', component: () => import('../vistas/VistaSombrerera.vue') },
       { path: '/ajustes', name: 'ajustes', component: () => import('../vistas/VistaAjustes.vue') },
       { path: '/:resto(.*)', redirect: '/' },

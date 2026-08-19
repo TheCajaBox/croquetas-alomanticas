@@ -27,13 +27,17 @@ de uno a otro.
 | Mundo | Qué se aprende | Retos |
 |---|---|---|
 | **El primer día** | Qué es una variable, qué tipos hay, cómo se lee un programa. Casi sin escribir | 7 |
-| **Los Áridos** | JavaScript ES6: ámbito, flechas y `this`, desestructuración, `map`/`filter`/`reduce`, `?.` y `??`, promesas | 7 |
+| **Los Áridos** | JavaScript ES6: ámbito, flechas y `this`, desestructuración, `map`/`filter`/`reduce`, `?.` y `??`, promesas | 10 |
 | **La mansión Ladrian** | Vue 2 con Options API: `data`, directivas, `computed` frente a `methods`, los caveats de reactividad y `$set`, props y `$emit`, ciclo de vida | 7 |
 | **La Nueva Seran** | Vue 3 con Composition API: `ref` y `reactive`, `computed`, `watch` frente a `watchEffect`, `provide`/`inject`, composables | 7 |
 
 El primer día es la rampa de entrada: se empieza señalando y colocando piezas, no
 escribiendo. Los Áridos son la base común de JavaScript, y a partir de ahí las dos rutas de
 Vue son independientes y se juegan en el orden que se quiera.
+
+Dentro de Los Áridos hay tres retos puente colocados justo antes de los dos escalones que
+más se notan: uno sobre pasar una función a otra función, antes de pelearse con `this`, y dos
+sobre los métodos de las listas, antes de escribir `map` y `reduce` a pelo.
 
 Hay siete clases de reto, y solo tres piden escribir código:
 
@@ -45,7 +49,7 @@ Hay siete clases de reto, y solo tres piden escribir código:
 - **Escribir** una solución desde cero.
 - **Cazar el fallo** en código que casi funciona.
 
-## Wayne explica mal, Wax explica bien
+## Los tres que te acompañan
 
 **Wayne** es el juego. Preside la portada, narra, se burla y te vende pistas: la primera
 gratis, las otras a precio de amigo. Habla también cuando no ha pasado nada, porque se
@@ -70,6 +74,23 @@ metales, el inventario de la mansión, los avisos que tardan en llegar. Un `cons
 tarifa fijada por la casa; desestructurar es sacar datos de una ficha; `Promise.all` es
 esperar a que contesten todos aunque uno conteste antes. La sintaxis se aprende igual y se
 recuerda mejor.
+
+**Steris** se encarga de que nadie se quede fuera por no saber las palabras. Lleva dos
+listas, y las dos hacen falta:
+
+- **El glosario.** Cincuenta y cuatro términos explicados sin usar otras palabras técnicas
+  sin explicar. No hay que ir a buscarlos: aparecen **subrayados con puntitos allá donde
+  salgan**, en los enunciados y en los apuntes, y se pulsan sin salir del reto. Nunca dentro
+  de un bloque de código, donde `map` es una llamada y no una palabra que definir.
+- **La lista de imprevistos.** Los errores de JavaScript salen en inglés y no dicen nada
+  útil: `Cannot read properties of undefined` es un muro para quien empieza. Steris los tiene
+  previstos y los traduce automáticamente a qué significan y a qué suele haberlos causado,
+  justo debajo del error.
+
+Y antes de todo está **la antesala**: su orientación para quien no ha visto código en su
+vida. Qué es un programa, qué es JavaScript, qué pinta Vue y por qué aquí hay dos versiones,
+cómo funciona el juego y qué hacer cuando algo se atasca. Dos minutos, y se puede volver
+cuando sea.
 
 ## Los gatos
 

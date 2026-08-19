@@ -2,7 +2,9 @@
 import { computed } from 'vue'
 import SombreroEscondido from './SombreroEscondido.vue'
 
+import Avatar from './Avatar.vue'
 import Marcado from './Marcado.vue'
+import { traducirImprevisto } from '../contenido/imprevistos.js'
 import { FASES } from '../motor/ejecutor.js'
 import { usarGatos } from '../almacen/gatos.js'
 
@@ -29,6 +31,19 @@ const ocultosPorBronce = computed(() => (props.resultado?.tests?.length ?? 0) - 
 const requisitosIncumplidos = computed(
   () => props.resultado?.requisitos?.filter((r) => !r.cumplido) ?? [],
 )
+
+/**
+ * Steris traduce el error. Se mira primero el que ha parado la ejecución y, si
+ * no hay, el mensaje del primer test en rojo: cuando el código del jugador
+ * revienta dentro de un test, el error de verdad viene por ahí.
+ */
+const imprevisto = computed(() => {
+  if (!props.resultado) return null
+  return (
+    traducirImprevisto(props.resultado.error?.mensaje) ??
+    traducirImprevisto(primerFallo.value?.mensaje)
+  )
+})
 </script>
 
 <template>
@@ -92,6 +107,24 @@ const requisitosIncumplidos = computed(
         Bronce ha apartado {{ ocultosPorBronce }} test{{ ocultosPorBronce === 1 ? '' : 's' }} para que veas primero el que importa.
       </p>
 
+      <!-- La lista de imprevistos de Steris -->
+      <section v-if="imprevisto" class="imprevisto">
+        <header>
+          <Avatar quien="steris" :tamano="34" />
+          <div>
+            <p class="quien">Steris lo tenía previsto</p>
+            <p class="titulo-imprevisto">{{ imprevisto.titulo }}</p>
+          </div>
+        </header>
+        <Marcado class="significa" :texto="imprevisto.significa" />
+        <p class="tenue etiqueta-causas">Lo que suele ser</p>
+        <ul class="causas">
+          <li v-for="causa in imprevisto.causas" :key="causa">
+            <Marcado :texto="causa" />
+          </li>
+        </ul>
+      </section>
+
       <!-- Consola -->
       <div v-if="resultado.consola?.length" class="consola">
         <p class="titulo-consola tenue">Consola</p>
@@ -146,6 +179,38 @@ const requisitosIncumplidos = computed(
 .mensaje { margin: 3px 0 0; font-size: 0.86rem; color: var(--rojo); }
 
 .nota { margin: 10px 0 0; font-size: 0.85rem; }
+
+/* El aviso de Steris va marcado con su lavanda: cuando aparece, lo que se
+   necesita leer es esto y no la línea en inglés de arriba. */
+.imprevisto {
+  margin-top: 14px;
+  padding: 13px 15px;
+  border-radius: 8px;
+  border: 1px solid rgba(154, 168, 216, 0.32);
+  border-left: 3px solid #9aa8d8;
+  background: rgba(154, 168, 216, 0.08);
+}
+.imprevisto header { display: flex; align-items: center; gap: 10px; margin-bottom: 10px; }
+.quien {
+  margin: 0;
+  font-size: 0.68rem;
+  font-weight: 700;
+  letter-spacing: 0.09em;
+  text-transform: uppercase;
+  color: #9aa8d8;
+}
+.titulo-imprevisto { margin: 0; font-weight: 650; }
+.significa { margin-bottom: 10px; }
+.significa :deep(p) { margin: 0; }
+.etiqueta-causas {
+  margin: 0 0 5px;
+  font-size: 0.72rem;
+  text-transform: uppercase;
+  letter-spacing: 0.07em;
+}
+.causas { margin: 0; padding-left: 18px; font-size: 0.88rem; }
+.causas li { margin-bottom: 5px; }
+.causas :deep(p) { margin: 0; }
 
 .consola { margin-top: 14px; }
 .titulo-consola { font-size: 0.75rem; text-transform: uppercase; letter-spacing: 0.07em; margin-bottom: 5px; }

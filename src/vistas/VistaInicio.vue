@@ -6,6 +6,7 @@ import { MUNDOS } from '../contenido/mundos.js'
 import { retosDelMundo } from '../contenido/retos/index.js'
 import { usarGatos } from '../almacen/gatos.js'
 import { usarProgreso } from '../almacen/progreso.js'
+import Avatar from '../componentes/Avatar.vue'
 import GatoSvg from '../componentes/GatoSvg.vue'
 import wayneRetrato from '../recursos/wayne-retrato.webp'
 
@@ -61,6 +62,18 @@ const colonia = computed(() => gatos.adoptados)
         <figcaption>«Yo no robo. Intercambio.»</figcaption>
       </figure>
     </section>
+
+    <RouterLink v-if="!progreso.vistoLaAntesala" to="/antesala" class="panel antesala-aviso">
+      <Avatar quien="steris" :tamano="52" />
+      <div>
+        <p class="titulo-antesala">¿No has programado nunca?</p>
+        <p class="tenue">
+          Steris ha preparado una lista con lo que hay que saber antes de empezar: qué es un
+          programa, qué pintan aquí JavaScript y Vue, y cómo funciona esto. Dos minutos.
+        </p>
+      </div>
+      <span class="flecha" aria-hidden="true">→</span>
+    </RouterLink>
 
     <h2>Mundos</h2>
     <div class="mundos escalonado">
@@ -153,6 +166,21 @@ const colonia = computed(() => gatos.adoptados)
   .portada { flex-direction: column-reverse; align-items: flex-start; }
   .anfitrion { align-self: center; }
 }
+
+.antesala-aviso {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  text-decoration: none;
+  color: inherit;
+  border-left: 3px solid #9aa8d8;
+  background: linear-gradient(180deg, #2a2a3d, #232235);
+  transition: transform 0.14s, background 0.14s;
+}
+.antesala-aviso:hover { transform: translateX(3px); background: #302f45; }
+.titulo-antesala { margin: 0 0 4px; font-weight: 650; }
+.antesala-aviso p.tenue { margin: 0; font-size: 0.89rem; max-width: 72ch; }
+.antesala-aviso .flecha { margin-left: auto; color: #9aa8d8; font-size: 1.2rem; }
 
 .mundos { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 16px; }
 .mundo {

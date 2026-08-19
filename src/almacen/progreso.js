@@ -22,6 +22,7 @@ export const usarProgreso = defineStore('progreso', {
     mejorRacha: 0,
     ultimaVisita: null,
     vistoLaBienvenida: false,
+    vistoLaAntesala: false,
   }),
 
   getters: {

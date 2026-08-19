@@ -5,6 +5,7 @@ import App from './App.vue'
 import { crearEnrutador } from './router/index.js'
 import { engancharEconomia, usarEconomia } from './almacen/economia.js'
 import { engancharGatos, usarGatos } from './almacen/gatos.js'
+import { engancharGlosario, usarGlosario } from './almacen/glosario.js'
 import { engancharNarrador, usarNarrador } from './almacen/narrador.js'
 import { engancharProgreso, usarProgreso } from './almacen/progreso.js'
 import { engancharRecortes, usarRecortes } from './almacen/recortes.js'
@@ -28,6 +29,7 @@ engancharGatos(usarGatos(pinia))
 engancharNarrador(usarNarrador(pinia))
 engancharSombreros(usarSombreros(pinia))
 engancharRecortes(usarRecortes(pinia))
+engancharGlosario(usarGlosario(pinia))
 
 usarJuego(pinia).arrancarSesion()
 
