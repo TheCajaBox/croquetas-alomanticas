@@ -328,6 +328,45 @@ test('cepillar a un gato es arrastrar por encima', async ({ page }) => {
   await expect(page.locator('.estado', { hasText: 'Aseo' })).toContainText('70')
 })
 
+test('jugar con un gato es que persiga una pluma', async ({ page }) => {
+  await sembrarColonia(page, ['acero'], { felicidad: 40 })
+  await page.goto('#/colonia')
+  await page.reload()
+
+  await page.locator('.paseante').first().click()
+  await page.getByRole('button', { name: 'Jugar', exact: true }).click()
+  await expect(page.getByText('Pásale la pluma por delante.')).toBeVisible()
+
+  const zona = page.locator('.zona')
+  const caja = await zona.boundingBox()
+  const zarpazos = () => page.locator('.huella.dada').count()
+
+  await page.mouse.move(caja.x + caja.width / 2, caja.y + caja.height / 2)
+  await page.mouse.down()
+
+  // Cuatro esquinas, esperando a que llegue: el gato persigue, no aparece.
+  const esquinas = [[0.22, 0.24], [0.8, 0.8], [0.2, 0.82], [0.82, 0.2]]
+  for (let vuelta = 0; vuelta < esquinas.length; vuelta += 1) {
+    const [ex, ey] = esquinas[vuelta]
+    const x = caja.x + caja.width * ex
+    const y = caja.y + caja.height * ey
+    await page.mouse.move(x, y, { steps: 12 })
+    // Se le mueve un poco delante de las narices mientras se espera, que
+    // quieta del todo -y con razón- deja de picar.
+    await expect
+      .poll(async () => {
+        await page.mouse.move(x + (vuelta % 2 ? 1 : -1), y)
+        return zarpazos()
+      }, { timeout: 15_000 })
+      .toBeGreaterThan(vuelta)
+  }
+  await page.mouse.up()
+
+  await expect(page.getByText('Se ha quedado a gusto.')).toBeVisible()
+  // Y el ánimo sube de verdad, con lo que eso despierta.
+  await expect(page.locator('.estado', { hasText: 'Ánimo' })).toContainText('75')
+})
+
 test('los sombreros se encuentran, se pagan y se guardan', async ({ page }) => {
   await page.goto('')
 

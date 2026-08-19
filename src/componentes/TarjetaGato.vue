@@ -4,6 +4,7 @@ import { computed, ref } from 'vue'
 import BarraEstado from './BarraEstado.vue'
 import CepilloGato from './CepilloGato.vue'
 import GatoSvg from './GatoSvg.vue'
+import PlumaGato from './PlumaGato.vue'
 import { CUIDADOS, FELICIDAD_PARA_BONUS } from '../contenido/gatos.js'
 import { usarGatos } from '../almacen/gatos.js'
 
@@ -11,8 +12,14 @@ const props = defineProps({ gato: { type: Object, required: true } })
 
 const gatos = usarGatos()
 const aviso = ref('')
-/** Cepillar no es pulsar un botón: es arrastrar por encima del gato. */
-const cepillando = ref(false)
+/**
+ * Dos de los tres cuidados no son un botón: cepillar es arrastrar por encima
+ * del gato, y jugar es que persiga una pluma. Aquí se guarda cuál está abierto.
+ */
+const mimo = ref(null)
+
+/** Los que se hacen con las manos, y con qué se hacen. */
+const MIMOS = { cepillar: CepilloGato, jugar: PlumaGato }
 
 const animo = computed(() => {
   if (props.gato.felicidad >= 60) return 'contento'
@@ -35,34 +42,40 @@ function cuidar(accion) {
 }
 
 /**
- * El cepillado se cobra y se aplica al terminar de arrastrar, no al empezar:
- * quien deja el cepillo a medias no ha cepillado a nadie.
+ * Se abre el mimo, pero no se cobra ni se aplica nada todavía: eso pasa al
+ * terminar. Quien deja el cepillo a medias no ha cepillado a nadie, y quien no
+ * mueve la pluma no ha jugado con nadie.
  */
-function empezarACepillar() {
-  const espera = gatos.esperaRestante(props.gato.id, 'cepillar')
+function empezarMimo(accion) {
+  const espera = gatos.esperaRestante(props.gato.id, accion)
   if (espera > 0) {
     aviso.value = `Acabas de hacerlo. Vuelve dentro de ${espera} min.`
     return
   }
   aviso.value = ''
-  cepillando.value = true
+  mimo.value = accion
 }
 
-function cepillado() {
-  cuidar('cepillar')
-  setTimeout(() => { cepillando.value = false }, 700)
+/** Se deja ver un momento el final -el gato reluciente, o agusto- y se cierra. */
+function terminarMimo() {
+  cuidar(mimo.value)
+  const cerrado = mimo.value
+  setTimeout(() => {
+    if (mimo.value === cerrado) mimo.value = null
+  }, 900)
 }
 </script>
 
 <template>
   <article class="tarjeta panel" :class="{ triste: animo === 'triste' }">
     <div class="retrato" :style="{ '--pelo': gato.aspecto.pelo }">
-      <CepilloGato
-        v-if="cepillando"
+      <component
+        :is="MIMOS[mimo]"
+        v-if="mimo"
         :gato="gato"
         :animo="animo"
-        @completado="cepillado"
-        @salir="cepillando = false"
+        @completado="terminarMimo"
+        @salir="mimo = null"
       />
       <GatoSvg v-else :aspecto="gato.aspecto" :animo="animo" :tamano="118" />
     </div>
@@ -94,9 +107,9 @@ function cepillado() {
         <button
           v-for="accion in acciones"
           :key="accion.id"
-          :disabled="accion.espera > 0 || (accion.id === 'cepillar' && cepillando)"
+          :disabled="accion.espera > 0 || accion.id === mimo"
           class="menudo"
-          @click="accion.id === 'cepillar' ? empezarACepillar() : cuidar(accion.id)"
+          @click="accion.id in MIMOS ? empezarMimo(accion.id) : cuidar(accion.id)"
         >
           {{ accion.titulo }}
           <span v-if="accion.espera > 0" class="tenue"> · {{ accion.espera }} min</span>

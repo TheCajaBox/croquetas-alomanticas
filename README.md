@@ -263,10 +263,19 @@ y vuelven. El deambular vive en `src/motor/paseo.js`, aparte de lo que pinta, pa
 probarlo: hay una prueba que pasea a cinco gatos media hora y comprueba que ninguno acaba
 andando por el tejado.
 
-Se pulsa un gato para atenderlo. Y **cepillar no es pulsar un botón: es arrastrar por encima
-del gato**, con el dedo o con el ratón, hasta que deja de soltar pelo. Se maneja con eventos
-de puntero, que valen para las dos cosas sin detectar nada. Queda un botón para terminar sin
-arrastrar, porque hay quien navega con teclado y dejarle el gato sucio no tendría gracia.
+Se pulsa un gato para atenderlo, y dos de los tres cuidados se hacen con las manos:
+
+- **Cepillar es arrastrar por encima del gato**, con el dedo o con el ratón, hasta que deja de
+  soltar pelo. El pelo va cayendo por el aire mientras tanto.
+- **Jugar es una pluma que persigue.** No se llena una barra: se cuentan **zarpazos**, y para
+  que haya otro hay que mover la pluma —retirándosela de golpe o paseándosela por delante—.
+  Plantar el dedo encima del morro cuenta una vez y ya: el gato deja de picar, y así la regla
+  se aprende sin que nadie la escriba. La persecución vive en `src/motor/juguete.js`, aparte
+  de lo que pinta, con sus pruebas.
+
+Las dos se manejan con eventos de puntero, que valen para el dedo y para el ratón sin
+detectar nada. Y las dos dejan un botón para terminar sin arrastrar, porque hay quien navega
+con teclado y dejarle el gato sucio —o aburrido— no tendría ninguna gracia.
 
 Las fichas de siempre siguen ahí, en la otra pestaña, para quien quiera ver los números.
 

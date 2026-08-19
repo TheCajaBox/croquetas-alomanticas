@@ -2,6 +2,7 @@
 import { computed, ref } from 'vue'
 
 import GatoSvg from './GatoSvg.vue'
+import { dentroDe } from '../motor/puntero.js'
 
 /**
  * Cepillar a un gato arrastrando por encima.
@@ -37,29 +38,18 @@ let terminado = false
 
 const progreso = computed(() => Math.min(100, Math.round((recorrido.value / RECORRIDO) * 100)))
 
-/** Coordenadas del puntero dentro del cuadro, en tanto por uno. */
-function relativas(evento) {
-  const caja = zona.value.getBoundingClientRect()
-  return {
-    x: (evento.clientX - caja.left) / caja.width,
-    y: (evento.clientY - caja.top) / caja.height,
-    ancho: caja.width,
-    alto: caja.height,
-  }
-}
-
 const encimaDelGato = (punto) => Math.hypot(punto.x - 0.5, punto.y - 0.52) < CUERPO
 
 function empezar(evento) {
   if (terminado) return
   zona.value.setPointerCapture(evento.pointerId)
-  ultimo = relativas(evento)
+  ultimo = dentroDe(evento, zona.value)
   puntero.value = { x: ultimo.x, y: ultimo.y }
 }
 
 function mover(evento) {
   if (terminado) return
-  const punto = relativas(evento)
+  const punto = dentroDe(evento, zona.value)
   puntero.value = { x: punto.x, y: punto.y }
   if (!ultimo) return
 
