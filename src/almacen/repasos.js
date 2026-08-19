@@ -2,6 +2,7 @@ import { defineStore } from 'pinia'
 
 import { CROQUETAS_POR_ACIERTO, REPASOS_POR_MUNDO } from '../contenido/repasos.js'
 import { usarEconomia } from './economia.js'
+import { usarInsignias } from './insignias.js'
 import { autoguardar } from './persistencia.js'
 
 /**
@@ -47,7 +48,11 @@ export const usarRepasos = defineStore('repasos', {
           )
         : 0
 
-      return { pagado, mejorado, mejorAnterior }
+      // Bordar un repaso puede ganar una insignia, así que se miran aquí
+      // también: es el otro momento en que algo puede haber cambiado.
+      const insignias = usarInsignias().revisar()
+
+      return { pagado, mejorado, mejorAnterior, insignias }
     },
 
     reiniciar() {

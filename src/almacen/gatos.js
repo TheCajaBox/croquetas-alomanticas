@@ -9,6 +9,7 @@ import {
   GATOS_POR_ID,
 } from '../contenido/gatos.js'
 import { usarEconomia } from './economia.js'
+import { usarNarrador } from './narrador.js'
 import { usarProgreso } from './progreso.js'
 import { usarRecortes } from './recortes.js'
 import { autoguardar } from './persistencia.js'
@@ -162,6 +163,9 @@ export const usarGatos = defineStore('gatos', {
       }
 
       if (accion === 'alimentar' && gato.comida < 20) usarRecortes().desbloquear('gato-al-limite')
+      // Wayne lo comenta solo con la verborrea alta; su línea estaba escrita y
+      // no la disparaba nadie.
+      usarNarrador().decir('gatoCuidado', { gato: GATOS_POR_ID[gatoId]?.nombre ?? '' })
 
       gato[cuidado.indicador] = Math.min(100, gato[cuidado.indicador] + cuidado.cantidad)
       gato.ultimoCuidado = { ...gato.ultimoCuidado, [accion]: Date.now() }

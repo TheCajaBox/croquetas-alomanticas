@@ -13,6 +13,7 @@ import RetoEtiquetar from '../componentes/RetoEtiquetar.vue'
 import RetoOrdenar from '../componentes/RetoOrdenar.vue'
 import RetoTrazar from '../componentes/RetoTrazar.vue'
 import RetoVerdaderoFalso from '../componentes/RetoVerdaderoFalso.vue'
+import MundoCompletado from '../componentes/MundoCompletado.vue'
 import PanelApunte from '../componentes/PanelApunte.vue'
 import PanelPistas from '../componentes/PanelPistas.vue'
 import PanelResultados from '../componentes/PanelResultados.vue'
@@ -32,6 +33,7 @@ import { crearPuente } from '../motor/ejecutor.js'
 import { usarArmonia } from '../almacen/armonia.js'
 import { usarGatos } from '../almacen/gatos.js'
 import { usarJuego } from '../almacen/juego.js'
+import { usarNarrador } from '../almacen/narrador.js'
 import { usarProgreso } from '../almacen/progreso.js'
 
 const props = defineProps({ retoId: { type: String, required: true } })
@@ -40,6 +42,7 @@ const router = useRouter()
 const juego = usarJuego()
 const progreso = usarProgreso()
 const gatos = usarGatos()
+const narrador = usarNarrador()
 const armonia = usarArmonia()
 
 const reto = RETOS_POR_ID[props.retoId]
@@ -71,6 +74,18 @@ const puente = reto ? crearPuente(reto.entorno) : null
  * que se ve al momento; y a cambio, la lección puede ser todo lo larga que
  * haga falta sin pesar en el arranque del juego.
  */
+/**
+ * El anfitrión del mundo saluda al abrir el reto.
+ *
+ * MeLaan avisa de que el código ya funciona -que es lo que hace distinto a su
+ * mundo- y Steris recuerda para qué sirven los cimientos. Las dos frases
+ * llevaban escritas desde el principio y no las decía nadie.
+ */
+if (reto && !progreso.superado(reto.id)) {
+  if (reto.tipo === 'refactor') narrador.decirAnfitrion(mundo.value, 'funcionaYaLoSe')
+  else if (mundo.value?.anfitrion === 'steris') narrador.decirAnfitrion(mundo.value, 'loBasico')
+}
+
 const apunte = ref('')
 if (reto) cargarApunte(reto.id).then((texto) => { apunte.value = texto ?? '' })
 
@@ -92,7 +107,22 @@ watch(codigo, (nuevo) => progreso.guardarBorrador(props.retoId, nuevo))
 watchEffect(() => {
   armonia.situar({ retoId: props.retoId, codigo: codigo.value, resultado: resultado.value })
 })
-onBeforeUnmount(() => armonia.olvidarSitio())
+/**
+ * Wayne se impacienta si llevas un rato sin ejecutar nada.
+ *
+ * Una sola vez por reto: repetirlo sería dar la lata a quien está pensando, que
+ * es exactamente lo que hay que dejar hacer. Y se para al salir, que es lo que
+ * enseña el reto del ferrocarril sobre lo que se arranca.
+ */
+const ESPERA_ANTES_DE_METER_PRISA = 150_000
+const impaciencia = setTimeout(() => {
+  if (!resultado.value) narrador.decir('inactividad')
+}, ESPERA_ANTES_DE_METER_PRISA)
+
+onBeforeUnmount(() => {
+  clearTimeout(impaciencia)
+  armonia.olvidarSitio()
+})
 
 const yaSuperado = computed(() => progreso.superado(props.retoId))
 const ficha = computed(() => progreso.ficha(props.retoId))
@@ -113,6 +143,7 @@ const avisosEnVivo = computed(() => {
 })
 
 async function ejecutar() {
+  clearTimeout(impaciencia)
   resultado.value = esPrediccion.value
     ? await juego.resolverPrediccion(reto, respuesta.value, puente)
     : await juego.enviar(reto, codigo.value, puente)
@@ -127,6 +158,16 @@ function responderTactil(acertado) {
 async function ejecutarMontaje(codigoMontado) {
   resultado.value = await juego.enviar(reto, codigoMontado, puente)
 }
+
+/**
+ * Acabas de cerrar el mundo aquí mismo.
+ *
+ * Terminar un mundo es lo que más cuesta del juego y era lo único que no se
+ * celebraba: se salía por el mismo enlace que en cualquier otro reto.
+ */
+const mundoRecienCerrado = computed(
+  () => resultado.value?.ok && !siguiente.value && progreso.mundoCompletado(reto.mundo),
+)
 
 function reiniciarCodigo() {
   codigo.value = reto.inicial ?? ''
@@ -294,7 +335,9 @@ function reiniciarCodigo() {
           <pre><code>{{ resultado.salidaReal }}</code></pre>
         </section>
 
-        <div v-if="resultado?.ok" class="siguiente">
+        <MundoCompletado v-if="mundoRecienCerrado" :mundo-id="reto.mundo" />
+
+        <div v-else-if="resultado?.ok" class="siguiente">
           <RouterLink
             v-if="siguiente"
             :to="{ name: 'reto', params: { retoId: siguiente.id } }"

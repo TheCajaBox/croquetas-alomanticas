@@ -22,16 +22,18 @@ El progreso se guarda en el navegador (`localStorage`), sin cuentas ni servidore
 y el ordenador son partidas distintas; en **Ajustes** hay exportar e importar para pasarla
 de uno a otro.
 
-## Los siete mundos
+## Los nueve mundos
 
 | Mundo | Qué se aprende | Retos |
 |---|---|---|
-| **El primer día** | Qué es una variable, qué tipos hay, cómo se lee un programa. Casi sin escribir | 7 |
-| **La comisaría** | Comparar y `===`, `if`/`else`, arrays e índices, bucles y acumuladores, objetos, datos anidados, métodos de texto | 10 |
-| **Los Áridos** | JavaScript ES6: ámbito, flechas y `this`, desestructuración, `map`/`filter`/`reduce`, `?.` y `??`, promesas | 10 |
-| **El taller** | Clases, `extends` y `super`, `throw`/`try`/`catch`, cierres y datos privados, `Set` y `Map`, referencias frente a copias, `find`/`every`/`some`/`sort` | 8 |
-| **La mansión Ladrian** | Vue 2 con Options API: `data`, directivas, `computed` frente a `methods`, los caveats de reactividad y `$set`, props y `$emit`, ciclo de vida | 7 |
-| **La Nueva Seran** | Vue 3 con Composition API: `ref` y `reactive`, `computed`, `watch` frente a `watchEffect`, `provide`/`inject`, composables | 7 |
+| **El primer día** | Qué es una variable, qué tipos hay, cómo se lee un programa, cómo se llama cada parte de una función. Casi sin escribir | 9 |
+| **La comisaría** | Comparar y `===`, `if`/`else`, arrays e índices, bucles y acumuladores, seguir un bucle con el dedo, objetos, datos anidados, métodos de texto | 12 |
+| **Los Áridos** | JavaScript ES6: ámbito, flechas y `this`, desestructuración, `map`/`filter`/`reduce` por dentro, `?.` y `??`, promesas | 12 |
+| **El taller** | Clases, `extends` y `super`, `throw`/`try`/`catch`, cierres y datos privados, `Set` y `Map`, referencias frente a copias, leer un error hacia atrás | 12 |
+| **Elendel** | Lo que rodea al lenguaje: módulos, JSON, la familia de `Object`, expresiones regulares, fechas, números que engañan, el bucle de eventos, esperar a varios | 9 |
+| **La mansión Ladrian** | Vue 2 con Options API: `data`, directivas, `computed` frente a `methods`, los caveats de reactividad y `$set`, props y `$emit`, ciclo de vida | 10 |
+| **La Nueva Seran** | Vue 3 con Composition API: `ref` y `reactive`, `computed` por dentro, `watch` frente a `watchEffect`, `provide`/`inject`, composables | 10 |
+| **El ferrocarril** | Vue aplicado: `<script setup>`, huecos, referencias de plantilla, parar lo que se arranca, estado compartido, rutas, composables a fondo, `Transition` y `Teleport` | 9 |
 | **Cambio de forma** | Refactorizar: bucles a métodos, `var` a `const`, repetición a función, `.then` a `async`/`await`, Options API a Composition | 7 |
 
 **La cuesta no tiene escalones.** Cada mundo se apoya en el anterior y ninguno se puede
@@ -50,7 +52,8 @@ Dentro de Los Áridos hay tres retos puente colocados justo antes de los dos esc
 más se notan: uno sobre pasar una función a otra función, antes de pelearse con `this`, y dos
 sobre los métodos de las listas, antes de escribir `map` y `reduce` a pelo.
 
-Hay ocho clases de reto, y solo cuatro piden escribir código:
+Hay **doce clases de reto**, y solo cuatro piden escribir código. Los cuatro últimos
+mundos llegaron a ser 29 retos seguidos sin uno solo de señalar; ya no:
 
 - **Elegir** la respuesta, con el porqué de todas las opciones, también de las falsas.
 - **Emparejar** conceptos con lo que significan.
@@ -60,6 +63,19 @@ Hay ocho clases de reto, y solo cuatro piden escribir código:
 - **Escribir** una solución desde cero.
 - **Cazar el fallo** en código que casi funciona.
 - **Reescribir** código que ya funciona, con los tests verdes desde el principio como red.
+- **Seguir el hilo**: rellenar la tabla de la ejecución, una fila por vuelta y una columna
+  por variable. Leer código es simular su ejecución en la cabeza, y eso no se practica en
+  ningún sitio.
+- **Cazar la línea**: código roto y su error de verdad, y hay que señalar la culpable — que
+  casi nunca es donde revienta.
+- **Poner nombre** a las partes de un fragmento: cuál es el parámetro, cuál el argumento,
+  cuál el cuerpo. El vocabulario se aprende reconociéndolo.
+- **Verdadero o falso**: una tanda de frases que se marcan de golpe, con el porqué de todas
+  al corregir, también de las que acertaste.
+
+Qué es cada tipo está en un solo sitio, [`retos/tipos.js`](src/contenido/retos/tipos.js), y
+un tipo que no esté ahí no abre. Antes vivía en cuatro listas escritas a mano y un tipo mal
+cableado salía pintado como un reto de escribir, sin dar ningún error.
 
 ## Los seis que te acompañan
 
@@ -78,7 +94,7 @@ romperían al publicar en Pages.
 
 Wayne sale además de cuerpo entero, con el bastón al hombro, presidiendo la portada.
 
-**Wax** escribe el temario, y es lo más largo del juego: **56 lecciones, 230.000
+**Wax** escribe el temario, y es lo más largo del juego: **90 lecciones, 523.000
 caracteres**, una por reto. No son notas al margen — cada una tiene la estructura de
 un artículo: el problema que resuelve, la idea, el modelo mental, lo que despista,
 los errores clásicos con el mensaje que sale de verdad, y el criterio para decidir
@@ -101,10 +117,11 @@ esperar a que contesten todos aunque uno conteste antes. La sintaxis se aprende 
 recuerda mejor.
 
 **Steris** se encarga de que nadie se quede fuera por no saber las palabras. Es la anfitriona
-de La comisaría —el mundo de los cimientos, puesto en el orden en que hace falta saberlo— y
+de La comisaría —el mundo de los cimientos— y del ferrocarril —donde se monta la aplicación
+entera—, y
 lleva además dos listas, y las dos hacen falta:
 
-- **El glosario.** Cincuenta y cuatro términos explicados sin usar otras palabras técnicas
+- **El glosario.** Sesenta y seis términos explicados sin usar otras palabras técnicas
   sin explicar. No hay que ir a buscarlos: aparecen **subrayados con puntitos allá donde
   salgan**, en los enunciados y en los apuntes, y se pulsan sin salir del reto. Nunca dentro
   de un bloque de código, donde `map` es una llamada y no una palabra que definir.
@@ -118,7 +135,8 @@ vida. Qué es un programa, qué es JavaScript, qué pinta Vue y por qué aquí h
 cómo funciona el juego y qué hacer cuando algo se atasca. Dos minutos, y se puede volver
 cuando sea.
 
-**Marasi** hace dos cosas, y la primera es la que más se nota.
+**Marasi** hace tres cosas, y es anfitriona de Elendel — el mundo de los expedientes, los
+formatos y las referencias cruzadas, que es lo suyo.
 
 **Te revisa el código cuando ya funciona.** Superas un reto y ella lee lo que
 escribiste: un `let` que nunca cambia, tres `if` metidos uno dentro de otro, un
@@ -152,7 +170,7 @@ ahora mismo**, porque lee lo que has escrito y mira qué test se ha puesto rojo.
 Lo que no hace, nunca, es darte la solución. Y no porque se lo hayamos prohibido: es que no
 la tiene. Lo que Armonía recuerda se construye con una lista blanca de tres campos —título,
 enunciado y apunte—, así que las soluciones, los tests y las pistas quedan fuera por
-construcción. Un test recorre los 56 retos y comprueba que **cada palabra que puede decir
+construcción. Un test recorre los 90 retos y comprueba que **cada palabra que puede decir
 sale de material que ya tienes gratis y abierto en la misma pantalla**.
 
 Que se contenga es el personaje, no una norma nuestra: en la era 2, Armonía podría
@@ -218,6 +236,11 @@ a su metal: Acero empuja cosas de las mesas y te da más croquetas, Estaño lo o
 avisa de los requisitos mientras escribes, Bendaloy duerme en una burbuja de tiempo y le da
 más margen a tu código, y Aluminio es inmune a todo y no aporta absolutamente nada.
 
+Se ganan repartidos por toda la cuesta. Antes estaban todos al acabar el tercer mundo: los
+29 retos siguientes —más de la mitad del juego— repartían dos, y El taller y Cambio de forma
+ninguno. La curva de premio iba justo al revés que la de dificultad, que es el mismo error
+que ya tenía la economía de las pistas.
+
 Los indicadores bajan con el tiempo real, estés o no estés delante. **Ningún gato se muere
 ni se va nunca**: esto es un juego para aprender, no para castigar. Un gato desatendido solo
 se pone triste y deja de echarte una mano hasta que le hagas caso.
@@ -226,7 +249,7 @@ se pone triste y deja de echarte una mano hasta que le hagas caso.
 
 ### Los sombreros
 
-Wayne ha ido dejando **doce sombreros escondidos** por todo el juego: en la cabecera, en el
+Wayne ha ido dejando **catorce sombreros escondidos** por todo el juego: en la cabecera, en el
 panel de pistas, en el refugio, dentro de la propia sombrerera… Están casi transparentes,
 así que hay que pasar el ratón por los rincones para dar con ellos. Cada uno que encuentras,
 él jura que era suyo y te lo cambia por croquetas; tú te lo quedas igual y se apunta en la
@@ -237,6 +260,26 @@ sombrerera, que enseña una pista de los que aún faltan.
 Nueve recortes de prensa que **no se buscan: caen solos**, al hacer ciertas cosas. Cuáles, no
 se dice. El titular es la broma del periódico; el pie de página lleva un consejo que sí
 sirve, de esos que normalmente solo se aprenden a base de perder tardes.
+
+## Lo que sostiene las ganas
+
+Nada de esto paga croquetas. La tarifa por reto se calibró a propósito y no se toca; lo que
+había que arreglar era que la motivación se apagaba justo donde el juego se pone difícil.
+
+- **La racha, a la vista.** El juego llevaba contando los retos seguidos sin pedir una pista
+  desde siempre, y solo se veía como una línea de estadística en Ajustes. Ahora sale en la
+  cabecera a partir de dos, Wayne la comenta en 3, 5, 10 y 20 —solo en los saltos que se
+  notan, porque cantarla en cada reto la convertiría en ruido— y avisa cuando se rompe.
+- **Terminar un mundo tiene su momento.** Antes no lo tenía: la despedida que Wayne llevaba
+  escrita para cada mundo salía como un párrafo en la lista de retos, y quien tumbaba al
+  jefe salía por el mismo enlace que en cualquier otro reto. Ahora se cierra con su
+  despedida, lo que se abre, el gato que espera en el refugio y el enlace al repaso.
+- **Las insignias**, que no pagan (ver arriba).
+- **Nueve frases que estaban escritas y no decía nadie.** Wayne se impacienta si llevas un
+  rato sin ejecutar nada, comenta el trasto que te acaba de colocar y el primer intento de
+  un reto; Wax te da la enhorabuena al cerrar un mundo; Steris avisa de que un fallo lo
+  tenía previsto; MeLaan recuerda que el código ya funciona. Hay una prueba que comprueba
+  que ningún saco de frases se quede otra vez sin usar.
 
 ## Apartado visual
 
@@ -253,7 +296,7 @@ de lo que se anima hace falta para jugar.
 ```bash
 npm install     # instala y copia los runtimes de Vue a public/vendor/
 npm run dev
-npm test        # motor, almacenes, Armonía, Marasi y las soluciones de los 56 retos
+npm test        # motor, almacenes, Armonía, Marasi y las soluciones de los 90 retos
 npm run test:e2e
 ```
 

@@ -45,7 +45,7 @@ export const GATOS = [
       titulo: 'Tirón',
       descripcion: 'Las pistas de pago te cuestan la mitad.',
     },
-    desbloqueo: { tipo: 'retosResueltos', valor: 5, texto: 'Supera 5 retos.' },
+    desbloqueo: { tipo: 'mundoCompletado', valor: 'comisaria', texto: 'Termina La comisaría.' },
   },
   {
     id: 'peltre',
@@ -109,7 +109,7 @@ export const GATOS = [
       titulo: 'Nube de cobre',
       descripcion: 'Una pista de pago al día sale gratis. Wayne no se entera.',
     },
-    desbloqueo: { tipo: 'retosResueltos', valor: 8, texto: 'Supera 8 retos.' },
+    desbloqueo: { tipo: 'mundoCompletado', valor: 'taller', texto: 'Termina El taller.' },
   },
   {
     id: 'laton',
@@ -125,7 +125,7 @@ export const GATOS = [
       titulo: 'Calma',
       descripcion: 'Toda la colonia pierde felicidad la mitad de rápido.',
     },
-    desbloqueo: { tipo: 'mundoCompletado', valor: 'vue2', texto: 'Termina la mansión Ladrian.' },
+    desbloqueo: { tipo: 'mundoCompletado', valor: 'elendel', texto: 'Termina Elendel.' },
   },
   {
     id: 'oro',
@@ -141,7 +141,7 @@ export const GATOS = [
       titulo: 'Se cura solo',
       descripcion: 'El primer intento fallido de cada reto no cuenta.',
     },
-    desbloqueo: { tipo: 'mundoCompletado', valor: 'vue3', texto: 'Termina La Nueva Seran.' },
+    desbloqueo: { tipo: 'jefesDerrotados', valor: 6, texto: 'Derrota a seis jefes.' },
   },
   {
     id: 'bendalloy',

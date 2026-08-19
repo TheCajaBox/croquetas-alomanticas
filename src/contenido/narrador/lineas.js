@@ -108,6 +108,30 @@ export const LINEAS = {
     'Ni una pista. Estás empezando a caerme regular.',
   ],
 
+  rachaSube: [
+    (contexto) => `${contexto.racha} seguidos sin pedirme nada. Empiezo a preocuparme por el negocio.`,
+    (contexto) => `Van ${contexto.racha} sin pistas. Como sigas así tendré que buscarme otro oficio.`,
+    (contexto) => `${contexto.racha} de seguido y sin abrir el puesto. Wax estaría insoportable ahora mismo.`,
+  ],
+
+  rachaRota: [
+    (contexto) => `Ahí se fue la racha. Iban ${contexto.racha}. Tranquilo, que las croquetas no las devuelvo.`,
+    (contexto) => `${contexto.racha} llevabas. Bueno. Yo también he perdido rachas, y sombreros, y una vez un caballo.`,
+    'Y se acabó la racha. Pero mira, has aprendido algo y yo he cobrado. Ganamos los dos.',
+  ],
+
+  mundoCompletado: [
+    (contexto) => `${contexto.mundo}, terminado. Uno menos y sigues de una pieza.`,
+    (contexto) => `Se acabó ${contexto.mundo}. Voy a contarlo por ahí diciendo que ayudé.`,
+    (contexto) => `Con ${contexto.mundo} ya no te queda nada por hacer aquí. Vámonos antes de que nos den algo que firmar.`,
+  ],
+
+  insigniaGanada: [
+    (contexto) => `Te has ganado eso de «${contexto.insignia}». No vale croquetas, pero queda bien en la vitrina.`,
+    (contexto) => `«${contexto.insignia}». Marasi lo apunta todo, ya lo sabes.`,
+    (contexto) => `Anda, «${contexto.insignia}». Yo tengo una parecida, pero me la hice yo.`,
+  ],
+
   jefeDerrotado: [
     'Se acabó este sitio. Coge tus cosas. Y las mías, si las ves por ahí.',
     'Eso era lo gordo y lo has tumbao. Hoy invito yo. A mirar.',
@@ -327,6 +351,8 @@ export const LINEAS_DE_ARMONIA = {
  */
 export const EVENTOS_IMPORTANTES = new Set([
   'sombreroEncontrado',
+  'mundoCompletado',
+  'insigniaGanada',
   'todosLosSombreros',
   'errorDeSintaxis',
   'bucleInfinito',

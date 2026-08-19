@@ -124,6 +124,19 @@ export const usarNarrador = defineStore('narrador', {
     },
 
     /**
+     * El anfitrión de un mundo comenta uno de sus retos.
+     *
+     * Steris tenía escritas dos cosas que decir -sobre los cimientos y sobre
+     * los fallos previstos- y MeLaan otras dos, y ninguna la disparaba nadie.
+     * Estaban escritas, pagadas y sin usar.
+     */
+    decirAnfitrion(mundo, evento, contexto = {}) {
+      const anfitrion = mundo?.anfitrion
+      if (!anfitrion || anfitrion === 'wayne') return null
+      return this.decir(evento, contexto, { personaje: anfitrion, forzar: true })
+    },
+
+    /**
      * Wax entra en escena. La primera vez se presenta; a partir de ahí va
      * directo al grano, que es lo suyo.
      */

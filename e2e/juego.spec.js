@@ -159,13 +159,13 @@ test('los sombreros se encuentran, se pagan y se guardan', async ({ page }) => {
   await page.goto('')
 
   // Están casi transparentes hasta que alguien pasa por encima: se pulsan igual.
-  await expect(page.locator('.contador.sombreros')).toContainText('0/12')
+  await expect(page.locator('.contador.sombreros')).toContainText('0/14')
   const croquetasAntes = Number(await page.locator('.contador.croquetas').textContent())
 
   await page.locator('.portada .sombrero-escondido').click()
 
   await expect(page.getByText('Sombrero encontrado')).toBeVisible()
-  await expect(page.locator('.contador.sombreros')).toContainText('1/12')
+  await expect(page.locator('.contador.sombreros')).toContainText('1/14')
   // Wayne jura que era suyo y lo paga.
   await expect
     .poll(async () => Number(await page.locator('.contador.croquetas').textContent()))
@@ -175,11 +175,82 @@ test('los sombreros se encuentran, se pagan y se guardan', async ({ page }) => {
   await expect(page.locator('.portada .sombrero-escondido')).toHaveCount(0)
   await page.goto('#/sombrerera')
   await expect(page.getByRole('heading', { name: 'El polvoriento' })).toBeVisible()
-  await expect(page.getByText('1 de 12 encontrados')).toBeVisible()
+  await expect(page.getByText('1 de 14 encontrados')).toBeVisible()
 
   // Y sobrevive a recargar.
   await page.reload()
-  await expect(page.locator('.contador.sombreros')).toContainText('1/12')
+  await expect(page.locator('.contador.sombreros')).toContainText('1/14')
+})
+
+test('la racha se ve en la cabecera y se pierde al comprar una pista', async ({ page }) => {
+  // Se siembra una racha de uno: encadenar dos retos a mano aquí no aportaría
+  // nada y ataría la prueba a cómo se resuelve cada tipo.
+  await page.addInitScript(() => {
+    localStorage.setItem(
+      'gatosYCodigo',
+      JSON.stringify({ version: 1, progreso: { rachaSinPistas: 1, mejorRacha: 1, retos: {} } }),
+    )
+  })
+
+  // Con uno no hay racha que enseñar.
+  await page.goto('#/reto/dia1-01-variables')
+  await page.reload()
+  await expect(page.locator('.contador.racha')).toHaveCount(0)
+
+  // El segundo sin pistas ya la saca.
+  await page.locator('.opcion').first().click()
+  await page.getByRole('button', { name: 'Responder' }).click()
+  await expect(page.getByText('Reto superado.')).toBeVisible()
+  await expect(page.locator('.contador.racha')).toContainText('2')
+
+  // Y comprar una pista en el siguiente la rompe.
+  await page.goto('#/reto/dia1-03-const-o-let')
+  await expect(page.getByRole('heading', { name: /Lo que se mueve/ })).toBeVisible()
+  await page.getByRole('button', { name: /Pista 1/ }).click()
+  // Se espera a que la pista esté abierta de verdad: contestar antes deja la
+  // compra a medias y la racha no se entera de que había una pista pedida.
+  await expect(page.locator('.pistas li.abierta')).toHaveCount(1)
+  // Este tiene dos correctas, así que hay que marcar las dos.
+  await page.locator('.opcion').nth(0).click()
+  await page.locator('.opcion').nth(1).click()
+  await page.getByRole('button', { name: 'Responder' }).click()
+  await expect(page.getByText('Reto superado.')).toBeVisible()
+  await expect(page.locator('.contador.racha')).toHaveCount(0)
+})
+
+test('cerrar un mundo tiene su momento, y las insignias no pagan', async ({ page }) => {
+  const ids = await idsDelMundo('primer-dia')
+  const croquetasIniciales = 12
+
+  // Todo el mundo resuelto salvo el jefe, para llegar a él sin repetirlo aquí.
+  await page.addInitScript((sinJefe) => {
+    const retos = {}
+    for (const id of sinJefe) {
+      retos[id] = { superado: true, intentos: 1, pistasUsadas: [], superadoEn: Date.now() }
+    }
+    localStorage.setItem('gatosYCodigo', JSON.stringify({ version: 1, progreso: { retos } }))
+  }, ids.slice(0, -1))
+
+  await page.goto(`#/reto/${ids.at(-1)}`)
+  await page.reload()
+
+  await escribirCodigo(page, 'function saludar(nombre) {\n  return `Buenas, ${nombre}.`\n}')
+  await page.getByRole('button', { name: 'Ejecutar', exact: true }).click()
+  await expect(page.getByText('Reto superado.')).toBeVisible({ timeout: 20_000 })
+
+  // El cierre del mundo, con su despedida y su enlace al repaso.
+  const cierre = page.locator('.cierre')
+  await expect(cierre).toBeVisible()
+  await expect(cierre).toContainText('El primer día, terminado')
+  await expect(cierre.getByRole('link', { name: /repaso de Marasi/ })).toBeVisible()
+
+  // Y la insignia, que se apunta y no toca el saldo.
+  await page.goto('#/trastos')
+  await expect(page.getByText('Primer día resuelto')).toBeVisible()
+  const croquetas = Number(await page.locator('.contador.croquetas').textContent())
+  await expect(page.getByText(/de 18 insignias/)).toBeVisible()
+  // Lo ganado sale de los retos, nunca de las insignias.
+  expect(croquetas).toBeGreaterThan(croquetasIniciales)
 })
 
 test('los cuatro tipos de señalar se resuelven y explican', async ({ page }) => {

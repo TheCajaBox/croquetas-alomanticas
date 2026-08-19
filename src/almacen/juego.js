@@ -3,8 +3,13 @@ import { defineStore } from 'pinia'
 import { precioDePista } from '../contenido/retos/comun.js'
 import { FASES, evaluarEnvio } from '../motor/ejecutor.js'
 import { TIEMPO_LIMITE_MS } from '../motor/protocolo.js'
+import { traducirImprevisto } from '../contenido/imprevistos.js'
+import { MUNDOS_POR_ID } from '../contenido/mundos.js'
 import { usarEconomia } from './economia.js'
 import { usarGatos } from './gatos.js'
+import { usarInsignias } from './insignias.js'
+import { revisar } from '../motor/marasi/revisar.js'
+import { seEscribe } from '../contenido/retos/tipos.js'
 import { usarNarrador } from './narrador.js'
 import { usarProgreso } from './progreso.js'
 import { usarRecortes } from './recortes.js'
@@ -110,6 +115,7 @@ export const usarJuego = defineStore('juego', {
       narrador.decir('pistaPedida', {}, { nivel: nivel + 1, forzar: true })
 
       const trasto = precio > 0 && !cortesiaDeCobre ? economia.recibirTrasto() : null
+      if (trasto) narrador.decir('trastoRecibido', { trasto: trasto.nombre })
       return { ok: true, pista, precio, trasto, cortesiaDeCobre }
     },
 
@@ -138,7 +144,16 @@ export const usarJuego = defineStore('juego', {
       if (!resultado.ok) recortes.desbloquear('primer-fallo')
       if (resultado.ok && fallosAntes >= 5) recortes.desbloquear('insistente')
 
+      // El primer envío de un reto virgen. Estaba escrito y no lo disparaba nadie.
+      if (ficha.intentos === 0) usarNarrador().decir('primerIntento')
+
       progreso.registrarIntento(reto.id, resultado.ok, { indultado })
+
+      // Marasi lee el código al superarlo. Aquí es el único sitio donde se
+      // tiene delante, así que es donde se apunta si no tenía nada que decir.
+      if (resultado.ok && seEscribe(reto.tipo) && !ficha.superado && revisar(codigo).length === 0) {
+        progreso.apuntarRevisionLimpia()
+      }
 
       const completo = resultado.ok
         ? { ...resultado, indultado, ...this.premiar(reto) }
@@ -151,7 +166,7 @@ export const usarJuego = defineStore('juego', {
         const narrador = usarNarrador()
         if (fallos === 3) narrador.decirWax('atascado')
         else if (fallos > 3 && fallos % 4 === 0) narrador.decirWax('insiste')
-        else this.narrarFallo(resultado)
+        else this.narrarFallo(resultado, reto)
       }
       this.ultimoResultado = completo
       return completo
@@ -234,7 +249,7 @@ export const usarJuego = defineStore('juego', {
       const sinPistas = ficha.pistasUsadas.length === 0
       const aLaPrimera = ficha.intentos <= 1
 
-      const { esNuevo } = progreso.registrarVictoria(reto.id, {
+      const { esNuevo, racha, rachaRota, rachaAntes } = progreso.registrarVictoria(reto.id, {
         rachaResistente: gatos.tieneBonus('rachaResistente'),
       })
 
@@ -258,14 +273,43 @@ export const usarJuego = defineStore('juego', {
       economia.ingresar(total, reto.titulo)
 
       if (reto.jefe) narrador.decir('jefeDerrotado', {}, { forzar: true })
+      // La racha solo se comenta en los saltos que se notan. Cantarla en cada
+      // reto la convertiría en ruido, y dejaría de significar nada.
+      else if ([3, 5, 10, 20].includes(racha)) narrador.decir('rachaSube', { racha }, { forzar: true })
       else if (sinPistas && aLaPrimera) narrador.decir('superadoSinPistas')
       else narrador.decir('retoSuperado')
+
+      if (rachaRota) narrador.decir('rachaRota', { racha: rachaAntes }, { forzar: true })
+
+      // Las insignias van al final, cuando ya está todo apuntado: si se
+      // miraran antes, la del propio reto que acabas de pasar no contaría.
+      for (const insignia of usarInsignias().revisar()) {
+        narrador.decir('insigniaGanada', { insignia: insignia.nombre }, { forzar: true })
+      }
+
+      // MeLaan comenta lo suyo: que reescribir algo que ya funciona es lo
+      // difícil. Sus dos frases estaban escritas y nadie las decía.
+      const suMundo = MUNDOS_POR_ID[reto.mundo]
+      if (reto.tipo === 'refactor') narrador.decirAnfitrion(suMundo, 'mismaCosa')
+
+      // Wax solo aparece cuando la cosa se pone seria, y cerrar un mundo lo es.
+      // Su enhorabuena llevaba escrita desde el principio sin que nadie la usara.
+      if (reto.jefe && progreso.mundoCompletado(reto.mundo)) {
+        narrador.decirWax('enhorabuena', { mundo: MUNDOS_POR_ID[reto.mundo]?.nombre ?? '' })
+      }
 
       return { recompensa: { total, detalle }, repetido: false }
     },
 
-    narrarFallo(resultado) {
+    narrarFallo(resultado, reto) {
       const narrador = usarNarrador()
+
+      // Steris tiene el error previsto en su lista: si lo sabe traducir, lo
+      // dice ella, que para eso es la anfitriona de los cimientos.
+      const mundo = MUNDOS_POR_ID[reto?.mundo]
+      if (mundo?.anfitrion === 'steris' && traducirImprevisto(resultado.error?.mensaje)) {
+        narrador.decirAnfitrion(mundo, 'previsto')
+      }
       switch (resultado.fase) {
         case FASES.SINTAXIS:
           return narrador.decir('errorDeSintaxis', { linea: resultado.error?.linea }, { forzar: true })

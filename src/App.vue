@@ -102,6 +102,22 @@ watch(ultimoRecorte, (nuevo) => {
 
           <span class="contador retos" title="Retos superados">{{ avance }}</span>
 
+          <!-- La racha ya se llevaba, y solo se veía en Ajustes. Aparece a
+               partir de dos: con una no hay racha que enseñar. -->
+          <Transition name="racha">
+            <span
+              v-if="progreso.rachaSinPistas >= 2"
+              class="contador racha"
+              :class="{ larga: progreso.rachaSinPistas >= 5 }"
+              :title="`${progreso.rachaSinPistas} retos seguidos sin pedir una pista`"
+            >
+              <svg viewBox="0 0 24 24" aria-hidden="true">
+                <path d="M13 2 L5 14 h6 l-2 8 8-12 h-6 z" fill="currentColor" />
+              </svg>
+              {{ progreso.rachaSinPistas }}
+            </span>
+          </Transition>
+
           <!-- El número que sube va FUERA del contador: dentro contaminaría su
                texto y lo leería mal cualquiera que lo consulte, tests incluidos. -->
           <span class="hueco-croquetas">
@@ -156,6 +172,12 @@ watch(ultimoRecorte, (nuevo) => {
 </template>
 
 <style scoped>
+.contador.racha { color: var(--ambar); border-color: rgba(217, 180, 92, 0.45); }
+.contador.racha.larga { color: var(--cobre-claro); border-color: var(--cobre); }
+.contador.racha svg { width: 13px; height: 13px; }
+.racha-enter-active, .racha-leave-active { transition: opacity 0.3s, transform 0.3s; }
+.racha-enter-from, .racha-leave-to { opacity: 0; transform: scale(0.6); }
+
 .juego { min-height: 100%; display: flex; flex-direction: column; position: relative; }
 .cabecera, .principal { position: relative; z-index: 1; }
 

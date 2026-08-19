@@ -13,12 +13,16 @@
  * intervenir, y intervenir de más estropea justo lo que intenta sostener.
  */
 import { traducirImprevisto } from '../../contenido/imprevistos.js'
+import { LINEAS_DE_ARMONIA } from '../../contenido/narrador/lineas.js'
 import { citar, corpusYaConstruido } from '../../contenido/armonia/corpus.js'
 import { RETOS_POR_ID } from '../../contenido/retos/index.js'
 import { comprobarRequisitos } from '../chequeosEstaticos.js'
 import { analizar } from '../guardaBucles.js'
 import { buscar, prepararBusqueda, retosQueEnsenan } from './buscar.js'
 import { clasificar } from './intencion.js'
+
+/** Cómo empieza cuando se niega. Estaban escritas y no las usaba nadie. */
+const NEGATIVAS = LINEAS_DE_ARMONIA.senegativa
 
 /** Cuántas veces hay que pedirle la solución para que te llame la atención. */
 const PACIENCIA = 3
@@ -65,7 +69,9 @@ function seNiega(veces) {
   return respuesta(
     'peticion',
     [
-      'No.',
+      // Elegida por el número de veces que se lo has pedido, no al azar: así
+      // no se repite palabra por palabra y sigue siendo predecible.
+      NEGATIVAS[(veces - 1) % NEGATIVAS.length],
       '',
       'Podría. Lo sé todo de este ejercicio, igual que sé lo demás. Y si te lo diera, mañana',
       'estarías exactamente donde estás ahora, sólo que un día más tarde.',

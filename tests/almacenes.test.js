@@ -1,3 +1,9 @@
+import { readFileSync, readdirSync } from 'node:fs'
+
+import { GATOS } from '../src/contenido/gatos.js'
+import { MUNDOS } from '../src/contenido/mundos.js'
+import { retosDelMundo } from '../src/contenido/retos/index.js'
+import { SOMBREROS, SOMBREROS_POR_ID } from '../src/contenido/sombreros.js'
 import { createPinia, setActivePinia } from 'pinia'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 
@@ -324,5 +330,75 @@ describe('recortes secretos', () => {
       expect(recorte.entradilla, recorte.id).toBeTruthy()
       expect(recorte.consejo, recorte.id).toBeTruthy()
     }
+  })
+})
+
+/**
+ * Los sombreros colocados en la interfaz y los declarados tienen que ser los
+ * mismos. Había dos -el del glosario y el de la antesala- puestos en su vista y
+ * sin declarar: `encontrar` salía por su guarda de tipo desconocido, así que se
+ * podían pulsar para siempre, no pagaban nada y no contaban para el total.
+ */
+describe('los sombreros escondidos existen todos', () => {
+  const colocados = new Set()
+  for (const carpeta of ['', 'vistas/', 'componentes/']) {
+    const dir = new URL(`../src/${carpeta}`, import.meta.url)
+    for (const archivo of readdirSync(dir).filter((f) => f.endsWith('.vue'))) {
+      const fuente = readFileSync(new URL(archivo, dir), 'utf8')
+      for (const [, id] of fuente.matchAll(/<SombreroEscondido\s+id="([\w-]+)"/g)) colocados.add(id)
+    }
+  }
+
+  it('hay sombreros colocados que comprobar', () => {
+    expect(colocados.size).toBeGreaterThan(5)
+  })
+
+  it('cada sombrero colocado está declarado', () => {
+    const sinDeclarar = [...colocados].filter((id) => !SOMBREROS_POR_ID[id])
+    expect(sinDeclarar).toEqual([])
+  })
+
+  it('cada sombrero declarado está colocado en algún sitio', () => {
+    const sinColocar = SOMBREROS.map((s) => s.id).filter((id) => !colocados.has(id))
+    expect(sinColocar).toEqual([])
+  })
+})
+
+/**
+ * Los gatos son la recompensa de largo recorrido, y estaban todos ganados al
+ * acabar el tercer mundo: los 29 retos siguientes -más de la mitad del juego-
+ * repartían dos, y El taller y Cambio de forma, ninguno. La curva de premio iba
+ * justo al revés que la de dificultad.
+ */
+describe('los gatos se reparten por toda la cuesta', () => {
+  const porMundo = GATOS.filter((g) => g.desbloqueo.tipo === 'mundoCompletado')
+
+  it('ningún mundo abre más de un gato', () => {
+    const cuenta = {}
+    for (const gato of porMundo) cuenta[gato.desbloqueo.valor] = (cuenta[gato.desbloqueo.valor] ?? 0) + 1
+    const repetidos = Object.entries(cuenta).filter(([, n]) => n > 1)
+    expect(repetidos).toEqual([])
+  })
+
+  it('cada desbloqueo por mundo apunta a un mundo que existe', () => {
+    const ids = new Set(MUNDOS.map((m) => m.id))
+    const fantasmas = porMundo.map((g) => g.desbloqueo.valor).filter((id) => !ids.has(id))
+    expect(fantasmas).toEqual([])
+  })
+
+  it('al acabar el tercer mundo todavía quedan gatos por ganar', () => {
+    // Esta es la prueba de verdad, y la que estaba en rojo antes del cambio:
+    // con los tres primeros mundos hechos se tenían 8 de 10, y los 29 retos
+    // siguientes -más de la mitad del juego- repartían dos.
+    const progreso = usarProgreso()
+    const gatos = usarGatos()
+
+    for (const mundo of ['primer-dia', 'comisaria', 'es6']) {
+      for (const reto of retosDelMundo(mundo)) progreso.registrarVictoria(reto.id)
+    }
+
+    const ganados = gatos.enElRefugio.length + gatos.adoptados.length
+    expect(ganados, 'quedan demasiados pocos gatos para la segunda mitad').toBeLessThanOrEqual(6)
+    expect(gatos.porVenir.length, 'no queda ningún gato esperando').toBeGreaterThanOrEqual(4)
   })
 })

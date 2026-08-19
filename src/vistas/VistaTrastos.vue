@@ -6,10 +6,12 @@ import { RECORTES } from '../contenido/recortes.js'
 import { TRASTOS, TRASTOS_POR_ID } from '../contenido/trastos.js'
 import { usarEconomia } from '../almacen/economia.js'
 
+import { usarInsignias } from '../almacen/insignias.js'
 import { usarRecortes } from '../almacen/recortes.js'
 
 const economia = usarEconomia()
 const recortes = usarRecortes()
+const insignias = usarInsignias()
 
 const mios = computed(() =>
   [...new Set(economia.trastos)].map((id) => ({
@@ -49,6 +51,27 @@ const mios = computed(() =>
       <p class="tenue">De momento no hay trastos. Enhorabuena: no has pedido ni una pista de pago.</p>
     </section>
 
+    <section class="panel encabezado">
+      <h2>Las insignias de Marasi</h2>
+      <p class="tenue">
+        Las apunta ella, y no valen ni una croqueta a propósito: si pagaran dejarían de ser
+        un reconocimiento y pasarían a ser deberes. Nadie te las pide y no hacen falta para
+        nada.
+      </p>
+      <p class="cuenta">{{ insignias.cuantas }} de {{ insignias.total }} insignias</p>
+    </section>
+
+    <div v-if="insignias.mias.length" class="rejilla">
+      <article v-for="insignia in insignias.mias" :key="insignia.id" class="insignia panel">
+        <h3>{{ insignia.nombre }}</h3>
+        <p class="tenue">{{ insignia.porque }}</p>
+      </article>
+    </div>
+
+    <section v-else class="panel centrado">
+      <p class="tenue">Ninguna todavía. No las busques: llegan solas.</p>
+    </section>
+
     <section class="panel encabezado recortes-cabecera">
       <h2>Recortes del Elendel Daily</h2>
       <p class="tenue">
@@ -79,6 +102,9 @@ const mios = computed(() =>
 </template>
 
 <style scoped>
+.insignia h3 { margin: 0 0 6px; font-size: 0.98rem; color: var(--cobre-claro); }
+.insignia p { margin: 0; font-size: 0.86rem; }
+
 .encabezado { position: relative; }
 .encabezado p { max-width: 72ch; }
 .cuenta { margin: 0; font-size: 0.9rem; color: var(--cobre-claro); }

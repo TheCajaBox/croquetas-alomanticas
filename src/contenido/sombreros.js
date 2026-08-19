@@ -94,6 +94,20 @@ export const SOMBREROS = [
     donde: 'En la propia sombrerera.',
     dice: 'Ese estaba aquí desde el principio y has tardado lo tuyo. Bien jugado igual.',
   },
+  {
+    id: 'glosario',
+    nombre: 'El de las palabras largas',
+    pista: 'Donde Steris guarda las definiciones, alguien dejó uno encima.',
+    donde: 'En el glosario, junto al titular.',
+    dice: 'Ese lo perdí buscando qué significaba «idempotente». Sigo sin saberlo.',
+  },
+  {
+    id: 'antesala',
+    nombre: 'El de la primera vez',
+    pista: 'En la habitación donde Steris explica de qué va todo esto.',
+    donde: 'En la antesala, arriba a la derecha.',
+    dice: 'Ese me lo dejé el día que Steris me explicó las cosas por primera vez. Duró dos horas.',
+  },
 ]
 
 export const SOMBREROS_POR_ID = Object.fromEntries(SOMBREROS.map((s) => [s.id, s]))

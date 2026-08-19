@@ -20,6 +20,8 @@ export const usarProgreso = defineStore('progreso', {
     retos: {},
     rachaSinPistas: 0,
     mejorRacha: 0,
+    /** Retos de escribir superados sin que Marasi tuviera nada que decir. */
+    revisionesLimpias: 0,
     ultimaVisita: null,
     vistoLaBienvenida: false,
     vistoLaAntesala: false,
@@ -59,6 +61,37 @@ export const usarProgreso = defineStore('progreso', {
     jefesDerrotados: (estado) =>
       RETOS.filter((reto) => reto.jefe && estado.retos[reto.id]?.superado).length,
 
+    /** Jefes superados en el primer envío. No tienen pistas, así que cuenta. */
+    jefesALaPrimera: (estado) =>
+      RETOS.filter((reto) => reto.jefe && estado.retos[reto.id]?.superado && estado.retos[reto.id].intentos <= 1)
+        .length,
+
+    /** Retos que se resistieron cinco veces o más y acabaron cayendo. */
+    retosPeleados: (estado) =>
+      Object.values(estado.retos).filter((f) => f.superado && f.fallos >= 5).length,
+
+    mundosCompletados() {
+      return MUNDOS.filter((mundo) => this.mundoCompletado(mundo.id)).length
+    },
+
+    /** Mundos terminados enteros sin comprar una sola pista. */
+    mundosSinPistas() {
+      return MUNDOS.filter(
+        (mundo) =>
+          this.mundoCompletado(mundo.id) &&
+          retosDelMundo(mundo.id).every((reto) => (this.retos[reto.id]?.pistasUsadas.length ?? 0) === 0),
+      ).length
+    },
+
+    /** Mundos terminados sin un solo intento fallido. */
+    mundosALaPrimera() {
+      return MUNDOS.filter(
+        (mundo) =>
+          this.mundoCompletado(mundo.id) &&
+          retosDelMundo(mundo.id).every((reto) => (this.retos[reto.id]?.intentos ?? 99) <= 1),
+      ).length
+    },
+
     /** Hace cuánto que no aparece por aquí, para que Wayne pueda echárselo en cara. */
     llevabaSemanasFuera: (estado) =>
       !!estado.ultimaVisita && Date.now() - estado.ultimaVisita > SEMANA_EN_MS,
@@ -88,6 +121,11 @@ export const usarProgreso = defineStore('progreso', {
       return ficha
     },
 
+    /** Marasi ha leído el código y no ha encontrado nada que objetar. */
+    apuntarRevisionLimpia() {
+      this.revisionesLimpias += 1
+    },
+
     registrarPista(retoId, nivel) {
       const ficha = this.asegurarFicha(retoId)
       if (!ficha.pistasUsadas.includes(nivel)) ficha.pistasUsadas.push(nivel)
@@ -105,14 +143,25 @@ export const usarProgreso = defineStore('progreso', {
       ficha.superado = true
       ficha.superadoEn = ficha.superadoEn ?? Date.now()
 
+      const rachaAntes = this.rachaSinPistas
+      let mantieneRacha = true
+
       if (!yaEstaba) {
         const pistas = ficha.pistasUsadas.length
-        const mantieneRacha = pistas === 0 || (rachaResistente && pistas === 1)
+        mantieneRacha = pistas === 0 || (rachaResistente && pistas === 1)
         this.rachaSinPistas = mantieneRacha ? this.rachaSinPistas + 1 : 0
         this.mejorRacha = Math.max(this.mejorRacha, this.rachaSinPistas)
       }
 
-      return { esNuevo: !yaEstaba, reto: RETOS_POR_ID[retoId] }
+      return {
+        esNuevo: !yaEstaba,
+        reto: RETOS_POR_ID[retoId],
+        // La racha se calculaba desde siempre y no se veía en ninguna parte.
+        // Quien premia necesita saber si ha subido o si se acaba de romper.
+        rachaAntes,
+        racha: this.rachaSinPistas,
+        rachaRota: !yaEstaba && !mantieneRacha && rachaAntes >= 2,
+      }
     },
 
     reiniciar() {
