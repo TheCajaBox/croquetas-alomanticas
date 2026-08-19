@@ -94,12 +94,18 @@ romperían al publicar en Pages.
 
 Wayne sale además de cuerpo entero, con el bastón al hombro, presidiendo la portada.
 
-**Wax** escribe el temario, y es lo más largo del juego: **90 lecciones, 523.000
-caracteres**, una por reto. No son notas al margen — cada una tiene la estructura de
-un artículo: el problema que resuelve, la idea, el modelo mental, lo que despista,
-los errores clásicos con el mensaje que sale de verdad, y el criterio para decidir
-cuándo se usa y cuándo no. Esa última parte es la que convierte saber la sintaxis
-en saber plantear.
+**Wax** escribe el temario, y es lo más largo del juego: **90 lecciones, 700.000
+caracteres**, una por reto — entre 7.000 y 9.000 cada una, sin excepción. No son notas al margen — cada una tiene la estructura de
+un artículo: el problema que resuelve, la idea, el modelo mental, **lo que despista**,
+**un ejemplo trabajado con su salida exacta** y **cómo se plantea** ese tipo de problema.
+Esas tres últimas secciones las tienen las noventa, y son las que convierten saber la
+sintaxis en saber plantear.
+
+Todos los ejemplos están comprobados ejecutándolos, no escritos de memoria. De ahí salen
+cosas que casi siempre se cuentan mal: que `[] == false` sea verdadero **y** que una lista
+vacía entre en un `if`; que `[1,2,3].map(parseInt)` dé `[1, NaN, NaN]`; que
+`[10, 9, 100].sort()` dé `[10, 100, 9]` y además te ordene la lista original; que
+`[].every(...)` sea verdadero; o que Álvaro vaya después de Beatriz al comparar con `<`.
 
 Viven fuera del paquete inicial y se piden al abrir su reto, así que pueden crecer
 todo lo que haga falta sin que le cuesten un byte a quien no las abra.

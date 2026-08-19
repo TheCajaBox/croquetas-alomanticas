@@ -163,7 +163,7 @@ export default codigo(
   "punto y coma solo tras un `return` con salto de línea. Es de los pocos sitios donde el",
   "formato cambia el significado.",
   "",
-  "**Los paréntesis son la llamada.** `saludar` sin ellos es la función misma; `saludar()` es su",
+  "**Los paréntesis son la llamada.** `despedir` sin ellos es la función misma; `despedir()` es su",
   "resultado.",
   "",
   "**Llamar con menos argumentos no da error.** El parámetro se queda en `undefined` y sale un",
