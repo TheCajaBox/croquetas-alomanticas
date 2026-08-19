@@ -20,6 +20,18 @@ const NUMEROS = ['Cero', 'Un', 'Dos', 'Tres', 'Cuatro', 'Cinco', 'Seis', 'Siete'
 const cuantosMundos = computed(() => NUMEROS[MUNDOS.length] ?? MUNDOS.length)
 const cuantosRetos = computed(() => MUNDOS.reduce((suma, mundo) => suma + retosDelMundo(mundo.id).length, 0))
 
+/** Los mundos que le faltan a este para abrirse, ya escritos como frase. */
+function nombresQueFaltan(mundo) {
+  if (!mundo.requiere) return null
+  const exigidos = Array.isArray(mundo.requiere) ? mundo.requiere : [mundo.requiere]
+  const nombres = exigidos
+    .filter((id) => !progreso.mundoCompletado(id))
+    .map((id) => MUNDOS.find((otro) => otro.id === id)?.nombre)
+    .filter(Boolean)
+  if (nombres.length === 0) return null
+  return nombres.length === 1 ? nombres[0] : `${nombres.slice(0, -1).join(', ')} y ${nombres.at(-1)}`
+}
+
 const mundos = computed(() =>
   MUNDOS.map((mundo) => {
     const total = retosDelMundo(mundo.id).length
@@ -32,7 +44,8 @@ const mundos = computed(() =>
       disponible: progreso.mundoDisponible(mundo.id),
       completado: progreso.mundoCompletado(mundo.id),
       // Cada mundo cerrado dice cuál es el que lo abre, no siempre el primero.
-      loAbre: MUNDOS.find((otro) => otro.id === mundo.requiere)?.nombre ?? null,
+      // Y alguno pide dos, así que se nombran los que falten, no todos.
+      loAbre: nombresQueFaltan(mundo),
     }
   }),
 )

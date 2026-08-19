@@ -1,7 +1,8 @@
 import { describe, expect, it } from 'vitest'
 
 import { PROPORCION_DE_PISTA, precioDePista } from '../src/contenido/retos/comun.js'
-import { RETOS } from '../src/contenido/retos/index.js'
+import { MUNDOS } from '../src/contenido/mundos.js'
+import { RETOS, retosDelMundo } from '../src/contenido/retos/index.js'
 
 const aplanar = (texto) => (texto ?? '').replace(/\s+/g, ' ').trim()
 
@@ -31,8 +32,21 @@ describe('los jefes no se venden', () => {
     expect(conPistasYJefes.map((r) => r.id)).toEqual([])
   })
 
-  it('y son siete, uno por mundo', () => {
-    expect(RETOS.filter((r) => r.jefe)).toHaveLength(7)
+  it('hay uno por mundo, ni más ni menos', () => {
+    // Contado sobre MUNDOS y no con un número escrito: cada mundo nuevo traía
+    // una prueba en rojo que no decía nada del mundo nuevo.
+    for (const mundo of MUNDOS) {
+      const jefes = retosDelMundo(mundo.id).filter((reto) => reto.jefe)
+      expect(jefes.map((r) => r.id), `${mundo.id} no tiene exactamente un jefe`).toHaveLength(1)
+    }
+    expect(RETOS.filter((r) => r.jefe)).toHaveLength(MUNDOS.length)
+  })
+
+  it('el jefe es el último reto de su mundo', () => {
+    for (const mundo of MUNDOS) {
+      const retos = retosDelMundo(mundo.id)
+      expect(retos.at(-1).jefe, `el último de ${mundo.id} no es el jefe`).toBe(true)
+    }
   })
 })
 

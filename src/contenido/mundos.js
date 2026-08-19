@@ -69,6 +69,21 @@ export const MUNDOS = [
       'Esto ya no es aprender un idioma, es tener oficio. Lo que viene ahora es Vue, y Vue no es más difícil que esto: es esto mismo, ordenado de otra manera.',
   },
   {
+    id: 'elendel',
+    nombre: 'Elendel',
+    subtitulo: 'Fuera del archivo',
+    entorno: 'worker',
+    requiere: 'taller',
+    color: '#a05a72',
+    anfitrion: 'marasi',
+    resumen:
+      'Lo que rodea al lenguaje: módulos, JSON, expresiones regulares, fechas, números que engañan y el orden en que pasan las cosas.',
+    presentacion:
+      'Hasta ahora todo lo tuyo cabía en un archivo y hablaba solo consigo mismo. En la ciudad no funciona así: los datos llegan de fuera y en un formato que no elegiste, los expedientes se reparten entre despachos, y las cosas no ocurren en el orden en que las pediste. Nada de esto es JavaScript exactamente; es lo que hay alrededor. Y sin ello no se sale del ejercicio de clase.',
+    despedida:
+      'Ya sabes trabajar con lo que viene de fuera, que casi nunca viene como te gustaría. Eso es la mitad del oficio de verdad, y la mitad que no aparece en los tutoriales.',
+  },
+  {
     id: 'vue2',
     nombre: 'La mansión Ladrian',
     subtitulo: 'Vue 2 · Options API',

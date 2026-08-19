@@ -116,6 +116,72 @@ export const IMPREVISTOS = [
     ],
   },
   {
+    id: 'json-html',
+    patron: /Unexpected token '<'.*is not valid JSON/,
+    titulo: 'Te han mandado una página web en vez de datos',
+    significa: () =>
+      'El texto que intentas leer como JSON empieza por `<`, así que casi seguro es HTML y no datos.',
+    causas: [
+      'El servidor ha devuelto una página de error -un 404 o un 500- en vez de lo que pediste. El fallo está en la petición, no en tu `JSON.parse`.',
+      'La dirección a la que has pedido los datos no es la que creías.',
+      'Antes de darle vueltas al `parse`, escribe el texto tal cual por consola y mira qué te ha llegado de verdad.',
+    ],
+  },
+  {
+    id: 'json-invalido',
+    patron: /(?:Expected .*|Unexpected .*) in JSON at position (\d+)/,
+    titulo: 'El texto no es JSON válido',
+    significa: (c) => `Se ha atragantado en el carácter ${c[1]} del texto.`,
+    causas: [
+      'Las claves de JSON van entre **comillas dobles**, siempre: `{"a": 1}`, no `{a: 1}` ni con comillas simples.',
+      'Hay una coma de más después del último elemento. En JavaScript se perdona; en JSON no.',
+      'El texto viene cortado a medias, así que el JSON nunca llega a cerrarse.',
+      'JSON no admite comentarios, por mucho que parezca código.',
+    ],
+  },
+  {
+    id: 'json-circular',
+    patron: /Converting circular structure to JSON/,
+    titulo: 'Ese objeto se contiene a sí mismo',
+    significa: () =>
+      'Siguiendo sus propiedades se acaba llegando otra vez al mismo objeto, y `JSON.stringify` daría vueltas para siempre.',
+    causas: [
+      'Dos objetos que se apuntan el uno al otro: un padre con lista de hijos y cada hijo con una referencia a su padre.',
+      'Estás intentando guardar algo que no eran datos -un elemento del DOM, un componente de Vue- y esas cosas están llenas de referencias circulares.',
+    ],
+  },
+  {
+    id: 'asignacion-imposible',
+    patron: /Invalid left-hand side in assignment/,
+    titulo: 'Estás asignando a algo que no es un sitio',
+    significa: () => 'A la izquierda del `=` tiene que haber algo donde se pueda guardar un valor.',
+    causas: [
+      'Has escrito `?.` en el lado izquierdo: `ficha?.nombre = "Wax"` no existe. El encadenamiento opcional sirve para leer, no para asignar.',
+      'Estás asignando al resultado de una llamada, como `obtener() = 3`.',
+    ],
+  },
+  {
+    id: 'promesa-sin-recoger',
+    patron: /Unhandled(?: promise)? [Rr]ejection/,
+    titulo: 'Una promesa ha fallado y no la esperaba nadie',
+    significa: () =>
+      'Algo ha salido mal dentro de una promesa, y no había ningún `await` ni ningún `.catch` recogiendo el fallo.',
+    causas: [
+      'Has llamado a una función `async` sin `await` y sin `.catch`. Si falla, el error no tiene dónde ir.',
+      'Dentro de un `forEach` con funciones `async`: `forEach` no espera a nada, así que esas promesas quedan sueltas.',
+      'Si lo que querías era lanzar varias a la vez, `Promise.allSettled` las recoge todas por ti.',
+    ],
+  },
+  {
+    id: 'bigint-mezclado',
+    patron: /Cannot mix BigInt and other types/,
+    titulo: 'Un BigInt no se mezcla con un número normal',
+    significa: () => 'Los números enormes que acaban en `n` son otro tipo y no se suman con los de siempre.',
+    causas: [
+      'Conviértelos a propósito: `Number(grande)` si de verdad cabe, o `BigInt(pequeno)` para subir el otro.',
+    ],
+  },
+  {
     id: 'simbolo-raro',
     patron: /Invalid or unexpected token|Unexpected token|Unexpected identifier/,
     titulo: 'Hay un símbolo donde no tocaba',

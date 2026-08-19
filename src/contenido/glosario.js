@@ -356,6 +356,95 @@ export const GLOSARIO = [
     termino: "sandbox",
     definicion: "El sitio aislado donde este juego ejecuta tu código, separado del juego en sí, para que nada de lo que escribas pueda romperlo.",
   },
+  {
+    id: "modulo",
+    termino: "módulo",
+    alias: ["módulos"],
+    definicion:
+      "Un archivo de código. Lo que no saca a propósito con `export` no lo puede usar nadie de fuera, y así dos archivos no se pisan sin querer.",
+    ejemplo: "export const TARIFA = 25",
+  },
+  {
+    id: "importar",
+    termino: "importar",
+    alias: ["importa", "importación", "import"],
+    definicion:
+      "Traer a este archivo algo que otro archivo ha sacado. Va siempre arriba del todo, porque se resuelve antes de ejecutar nada.",
+    ejemplo: "import { cobrar } from './tarifas.js'",
+  },
+  {
+    id: "exportar",
+    termino: "exportar",
+    alias: ["exporta", "exportación", "export"],
+    definicion:
+      "Dejar que otros archivos usen algo de este. Lo que no se exporta es privado del módulo.",
+    ejemplo: "export function cobrar(dias) { ... }",
+  },
+  {
+    id: "json",
+    termino: "JSON",
+    definicion:
+      "El formato en que viajan casi todos los datos entre programas. Es texto, con las claves siempre entre comillas dobles. `JSON.parse` lo convierte en datos y `JSON.stringify` hace el camino de vuelta.",
+    ejemplo: '{"ciudad": "Elendel", "agentes": 3}',
+  },
+  {
+    id: "expresion-regular",
+    termino: "expresión regular",
+    alias: ["expresiones regulares", "regex"],
+    definicion:
+      "Una forma de buscar por la pinta que tiene algo, y no por su contenido exacto: tres dígitos seguidos, una palabra en mayúsculas. Va entre barras.",
+    ejemplo: "/recompensa: (\\d+)/",
+  },
+  {
+    id: "microtarea",
+    termino: "microtarea",
+    alias: ["microtareas"],
+    definicion:
+      "Lo que queda pendiente por una promesa. Tiene su propia cola y es prioritaria: se vacía entera antes de atender un solo temporizador.",
+  },
+  {
+    id: "cola-de-tareas",
+    termino: "cola de tareas",
+    alias: ["bucle de eventos"],
+    definicion:
+      "Lo que decide en qué orden ocurren las cosas apuntadas para después. JavaScript hace una cosa a la vez: primero termina lo que está haciendo, luego las microtareas, y solo entonces un temporizador.",
+  },
+  {
+    id: "acumulador",
+    termino: "acumulador",
+    definicion:
+      "La variable que va guardando el resultado parcial mientras se recorre algo. En un `reduce` es el primer parámetro, y lo que devuelve una vuelta es lo que recibe la siguiente.",
+    ejemplo: "lista.reduce((acumulado, uno) => acumulado + uno, 0)",
+  },
+  {
+    id: "cierre",
+    termino: "cierre",
+    alias: ["cierres", "closure"],
+    definicion:
+      "Una función que sigue usando variables del sitio donde se creó, aunque ese sitio ya haya terminado. Es la forma de tener datos que nadie de fuera puede tocar.",
+  },
+  {
+    id: "instancia",
+    termino: "instancia",
+    alias: ["instancias"],
+    definicion:
+      "Un objeto concreto hecho con el molde de una clase. La clase es el molde; la instancia, la pieza. Se crea con `new`.",
+    ejemplo: "const wax = new Agente('Wax')",
+  },
+  {
+    id: "referencia",
+    termino: "referencia",
+    alias: ["referencias", "por referencia"],
+    definicion:
+      "Lo que de verdad guarda una variable cuando dentro hay un objeto o una lista: no la cosa, sino dónde está. Por eso dos nombres pueden apuntar a lo mismo y tocar uno toca el otro.",
+  },
+  {
+    id: "slot",
+    termino: "slot",
+    alias: ["slots"],
+    definicion:
+      "Un hueco que un componente deja para que quien lo use meta dentro lo que quiera. Es lo que convierte un componente en algo reutilizable de verdad.",
+  },
 ]
 
 export const GLOSARIO_POR_ID = Object.fromEntries(GLOSARIO.map((entrada) => [entrada.id, entrada]))

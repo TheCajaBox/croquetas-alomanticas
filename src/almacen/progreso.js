@@ -42,10 +42,17 @@ export const usarProgreso = defineStore('progreso', {
       }
     },
 
+    /**
+     * `requiere` admite un mundo o una lista de mundos. El ferrocarril necesita
+     * las dos cosas -saber Vue 3 y saber lo de Elendel- y con un solo id no se
+     * podía decir.
+     */
     mundoDisponible() {
       return (mundoId) => {
         const mundo = MUNDOS.find((m) => m.id === mundoId)
-        return !mundo?.requiere || this.mundoCompletado(mundo.requiere)
+        if (!mundo?.requiere) return true
+        const exigidos = Array.isArray(mundo.requiere) ? mundo.requiere : [mundo.requiere]
+        return exigidos.every((id) => this.mundoCompletado(id))
       }
     },
 
