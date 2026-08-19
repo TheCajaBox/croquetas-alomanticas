@@ -110,6 +110,21 @@ export const MUNDOS = [
       'Ciudad nueva conquistada. Y ahora ya puedes discutir de las dos con conocimiento de causa, que es lo peligroso.',
   },
   {
+    id: 'ferrocarril',
+    nombre: 'El ferrocarril',
+    subtitulo: 'Vue 3 · una aplicación entera',
+    entorno: 'vue3',
+    requiere: ['vue3', 'elendel'],
+    color: '#3f7f96',
+    anfitrion: 'steris',
+    resumen:
+      'Dejar de hacer componentes sueltos y montar algo con vías: huecos, referencias, estado compartido, rutas y composables de verdad.',
+    presentacion:
+      'Un componente suelto no es una aplicación, igual que un vagón no es una línea. Lo que falta es lo que los une: huecos para que otros metan lo suyo, un sitio donde guardar lo que necesitan todos, y un mapa que diga qué se enseña en cada momento. He preparado los horarios y las contingencias; lo que salga de aquí ya se parece a lo que se escribe en un trabajo.',
+    despedida:
+      'Ya sabes montar una aplicación, no solo componentes. A partir de aquí lo que queda no es aprender más piezas: es aprender a colocarlas, que es lo que hace MeLaan.',
+  },
+  {
     id: 'melaan',
     nombre: 'Cambio de forma',
     subtitulo: 'Reescribir lo que ya funciona',
