@@ -7,6 +7,7 @@ import { MUNDOS_POR_ID } from '../contenido/mundos.js'
 import { retosDelMundo } from '../contenido/retos/index.js'
 import Avatar from '../componentes/Avatar.vue'
 import { REPASOS_POR_MUNDO } from '../contenido/repasos.js'
+import { etiquetaDelTipo } from '../contenido/retos/tipos.js'
 import { usarNarrador } from '../almacen/narrador.js'
 import { usarProgreso } from '../almacen/progreso.js'
 import { usarRepasos } from '../almacen/repasos.js'
@@ -26,16 +27,6 @@ const mundo = computed(() => MUNDOS_POR_ID[props.mundoId])
 
 narrador.entrarAlMundo(mundo.value)
 
-const TIPOS = {
-  codigo: 'escribir',
-  bug: 'cazar el fallo',
-  refactor: 'reescribir',
-  prediccion: 'acertijo',
-  eleccion: 'elegir',
-  emparejar: 'emparejar',
-  ordenar: 'ordenar',
-  completar: 'rellenar',
-}
 
 const retos = computed(() =>
   retosDelMundo(props.mundoId).map((reto, indice) => {
@@ -91,7 +82,7 @@ if (!mundo.value || !progreso.mundoDisponible(props.mundoId)) router.replace('/'
           <span class="numero">{{ String(reto.numero).padStart(2, '0') }}</span>
           <div class="cuerpo">
             <div class="fila etiquetas">
-              <span class="etiqueta">{{ TIPOS[reto.tipo] }}</span>
+              <span class="etiqueta">{{ etiquetaDelTipo(reto.tipo) }}</span>
               <span v-if="reto.jefe" class="etiqueta jefe">jefe</span>
               <span v-if="reto.superado" class="etiqueta superado">superado</span>
               <span v-else-if="reto.empezado" class="etiqueta">empezado</span>

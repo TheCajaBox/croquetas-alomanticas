@@ -3,26 +3,29 @@
  *
  * Qué se comprueba depende del tipo:
  *
- * - los que ejecutan código (`codigo`, `bug`, `prediccion`, `ordenar`,
- *   `completar`) se resuelven de verdad con su solución de referencia y tienen
- *   que pasar sus propios tests y requisitos;
- * - los que se resuelven señalando (`eleccion`, `emparejar`) no ejecutan nada,
- *   así que lo que se revisa es que estén bien formados: que haya respuesta
- *   correcta, que ninguna opción se quede sin explicación, y que no falten
- *   parejas.
+ * - los que tienen código de referencia (`codigo`, `bug`, `refactor`,
+ *   `prediccion`, `ordenar`, `completar`, `trazar`) se resuelven de verdad con
+ *   él y tienen que pasar sus propios tests y requisitos;
+ * - los que se resuelven señalando y no ejecutan nada (`eleccion`, `emparejar`,
+ *   `cazar-linea`, `etiquetar`, `verdadero-o-falso`) se revisan por forma: que
+ *   haya respuesta correcta, que ninguna opción se quede sin explicación, que
+ *   no falten parejas y que haya señuelos suficientes.
  *
  * Un reto imposible, o uno de elegir sin respuesta correcta, es el peor fallo
  * que puede tener un juego para aprender.
  */
 
-/** El código con el que un reto debería resolverse, según su tipo. */
-export function codigoDeReferencia(reto) {
-  if (reto.tipo === 'prediccion') return reto.codigoMostrado
-  if (reto.tipo === 'ordenar') return reto.lineas.join('\n')
-  return reto.solucion
-}
+import { NOMBRES_DE_TIPO, sinCodigo } from '../src/contenido/retos/tipos.js'
 
-export const SIN_CODIGO = ['eleccion', 'emparejar']
+/**
+ * Qué código ejecuta cada tipo, y cuál no tiene ninguno, sale del registro de
+ * tipos y no de una copia aquí. Una lista paralela se queda desfasada en cuanto
+ * se añade un tipo, y el síntoma es silencioso: el tipo nuevo deja de
+ * comprobarse y nadie se entera.
+ */
+export { codigoDeReferencia } from '../src/contenido/retos/tipos.js'
+
+export const SIN_CODIGO = NOMBRES_DE_TIPO.filter(sinCodigo)
 
 /** Revisa que un reto de los de señalar esté bien montado. */
 export function revisarTactil(reto) {

@@ -5,18 +5,22 @@ Cada reto es un módulo con `export default` y estos campos:
 | Campo | Qué es |
 |---|---|
 | `id` | Único en todo el juego. Se usa en la URL y en la partida guardada. |
-| `mundo` | `es6`, `vue2` o `vue3`. |
+| `mundo` | El `id` de un mundo de `src/contenido/mundos.js`. |
 | `entorno` | `worker` (sin DOM), `vue2` o `vue3`. Decide en qué sandbox se ejecuta. |
-| `tipo` | `codigo`, `bug`, `prediccion`, `eleccion`, `emparejar`, `ordenar` o `completar`. |
+| `tipo` | Uno de los declarados en [`tipos.js`](tipos.js). Si no está ahí, el reto no abre. |
 | `titulo`, `enunciado` | El enunciado admite Markdown sencillo. |
-| `apunte` | La explicación del concepto, con la voz de Wax. Gratis y siempre visible. **Todos los retos lo llevan.** |
 | `inicial` | Código de partida que aparece en el editor. |
 | `solucion` | Solución de referencia. Se enseña solo cuando el reto ya está superado. |
 | `requisitos` | Comprobaciones sobre el AST, antes de ejecutar. Ver `src/motor/chequeosEstaticos.js`. |
 | `tests` | Lista de `{ nombre, codigo }`. |
-| `pistas` | Tres, de menos a más reveladora. |
+| `pistas` | Tres, de menos a más reveladora. Los jefes no llevan ninguna. |
 | `recompensa` | `{ croquetas }`. |
 | `jefe` | `true` si cierra un mundo. |
+
+**El apunte ya no es un campo del reto.** Vive en `src/contenido/apuntes/<id>.js`, con el
+id del reto por nombre, y se carga al abrirlo en vez de al arrancar el juego — así puede
+ser todo lo largo que haga falta sin que le cueste nada a quien no lo abra. Todos los retos
+tienen que tener el suyo, y hay una prueba que lo comprueba.
 
 ## Los tests son cadenas de texto, no funciones
 
@@ -47,7 +51,9 @@ cambia el DOM devuelve una promesa: hay que esperarlo con `await`.
 
 ## Retos que no se escriben
 
-Cuatro tipos se resuelven señalando y colocando, no tecleando:
+Varios tipos se resuelven señalando y colocando, no tecleando. Cuál hace qué está
+en `tipos.js`, que es de donde lo leen la vista del reto, la lista del mundo y
+las pruebas — antes eran cuatro listas sueltas que había que tocar a la vez:
 
 - **`eleccion`** — trae `pregunta` y `opciones: [{ texto, correcta, porque }]`. El `porque`
   es obligatorio en **todas**, también en las falsas: media enseñanza está en entender por

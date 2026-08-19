@@ -16,6 +16,12 @@ import VistaPreviaSandbox from '../componentes/VistaPreviaSandbox.vue'
 import { MUNDOS_POR_ID } from '../contenido/mundos.js'
 import { cargarApunte } from '../contenido/apuntes/index.js'
 import { RETOS_POR_ID, retoSiguiente } from '../contenido/retos/index.js'
+import {
+  datosDelTipo,
+  esTactil as tipoEsTactil,
+  seEscribe as tipoSeEscribe,
+  tieneVistaPrevia,
+} from '../contenido/retos/tipos.js'
 import { analizar } from '../motor/guardaBucles.js'
 import { comprobarRequisitos } from '../motor/chequeosEstaticos.js'
 import { crearPuente } from '../motor/ejecutor.js'
@@ -37,11 +43,20 @@ if (!reto) router.replace('/')
 
 const mundo = computed(() => MUNDOS_POR_ID[reto?.mundo])
 const siguiente = computed(() => (reto ? retoSiguiente(reto) : null))
+// Si el tipo no está declarado, se para aquí. Antes se colaba y salía pintado
+// como un reto de escribir, porque la plantilla acaba en un `v-else` con el
+// editor: un fallo que no se nota hasta que alguien juega.
+if (reto) datosDelTipo(reto.tipo)
+
 const esPrediccion = computed(() => reto?.tipo === 'prediccion')
 /** Los que se escriben a mano: editor, botón de ejecutar y requisitos en vivo. */
-const seEscribe = computed(() => ['codigo', 'bug', 'refactor'].includes(reto?.tipo))
+const seEscribe = computed(() => tipoSeEscribe(reto?.tipo))
 /** Los que se resuelven señalando y colocando: traen su propio botón. */
-const esTactil = computed(() => ['eleccion', 'emparejar', 'ordenar', 'completar'].includes(reto?.tipo))
+const esTactil = computed(() => tipoEsTactil(reto?.tipo))
+/** El componente pintado, solo donde hay algo del jugador que pintar. */
+const muestraVistaPrevia = computed(
+  () => reto?.entorno !== 'worker' && tieneVistaPrevia(reto?.tipo),
+)
 
 // El puente se crea aquí y se destruye con la vista. La clave por ruta del
 // RouterView garantiza que cambiar de reto levante un sandbox limpio.
@@ -230,7 +245,7 @@ function reiniciarCodigo() {
         </div>
 
         <VistaPreviaSandbox
-          v-if="reto.entorno !== 'worker' && reto.tipo !== 'eleccion' && reto.tipo !== 'emparejar'"
+          v-if="muestraVistaPrevia"
           :puente="puente"
           :entorno="reto.entorno"
         />
