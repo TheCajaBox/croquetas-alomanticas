@@ -826,12 +826,21 @@ test('la clave del jugador se configura, se guarda y no viaja en la partida', as
   await page.getByRole('button', { name: 'Guardar' }).click()
   await expect(page.locator('.confirmacion')).toContainText('ya conversa')
 
-  // La partida exportada no se lleva la clave.
+  // La partida no se lleva la clave. Se mueve antes el almacén de Armonía y se
+  // recarga para forzar el volcado: mirar justo después de guardar pasaba
+  // siempre, porque el guardado tiene 300 ms de respiro y todavía no había
+  // escrito nada. Con la clave dentro del estado del almacén, escribía.
+  await page.goto('#/reto/dia1-01-variables')
+  await page.getByRole('button', { name: 'Armonía' }).click()
+  await expect(page.locator('.cajon .suyo').first()).toBeVisible()
+  await page.reload()
+
   const partida = await page.evaluate(() => localStorage.getItem('gatosYCodigo'))
   expect(partida).not.toContain('sk-de-mentira-123')
+  expect(partida).toContain('armonia')
 
   // Y sobrevive a recargar, que para eso se guarda.
-  await page.reload()
+  await page.goto('#/ajustes')
   await expect(page.locator('.campo input[type="password"]')).toHaveValue('sk-de-mentira-123')
 
   await page.getByRole('button', { name: 'Quitar la clave' }).click()

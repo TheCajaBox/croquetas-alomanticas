@@ -134,6 +134,19 @@ export function instrucciones({ enJefe }) {
  * pistas, ni la respuesta de los retos táctiles. Lo que no recibe no lo puede
  * filtrar, por muy bien que le hablen.
  */
+/**
+ * Quita la última línea si es un encabezado sin nada debajo.
+ *
+ * El diagnóstico local termina a veces en «Donde se explica con calma:» y la
+ * lista va aparte, en las citas, que son datos y no texto. Al modelo le llegaba
+ * el encabezado solo, prometiendo algo que no venía detrás.
+ */
+function sinColgar(texto) {
+  const lineas = texto.trimEnd().split('\n')
+  while (lineas.length > 0 && /:\s*$/.test(lineas[lineas.length - 1])) lineas.pop()
+  return lineas.join('\n').trimEnd()
+}
+
 export function contexto({ reto, apunte, codigo, resultado, diagnostico, material }) {
   const partes = []
 
@@ -154,6 +167,10 @@ export function contexto({ reto, apunte, codigo, resultado, diagnostico, materia
       'No tiene ningún reto abierto ahora mismo, así que no hay código que mirar.',
       'Si la pregunta es enorme, acótala en vez de contestarla entera.',
     )
+    // El diagnóstico local es la respuesta que el propio juego ya sabe dar, y
+    // sin reto abierto es lo único concreto que hay: se salía por aquí sin
+    // mandarlo y el modelo se quedaba contestando de memoria.
+    if (diagnostico) partes.push('', 'Lo que el juego ya sabe contestar a esto:', sinColgar(diagnostico))
     return partes.join('\n')
   }
 
@@ -170,7 +187,7 @@ export function contexto({ reto, apunte, codigo, resultado, diagnostico, materia
   const fallado = resultado?.tests?.find((t) => !t.ok)
   if (fallado) partes.push('', `El primer test que le falla se llama: «${fallado.nombre}».`)
   if (resultado?.error?.mensaje) partes.push('', `El error que le sale: ${resultado.error.mensaje}`)
-  if (diagnostico) partes.push('', 'Lo que el juego ya ha diagnosticado:', diagnostico)
+  if (diagnostico) partes.push('', 'Lo que el juego ya ha diagnosticado:', sinColgar(diagnostico))
 
   return partes.join('\n')
 }

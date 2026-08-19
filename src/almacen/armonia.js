@@ -11,6 +11,27 @@ import { autoguardar } from './persistencia.js'
 /** Cuántos turnos se recuerdan. Más allá, la conversación no aporta nada. */
 const MEMORIA = 30
 
+/** Cuántos trozos de material acompañan a la pregunta. */
+const TROZOS = 5
+
+/**
+ * Lo que se le pone delante al modelo además del apunte del reto.
+ *
+ * Vive fuera de la acción para poder probarlo sin salir a la red. El apunte del
+ * reto abierto se manda entero por su cuenta, así que sus secciones se quitan
+ * de aquí: iban por duplicado y costaban un cuarto del contexto, y en un modelo
+ * pequeño el contexto gastado es respuesta perdida.
+ */
+export function materialParaElModelo(pregunta, reto) {
+  return buscar(pregunta, {
+    retoId: reto?.id ?? null,
+    mundoId: reto?.mundo ?? null,
+    cuantos: TROZOS + 3,
+  })
+    .filter((trozo) => !(reto && trozo.tipo === 'apunte' && trozo.retoId === reto.id))
+    .slice(0, TROZOS)
+}
+
 /**
  * La conversación con Armonía.
  *
@@ -131,11 +152,7 @@ export const usarArmonia = defineStore('armonia', {
       // Sin esto, un modelo pequeño recita de su propia memoria y contesta como
       // un manual, que es exactamente lo que hacía.
       const apunte = reto ? await cargarApunte(reto.id) : null
-      const material = buscar(pregunta, {
-        retoId: reto?.id ?? null,
-        mundoId: reto?.mundo ?? null,
-        cuantos: 5,
-      })
+      const material = materialParaElModelo(pregunta, reto)
 
       this.escribiendo = ''
       try {
@@ -196,5 +213,13 @@ export const usarArmonia = defineStore('armonia', {
 export function engancharArmonia(almacen) {
   // El contexto no es partida: es dónde estás ahora mismo. Guardarlo metería
   // una copia de tu código en la partida y la dejaría rancia al minuto.
-  autoguardar(almacen, 'armonia', { omitir: ['contexto', 'abierto'] })
+  //
+  // Y `proveedor` MENOS todavía: ahí dentro está la clave de API. Vive en su
+  // propia entrada de localStorage (ver `almacen/clave.js`) justo para que
+  // exportar la partida no exporte la clave, y estando en el estado del
+  // almacén se colaba igualmente en cada guardado. La prueba que lo vigilaba
+  // no lo vio porque configuraba la clave antes de enganchar el almacén.
+  autoguardar(almacen, 'armonia', {
+    omitir: ['contexto', 'abierto', 'proveedor', 'escribiendo'],
+  })
 }

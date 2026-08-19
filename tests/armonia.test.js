@@ -3,6 +3,7 @@
 // Con jsdom y no en node porque aquí se comprueba dónde se guardan las cosas:
 // sin `localStorage` de verdad, los tests de persistencia pasarían por no haber
 // guardado nada, que es justo lo contrario de lo que se quiere demostrar.
+import { nextTick } from 'vue'
 import { createPinia, setActivePinia } from 'pinia'
 import { beforeAll, beforeEach, describe, expect, it } from 'vitest'
 
@@ -10,10 +11,10 @@ import { citar, obtenerCorpus, trocearApunte } from '../src/contenido/armonia/co
 import { cargarTodosLosApuntes } from '../src/contenido/apuntes/index.js'
 import { clasificar } from '../src/motor/armonia/intencion.js'
 import { prepararArmonia, responder } from '../src/motor/armonia/responder.js'
-import { engancharArmonia, usarArmonia } from '../src/almacen/armonia.js'
+import { engancharArmonia, materialParaElModelo, usarArmonia } from '../src/almacen/armonia.js'
 import { leerAjustesDeProveedor, olvidarAjustesDeProveedor } from '../src/almacen/clave.js'
 import { contexto, instrucciones, sinCodigo } from '../src/motor/armonia/proveedores.js'
-import { exportarPartida, volcarAhora } from '../src/almacen/persistencia.js'
+import { exportarPartida, migrar, volcarAhora } from '../src/almacen/persistencia.js'
 import { GLOSARIO } from '../src/contenido/glosario.js'
 import { IMPREVISTOS } from '../src/contenido/imprevistos.js'
 import { RETOS } from '../src/contenido/retos/index.js'
@@ -459,20 +460,72 @@ describe('la voz prestada', () => {
     }
   })
 
+  it('el apunte del reto abierto no se manda dos veces', () => {
+    // Va entero por su cuenta; si además salía troceado en el material, el
+    // modelo recibía las mismas secciones repetidas y pagaba el contexto dos
+    // veces. Con uno pequeño eso se nota en lo que contesta.
+    const reto = RETOS.find((r) => r.id === 'dia1-01-variables')
+    const material = materialParaElModelo('¿qué es una variable?', reto)
+
+    expect(material.length).toBeGreaterThan(0)
+    const repetido = material.filter((t) => t.tipo === 'apunte' && t.retoId === reto.id)
+    expect(repetido).toEqual([])
+    // Y sin reto abierto se sigue trayendo lo que haya, que es de donde sale
+    // todo lo que puede decir.
+    expect(materialParaElModelo('¿qué es una variable?', null).length).toBeGreaterThan(0)
+  })
+
+  it('el contexto no le promete al modelo una lista que no va detrás', () => {
+    // El diagnóstico local acaba a veces en «Donde se explica con calma:», y la
+    // lista de verdad son las citas, que son datos y no texto.
+    const texto = contexto({
+      reto: null,
+      material: [],
+      diagnostico: 'Un nombre puesto a un valor.\n\nDonde se explica con calma:',
+    })
+    expect(texto).toContain('Un nombre puesto a un valor.')
+    expect(texto).not.toContain('Donde se explica con calma:')
+  })
+
   it('en un jefe, las instrucciones le dicen que se aparte', () => {
     expect(instrucciones({ enJefe: true })).toContain('te apartas')
     expect(instrucciones({ enJefe: false })).not.toContain('te apartas')
   })
 
-  it('la clave se guarda fuera de la partida y no sale al exportarla', () => {
+  it('la clave se guarda fuera de la partida y no sale al exportarla', async () => {
     const armonia = usarArmonia()
-    armonia.guardarProveedor({ proveedor: 'claude', clave: 'sk-secretisima-123', modelo: 'x' })
+    // Enganchar PRIMERO y configurar después, que es el orden de verdad: la
+    // partida se engancha al arrancar y la clave se pone luego, en Ajustes.
+    // Al revés -como estaba esta prueba- no hay suscripción que mirar, y el
+    // fallo que había pasaba por delante sin que nadie lo viera.
     engancharArmonia(armonia)
+    armonia.guardarProveedor({ proveedor: 'claude', clave: 'sk-secretisima-123', modelo: 'x' })
+    // Y cualquier cosa que mueva el almacén después, que es lo que disparaba
+    // el guardado con la clave dentro.
+    armonia.apuntar('¿qué es una variable?', { tipo: 'voz', texto: 'Un nombre.' })
+    // El guardado va colgado de un `$subscribe`, que es un observador y no
+    // corre hasta el siguiente tic. Sin esperarlo no se guarda nada y la
+    // prueba pasa sin haber mirado nada: así se coló el fallo la primera vez.
+    await nextTick()
     volcarAhora()
 
-    expect(exportarPartida()).not.toContain('sk-secretisima-123')
+    const guardado = exportarPartida()
+    expect(guardado).not.toContain('sk-secretisima-123')
+    expect(guardado).not.toContain('proveedor')
     // Y sigue estando donde tiene que estar, para no perderla al recargar.
     expect(leerAjustesDeProveedor().clave).toBe('sk-secretisima-123')
+  })
+
+  it('una partida vieja con la clave dentro la suelta al leerla', () => {
+    // Las que se guardaron antes del arreglo la llevan pegada. Se limpia al
+    // migrar, que es el único sitio por el que pasa todo lo que se lee.
+    const vieja = {
+      version: 1,
+      armonia: { turnos: [], proveedor: { proveedor: 'openrouter', clave: 'sk-vieja-999' } },
+    }
+    const limpia = migrar(vieja)
+    expect(JSON.stringify(limpia)).not.toContain('sk-vieja-999')
+    expect(limpia.armonia.turnos).toEqual([])
   })
 
   it('pedir la solución se corta antes de gastar la clave de nadie', async () => {

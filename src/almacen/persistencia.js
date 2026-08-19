@@ -18,11 +18,24 @@ export function migrar(datos) {
   if (!datos || typeof datos !== 'object' || Array.isArray(datos)) {
     return { version: VERSION }
   }
+  limpiarLaClave(datos)
   if (datos.version === VERSION) return datos
   if (typeof datos.version !== 'number') return { version: VERSION }
   // De momento no hay saltos de versión que traducir: se conserva lo que haya
   // y se sella con la versión actual.
   return { ...datos, version: VERSION }
+}
+
+/**
+ * Saca de la partida la clave de API, que nunca debió estar ahí.
+ *
+ * Durante un tiempo el almacén de Armonía guardaba sus ajustes de proveedor
+ * -clave incluida- dentro de la partida. Ya no, pero las partidas guardadas de
+ * entonces siguen teniéndola dentro, y exportarlas la exportaría. Se borra al
+ * leer, sin preguntar: la clave de verdad vive en su propia entrada.
+ */
+function limpiarLaClave(datos) {
+  if (datos.armonia?.proveedor) delete datos.armonia.proveedor
 }
 
 function leerDelDisco() {
