@@ -49,6 +49,9 @@ export function resumirCodigo(ast) {
         resumen.declaraciones.class += 1
         if (nodo.id) resumen.nombresDeclarados.add(nodo.id.name)
         break
+      // `new Error(...)` es tan llamada como `Error(...)` para lo que aquí se
+      // pregunta, pero el AST le da otro tipo de nodo. Se tratan igual.
+      case 'NewExpression':
       case 'CallExpression': {
         const objetivo = nodo.callee
         if (objetivo.type === 'Identifier') resumen.llamadas.add(objetivo.name)
@@ -108,6 +111,12 @@ export const COMPROBACIONES = {
   prohibeBucles: {
     mensaje: () => 'Sin bucles. Ya sé que con un `for` te sale, pero es que ese no es el reto.',
     cumple: (r) => cuenta(r, 'ForStatement', 'WhileStatement', 'DoWhileStatement', 'ForOfStatement', 'ForInStatement') === 0,
+  },
+  usaHerencia: {
+    mensaje: () => 'Esto se resuelve heredando: `class Hija extends Padre`, y un `super(...)` en el constructor. Copiar y pegar el padre no cuenta.',
+    // `super` no es un identificador cualquiera: en el AST tiene su propio
+    // nodo, así que no aparece por `usaIdentificador`.
+    cumple: (r) => cuenta(r, 'Super') > 0,
   },
   usaFlecha: {
     mensaje: () => 'Esto pide una función flecha. Las de toda la vida también valdrían, pero hoy no.',

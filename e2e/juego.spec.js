@@ -50,13 +50,15 @@ test.beforeEach(async ({ page }) => {
   await page.evaluate(() => localStorage.clear())
 })
 
-test('la portada presenta los cinco mundos', async ({ page }) => {
+test('la portada presenta los siete mundos', async ({ page }) => {
   await page.goto('')
   await expect(page.getByRole('heading', { name: 'El primer día' })).toBeVisible()
   await expect(page.getByRole('heading', { name: 'Los Áridos' })).toBeVisible()
   await expect(page.getByRole('heading', { name: 'La mansión Ladrian' })).toBeVisible()
   await expect(page.getByRole('heading', { name: 'La Nueva Seran' })).toBeVisible()
   await expect(page.getByRole('heading', { name: 'Cambio de forma' })).toBeVisible()
+  await expect(page.getByRole('heading', { name: 'La comisaría' })).toBeVisible()
+  await expect(page.getByRole('heading', { name: 'El taller' })).toBeVisible()
 })
 
 for (const [retoId, solucion] of Object.entries(SOLUCIONES)) {
@@ -319,4 +321,75 @@ test('el repaso de Marasi corrige, explica y paga una sola vez', async ({ page }
   await contestarloEntero()
   await expect(page.locator('.pago')).toContainText('Solo se cobra lo que se mejora')
   await expect(page.locator('.contador.croquetas')).toHaveText(croquetas)
+})
+
+test('el bucle de la comisaría se escribe y se ejecuta de verdad', async ({ page }) => {
+  await irAlReto(page, 'com-06-el-bucle')
+
+  // Empezar el máximo en cero es el fallo que el reto quiere cazar: pasa los
+  // demás tests y suspende justo el de los negativos.
+  await escribirCodigo(page, `function sumar(numeros) {
+  let total = 0
+  for (const n of numeros) { total += n }
+  return total
+}
+
+function laMayor(numeros) {
+  let mayor = 0
+  for (const n of numeros) { if (n > mayor) mayor = n }
+  return mayor
+}`)
+  await page.getByRole('button', { name: 'Ejecutar' }).click()
+  await expect(page.locator('.resultados')).toContainText('la mayor sigue estando en la lista')
+  await expect(page.locator('.resultados')).not.toContainText('Reto superado')
+
+  await escribirCodigo(page, `function sumar(numeros) {
+  let total = 0
+  for (const n of numeros) { total += n }
+  return total
+}
+
+function laMayor(numeros) {
+  let mayor = null
+  for (const n of numeros) { if (mayor === null || n > mayor) mayor = n }
+  return mayor
+}`)
+  await page.getByRole('button', { name: 'Ejecutar' }).click()
+  await expect(page.locator('.resultados')).toContainText('Reto superado')
+})
+
+test('el taller exige herencia de verdad, no copiar y pegar', async ({ page }) => {
+  await irAlReto(page, 'taller-02-herencia')
+
+  // Sin `extends` los tests de comportamiento pasarían: lo que suspende es el
+  // requisito estático, que es justo lo que el reto enseña.
+  await escribirCodigo(page, `class Alomantico {
+  constructor(reservas) { this.reservas = reservas }
+  quemar() {
+    if (this.reservas === 0) return null
+    this.reservas -= 1
+    return \`\${this.efecto} con \${this.metal}\`
+  }
+}
+
+class Lanzamonedas {
+  constructor(reservas) { this.reservas = reservas; this.metal = 'acero'; this.efecto = 'empuja' }
+  quemar() {
+    if (this.reservas === 0) return null
+    this.reservas -= 1
+    return \`\${this.efecto} con \${this.metal}\`
+  }
+}
+
+class Aullador {
+  constructor(reservas) { this.reservas = reservas; this.metal = 'esta\u00f1o'; this.efecto = 'oye' }
+  quemar() {
+    if (this.reservas === 0) return null
+    this.reservas -= 1
+    return \`\${this.efecto} con \${this.metal}\`
+  }
+}`)
+  await page.getByRole('button', { name: 'Ejecutar' }).click()
+  await expect(page.locator('.resultados')).toContainText('heredando')
+  await expect(page.locator('.resultados')).not.toContainText('Reto superado')
 })

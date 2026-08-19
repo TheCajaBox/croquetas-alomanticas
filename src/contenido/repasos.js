@@ -584,6 +584,236 @@ export const REPASOS = [
       },
     ],
   },
+  {
+    id: "repaso-comisaria",
+    mundo: "comisaria",
+    titulo: "El caso de los cimientos",
+    preguntas: [
+      {
+        pregunta: "¿Por qué se recomienda `===` y no `==`?",
+        opciones: [
+          {
+            texto: "Porque `==` convierte los valores antes de comparar, y las reglas de conversión son largas y sorprendentes.",
+            correcta: true,
+            porque: "`0 == ''` da `true`, y `'0' == false` también. Nadie se sabe la tabla entera, así que lo práctico es no depender de ella.",
+          },
+          {
+            texto: "Porque `==` es más lento.",
+            porque: "La diferencia de velocidad es irrelevante. El problema no es el tiempo, es que da resultados que no esperabas.",
+          },
+          {
+            texto: "Porque `==` está obsoleto y da error en el JavaScript moderno.",
+            porque: "Sigue siendo válido y funciona. No es que no se pueda: es que casi nunca conviene.",
+          },
+        ],
+      },
+      {
+        pregunta: "¿Cuál de estos vale `true`: `Boolean([])`, `Boolean('')` o `Boolean(0)`?",
+        opciones: [
+          {
+            texto: "`Boolean([])`, porque una lista vacía sigue siendo un objeto.",
+            correcta: true,
+            porque: "Los falsos son solo seis: `false`, `0`, `''`, `null`, `undefined` y `NaN`. La lista vacía no está en esa lista, aunque no tenga nada dentro.",
+          },
+          {
+            texto: "Ninguno: los tres están vacíos, así que los tres son falsos.",
+            porque: "«Vacío» no es un concepto que JavaScript aplique a los objetos. `[]` y `{}` son verdaderos, y es de las cosas que más despistan al principio.",
+          },
+          {
+            texto: "`Boolean('')`, porque un texto siempre es verdadero.",
+            porque: "Al revés: el texto **vacío** es de los seis falsos. Cualquier otro texto, incluido `'0'` y `'false'`, es verdadero.",
+          },
+        ],
+      },
+      {
+        pregunta: "En una lista de 4 elementos, ¿qué devuelve `lista[4]`?",
+        opciones: [
+          {
+            texto: "`undefined`, sin dar ningún error.",
+            correcta: true,
+            porque: "Se cuenta desde 0, así que las posiciones son 0, 1, 2 y 3. La 4 está vacía, y pedirla no protesta: devuelve `undefined` y sigue.",
+          },
+          {
+            texto: "El último elemento.",
+            porque: "El último está en `lista[3]`, o en general en `lista[lista.length - 1]`. Ese uno de diferencia es el error más repetido de la profesión.",
+          },
+          {
+            texto: "Un error de índice fuera de rango.",
+            porque: "Eso hacen otros lenguajes. JavaScript se encoge de hombros y devuelve `undefined`, que es más traicionero: el fallo aparece más tarde y en otro sitio.",
+          },
+        ],
+      },
+      {
+        pregunta: "¿Por qué el acumulador de un bucle se declara **fuera** del bucle?",
+        opciones: [
+          {
+            texto: "Porque si se declara dentro se crea nuevo en cada vuelta y se pierde lo acumulado.",
+            correcta: true,
+            porque: "Cada vuelta abriría una variable nueva a cero. Al acabar tendrías solo el último valor, no la suma.",
+          },
+          {
+            texto: "Porque dentro del bucle no se pueden declarar variables.",
+            porque: "Sí se pueden, y se hace constantemente. El problema no es que no se pueda, es que no sobrevive a la vuelta.",
+          },
+          {
+            texto: "Por costumbre: da lo mismo dónde se ponga.",
+            porque: "No da lo mismo. Cámbialo de sitio y el resultado cambia, que es la definición de que importa.",
+          },
+        ],
+      },
+      {
+        pregunta: "Tienes que guardar el nombre, el alias y la recompensa de un sospechoso. ¿Lista u objeto?",
+        opciones: [
+          {
+            texto: "Un objeto, porque cada dato significa una cosa distinta.",
+            correcta: true,
+            porque: "Con un objeto cada dato lleva su etiqueta: `sospechoso.alias`. En una lista tendrías que acordarte de que el alias era la posición 1.",
+          },
+          {
+            texto: "Una lista, porque son tres datos del mismo sospechoso.",
+            porque: "Ser del mismo sospechoso no los hace del mismo tipo. La lista es para muchos elementos equivalentes; aquí cada hueco significa otra cosa.",
+          },
+          {
+            texto: "Da igual: las dos guardan tres valores.",
+            porque: "Guardar, guardan las dos. Pero dentro de seis meses `sospechoso[1]` no te va a decir nada y `sospechoso.alias` sí, y eso es la mitad del oficio.",
+          },
+        ],
+      },
+      {
+        pregunta: "`const nombre = '  wax  '` y luego `nombre.trim()`. ¿Qué vale `nombre`?",
+        opciones: [
+          {
+            texto: "Sigue valiendo `'  wax  '`: `trim` devuelve un texto nuevo y no cambia el original.",
+            correcta: true,
+            porque: "Los textos son inmutables. Todos sus métodos fabrican uno nuevo, y si no recoges el resultado se pierde.",
+          },
+          {
+            texto: "`'wax'`, porque `trim` le quita los espacios.",
+            porque: "Se los quita al texto que devuelve, no al que le pasaste. Llamar a `.trim()` y no guardar el resultado es un fallo clásico.",
+          },
+          {
+            texto: "Da error, porque `nombre` es `const`.",
+            porque: "`const` impediría `nombre = otra cosa`, pero aquí nadie asigna nada. `trim` solo lee.",
+          },
+        ],
+      },
+    ],
+  },
+  {
+    id: "repaso-taller",
+    mundo: "taller",
+    titulo: "El caso del oficio",
+    preguntas: [
+      {
+        pregunta: "En un método de una clase, ¿qué es `this`?",
+        opciones: [
+          {
+            texto: "El objeto concreto sobre el que se llamó al método.",
+            correcta: true,
+            porque: "En `arma.disparar()`, `this` es `arma`. Por eso un solo método escrito una vez sirve para todos los objetos de esa clase.",
+          },
+          {
+            texto: "La clase.",
+            porque: "La clase es el molde. `this` es la pieza concreta que salió del molde, y cada una tiene sus propios datos.",
+          },
+          {
+            texto: "Siempre el mismo objeto durante todo el programa.",
+            porque: "Cambia en cada llamada. Ese es justamente el mecanismo que hace que las clases sirvan para algo.",
+          },
+        ],
+      },
+      {
+        pregunta: "¿Por qué `super(...)` tiene que ir antes de tocar `this` en el constructor de una clase hija?",
+        opciones: [
+          {
+            texto: "Porque hasta que el constructor del padre no termina, el objeto no está construido y `this` no existe todavía.",
+            correcta: true,
+            porque: "JavaScript no lo deja pasar: da un error directamente. No es una convención de estilo, es una regla del lenguaje.",
+          },
+          {
+            texto: "Por legibilidad: queda más ordenado poner primero lo heredado.",
+            porque: "Queda más ordenado, sí, pero no es opcional. Ponerlo después no es feo: es un error de ejecución.",
+          },
+          {
+            texto: "No hace falta: `super` puede ir en cualquier sitio del constructor.",
+            porque: "Pruébalo y verás el error. Tiene que ir antes de la primera vez que aparezca `this`.",
+          },
+        ],
+      },
+      {
+        pregunta: "¿Cuándo conviene lanzar un error en vez de devolver `null`?",
+        opciones: [
+          {
+            texto: "Cuando quien llama no puede seguir razonablemente sin ese valor.",
+            correcta: true,
+            porque: "Un `null` que nadie mira viaja hacia dentro y revienta lejos del origen. El error para en el sitio exacto y con el motivo puesto.",
+          },
+          {
+            texto: "Siempre: devolver `null` es una mala práctica.",
+            porque: "`null` está bien cuando «no hay nada» es un resultado normal y esperado, como una búsqueda que no encuentra.",
+          },
+          {
+            texto: "Nunca, porque los errores paran el programa.",
+            porque: "Solo lo paran si nadie los recoge, y para eso está `try/catch`. Un error recogido es más información, no menos.",
+          },
+        ],
+      },
+      {
+        pregunta: "`const b = a` donde `a` es una lista. ¿Qué pasa si haces `b.push(1)`?",
+        opciones: [
+          {
+            texto: "`a` también cambia: los dos nombres apuntan a la misma lista.",
+            correcta: true,
+            porque: "De las listas y los objetos se copia la dirección, no el contenido. Para una copia de verdad hay que pedirla: `[...a]`.",
+          },
+          {
+            texto: "Solo cambia `b`, porque la asignación hizo una copia.",
+            porque: "Eso pasa con números y textos. Con listas y objetos no, y esta diferencia es la causa de una cantidad enorme de tardes perdidas.",
+          },
+          {
+            texto: "Da error, porque `b` es `const`.",
+            porque: "`const` protege el nombre, no el contenido. `b = otraLista` daría error; `b.push(1)` no.",
+          },
+        ],
+      },
+      {
+        pregunta: "¿Qué devuelve `[...lista].sort((a, b) => b - a)` y qué le pasa a `lista`?",
+        opciones: [
+          {
+            texto: "Una lista nueva de mayor a menor, y `lista` se queda como estaba.",
+            correcta: true,
+            porque: "`sort` ordena la lista que le des, pero le estamos dando la copia. Y `b - a` da positivo cuando `b` es mayor, o sea, orden descendente.",
+          },
+          {
+            texto: "Una lista nueva de menor a mayor, y `lista` se queda como estaba.",
+            porque: "La copia sí protege el original, pero el orden está al revés: `b - a` es descendente. `a - b` sería de menor a mayor.",
+          },
+          {
+            texto: "Una lista nueva de mayor a menor, y `lista` también queda ordenada.",
+            porque: "`lista` no se toca precisamente por los tres puntos. Sin ellos sí quedaría ordenada, y ese es el fallo que los corchetes evitan.",
+          },
+        ],
+      },
+      {
+        pregunta: "¿Para qué sirve de verdad un cierre?",
+        opciones: [
+          {
+            texto: "Para que unos datos sobrevivan a la función que los creó y solo se puedan tocar por las funciones que tú decidas.",
+            correcta: true,
+            porque: "Es la base de los datos privados en JavaScript, y también de lo que hacen los composables de Vue: estado que vive dentro y solo sale por donde tú abres.",
+          },
+          {
+            texto: "Para escribir funciones más cortas.",
+            porque: "No tiene nada que ver con la longitud. Tiene que ver con qué recuerda una función y quién puede tocarlo.",
+          },
+          {
+            texto: "Para que una función pueda llamarse a sí misma.",
+            porque: "Eso es la recursión, que es otra cosa. Un cierre no se llama a sí mismo: recuerda variables de fuera.",
+          },
+        ],
+      },
+    ],
+  },
 ]
 
 export const REPASOS_POR_MUNDO = Object.fromEntries(REPASOS.map((r) => [r.mundo, r]))

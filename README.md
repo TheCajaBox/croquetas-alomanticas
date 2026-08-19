@@ -22,21 +22,29 @@ El progreso se guarda en el navegador (`localStorage`), sin cuentas ni servidore
 y el ordenador son partidas distintas; en **Ajustes** hay exportar e importar para pasarla
 de uno a otro.
 
-## Los cinco mundos
+## Los siete mundos
 
 | Mundo | Qué se aprende | Retos |
 |---|---|---|
 | **El primer día** | Qué es una variable, qué tipos hay, cómo se lee un programa. Casi sin escribir | 7 |
+| **La comisaría** | Comparar y `===`, `if`/`else`, arrays e índices, bucles y acumuladores, objetos, datos anidados, métodos de texto | 10 |
 | **Los Áridos** | JavaScript ES6: ámbito, flechas y `this`, desestructuración, `map`/`filter`/`reduce`, `?.` y `??`, promesas | 10 |
+| **El taller** | Clases, `extends` y `super`, `throw`/`try`/`catch`, cierres y datos privados, `Set` y `Map`, referencias frente a copias, `find`/`every`/`some`/`sort` | 8 |
 | **La mansión Ladrian** | Vue 2 con Options API: `data`, directivas, `computed` frente a `methods`, los caveats de reactividad y `$set`, props y `$emit`, ciclo de vida | 7 |
 | **La Nueva Seran** | Vue 3 con Composition API: `ref` y `reactive`, `computed`, `watch` frente a `watchEffect`, `provide`/`inject`, composables | 7 |
 | **Cambio de forma** | Refactorizar: bucles a métodos, `var` a `const`, repetición a función, `.then` a `async`/`await`, Options API a Composition | 7 |
 
+**La cuesta no tiene escalones.** Cada mundo se apoya en el anterior y ninguno se puede
+saltar, porque quien llega a Vue sin saber qué es un objeto no aprende Vue: sufre Vue.
+
 El primer día es la rampa de entrada: se empieza señalando y colocando piezas, no
-escribiendo. Los Áridos son la base común de JavaScript, y a partir de ahí las dos rutas de
-Vue son independientes y se juegan en el orden que se quiera. Cambio de forma se abre al
-terminar La Nueva Seran y es el único mundo donde se empieza con el código ya funcionando:
-lo que se aprende ahí no es hacer que funcione, es dejarlo legible sin romperlo.
+escribiendo. La comisaría es lo que hay debajo de todo lo demás —decidir, repetir y
+guardar— y es el mundo que hace que los Áridos no sean un muro. Los Áridos son el
+JavaScript moderno del día a día. El taller es el salto de saber la sintaxis a tener
+oficio. Y solo entonces aparece Vue, primero la casa vieja y después la ciudad nueva, que
+son la misma idea contada de dos maneras. Cambio de forma cierra: el único mundo donde se
+empieza con el código ya funcionando, y lo que se aprende no es hacer que funcione sino
+dejarlo legible sin romperlo.
 
 Dentro de Los Áridos hay tres retos puente colocados justo antes de los dos escalones que
 más se notan: uno sobre pasar una función a otra función, antes de pelearse con `this`, y dos
@@ -80,8 +88,9 @@ tarifa fijada por la casa; desestructurar es sacar datos de una ficha; `Promise.
 esperar a que contesten todos aunque uno conteste antes. La sintaxis se aprende igual y se
 recuerda mejor.
 
-**Steris** se encarga de que nadie se quede fuera por no saber las palabras. Lleva dos
-listas, y las dos hacen falta:
+**Steris** se encarga de que nadie se quede fuera por no saber las palabras. Es la anfitriona
+de La comisaría —el mundo de los cimientos, puesto en el orden en que hace falta saberlo— y
+lleva además dos listas, y las dos hacen falta:
 
 - **El glosario.** Cincuenta y cuatro términos explicados sin usar otras palabras técnicas
   sin explicar. No hay que ir a buscarlos: aparecen **subrayados con puntitos allá donde
@@ -151,7 +160,7 @@ de lo que se anima hace falta para jugar.
 ```bash
 npm install     # instala y copia los runtimes de Vue a public/vendor/
 npm run dev
-npm test        # motor, almacenes y las soluciones de referencia de los 38 retos
+npm test        # motor, almacenes y las soluciones de referencia de los 56 retos
 npm run test:e2e
 ```
 

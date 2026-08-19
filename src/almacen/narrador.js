@@ -5,6 +5,7 @@ import {
   LINEAS,
   LINEAS_DE_MARASI,
   LINEAS_DE_MELAAN,
+  LINEAS_DE_STERIS,
   LINEAS_DE_WAX,
 } from '../contenido/narrador/lineas.js'
 import { autoguardar } from './persistencia.js'
@@ -15,11 +16,18 @@ const MEMORIA = 3
 /** Eventos que con la verborrea normal sobran: son ruido de Wayne, no información. */
 const SOLO_CON_VERBORREA_ALTA = new Set(['primerIntento', 'gatoCuidado'])
 
-const SACOS = { wayne: LINEAS, wax: LINEAS_DE_WAX, marasi: LINEAS_DE_MARASI, melaan: LINEAS_DE_MELAAN }
+const SACOS = {
+  wayne: LINEAS,
+  wax: LINEAS_DE_WAX,
+  steris: LINEAS_DE_STERIS,
+  marasi: LINEAS_DE_MARASI,
+  melaan: LINEAS_DE_MELAAN,
+}
 
 export const PERSONAJES = {
   wayne: { nombre: 'Wayne' },
   wax: { nombre: 'Wax' },
+  steris: { nombre: 'Steris' },
   marasi: { nombre: 'Marasi' },
   melaan: { nombre: 'MeLaan' },
 }

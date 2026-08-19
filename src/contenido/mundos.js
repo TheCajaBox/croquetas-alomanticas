@@ -1,9 +1,15 @@
 /**
- * Los tres mundos.
+ * Los mundos, en el orden en que se juegan.
  *
- * Los Áridos son la base común. A partir de ahí la campaña se bifurca en dos
- * rutas independientes que se pueden jugar en el orden que se quiera: la casa
- * vieja (Vue 2, Options API) y la ciudad nueva (Vue 3, Composition API).
+ * La cuesta va de menos a más y sin saltos: se lee un programa (El primer día),
+ * se aprende a decidir y a repetir (La comisaría), se escribe JavaScript
+ * moderno (Los Áridos), se sale de lo básico (El taller) y solo entonces
+ * aparece Vue, primero la casa vieja y después la ciudad nueva. Cambio de forma
+ * cierra reescribiendo todo lo anterior.
+ *
+ * Cada mundo declara de cuál depende en `requiere`, y de ahí sale el candado.
+ * Ninguno se salta: quien llega a Vue sin saber qué es un objeto no aprende
+ * Vue, sufre Vue.
  */
 export const MUNDOS = [
   {
@@ -20,11 +26,26 @@ export const MUNDOS = [
       'Ya sabes leer un programa. Ahora toca escribirlos, que es parecido pero con más disgustos.',
   },
   {
+    id: 'comisaria',
+    nombre: 'La comisaría',
+    subtitulo: 'Decidir, repetir y guardar',
+    entorno: 'worker',
+    requiere: 'primer-dia',
+    color: '#8ba3bd',
+    anfitrion: 'steris',
+    resumen:
+      'Lo que hay debajo de todo lo demás: comparar, decidir, listas, bucles y objetos. Sin esto, el resto es magia.',
+    presentacion:
+      'Nadie sale a los Áridos sin saber leer un registro. Aquí se aprende a comparar dos cosas, a decidir con el resultado, a recorrer una lista sin saltarse a nadie y a guardar los datos de alguien en un solo sitio. No es lo llamativo. Es lo que sujeta lo llamativo.',
+    despedida:
+      'Ya sabes decidir, repetir y guardar. Con eso se escribe el noventa por ciento de todo lo que se escribe. Lo que viene ahora son formas más cómodas de hacer justo esto.',
+  },
+  {
     id: 'es6',
     nombre: 'Los Áridos',
     subtitulo: 'JavaScript ES6',
     entorno: 'worker',
-    requiere: 'primer-dia',
+    requiere: 'comisaria',
     color: '#c98b4b',
     resumen: 'Lo básico, sin ciudad y sin comodidades: variables, funciones, arrays y promesas.',
     presentacion:
@@ -33,11 +54,26 @@ export const MUNDOS = [
       'Se acabaron los Áridos. Ahora elige: la casa vieja o la ciudad nueva. Las dos enseñan lo mismo de dos maneras distintas, y conviene ver las dos.',
   },
   {
+    id: 'taller',
+    nombre: 'El taller',
+    subtitulo: 'JavaScript de verdad',
+    entorno: 'worker',
+    requiere: 'es6',
+    color: '#b06f6f',
+    anfitrion: 'wax',
+    resumen:
+      'Lo que separa saber la sintaxis de saber programar: clases, errores, cierres, copias que no lo son y estructuras que no son listas.',
+    presentacion:
+      'Hasta aquí has aprendido a decir cosas en JavaScript. En el taller se aprende a construirlas: objetos que traen su propio comportamiento, errores que se recogen en vez de reventar, funciones que recuerdan, y las trampas de las copias, que es donde se pierden más tardes de las que nadie confiesa.',
+    despedida:
+      'Esto ya no es aprender un idioma, es tener oficio. Lo que viene ahora es Vue, y Vue no es más difícil que esto: es esto mismo, ordenado de otra manera.',
+  },
+  {
     id: 'vue2',
     nombre: 'La mansión Ladrian',
     subtitulo: 'Vue 2 · Options API',
     entorno: 'vue2',
-    requiere: 'es6',
+    requiere: 'taller',
     color: '#8f6fb0',
     resumen: 'Todo va por su sitio y su nombre: data, methods, computed, watch. Y sus manías.',
     presentacion:
@@ -50,7 +86,7 @@ export const MUNDOS = [
     nombre: 'La Nueva Seran',
     subtitulo: 'Vue 3 · Composition API',
     entorno: 'vue3',
-    requiere: 'es6',
+    requiere: 'taller',
     color: '#4f9d8c',
     resumen: 'Otra forma de montar lo mismo: ref, reactive, setup y composables.',
     presentacion:

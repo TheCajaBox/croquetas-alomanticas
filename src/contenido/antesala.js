@@ -73,7 +73,7 @@ export const ANTESALA = {
     {
       titulo: "Cómo funciona esto",
       texto: codigo(
-        "Cinco mundos, treinta y ocho retos. Se empieza señalando y colocando piezas, y se",
+        "Siete mundos, cincuenta y seis retos. Se empieza señalando y colocando piezas, y se",
         "acaba montando componentes.",
         "",
         "El código que escribes **se ejecuta de verdad** y se comprueba con tests: pequeñas",
