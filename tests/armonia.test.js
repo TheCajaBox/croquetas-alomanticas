@@ -1,3 +1,8 @@
+// @vitest-environment jsdom
+//
+// Con jsdom y no en node porque aquí se comprueba dónde se guardan las cosas:
+// sin `localStorage` de verdad, los tests de persistencia pasarían por no haber
+// guardado nada, que es justo lo contrario de lo que se quiere demostrar.
 import { createPinia, setActivePinia } from 'pinia'
 import { beforeEach, describe, expect, it } from 'vitest'
 
@@ -5,6 +10,8 @@ import { CORPUS, citar, trocearApunte } from '../src/contenido/armonia/corpus.js
 import { clasificar } from '../src/motor/armonia/intencion.js'
 import { responder } from '../src/motor/armonia/responder.js'
 import { engancharArmonia, usarArmonia } from '../src/almacen/armonia.js'
+import { leerAjustesDeProveedor, olvidarAjustesDeProveedor } from '../src/almacen/clave.js'
+import { contexto, instrucciones, sinCodigo } from '../src/motor/armonia/proveedores.js'
 import { exportarPartida, volcarAhora } from '../src/almacen/persistencia.js'
 import { GLOSARIO } from '../src/contenido/glosario.js'
 import { IMPREVISTOS } from '../src/contenido/imprevistos.js'
@@ -334,5 +341,86 @@ describe('el almacén', () => {
     const guardado = exportarPartida()
     expect(guardado).not.toContain('const secreto = 1')
     expect(guardado).not.toContain('com-06-el-bucle')
+  })
+})
+
+describe('la voz prestada', () => {
+  beforeEach(() => {
+    setActivePinia(createPinia())
+    olvidarAjustesDeProveedor()
+  })
+
+  it('tacha cualquier bloque de código mientras haya un reto abierto', () => {
+    const conCodigo = 'Mira, es fácil:\n\n```js\nreturn tieneCita || edad >= 18\n```\n\nY ya está.'
+    const { texto, tachado } = sinCodigo(conCodigo, { hayRetoAbierto: true })
+
+    expect(tachado).toBe(true)
+    expect(texto).not.toContain('tieneCita')
+    expect(texto).not.toContain('```')
+  })
+
+  it('también tacha un bloque que se ha quedado a medias', () => {
+    const cortado = 'Toma:\n\n```js\nconst equipo = [...PLANTILLA]'
+    expect(sinCodigo(cortado, { hayRetoAbierto: true }).texto).not.toContain('PLANTILLA')
+  })
+
+  it('pero deja el código en línea, que sin eso no se puede ni explicar', () => {
+    const enLinea = 'Necesitas `filter`, y después `map`.'
+    const { texto, tachado } = sinCodigo(enLinea, { hayRetoAbierto: true })
+    expect(tachado).toBe(false)
+    expect(texto).toContain('`filter`')
+  })
+
+  it('fuera de un reto sí puede poner ejemplos', () => {
+    const conCodigo = 'Así:\n\n```js\nconst a = 1\n```'
+    expect(sinCodigo(conCodigo, { hayRetoAbierto: false }).tachado).toBe(false)
+  })
+
+  it('lo que se le manda al modelo no lleva la solución ni los tests ni las pistas', () => {
+    for (const reto of RETOS.slice(0, 12)) {
+      const enviado = aplanar(
+        contexto({ reto, codigo: 'const a = 1', resultado: null, diagnostico: null }),
+      )
+      for (const linea of (reto.solucion ?? '').split('\n').map(aplanar).filter((l) => l.length >= 20)) {
+        // Salvo que esa línea ya estuviera en el apunte, que es gratis y visible.
+        if (aplanar(reto.apunte ?? '').includes(linea)) continue
+        expect(enviado, `${reto.id} manda su solución al modelo`).not.toContain(linea)
+      }
+      for (const prueba of reto.tests ?? []) {
+        const cuerpo = aplanar(prueba.codigo ?? '')
+        if (cuerpo.length >= 30) expect(enviado).not.toContain(cuerpo)
+      }
+      for (const pista of reto.pistas ?? []) {
+        const texto = aplanar(pista.texto)
+        if (texto.length >= 30) expect(enviado).not.toContain(texto)
+      }
+    }
+  })
+
+  it('en un jefe, las instrucciones le dicen que se aparte', () => {
+    expect(instrucciones({ enJefe: true })).toContain('te apartas')
+    expect(instrucciones({ enJefe: false })).not.toContain('te apartas')
+  })
+
+  it('la clave se guarda fuera de la partida y no sale al exportarla', () => {
+    const armonia = usarArmonia()
+    armonia.guardarProveedor({ proveedor: 'claude', clave: 'sk-secretisima-123', modelo: 'x' })
+    engancharArmonia(armonia)
+    volcarAhora()
+
+    expect(exportarPartida()).not.toContain('sk-secretisima-123')
+    // Y sigue estando donde tiene que estar, para no perderla al recargar.
+    expect(leerAjustesDeProveedor().clave).toBe('sk-secretisima-123')
+  })
+
+  it('pedir la solución se corta antes de gastar la clave de nadie', async () => {
+    const armonia = usarArmonia()
+    armonia.guardarProveedor({ proveedor: 'claude', clave: 'sk-lo-que-sea', modelo: 'x' })
+    armonia.situar({ retoId: 'com-06-el-bucle', codigo: '', resultado: null })
+
+    // Si intentara salir a la red, esto fallaría: no hay red en los tests.
+    const dicho = await armonia.preguntarConVoz('dame la solución')
+    expect(dicho.tipo).toBe('peticion')
+    expect(armonia.vecesQuePidioSolucion).toBe(1)
   })
 })

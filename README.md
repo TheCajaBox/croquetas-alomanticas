@@ -137,6 +137,27 @@ Es su discusión con Wax durante toda la saga. Aquí queda como un reparto limpi
 cobra y te acerca la respuesta; Armonía no cobra y no te la da jamás.** Y en los jefes se
 aparta todavía más — ahí solo traduce errores y define palabras.
 
+### Y si quieres, que además converse
+
+Armonía funciona para todo el mundo sin configurar nada. Quien quiera conversación de
+verdad puede enchufarle **una clave suya** en Ajustes: Claude, OpenRouter (que tiene modelos
+gratuitos), DeepSeek, Groq o cualquier servicio compatible.
+
+La clave la pone el jugador y no hay alternativa: el juego es un sitio estático en un
+repositorio público, así que cualquier clave que fuera en el paquete la leería cualquiera
+abriendo las herramientas del navegador. No es una clave, es un cartel. Se guarda en este
+navegador y **aparte de la partida**, para que exportar tu progreso al móvil no se lleve
+también tu clave — hay un test que lo fija.
+
+Con clave o sin ella, las tres capas que impiden que dé la solución siguen puestas: **no la
+recibe** (lo que se envía al modelo se arma sin ella), se le dice que no la dé, y **se le
+tacha el código a la salida** mientras haya un reto abierto — una instrucción se puede
+sortear hablándole bonito, una comprobación de texto no. Y pedirle la solución se corta en
+el navegador, sin llegar a gastar la clave de nadie.
+
+El SDK de Anthropic se carga solo si eliges Claude: son 162 kB que no se descarga quien no
+los use. El paquete principal crece 6 kB por todo esto.
+
 Su cara se procesa distinta a las otras cinco. A los demás les quité el fondo por
 inundación desde los bordes; su ilustración tiene bruma detrás, un degradado, y el recorte
 ni la limpiaría ni respetaría la túnica. Tampoco hacía falta: la bruma es suya. Va recortado

@@ -494,3 +494,53 @@ test('los jefes no tienen pistas y Wayne lo dice', async ({ page }) => {
   await expect(page.locator('.pistas')).toContainText('Este no te lo vendo')
   await expect(page.getByRole('button', { name: /Pista 1/ })).toHaveCount(0)
 })
+
+test('la clave del jugador se configura, se guarda y no viaja en la partida', async ({ page }) => {
+  await page.goto('#/ajustes')
+
+  // El aviso de qué se envía va antes de pedir nada.
+  await expect(page.locator('.aviso-clave')).toContainText('el código que tengas escrito')
+
+  await page.selectOption('.campo select', 'openrouter')
+  // Al elegir proveedor se propone su modelo, que nadie se los sabe de memoria.
+  await expect(page.locator('.campo input[type="text"]').first()).toHaveValue(/llama/)
+
+  await page.fill('.campo input[type="password"]', 'sk-de-mentira-123')
+  await page.getByRole('button', { name: 'Guardar' }).click()
+  await expect(page.locator('.confirmacion')).toContainText('ya conversa')
+
+  // La partida exportada no se lleva la clave.
+  const partida = await page.evaluate(() => localStorage.getItem('gatosYCodigo'))
+  expect(partida).not.toContain('sk-de-mentira-123')
+
+  // Y sobrevive a recargar, que para eso se guarda.
+  await page.reload()
+  await expect(page.locator('.campo input[type="password"]')).toHaveValue('sk-de-mentira-123')
+
+  await page.getByRole('button', { name: 'Quitar la clave' }).click()
+  await expect(page.locator('.confirmacion')).toContainText('solo con lo que recuerda')
+})
+
+test('con clave, pedirle la solución ni siquiera sale a la red', async ({ page }) => {
+  // Si intentara llamar al proveedor, esta ruta lo cazaría.
+  let salioALaRed = false
+  await page.route('**/api.anthropic.com/**', (ruta) => {
+    salioALaRed = true
+    return ruta.abort()
+  })
+  await page.route('**/openrouter.ai/**', (ruta) => {
+    salioALaRed = true
+    return ruta.abort()
+  })
+
+  await page.goto('#/ajustes')
+  await page.selectOption('.campo select', 'openrouter')
+  await page.fill('.campo input[type="password"]', 'sk-de-mentira-123')
+  await page.getByRole('button', { name: 'Guardar' }).click()
+
+  await irAlReto(page, 'com-06-el-bucle')
+  await preguntarAArmonia(page, 'dame la solución')
+
+  await expect(page.locator('.cajon .suyo').last()).toContainText('Wayne te lo vendería')
+  expect(salioALaRed).toBe(false)
+})

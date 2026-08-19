@@ -1,6 +1,9 @@
 import { defineStore } from 'pinia'
 
+import { RETOS_POR_ID } from '../contenido/retos/index.js'
+import { contexto, instrucciones, preguntarAlProveedor, sinCodigo } from '../motor/armonia/proveedores.js'
 import { responder } from '../motor/armonia/responder.js'
+import { guardarAjustesDeProveedor, hayClave, leerAjustesDeProveedor } from './clave.js'
 import { autoguardar } from './persistencia.js'
 
 /** Cuántos turnos se recuerdan. Más allá, la conversación no aporta nada. */
@@ -26,10 +29,15 @@ export const usarArmonia = defineStore('armonia', {
     vecesQuePidioSolucion: 0,
     /** Lo publica la vista del reto; no se guarda en la partida. */
     contexto: { retoId: null, codigo: '', resultado: null },
+    /** Proveedor y clave. Viven fuera de la partida, ver `almacen/clave.js`. */
+    proveedor: leerAjustesDeProveedor(),
+    /** Mientras el proveedor contesta, su respuesta se va escribiendo aquí. */
+    escribiendo: null,
   }),
 
   getters: {
     hayConversacion: (estado) => estado.turnos.length > 0,
+    conVozPrestada: (estado) => hayClave(estado.proveedor),
   },
 
   actions: {
@@ -64,13 +72,7 @@ export const usarArmonia = defineStore('armonia', {
       })
 
       if (contestada.tipo === 'peticion') this.vecesQuePidioSolucion += 1
-
-      this.turnos = [
-        ...this.turnos,
-        { de: 'jugador', texto: pregunta, cuando: Date.now() },
-        { de: 'armonia', cuando: Date.now(), ...contestada },
-      ].slice(-MEMORIA)
-
+      this.apuntar(pregunta, contestada)
       return contestada
     },
 
@@ -79,6 +81,83 @@ export const usarArmonia = defineStore('armonia', {
       if (this.presentado) return
       this.presentado = true
       this.turnos = [...this.turnos, { de: 'armonia', tipo: 'presentacion', texto, citas: [], cuando: Date.now() }]
+    },
+
+    guardarProveedor(ajustes) {
+      this.proveedor = { ...this.proveedor, ...ajustes }
+      guardarAjustesDeProveedor(this.proveedor)
+    },
+
+    /**
+     * Con clave, contesta el proveedor. Sin clave, contesta el coppermind.
+     *
+     * Las tres capas que impiden que suelte la solución siguen puestas también
+     * aquí: no se le manda (ver `contexto`), se le dice que no (ver
+     * `instrucciones`) y se le tacha a la salida (ver `sinCodigo`). Y si algo
+     * falla —sin red, clave mala, cuota agotada— se cae de vuelta a lo local,
+     * que es lo que siempre funciona.
+     */
+    async preguntarConVoz(texto) {
+      const pregunta = (texto ?? '').trim()
+      if (!pregunta) return null
+
+      const reto = this.contexto.retoId ? RETOS_POR_ID[this.contexto.retoId] : null
+
+      // El diagnóstico local se calcula igual y se le pasa al modelo: es lo que
+      // de verdad le pasa al código, y ningún modelo lo sabría por su cuenta.
+      const local = responder(pregunta, {
+        ...this.contexto,
+        vecesQuePidioSolucion: this.vecesQuePidioSolucion,
+      })
+
+      // Pedir la solución se corta aquí, sin gastar la clave de nadie.
+      if (local.tipo === 'peticion') {
+        this.vecesQuePidioSolucion += 1
+        this.apuntar(pregunta, local)
+        return local
+      }
+
+      this.escribiendo = ''
+      try {
+        const crudo = await preguntarAlProveedor({
+          ajustes: this.proveedor,
+          sistema: instrucciones({ enJefe: Boolean(reto?.jefe) }),
+          mensajes: [
+            { role: 'user', content: contexto({ ...this.contexto, reto, diagnostico: local.texto }) },
+            ...this.turnos
+              .slice(-6)
+              .map((t) => ({ role: t.de === 'jugador' ? 'user' : 'assistant', content: t.texto })),
+            { role: 'user', content: pregunta },
+          ],
+          alTexto: (trozo) => {
+            this.escribiendo += trozo
+          },
+        })
+
+        const { texto: limpio, tachado } = sinCodigo(crudo, { hayRetoAbierto: Boolean(reto) })
+        this.escribiendo = null
+        const dicho = { tipo: 'voz', texto: limpio, citas: local.citas ?? [], tachado }
+        this.apuntar(pregunta, dicho)
+        return dicho
+      } catch (error) {
+        this.escribiendo = null
+        // Sin red o con la clave mal: se contesta con lo local y se avisa.
+        const dicho = {
+          ...local,
+          texto: `${local.texto}\n\n_(No he podido usar tu clave: ${error.message} Te contesto con lo que recuerdo.)_`,
+        }
+        this.apuntar(pregunta, dicho)
+        return dicho
+      }
+    },
+
+    /** Mete el turno del jugador y el de Armonía en el hilo. */
+    apuntar(pregunta, dicho) {
+      this.turnos = [
+        ...this.turnos,
+        { de: 'jugador', texto: pregunta, cuando: Date.now() },
+        { de: 'armonia', cuando: Date.now(), ...dicho },
+      ].slice(-MEMORIA)
     },
 
     borrarConversacion() {

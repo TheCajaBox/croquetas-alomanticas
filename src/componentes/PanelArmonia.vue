@@ -27,12 +27,28 @@ async function alFondo() {
   if (hilo.value) hilo.value.scrollTop = hilo.value.scrollHeight
 }
 
-function enviar() {
+const esperando = ref(false)
+
+async function enviar() {
   const texto = escrito.value.trim()
-  if (!texto) return
+  if (!texto || esperando.value) return
   escrito.value = ''
-  armonia.preguntar(texto)
+
+  // Con clave contesta el proveedor; sin clave, lo que Armonía recuerda. Lo
+  // segundo es instantáneo, así que solo lo primero necesita esperar.
+  if (!armonia.conVozPrestada) {
+    armonia.preguntar(texto)
+    return alFondo()
+  }
+
+  esperando.value = true
   alFondo()
+  try {
+    await armonia.preguntarConVoz(texto)
+  } finally {
+    esperando.value = false
+    alFondo()
+  }
 }
 
 // Se presenta la primera vez que se abre, y solo la primera en toda la partida.
@@ -113,9 +129,21 @@ function sugerir(texto) {
               </ul>
             </div>
           </div>
+
+          <!-- Lo que va llegando del proveedor mientras contesta. -->
+          <div v-if="armonia.escribiendo !== null" class="turno armonia">
+            <div class="suyo">
+              <Marcado v-if="armonia.escribiendo" :texto="armonia.escribiendo" />
+              <p v-else class="tenue pensando">Armonía está considerando qué decirte…</p>
+            </div>
+          </div>
         </div>
 
-        <div v-if="turnos.length <= 1" class="sugerencias">
+        <p v-if="armonia.conVozPrestada" class="tenue con-voz">
+          Con tu clave: {{ armonia.proveedor.proveedor }}
+        </p>
+
+        <div v-if="turnos.length <= 1 && !esperando" class="sugerencias">
           <button v-for="s in SUGERENCIAS" :key="s" class="menudo" @click="sugerir(s)">{{ s }}</button>
         </div>
 
@@ -127,7 +155,9 @@ function sugerir(texto) {
             placeholder="Pregúntale lo que no entiendas"
             aria-label="Tu pregunta"
           />
-          <button class="principal" type="submit" :disabled="!escrito.trim()">Preguntar</button>
+          <button class="principal" type="submit" :disabled="!escrito.trim() || esperando">
+            {{ esperando ? '…' : 'Preguntar' }}
+          </button>
         </form>
       </aside>
     </div>
@@ -212,6 +242,9 @@ a.cita:hover .donde { text-decoration: underline; }
 .fuente { color: var(--texto-apagado); }
 .donde { color: #c6a45c; }
 .seccion { color: var(--texto-apagado); }
+
+.pensando { margin: 0; font-style: italic; }
+.con-voz { padding: 6px 0 0; font-size: 0.76rem; text-align: right; }
 
 .sugerencias { display: flex; flex-wrap: wrap; gap: 6px; padding: 10px 0; }
 .sugerencias .menudo { font-size: 0.8rem; }
