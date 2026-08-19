@@ -72,8 +72,8 @@ export default {
   ],
   pistas: [
     pista('Una de las dos cosas no va a cambiar nunca. Esa lleva `const`. La otra ni siquiera es una variable tuya: es el parámetro.', 0),
-    pista('`const TARIFA_DIARIA = 25`. Y dentro de `cobrar`, multiplica. No hay truco, es el primer reto.', 1),
-    pista('`const TARIFA_DIARIA = 25` arriba del todo, y `return TARIFA_DIARIA * dias` dentro de la función. Ya está. Me debes croquetas por esto.', 2),
+    pista("La tarifa es la que no cambia, así que va con `const`, fuera de la función y en mayúsculas porque es un valor fijado por la casa. Dentro de `cobrar` solo queda una multiplicación y devolverla.", 1),
+    pista("Son dos líneas. Una declara la tarifa fuera de la función, con el nombre exacto que pide el enunciado y en mayúsculas. La otra, dentro, devuelve esa tarifa multiplicada por los días. Nada más: es el primer reto y no hay truco escondido.", 2),
   ],
   recompensa: { croquetas: 6 },
 }

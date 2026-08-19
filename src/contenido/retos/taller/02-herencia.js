@@ -176,7 +176,7 @@ export default {
   pistas: [
     pista("Las dos clases son casi idénticas y muy cortas: un `extends`, un constructor con `super` y dos propiedades.", 0),
     pista("`quemar` no se copia. Se hereda. Si lo escribes en las hijas, el último test te lo dirá.", 1),
-    pista("`class Lanzamonedas extends Alomantico { constructor(reservas) { super(reservas); this.metal = 'acero'; this.efecto = 'empuja' } }`", 2),
+    pista("Cada hija son cuatro líneas y ninguna más: la cabecera con `extends`, el constructor que recibe las reservas, la llamada a `super` pasándoselas, y las dos propiedades que la distinguen. `quemar` no se escribe en ningún sitio, viene de arriba.", 2),
   ],
   recompensa: { croquetas: 10 },
 }

@@ -173,7 +173,7 @@ export default {
   pistas: [
     pista("La variable del saldo va en `abrirCuenta`, **antes** del `return`. Las tres funciones de dentro la ven.", 0),
     pista("Tiene que ser `let`: `const` no dejaría sumarle ni restarle.", 1),
-    pista("`gastar` comprueba `if (cantidad <= saldo) saldo -= cantidad` y devuelve `saldo` en los dos casos, dentro o fuera del `if`.", 2),
+    pista("`gastar` tiene que devolver el saldo pase lo que pase, se haya restado o no. Si pones el `return` dentro del `if`, el caso de «no le llega» se va de la función sin devolver nada, y ese es justo el test que se pone rojo.", 2),
   ],
   recompensa: { croquetas: 11 },
 }

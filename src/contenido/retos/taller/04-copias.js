@@ -124,7 +124,7 @@ export default {
   pistas: [
     pista("`const equipo = PLANTILLA` no crea ninguna lista nueva. Le pone un segundo nombre a la que ya había.", 0),
     pista("Hace falta una lista nueva con el mismo contenido, y a esa sí se le puede hacer `push` tranquilamente.", 1),
-    pista("`const equipo = [...PLANTILLA]`. Una sola línea, tres puntos.", 2),
+    pista("La línea que hay que cambiar es la primera de la función, y el cambio cabe en tres puntos y un par de corchetes. Está en el apunte, en «Copiar de verdad». El `push` de después se queda exactamente como está.", 2),
   ],
   recompensa: { croquetas: 9 },
 }

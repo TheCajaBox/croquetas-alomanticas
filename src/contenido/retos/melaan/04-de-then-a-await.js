@@ -89,7 +89,7 @@ export default {
   pistas: [
     pista("Marca la función con `async` y cada `.then(...)` se convierte en un `await` con su variable.", 0),
     pista("Los tres valores que la escalera arrastraba hacia abajo pasan a ser tres `const` normales, uno por línea.", 1),
-    pista("`async function reunirEquipo() { const uno = await avisar('Wax'); ... return [uno, dos, tres] }`.", 2),
+    pista("La función pasa a ser `async`. Dentro, cada peldaño de la escalera se convierte en una línea que declara una constante esperando su aviso, una debajo de otra. Al final devuelves los tres juntos, y no queda ni un `.then` en pie.", 2),
   ],
   recompensa: { croquetas: 16 },
 }

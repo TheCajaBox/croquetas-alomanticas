@@ -66,10 +66,17 @@ describe('los retos de señalar están bien montados', () => {
   }
 })
 
-describe('todos los retos traen apunte y pistas', () => {
+describe('todos los retos traen apunte, y pistas los que deben', () => {
   for (const reto of RETOS) {
     it(reto.id, () => {
       expect(reto.apunte, 'sin apunte de Wax').toBeTruthy()
+
+      // Los jefes no llevan pistas: cierran un mundo y todo lo que hace falta
+      // ya se ha visto en los retos de antes. Ahí solo queda Armonía, y poco.
+      if (reto.jefe) {
+        expect(reto.pistas, 'un jefe no puede tener pistas').toBeUndefined()
+        return
+      }
       expect(reto.pistas?.length, 'sin las tres pistas').toBe(3)
       expect(reto.recompensa?.croquetas, 'sin recompensa').toBeGreaterThan(0)
     })

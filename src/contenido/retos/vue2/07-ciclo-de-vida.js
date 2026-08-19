@@ -148,10 +148,5 @@ export default {
       ),
     },
   ],
-  pistas: [
-    pista("`created` se dispara antes de que exista nada en pantalla; `mounted`, cuando ya está pintado. El `setInterval` va en `mounted`.", 0),
-    pista("Guarda lo que devuelve `setInterval` en `this.temporizador`. No hace falta que esté en `data`: no se pinta, solo hay que poder apagarlo luego.", 1),
-    pista("En `beforeDestroy()`: `clearInterval(this.temporizador)`. Y el watch es `watch: { segundos(nuevo, viejo) { this.avisos.push(`${viejo} -> ${nuevo}`) } }`.", 2),
-  ],
   recompensa: { croquetas: 20 },
 }

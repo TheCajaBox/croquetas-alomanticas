@@ -181,7 +181,7 @@ export default {
   pistas: [
     pista("Dentro de la clase, todo lo que quieras recordar entre llamadas se guarda en `this.algo`.", 0),
     pista("`recargar` necesita saber a cuánto volver, así que la capacidad hay que guardarla en el constructor, no solo usarla.", 1),
-    pista("`disparar` empieza con `if (this.balas === 0) return false`. Salir pronto del caso raro deja el resto del método limpio.", 2),
+    pista("Sal pronto del caso raro: la primera línea de `disparar` comprueba si el tambor está a cero y se va con `false` sin tocar nada. Todo lo que venga detrás ya puede dar por hecho que queda al menos una bala, y así el método se lee de un vistazo.", 2),
   ],
   recompensa: { croquetas: 10 },
 }

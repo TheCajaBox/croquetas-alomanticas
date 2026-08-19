@@ -151,7 +151,7 @@ export default {
   pistas: [
     pista("`crearFicha` tiene que **devolver** el objeto. Si empiezas la línea con `return {`, ya lo tienes casi.", 0),
     pista("En `describir` no puedes escribir 'Miles' a mano: el segundo test le pasa otra ficha distinta. Saca los datos de `ficha.nombre`, `ficha.alias` y `ficha.recompensa`.", 1),
-    pista("`return { nombre, alias, recompensa, capturado: false }` y `` return `${ficha.nombre}, alias ${ficha.alias}: ${ficha.recompensa}` ``", 2),
+    pista("Las dos son un `return` de una línea. En la primera, las tres propiedades se llaman igual que los parámetros, así que te vale la forma corta del apunte, y la cuarta la añades aparte con su valor. En la segunda, una plantilla que saque los tres datos del objeto que te pasan.", 2),
   ],
   recompensa: { croquetas: 8 },
 }

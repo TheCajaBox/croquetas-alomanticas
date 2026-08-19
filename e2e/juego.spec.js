@@ -470,3 +470,27 @@ test('el cajón de Armonía se cierra al navegar y no deja el fondo bloqueando',
   // Y la portada se puede usar: si el fondo hubiera sobrevivido, esto fallaría.
   await page.getByRole('heading', { name: 'El primer día' }).click()
 })
+
+test('la tercera pista cuesta más de lo que el reto paga', async ({ page }) => {
+  await irAlReto(page, 'dia1-01-variables')
+
+  const saldo = () => page.locator('.contador.croquetas')
+  await expect(saldo()).toHaveText('12')
+
+  // La primera invita la casa.
+  await page.getByRole('button', { name: /Pista 1/ }).click()
+  await expect(saldo()).toHaveText('12')
+
+  // Las otras dos suman más que la recompensa del reto, que son 4 croquetas.
+  await page.getByRole('button', { name: /Pista 2/ }).click()
+  await page.getByRole('button', { name: /Pista 3/ }).click()
+  await expect(saldo()).toHaveText('2')
+})
+
+test('los jefes no tienen pistas y Wayne lo dice', async ({ page }) => {
+  await irAlReto(page, 'com-10-el-registro')
+
+  await expect(page.locator('.pistas .lista')).toHaveCount(0)
+  await expect(page.locator('.pistas')).toContainText('Este no te lo vendo')
+  await expect(page.getByRole('button', { name: /Pista 1/ })).toHaveCount(0)
+})

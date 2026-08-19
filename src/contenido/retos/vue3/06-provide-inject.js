@@ -158,7 +158,7 @@ export default {
   pistas: [
     pista("`provide(clave, valor)` se llama dentro del `setup` del de arriba. `inject(clave)` dentro del `setup` del de abajo. La clave tiene que ser la misma.", 0),
     pista("Comparte el `ref` entero, no `colonia.value`. Si compartes el valor, el nieto se queda con una foto del momento y no se entera de nada más.", 1),
-    pista("Arriba: `provide(CLAVE_COLONIA, colonia)`. Abajo: `const colonia = inject(CLAVE_COLONIA)` y devolverlo, y en la plantilla `{{ colonia.length }} gatos`.", 2),
+    pista("Arriba se comparte la caja entera con la clave, sin abrirla. Abajo se recoge con esa misma clave y se devuelve para que la plantilla la use. Si en algún momento escribes `.value` al compartir, has hecho justo lo que la pista anterior te avisaba de no hacer.", 2),
   ],
   recompensa: { croquetas: 15 },
 }

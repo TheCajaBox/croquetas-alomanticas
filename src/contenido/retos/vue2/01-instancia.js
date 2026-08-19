@@ -116,7 +116,7 @@ export default {
   pistas: [
     pista("El componente es un objeto normal y corriente con dos claves: `data` y `template`. Nada más.", 0),
     pista("`data() { return { ... } }` es lo mismo que `data: function () { return { ... } }`. Y dentro de la plantilla, los datos se pintan con dobles llaves.", 1),
-    pista("Escribe `data() { return { senor: 'Waxillium Ladrian', habitaciones: 34 } }` y en la plantilla `<p class=\"senor\">{{ senor }}</p>` y `<p class=\"habitaciones\">{{ habitaciones }} habitaciones</p>`.", 2),
+    pista("`data` es un método que devuelve un objeto con las dos propiedades, escritas con los nombres exactos del enunciado. Y en la plantilla, cada dato va entre dobles llaves dentro de su etiqueta, con la clase que el test busca.", 2),
   ],
   recompensa: { croquetas: 9 },
 }

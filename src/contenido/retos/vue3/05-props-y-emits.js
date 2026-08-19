@@ -164,7 +164,7 @@ export default {
   pistas: [
     pista("`emits: ['adoptar']` documenta qué eventos salen de este componente. No es obligatorio, pero sin ello Vue trata el evento como un atributo suelto.", 0),
     pista("`setup(props, { emit })`: el segundo argumento es el contexto, y `emit` viene dentro. Las props se leen por `props.gato`, nunca por `this`.", 1),
-    pista("En el hijo: `const adoptar = () => emit('adoptar', props.gato)` y devolverlo. En el padre, `@adoptar=\"adoptar\"` y un método que haga `adoptados.value.push(gato.nombre)`.", 2),
+    pista("En el hijo, la función que avisa manda el nombre del evento y el gato que le llegó por props, y hay que devolverla para que la plantilla pueda usarla. En el padre, escuchar ese evento con arroba y meter el nombre en la lista.", 2),
   ],
   recompensa: { croquetas: 14 },
 }

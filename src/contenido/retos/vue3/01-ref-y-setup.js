@@ -136,7 +136,7 @@ export default {
   pistas: [
     pista("`setup()` devuelve un objeto, y todo lo que devuelva se puede usar en la plantilla directamente.", 0),
     pista("Dentro de `setup`, `balas` no es un número: es una caja. El número está en `balas.value`. En la plantilla Vue abre la caja por ti.", 1),
-    pista("`const balas = ref(6)`, luego `const disparar = () => { if (balas.value > 0) balas.value -= 1 }`, y devuelves `{ balas, disparar, recargar }`.", 2),
+    pista("Devuelves tres cosas: la caja y las dos funciones. Dentro de las funciones acuérdate de abrir la caja para leer o cambiar el número; en la plantilla, no, que ahí Vue la abre por ti. Y `disparar` tiene que mirar antes si queda algo.", 2),
   ],
   recompensa: { croquetas: 10 },
 }

@@ -99,10 +99,5 @@ export default {
     { nombre: "devuelve una promesa, no el valor directamente", codigo: "esperar(reunirEquipo([]) instanceof Promise).esVerdadero()" },
     { nombre: "el primero en llegar es el de nombre más corto", codigo: "esperar(await primeroEnLlegar(['Marasi', 'Wax', 'Steris'])).igualA('Wax llega')" },
   ],
-  pistas: [
-    pista("`Promise.all` para esperar a todos. `Promise.race` para quedarte con el primero. Las dos quieren una lista de promesas.", 0),
-    pista("Una lista de nombres no es una lista de promesas: hay que convertirla antes con `map`, llamando a `avisar` en cada uno.", 1),
-    pista("`await Promise.all(nombres.map((n) => avisar(n)))` para el equipo entero, y lo mismo con `Promise.race` para el primero.", 2),
-  ],
   recompensa: { croquetas: 18 },
 }

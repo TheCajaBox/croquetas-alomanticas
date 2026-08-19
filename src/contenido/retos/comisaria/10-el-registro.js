@@ -178,10 +178,5 @@ export default {
       ),
     },
   ],
-  pistas: [
-    pista("Dos contadores antes del bucle, los dos a cero. Dentro, un solo `if` que sube los dos.", 0),
-    pista("`total` no necesita bucle: es `casos.length`. Y el resumen se arma **después** del bucle, cuando los números ya están.", 1),
-    pista("El esqueleto está entero en el apunte de Wax. Lo único que falta es la línea del resumen y el `return { total, cerrados, cobrado, resumen }`.", 2),
-  ],
   recompensa: { croquetas: 14 },
 }

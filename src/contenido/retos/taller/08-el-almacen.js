@@ -260,10 +260,5 @@ export default {
       ),
     },
   ],
-  pistas: [
-    pista("Empieza por `cuanto`: es una línea, y en cuanto la tengas, `guardar` y `sacar` pueden usarla en vez de repetir el `?? 0`.", 0),
-    pista("El error del metal lleva el nombre dentro, así que ahí hace falta una plantilla: `` new Error(`No hay suficiente ${metal}`) ``.", 1),
-    pista("Hay un test que saca las existencias justas y comprueba que el metal desaparece. Eso es un `if (queda === 0) this.#inventario.delete(metal)`.", 2),
-  ],
   recompensa: { croquetas: 18 },
 }

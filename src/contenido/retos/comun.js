@@ -7,12 +7,30 @@
 export const codigo = (...lineas) => lineas.join('\n')
 
 /**
- * Precios de las tres pistas. La primera siempre sale de la casa.
+ * Lo que cuesta cada pista, como fracción de lo que paga el reto.
  *
- * Están calibrados contra las recompensas de los retos, que son deliberadamente
- * pequeñas: la idea es que pedir las tres pistas de un reto cueste más o menos
- * lo que ese reto da, para que elegir entre ayuda y croquetas signifique algo.
+ * Antes era una tabla fija -0, 3 y 8 croquetas- y la curva salía al revés de lo
+ * que hacía falta: la tercera pista costaba el 133% de tu bolsa en el primer
+ * mundo y el 9% en el último, porque los precios no se movían y tú ibas
+ * acumulando. Cuanto más difícil el reto, más barata la ayuda. Y comprarlas
+ * todas costaba 616 croquetas cuando el juego reparte 614: salía a cuenta.
+ *
+ * Con el precio atado a la recompensa la curva se sostiene sola y no habrá que
+ * recalibrarla al añadir mundos. La tercera cuesta **el doble de lo que el reto
+ * paga**: comprarla siempre te deja en números rojos respecto a lo que ganas,
+ * que es exactamente lo que tiene que sentirse.
  */
-export const PRECIOS_DE_PISTA = [0, 3, 8]
+export const PROPORCION_DE_PISTA = [0, 0.6, 2]
 
-export const pista = (texto, nivel) => ({ coste: PRECIOS_DE_PISTA[nivel] ?? 0, texto })
+/**
+ * El nivel se guarda en la pista; el precio se calcula al leerla, porque
+ * depende del reto y aquí todavía no se sabe cuál es.
+ */
+export const pista = (texto, nivel) => ({ nivel, texto })
+
+/** Lo que cuesta esa pista de ese reto, en croquetas. */
+export function precioDePista(reto, nivel) {
+  const proporcion = PROPORCION_DE_PISTA[nivel] ?? 0
+  if (proporcion === 0) return 0
+  return Math.max(1, Math.round((reto?.recompensa?.croquetas ?? 0) * proporcion))
+}

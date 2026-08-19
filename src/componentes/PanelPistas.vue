@@ -22,8 +22,15 @@ const aviso = ref('')
 
 const compradas = computed(() => progreso.ficha(props.reto.id).pistasUsadas)
 
+/**
+ * Los jefes no llevan pistas. Cierran un mundo, y todo lo que hace falta se ha
+ * visto en los retos de antes: saber que lo sabes es precisamente resolverlo
+ * sin nadie detrás.
+ */
+const esJefe = computed(() => !props.reto.pistas?.length)
+
 const pistas = computed(() =>
-  props.reto.pistas.map((pista, nivel) => {
+  (props.reto.pistas ?? []).map((pista, nivel) => {
     const precio = juego.precioDePista(props.reto, nivel)
     const anteriorPedida = nivel === 0 || compradas.value.includes(nivel - 1)
     return {
@@ -60,16 +67,25 @@ function pedir(nivel) {
       <Avatar class="vendedor" quien="wayne" :tamano="46" />
       <div class="titulo-pistas">
         <h3>Pistas de Wayne</h3>
-        <span class="tenue coletilla">la primera invita la casa</span>
+        <span class="tenue coletilla">{{ esJefe ? 'hoy tiene el puesto cerrado' : 'la primera invita la casa' }}</span>
       </div>
-      <span class="tenue saldo">{{ economia.croquetas }} croquetas</span>
+      <span v-if="!esJefe" class="tenue saldo">{{ economia.croquetas }} croquetas</span>
     </div>
 
-    <p v-if="cortesiaDeCobre" class="cortesia">
+    <!-- En los jefes no hay nada que vender, y conviene que Wayne lo diga él
+         en vez de dejar el panel vacío y que parezca que se ha roto algo. -->
+    <p v-if="esJefe" class="cerrado">
+      «Este no te lo vendo. No es que no sepa cómo va —que tampoco—, es que si te lo suelto
+      ahora te quedas sin saber si sabías. Todo lo que hace falta te lo han contado ya en los
+      retos de antes. Búscalo ahí, o pregúntale a Quien Tú Sabes, que hoy tampoco va a soltar
+      prenda.»
+    </p>
+
+    <p v-if="cortesiaDeCobre && !esJefe" class="cortesia">
       Cobre te cubre una pista de pago hoy. Wayne no se ha enterado.
     </p>
 
-    <ol class="lista">
+    <ol v-if="!esJefe" class="lista">
       <li v-for="pista in pistas" :key="pista.nivel" :class="{ abierta: pista.comprada }">
         <template v-if="pista.comprada">
           <Marcado class="texto" :texto="pista.texto" />
@@ -100,6 +116,13 @@ function pedir(nivel) {
 </template>
 
 <style scoped>
+.cerrado {
+  margin: 4px 0 0;
+  font-size: 0.9rem;
+  font-style: italic;
+  color: var(--texto-tenue);
+}
+
 .pistas { position: relative; }
 .cabecera { display: flex; align-items: center; gap: 10px; margin-bottom: 14px; }
 .vendedor { flex-shrink: 0; }

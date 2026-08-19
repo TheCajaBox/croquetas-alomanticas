@@ -185,7 +185,7 @@ export default {
   pistas: [
     pista("Para la primera: saca los nombres con `map`, y a esa lista de nombres le aplicas el truco del `Set` del apunte.", 0),
     pista("Para la segunda hace falta un bucle, porque hay que ir tocando el mismo `Map` en cada vuelta.", 1),
-    pista("`return [...new Set(nombres)]` y `cuenta.set(nombre, (cuenta.get(nombre) ?? 0) + 1)`.", 2),
+    pista("La primera es una línea: el truco del `Set` del apunte, aplicado a la lista de nombres que ya has sacado con `map`. La segunda necesita el patrón de contar, también del apunte, con el `?? 0` que hace que la primera vez empiece en cero y no en `undefined`.", 2),
   ],
   recompensa: { croquetas: 11 },
 }

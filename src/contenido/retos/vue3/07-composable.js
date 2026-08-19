@@ -177,10 +177,5 @@ export default {
       ),
     },
   ],
-  pistas: [
-    pista("Un composable no tiene nada de especial: es una función que dentro llama a `ref` y a `computed` y devuelve un objeto.", 0),
-    pista("Ojo con `const gatos = ref(iniciales)`: eso guarda la MISMA lista que te pasaron, y al adoptar se la estarías modificando por la espalda. Cópiala.", 1),
-    pista("`const gatos = ref([...iniciales])`, `const cuantos = computed(() => gatos.value.length)`, y `adoptar` comprueba con `includes` antes de hacer `push`.", 2),
-  ],
   recompensa: { croquetas: 22 },
 }

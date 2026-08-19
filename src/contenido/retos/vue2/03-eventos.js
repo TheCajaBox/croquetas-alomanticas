@@ -153,7 +153,7 @@ export default {
   pistas: [
     pista("`v-model=\"nuevo\"` ata el campo al dato en los dos sentidos. `@click=\"guardar\"` llama al método al pulsar.", 0),
     pista("Dentro del método, `this.nuevo` es lo escrito y `this.botin` la lista. Para no guardar espacios, mira `this.nuevo.trim()`.", 1),
-    pista("`guardar()` hace: `const limpio = this.nuevo.trim()`, si está vacío `return`, y si no `this.botin.push(limpio)` y `this.nuevo = ''`.", 2),
+    pista("El método hace tres cosas y en este orden: limpia lo escrito, se va sin hacer nada si quedó vacío, y si no, lo mete en la lista. Y luego una cuarta que es la que todo el mundo olvida: dejar el campo vacío para el siguiente.", 2),
   ],
   recompensa: { croquetas: 12 },
 }

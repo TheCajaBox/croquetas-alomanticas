@@ -69,7 +69,7 @@ export default {
   pistas: [
     pista("Los dos primeros huecos son formas de guardar algo. El tercero es lo que escribe en pantalla. El cuarto es una cuenta.", 0),
     pista("Tiene 3 sombreros y ha prestado 1, así que le quedan 2. Piensa qué operación es esa.", 1),
-    pista("`const SOMBREROS = 3`, `const prestados = 1` (o `let`, los dos valen), `console.log(...)` y una resta.", 2),
+    pista("Los dos primeros huecos son la misma palabra, la de guardar algo que no va a cambiar. El tercero es lo que escribe en pantalla y lo tienes en el primer ejemplo del apunte. Y el cuarto es la operación que convierte un 3 y un 1 en un 2.", 2),
   ],
   recompensa: { croquetas: 6 },
 }

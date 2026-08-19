@@ -102,7 +102,7 @@ export default {
   pistas: [
     pista("Son dos caminos distintos que llevan a poder entrar: tener cita, o tener 18 o más. Con que se cumpla uno, basta.", 0),
     pista("No hace falta ningún `if`. `tieneCita` ya es verdadero o falso, y `edad >= 18` también.", 1),
-    pista("`return tieneCita || edad >= 18`", 2),
+    pista("Son dos caminos que llevan al mismo sitio y basta con que se cumpla uno: el operador que significa eso está en el apunte, en «Juntar dos condiciones». No necesitas ningún `if`, porque los dos lados ya valen verdadero o falso por sí solos.", 2),
   ],
   recompensa: { croquetas: 7 },
 }

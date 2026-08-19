@@ -1,5 +1,6 @@
 import { defineStore } from 'pinia'
 
+import { precioDePista } from '../contenido/retos/comun.js'
 import { FASES, evaluarEnvio } from '../motor/ejecutor.js'
 import { TIEMPO_LIMITE_MS } from '../motor/protocolo.js'
 import { usarEconomia } from './economia.js'
@@ -36,7 +37,8 @@ export const usarJuego = defineStore('juego', {
 
     /** Lo que cuesta ahora mismo una pista, con los descuentos que haya. */
     precioDePista: () => (reto, nivel) => {
-      const coste = reto.pistas?.[nivel]?.coste ?? 0
+      if (!reto.pistas?.[nivel]) return 0
+      const coste = precioDePista(reto, nivel)
       if (coste === 0) return 0
       return usarGatos().tieneBonus('pistasBaratas') ? Math.ceil(coste / 2) : coste
     },
@@ -107,7 +109,7 @@ export const usarJuego = defineStore('juego', {
       }
       narrador.decir('pistaPedida', {}, { nivel: nivel + 1, forzar: true })
 
-      const trasto = pista.coste > 0 && !cortesiaDeCobre ? economia.recibirTrasto() : null
+      const trasto = precio > 0 && !cortesiaDeCobre ? economia.recibirTrasto() : null
       return { ok: true, pista, precio, trasto, cortesiaDeCobre }
     },
 

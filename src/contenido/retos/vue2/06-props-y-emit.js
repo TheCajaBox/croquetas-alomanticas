@@ -172,7 +172,7 @@ export default {
   pistas: [
     pista("La prop se declara en el hijo: `props: { gato: { type: Object, required: true } }`. A partir de ahí `gato` se usa en su plantilla como cualquier dato.", 0),
     pista("Para avisar, en el botón del hijo: `@click=\"$emit('adoptar', gato)\"`. El padre lo escucha poniendo `@adoptar=\"adoptar\"` en la tarjeta.", 1),
-    pista("En el padre: `<tarjeta-de-gato v-for=\"gato in colonia\" :key=\"gato.id\" :gato=\"gato\" @adoptar=\"adoptar\" />`, y el método hace `this.adoptados.push(gato.nombre)`.", 2),
+    pista("En el padre, la etiqueta del hijo necesita tres cosas a la vez: el `v-for` con su `:key`, el gato bajado con dos puntos delante, y el aviso escuchado con arroba. Y el método que lo recoge solo tiene que meter el nombre en la lista de adoptados.", 2),
   ],
   recompensa: { croquetas: 14 },
 }

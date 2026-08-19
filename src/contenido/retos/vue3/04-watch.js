@@ -155,7 +155,7 @@ export default {
   pistas: [
     pista("`watch` quiere dos cosas: qué vigilar y qué hacer cuando cambie. `watchEffect` solo quiere lo segundo, y averigua solo qué está vigilando.", 0),
     pista("Al montar, el registro tiene exactamente un apunte. Si te salen dos, has puesto el watch con `immediate: true` sin querer.", 1),
-    pista("`watch(balas, (nuevo, viejo) => registro.value.push(`watch: ${viejo} -> ${nuevo}`))` y luego `watchEffect(() => registro.value.push(`watchEffect: ${balas.value}`))`.", 2),
+    pista("El `watch` recibe dos valores, el nuevo y el viejo, y en el registro van en el orden que pide el test. El `watchEffect` no recibe ninguno: lee `balas` él solo, y por eso se ejecuta una vez nada más montar sin que nadie se lo pida.", 2),
   ],
   recompensa: { croquetas: 14 },
 }

@@ -158,7 +158,7 @@ export default {
   pistas: [
     pista("`computed(() => ...)` recibe una función que devuelve el valor. Dentro hay que usar `.value` en los refs.", 0),
     pista("Un computed puede apoyarse en otro: `resumen` puede leer `visibles.value.length` sin recalcular nada dos veces.", 1),
-    pista("`const visibles = computed(() => soloHambrientos.value ? colonia.value.filter((g) => g.hambre > 50) : colonia.value)` y `const resumen = computed(() => `${visibles.value.length} de ${colonia.value.length}`)`.", 2),
+    pista("Son dos `computed`. El primero decide qué lista se ve según el interruptor, y filtra por hambre solo cuando toca. El segundo se apoya en el primero: cuenta lo que hay dentro y lo compara con el total. Ninguno de los dos necesita un `if` largo.", 2),
   ],
   recompensa: { croquetas: 12 },
 }

@@ -88,7 +88,7 @@ export default {
   pistas: [
     pista("Pon las tres una debajo de otra. Solo cambia una palabra en medio.", 0),
     pista("Esa palabra que cambia es un parámetro. Y ya que estás, saca también la ciudad.", 1),
-    pista("`const describir = (persona, oficio, ciudad) => `${persona}, ${oficio} de ${ciudad}`` y las tres pasan a ser una línea que la llama.", 2),
+    pista("Una sola función con tres parámetros: quién, qué oficio y de dónde. Las tres versiones de antes se quedan en tres llamadas a esa, cada una con sus tres datos. Si te sale una plantilla por cada oficio, todavía no has terminado.", 2),
   ],
   recompensa: { croquetas: 14 },
 }

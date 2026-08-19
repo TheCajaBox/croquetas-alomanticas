@@ -174,10 +174,5 @@ export default {
       ),
     },
   ],
-  pistas: [
-    pista("Empieza por los tres datos: `segundos`, `registro` y `avisos`, cada uno en su `ref`. Y a partir de ahí, fuera todos los `this.`.", 0),
-    pista("Lo de `created` va suelto en el cuerpo de `setup`, sin envolver en nada. `mounted` pasa a `onMounted(() => ...)` y `beforeUnmount` a `onBeforeUnmount(() => ...)`.", 1),
-    pista("El temporizador es un `let temporizador` normal, declarado dentro de `setup` y fuera de los ganchos, para que `onMounted` lo guarde y `onBeforeUnmount` lo pueda apagar.", 2),
-  ],
   recompensa: { croquetas: 28 },
 }

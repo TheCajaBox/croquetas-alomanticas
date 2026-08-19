@@ -99,7 +99,7 @@ export default {
   pistas: [
     pista("Las dos primeras líneas hacen el trabajo bien. El problema es lo que pasa con el resultado.", 0),
     pista("`nombre.trim()` no cambia `nombre`: devuelve un texto nuevo. Si nadie lo recoge, se pierde.", 1),
-    pista("Guarda el resultado: `const limpio = nombre.trim().toUpperCase()` y usa `limpio` en la plantilla.", 2),
+    pista("Los dos métodos están bien elegidos y bien encadenados. Lo que falta es que alguien recoja lo que devuelven: hace falta una variable nueva con ese resultado, y usarla en la plantilla en lugar de la que te llegó.", 2),
   ],
   recompensa: { croquetas: 7 },
 }

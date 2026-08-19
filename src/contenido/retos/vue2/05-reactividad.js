@@ -152,7 +152,7 @@ export default {
   pistas: [
     pista("Los datos sí cambian. Lo que no pasa es que Vue se entere, y por eso no vuelve a pintar.", 0),
     pista("`this.$set(objeto, clave, valor)` da de alta la propiedad **y** avisa. Sirve igual para objetos y para posiciones de un array.", 1),
-    pista("`this.$set(this.inventario, nombre, 1)` y `this.$set(this.balas, posicion, 0)`. Para el array también valdría `this.balas.splice(posicion, 1, 0)`.", 2),
+    pista("Los dos sitios que fallan son el mismo problema con dos caras: una propiedad nueva en un objeto y una posición de un array. Los dos se arreglan con la llamada de la pista anterior, pasándole qué tocar, dónde y con qué valor. Para el array también valdría `splice`.", 2),
   ],
   recompensa: { croquetas: 15 },
 }

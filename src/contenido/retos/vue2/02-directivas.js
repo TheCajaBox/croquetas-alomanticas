@@ -131,7 +131,7 @@ export default {
   pistas: [
     pista("`v-if` decide si algo se pinta, `v-else` va justo detrás, y `v-for` repite un elemento por cada cosa de una lista.", 0),
     pista("La clase se puede calcular: `:class=\"objeto.valor >= 100 ? 'valioso' : 'baratija'\"`. Los dos puntos delante significan que lo de dentro es JavaScript, no texto.", 1),
-    pista("`<li v-for=\"objeto in objetos\" :key=\"objeto.id\" :class=\"objeto.valor >= 100 ? 'valioso' : 'baratija'\">{{ objeto.nombre }}</li>`, todo eso dentro de un `<ul v-else>`, y antes el `<p v-if=\"objetos.length === 0\" class=\"vacio\">`.", 2),
+    pista("Son tres piezas: un párrafo con `v-if` para cuando la lista está vacía, la lista con `v-else`, y dentro el `v-for` con su `:key`. La clase de cada elemento la decide el ternario de la pista anterior, puesto con dos puntos delante.", 2),
   ],
   recompensa: { croquetas: 11 },
 }

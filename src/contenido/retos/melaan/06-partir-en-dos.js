@@ -183,7 +183,7 @@ export default {
   pistas: [
     pista("El trozo que se repite dentro del `v-for` es el hijo entero: el `<li>` con su nombre y su botón.", 0),
     pista("El hijo necesita un dato (`gato`) y provoca un aviso (`adoptar`). Eso son sus props y sus emits.", 1),
-    pista("En el padre, el `<li v-for>` se sustituye por `<tarjeta-de-gato v-for=\"gato in colonia\" :key=\"gato.id\" :gato=\"gato\" @adoptar=\"adoptar\" />`, y hay que registrarla en `components`.", 2),
+    pista("En el padre, el `<li>` entero desaparece y en su sitio va la etiqueta del hijo, con el `v-for` y el `:key` que ya tenía, el gato bajado por props y el aviso escuchado con arroba. Y hay que registrar el componente, o Vue no sabrá qué etiqueta es esa.", 2),
   ],
   recompensa: { croquetas: 20 },
 }

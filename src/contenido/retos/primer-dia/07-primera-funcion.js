@@ -69,10 +69,5 @@ export default {
     { nombre: "devuelve el saludo en vez de escribirlo", codigo: "esperar(saludar('Wax'), 'lo que devuelve la función').esDeTipo('string')" },
     { nombre: "aguanta hasta un nombre vacío", codigo: "esperar(saludar('')).igualA('Buenas, .')" },
   ],
-  pistas: [
-    pista("Dentro de la función, `nombre` ya vale lo que le hayan pasado al llamarla. Solo tienes que montar el texto con él.", 0),
-    pista("Con comillas invertidas y `${nombre}` dentro. Y no te dejes ni la coma ni el punto final: los tests miran el texto entero.", 1),
-    pista("`return `Buenas, ${nombre}.`` y ya está. Wayne dice que él la habría escrito igual pero tardando más.", 2),
-  ],
   recompensa: { croquetas: 10 },
 }
