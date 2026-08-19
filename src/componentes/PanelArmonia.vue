@@ -6,6 +6,7 @@ import Avatar from './Avatar.vue'
 import Marcado from './Marcado.vue'
 import { LINEAS_DE_ARMONIA } from '../contenido/narrador/lineas.js'
 import { usarArmonia } from '../almacen/armonia.js'
+import { usarProgreso } from '../almacen/progreso.js'
 
 /**
  * La conversación con Armonía.
@@ -15,6 +16,7 @@ import { usarArmonia } from '../almacen/armonia.js'
  * propio código mientras él te pregunta por él.
  */
 const armonia = usarArmonia()
+const progreso = usarProgreso()
 
 const escrito = ref('')
 const hilo = ref(null)
@@ -91,6 +93,17 @@ function sugerir(texto) {
   escrito.value = texto
   campo.value?.focus()
 }
+
+/**
+ * Si una cita se puede pulsar.
+ *
+ * Armonía busca en todo el material, y eso está bien: que te diga que lo que
+ * preguntas se explica más adelante es información útil. Enlazarlo no lo era.
+ * Se colaba por aquí a cualquier lección cerrada, sin haber hecho las de antes.
+ */
+function enlazable(cita) {
+  return !!cita.retoId && progreso.retoDisponible(cita.retoId)
+}
 </script>
 
 <template>
@@ -116,14 +129,16 @@ function sugerir(texto) {
               <ul v-if="turno.citas?.length" class="citas">
                 <li v-for="(cita, i) in turno.citas" :key="i">
                   <component
-                    :is="cita.retoId ? 'RouterLink' : 'span'"
-                    v-bind="cita.retoId ? { to: { name: 'reto', params: { retoId: cita.retoId } } } : {}"
+                    :is="enlazable(cita) ? 'RouterLink' : 'span'"
+                    v-bind="enlazable(cita) ? { to: { name: 'reto', params: { retoId: cita.retoId } } } : {}"
                     class="cita"
-                    @click="cita.retoId && armonia.cerrar()"
+                    :class="{ cerrada: cita.retoId && !enlazable(cita) }"
+                    @click="enlazable(cita) && armonia.cerrar()"
                   >
                     <span class="fuente">{{ ETIQUETAS[cita.fuente] ?? 'En' }}</span>
                     {{ ' ' }}<span class="donde">{{ cita.reto }}</span>
                     <span v-if="cita.seccion" class="seccion">· {{ cita.seccion }}</span>
+                    <span v-if="cita.retoId && !enlazable(cita)" class="candado">· todavía cerrado</span>
                   </component>
                 </li>
               </ul>
@@ -242,6 +257,8 @@ a.cita:hover .donde { text-decoration: underline; }
 .fuente { color: var(--texto-apagado); }
 .donde { color: #c6a45c; }
 .seccion { color: var(--texto-apagado); }
+.cita.cerrada .donde { color: var(--texto-tenue); }
+.candado { color: var(--texto-apagado); font-style: italic; }
 
 .pensando { margin: 0; font-style: italic; }
 .con-voz { padding: 6px 0 0; font-size: 0.76rem; text-align: right; }

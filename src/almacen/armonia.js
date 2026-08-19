@@ -1,6 +1,8 @@
 import { defineStore } from 'pinia'
 
+import { cargarApunte } from '../contenido/apuntes/index.js'
 import { RETOS_POR_ID } from '../contenido/retos/index.js'
+import { buscar } from '../motor/armonia/buscar.js'
 import { contexto, instrucciones, preguntarAlProveedor, sinCodigo } from '../motor/armonia/proveedores.js'
 import { prepararArmonia, responder } from '../motor/armonia/responder.js'
 import { guardarAjustesDeProveedor, hayClave, leerAjustesDeProveedor } from './clave.js'
@@ -124,13 +126,27 @@ export const usarArmonia = defineStore('armonia', {
         return local
       }
 
+      // Lo que el modelo puede decir sale de aquí y de ningún otro sitio: el
+      // apunte del reto y los trozos que la búsqueda local ya ha encontrado.
+      // Sin esto, un modelo pequeño recita de su propia memoria y contesta como
+      // un manual, que es exactamente lo que hacía.
+      const apunte = reto ? await cargarApunte(reto.id) : null
+      const material = buscar(pregunta, {
+        retoId: reto?.id ?? null,
+        mundoId: reto?.mundo ?? null,
+        cuantos: 5,
+      })
+
       this.escribiendo = ''
       try {
         const crudo = await preguntarAlProveedor({
           ajustes: this.proveedor,
           sistema: instrucciones({ enJefe: Boolean(reto?.jefe) }),
           mensajes: [
-            { role: 'user', content: contexto({ ...this.contexto, reto, diagnostico: local.texto }) },
+            {
+              role: 'user',
+              content: contexto({ ...this.contexto, reto, apunte, material, diagnostico: local.texto }),
+            },
             ...this.turnos
               .slice(-6)
               .map((t) => ({ role: t.de === 'jugador' ? 'user' : 'assistant', content: t.texto })),

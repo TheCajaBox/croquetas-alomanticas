@@ -46,7 +46,14 @@ const narrador = usarNarrador()
 const armonia = usarArmonia()
 
 const reto = RETOS_POR_ID[props.retoId]
+
+// El candado se hace cumplir AQUÍ, no solo en la lista del mundo: por la
+// dirección se llegaba a cualquier reto, y las citas de Armonía enlazaban
+// lecciones de mundos que todavía estaban cerrados.
 if (!reto) router.replace('/')
+else if (!progreso.retoDisponible(reto.id)) {
+  router.replace({ name: 'mundo', params: { mundoId: reto.mundo } })
+}
 
 const mundo = computed(() => MUNDOS_POR_ID[reto?.mundo])
 const siguiente = computed(() => (reto ? retoSiguiente(reto) : null))

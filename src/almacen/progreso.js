@@ -58,6 +58,28 @@ export const usarProgreso = defineStore('progreso', {
       }
     },
 
+    /**
+     * Si un reto se puede abrir ya.
+     *
+     * Vive aquí y no en la vista porque hay tres sitios que lo preguntan -la
+     * lista del mundo, la propia vista del reto y las citas de Armonía- y con
+     * la regla escrita en uno solo, los otros dos dejaban entrar. Se llegaba a
+     * cualquier reto por su dirección, y Armonía citaba lecciones de mundos que
+     * todavía estaban cerrados y las enlazaba.
+     */
+    retoDisponible() {
+      return (retoId) => {
+        const reto = RETOS_POR_ID[retoId]
+        if (!reto) return false
+        if (!this.mundoDisponible(reto.mundo)) return false
+
+        const hermanos = retosDelMundo(reto.mundo)
+        const indice = hermanos.indexOf(reto)
+        // El primero de cada mundo está abierto; los demás piden el anterior.
+        return indice <= 0 || this.superado(hermanos[indice - 1].id)
+      }
+    },
+
     jefesDerrotados: (estado) =>
       RETOS.filter((reto) => reto.jefe && estado.retos[reto.id]?.superado).length,
 

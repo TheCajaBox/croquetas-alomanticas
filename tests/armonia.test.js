@@ -399,6 +399,45 @@ describe('la voz prestada', () => {
     expect(sinCodigo(conCodigo, { hayRetoAbierto: false }).tachado).toBe(false)
   })
 
+  /**
+   * El apunte dejó de ser un campo del reto el día que se hicieron perezosos, y
+   * `contexto()` siguió mandando `reto.apunte` durante bastante tiempo: la
+   * cadena vacía. El modelo se quedaba sin una sola línea del juego sobre la que
+   * apoyarse y contestaba de su propia memoria, como un manual.
+   */
+  it('el material del juego llega de verdad al modelo', () => {
+    const reto = RETOS[0]
+    const apunte = APUNTES[reto.id]
+
+    const conMaterial = contexto({
+      reto,
+      apunte,
+      material: [{ titulo: 'Ficha', titular: null, texto: 'Una variable guarda un valor.' }],
+      codigo: '',
+      resultado: null,
+      diagnostico: null,
+    })
+
+    expect(conMaterial, 'no manda el apunte').toContain(apunte.slice(0, 60))
+    expect(conMaterial, 'no manda lo que encontró la búsqueda').toContain('Una variable guarda un valor.')
+    expect(conMaterial).toContain(reto.titulo)
+  })
+
+  it('sin reto abierto sigue mandando material, que es cuando más falta hace', () => {
+    const enviado = contexto({
+      reto: null,
+      material: [{ titulo: 'Ficha de bucle', titular: null, texto: 'Un bucle repite algo.' }],
+    })
+
+    expect(enviado).toContain('Un bucle repite algo.')
+    expect(enviado).toContain('acótala')
+  })
+
+  it('no se le manda un apunte vacío como si fuera material', () => {
+    const enviado = contexto({ reto: RETOS[0], apunte: null, material: [] })
+    expect(enviado).not.toContain('El apunte de Wax de este reto')
+  })
+
   it('lo que se le manda al modelo no lleva la solución ni los tests ni las pistas', () => {
     for (const reto of RETOS.slice(0, 12)) {
       const enviado = aplanar(

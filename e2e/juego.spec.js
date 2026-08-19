@@ -2,6 +2,8 @@ import { readdirSync } from 'node:fs'
 
 import { expect, test } from '@playwright/test'
 
+import { MUNDOS } from '../src/contenido/mundos.js'
+
 /**
  * Recorrido real por el juego publicado: se resuelve un reto en cada uno de
  * los tres entornos, se comprueba que la protección contra bucles infinitos
@@ -38,7 +40,90 @@ async function escribirCodigo(pagina, codigo) {
   await pagina.keyboard.insertText(codigo)
 }
 
+/** Todos los retos de todos los mundos, leídos una sola vez por proceso. */
+let catalogo = null
+async function todosLosRetos() {
+  if (!catalogo) {
+    catalogo = {}
+    for (const mundo of MUNDOS) catalogo[mundo.id] = await idsDelMundo(mundo.id)
+  }
+  return catalogo
+}
+
+/**
+ * Lo que hay que llevar hecho para que un reto esté abierto: los anteriores de
+ * su mundo, y enteros los mundos que el suyo exige.
+ */
+async function loAnterior(retoId) {
+  const todos = await todosLosRetos()
+  const mundo = MUNDOS.find((m) => todos[m.id].includes(retoId))
+  if (!mundo) throw new Error(`no encuentro el reto ${retoId}`)
+
+  const pendientes = Array.isArray(mundo.requiere)
+    ? [...mundo.requiere]
+    : mundo.requiere
+      ? [mundo.requiere]
+      : []
+  const previos = []
+  while (pendientes.length > 0) {
+    const id = pendientes.shift()
+    if (previos.includes(id)) continue
+    previos.unshift(id)
+    const exigidos = MUNDOS.find((m) => m.id === id)?.requiere
+    if (exigidos) pendientes.push(...(Array.isArray(exigidos) ? exigidos : [exigidos]))
+  }
+
+  const ids = previos.flatMap((id) => todos[id])
+  return [...ids, ...todos[mundo.id].slice(0, todos[mundo.id].indexOf(retoId))]
+}
+
+/**
+ * Da por superado todo lo anterior a un reto.
+ *
+ * Un reto solo se abre con el anterior hecho -antes se entraba a cualquiera
+ * por la dirección, y Armonía enlazaba lecciones cerradas-, así que los
+ * recorridos que empiezan por en medio siembran lo de antes en vez de
+ * resolverlo, que ya se prueba en otro sitio.
+ *
+ * Se siembra con `addInitScript` porque el autoguardado pisa cualquier cosa
+ * escrita en localStorage con la partida ya en marcha, y se fusiona con lo que
+ * haya en vez de sustituirlo, para no borrar lo que el test lleve hecho.
+ */
+async function sembrarLoAnterior(pagina, retoId) {
+  const ids = await loAnterior(retoId)
+  if (ids.length === 0) return false
+
+  await pagina.addInitScript((anteriores) => {
+    const partida = JSON.parse(localStorage.getItem('gatosYCodigo') ?? '{"version":1}')
+    const progreso = partida.progreso ?? {}
+    const retos = { ...(progreso.retos ?? {}) }
+    for (const id of anteriores) {
+      // Se conserva lo que hubiera -intentos, pistas, borrador- pero se da por
+      // superado igual: si el test ha dejado uno a medias por el camino, su
+      // mundo se quedaría sin terminar y el siguiente, cerrado.
+      retos[id] = {
+        intentos: 1,
+        fallos: 0,
+        pistasUsadas: [],
+        codigoGuardado: null,
+        ...(retos[id] ?? {}),
+        superado: true,
+        superadoEn: retos[id]?.superadoEn ?? Date.now(),
+      }
+    }
+    localStorage.setItem('gatosYCodigo', JSON.stringify({ ...partida, progreso: { ...progreso, retos } }))
+  }, ids)
+  return true
+}
+
 async function irAlReto(pagina, retoId) {
+  if (await sembrarLoAnterior(pagina, retoId)) {
+    // El guion sembrado solo corre al cargar el documento, y saltar de
+    // almohadilla en almohadilla no recarga nada. Se recarga ANTES de pedir el
+    // reto: si se pide primero, el candado ve la partida vieja y desvía.
+    await pagina.goto('#/')
+    await pagina.reload()
+  }
   await pagina.goto(`#/reto/${retoId}`)
   await expect(pagina.locator('h1')).toBeVisible()
 }
@@ -119,6 +204,7 @@ test('un bucle infinito se corta y la página sigue viva', async ({ page }) => {
 
 test('la partida sobrevive a recargar la página', async ({ page }) => {
   await irAlReto(page, 'es6-01-const-let')
+  const superadosAntes = Number((await page.locator('.contador.retos').textContent()).split('/')[0])
   await escribirCodigo(page, SOLUCIONES['es6-01-const-let'])
   await page.getByRole('button', { name: 'Ejecutar', exact: true }).click()
   await expect(page.getByText('Reto superado.')).toBeVisible({ timeout: 20_000 })
@@ -127,7 +213,7 @@ test('la partida sobrevive a recargar la página', async ({ page }) => {
 
   await page.reload()
   await expect(page.locator('.contador.croquetas')).toHaveText(croquetas)
-  await expect(page.locator('.contador.retos')).toHaveText(/^1\/\d+$/)
+  await expect(page.locator('.contador.retos')).toHaveText(new RegExp(`^${superadosAntes + 1}/`))
   // Y el reto sigue marcado como superado, con el código que se escribió.
   await expect(page.getByText('superado')).toBeVisible()
   await expect(page.locator('.cm-content')).toContainText('TARIFA_DIARIA')
@@ -153,6 +239,23 @@ const robado = window.parent.localStorage.getItem('gatosYCodigo')`,
   await page.getByRole('button', { name: 'Ejecutar', exact: true }).click()
 
   await expect(page.getByText('Ha reventado al ejecutarlo')).toBeVisible({ timeout: 20_000 })
+})
+
+test('a una lección cerrada no se entra, ni por la barra ni por Armonía', async ({ page }) => {
+  // Por la dirección: devuelve al mundo, que enseña dónde te has quedado.
+  await page.goto('#/reto/com-06-el-bucle')
+  await expect(page.getByRole('heading', { name: 'La comisaría' })).toBeVisible()
+  await expect(page.locator('h1')).not.toContainText('bucle')
+
+  // Y por las citas de Armonía, que era la puerta de atrás: cita lo que hay,
+  // pero lo cerrado no se pulsa.
+  await irAlReto(page, 'dia1-01-variables')
+  await preguntarAArmonia(page, '¿qué es un bucle?')
+
+  const citas = page.locator('.cajon .citas li')
+  await expect(citas.first()).toBeVisible()
+  await expect(page.locator('.cajon .citas a')).toHaveCount(0)
+  await expect(citas.filter({ hasText: 'todavía cerrado' }).first()).toBeVisible()
 })
 
 test('los sombreros se encuentran, se pagan y se guardan', async ({ page }) => {
@@ -185,10 +288,17 @@ test('los sombreros se encuentran, se pagan y se guardan', async ({ page }) => {
 test('la racha se ve en la cabecera y se pierde al comprar una pista', async ({ page }) => {
   // Se siembra una racha de uno: encadenar dos retos a mano aquí no aportaría
   // nada y ataría la prueba a cómo se resuelve cada tipo.
+  // Y el segundo reto por hecho, que si no el tercero está cerrado. Se siembra
+  // aquí y no con `irAlReto` para no perder la racha: sembrar recarga, y esta
+  // partida se escribe entera en cada carga.
   await page.addInitScript(() => {
+    const hecho = { superado: true, intentos: 1, fallos: 0, pistasUsadas: [], superadoEn: Date.now() }
     localStorage.setItem(
       'gatosYCodigo',
-      JSON.stringify({ version: 1, progreso: { rachaSinPistas: 1, mejorRacha: 1, retos: {} } }),
+      JSON.stringify({
+        version: 1,
+        progreso: { rachaSinPistas: 1, mejorRacha: 1, retos: { 'dia1-02-tipos': hecho } },
+      }),
     )
   })
 
@@ -255,7 +365,7 @@ test('cerrar un mundo tiene su momento, y las insignias no pagan', async ({ page
 
 test('los cuatro tipos de señalar se resuelven y explican', async ({ page }) => {
   // Poner nombre: se elige la etiqueta y se pulsa el trozo al que corresponde.
-  await page.goto('#/reto/dia1-06b-poner-nombre')
+  await irAlReto(page, 'dia1-06b-poner-nombre')
   const etiquetar = page.locator('.etiquetar')
   for (const [etiqueta, trozo] of [
     ['nombre de la función', 'saludar'],
@@ -274,7 +384,7 @@ test('los cuatro tipos de señalar se resuelven y explican', async ({ page }) =>
   await expect(etiquetar.locator('.repaso')).toBeVisible()
 
   // Verdadero o falso: se marcan todas y se corrigen juntas.
-  await page.goto('#/reto/es6-06b-verdadero-o-falso')
+  await irAlReto(page, 'es6-06b-verdadero-o-falso')
   const vof = page.locator('.vof')
   await expect(page.getByRole('button', { name: 'Te falta marcar alguna' })).toBeDisabled()
   for (const afirmacion of await vof.locator('.afirmacion').all()) {
@@ -286,7 +396,7 @@ test('los cuatro tipos de señalar se resuelven y explican', async ({ page }) =>
   await expect(vof.locator('.porque')).toHaveCount(6)
 
   // Cazar la línea: se señala la culpable, que no es donde revienta.
-  await page.goto('#/reto/taller-04b-la-linea-culpable')
+  await irAlReto(page, 'taller-04b-la-linea-culpable')
   const cazar = page.locator('.cazar')
   await cazar.getByRole('button', { name: 'Línea 7' }).click()
   await page.getByRole('button', { name: 'Es la línea 7' }).click()
@@ -294,7 +404,7 @@ test('los cuatro tipos de señalar se resuelven y explican', async ({ page }) =>
   await expect(cazar.locator('.veredicto.bien')).toContainText('La línea 7 era')
 
   // Seguir el hilo: se rellena la tabla y salta sola a la casilla siguiente.
-  await page.goto('#/reto/com-06b-seguir-el-hilo')
+  await irAlReto(page, 'com-06b-seguir-el-hilo')
   const trazar = page.locator('.trazar')
   for (const valor of ['(no existe)', '0', '12', '12', '30', '42', '8', '50', '(no existe)', '50']) {
     await trazar.locator('.valor-ficha', { hasText: valor }).first().click()
@@ -340,7 +450,7 @@ test('los retos del primer día se resuelven sin escribir código', async ({ pag
 })
 
 test('un reto de ordenar ejecuta el código en el orden que lo dejes', async ({ page }) => {
-  await page.goto('#/reto/dia1-05-ordenar')
+  await irAlReto(page, 'dia1-05-ordenar')
   // Se ejecuta tal cual viene barajado: sale mal, y sale mal explicando por qué.
   await page.getByRole('button', { name: 'Ejecutar en este orden' }).click()
   await expect(page.getByText(/Ha reventado al ejecutarlo|cuenta los tres gatos/)).toBeVisible({

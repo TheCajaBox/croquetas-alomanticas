@@ -183,6 +183,44 @@ describe('progreso', () => {
     progreso.registrarVictoria('es6-01-const-let')
     expect(progreso.rachaSinPistas).toBe(1)
   })
+
+  describe('qué retos están abiertos', () => {
+    it('de cada mundo empieza abierto el primero y solo el primero', () => {
+      const progreso = usarProgreso()
+
+      for (const mundo of MUNDOS) {
+        const retos = retosDelMundo(mundo.id)
+        const abiertos = retos.filter((reto) => progreso.retoDisponible(reto.id))
+        // Los mundos que aún piden otro mundo no tienen ninguno abierto.
+        const esperados = progreso.mundoDisponible(mundo.id) ? [retos[0].id] : []
+        expect(abiertos.map((r) => r.id), mundo.id).toEqual(esperados)
+      }
+    })
+
+    it('superar uno abre el siguiente, y solo el siguiente', () => {
+      const progreso = usarProgreso()
+      const [primero, segundo, tercero] = retosDelMundo('primer-dia')
+
+      progreso.registrarVictoria(primero.id)
+      expect(progreso.retoDisponible(segundo.id)).toBe(true)
+      expect(progreso.retoDisponible(tercero.id)).toBe(false)
+    })
+
+    it('el mundo cerrado no se abre por haber superado retos de otro', () => {
+      // Aquí es donde se colaba: se llegaba a cualquier reto por su dirección
+      // -y desde las citas de Armonía- sin haber hecho nada de lo anterior.
+      const progreso = usarProgreso()
+      const cerrado = MUNDOS.find((m) => m.requiere)
+      const primero = retosDelMundo(cerrado.id)[0]
+
+      expect(progreso.mundoDisponible(cerrado.id)).toBe(false)
+      expect(progreso.retoDisponible(primero.id)).toBe(false)
+    })
+
+    it('un reto que no existe nunca está disponible', () => {
+      expect(usarProgreso().retoDisponible('esto-no-existe')).toBe(false)
+    })
+  })
 })
 
 describe('narrador', () => {

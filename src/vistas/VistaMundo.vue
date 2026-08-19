@@ -37,8 +37,9 @@ const retos = computed(() =>
       numero: indice + 1,
       superado: ficha.superado,
       empezado: ficha.intentos > 0,
-      // Los retos se abren en orden: cada uno se apoya en el anterior.
-      abierto: indice === 0 || progreso.superado(anterior.id),
+      // Los retos se abren en orden: cada uno se apoya en el anterior. La regla
+      // vive en el almacén porque hay tres sitios que la preguntan.
+      abierto: progreso.retoDisponible(reto.id),
     }
   }),
 )
