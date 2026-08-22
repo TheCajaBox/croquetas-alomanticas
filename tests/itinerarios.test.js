@@ -1,6 +1,11 @@
 import { describe, expect, it } from 'vitest'
 
-import { ITINERARIOS, ITINERARIOS_POR_ID, ITINERARIO_POR_DEFECTO } from '../src/contenido/itinerarios.js'
+import {
+  ITINERARIOS,
+  ITINERARIOS_POR_ID,
+  ITINERARIO_POR_DEFECTO,
+  quienRepasa,
+} from '../src/contenido/itinerarios.js'
 import { existePersonaje, nombreDe } from '../src/contenido/personajes.js'
 import { MUNDOS, mundosDelItinerario } from '../src/contenido/mundos.js'
 import { cargarApunte } from '../src/contenido/apuntes/index.js'
@@ -152,6 +157,36 @@ describe('quien recibe en un mundo tiene algo que decir', () => {
         `${cada.reparto.interrumpe} interrumpe en ${cada.id} y no sabe presentarse`,
       ).toBeTruthy()
     }
+  })
+})
+
+describe('quién pregunta en el repaso de cada mundo', () => {
+  it('sale del repaso si lo dice, y del reparto si no', async () => {
+    // Estaba resuelto en tres sitios y de dos maneras, así que la tarjeta del
+    // mundo anunciaba a Marasi también donde pregunta otro. Ahora hay una regla.
+    const { REPASOS_POR_MUNDO } = await import('../src/contenido/repasos.js')
+
+    const mal = []
+    for (const mundo of MUNDOS) {
+      const repaso = REPASOS_POR_MUNDO[mundo.id]
+      if (!repaso) continue
+      const quien = quienRepasa(repaso, mundo)
+      const esperado = repaso.quien ?? ITINERARIOS_POR_ID[mundo.itinerario].reparto.revisa
+      if (quien !== esperado) mal.push(`${mundo.id}: ${quien} ≠ ${esperado}`)
+      if (!existePersonaje(quien)) mal.push(`${mundo.id}: «${quien}» no está en el elenco`)
+    }
+    expect(mal).toEqual([])
+  })
+
+  it('en la primera era pregunta Brisa y en la segunda Marasi', async () => {
+    const { REPASOS_POR_MUNDO } = await import('../src/contenido/repasos.js')
+    const de = (mundoId) => quienRepasa(REPASOS_POR_MUNDO[mundoId], MUNDOS.find((m) => m.id === mundoId))
+
+    expect(de('ceniza')).toBe('brisa')
+    expect(de('tripulacion')).toBe('brisa')
+    // Y los de la segunda era, que no lo declaran, salen del reparto.
+    expect(de('primer-dia')).toBe('marasi')
+    expect(de('es6')).toBe('marasi')
   })
 })
 

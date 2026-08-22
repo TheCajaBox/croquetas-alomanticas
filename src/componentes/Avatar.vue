@@ -5,6 +5,7 @@ import { PERSONAJES } from '../contenido/personajes.js'
 
 import armonia from '../recursos/armonia-avatar.webp'
 import brisa from '../recursos/brisa-avatar.webp'
+import kelsier from '../recursos/kelsier-avatar.webp'
 import wayne from '../recursos/wayne-avatar.webp'
 import marasi from '../recursos/marasi-avatar.webp'
 import melaan from '../recursos/melaan-avatar.webp'
@@ -17,7 +18,8 @@ import wax from '../recursos/wax-avatar.webp'
  * Son las ilustraciones de los personajes, recortadas del fondo y compuestas
  * sobre un disco con los colores que cada uno tiene en la interfaz: el cobre de
  * Wayne, el azul acero de Wax, el lavanda de Steris, el granate de Marasi, el
- * jade de MeLaan y el ciruela de Brisa. Sobre un disco y no recortadas a pelo,
+ * jade de MeLaan, el ciruela de Brisa y el acero de Kelsier. Sobre un disco y no
+ * recortadas a pelo,
  * porque una cabeza sin fondo dentro de un círculo se lee como una cabeza
  * flotando y no como un avatar.
  *
@@ -36,7 +38,7 @@ import wax from '../recursos/wax-avatar.webp'
  * Se importan como módulos para que Vite les ponga su hash y su ruta base;
  * escritas a mano, esas rutas se romperían al publicar en GitHub Pages.
  */
-const CARAS = { wayne, wax, steris, marasi, melaan, armonia, brisa }
+const CARAS = { wayne, wax, steris, marasi, melaan, armonia, brisa, kelsier }
 
 /**
  * Los que tienen ilustración. El resto -los que aún no la tienen- salen con

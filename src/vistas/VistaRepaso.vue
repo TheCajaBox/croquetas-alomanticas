@@ -5,6 +5,8 @@ import { useRouter } from 'vue-router'
 import Avatar from '../componentes/Avatar.vue'
 import Marcado from '../componentes/Marcado.vue'
 import { MUNDOS_POR_ID } from '../contenido/mundos.js'
+import { quienRepasa } from '../contenido/itinerarios.js'
+import { nombreDe } from '../contenido/personajes.js'
 import { REPASOS_POR_MUNDO } from '../contenido/repasos.js'
 import { usarNarrador } from '../almacen/narrador.js'
 import { usarProgreso } from '../almacen/progreso.js'
@@ -35,12 +37,13 @@ const contestada = computed(() => elegida.value !== null)
 const esLaUltima = computed(() => actual.value === repaso.preguntas.length - 1)
 
 /**
- * Quién lleva el repaso. En la segunda era es Marasi; en la primera, Brisa. Lo
- * dice el propio repaso, porque el papel es el mismo pero la voz no.
+ * Quién lleva el repaso. El papel es el mismo y la voz no: en la segunda era
+ * pregunta Marasi y en la primera, Brisa. La regla vive en `quienRepasa` porque
+ * la tarjeta del mundo necesita la misma, y el nombre sale del elenco: había
+ * aquí una tabla de dos nombres que llamaba «Marasi» a cualquier tercero.
  */
-const quien = repaso?.quien ?? 'marasi'
-const NOMBRES = { marasi: 'Marasi', brisa: 'Brisa' }
-const comoSeLlama = NOMBRES[quien] ?? 'Marasi'
+const quien = quienRepasa(repaso, mundo)
+const comoSeLlama = nombreDe(quien)
 
 // Solo abre el caso si el caso se abre: si esto redirige, se calla.
 // Cuántas son se cuenta, no se escribe: un repaso de nueve preguntas anunciado

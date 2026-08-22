@@ -145,6 +145,23 @@ export const ITINERARIO_POR_DEFECTO = ITINERARIOS[0].id
  * tenía escrito «Wayne» a mano y La Ceniza -que es de Brisa y de Fantasma-
  * sonaba a la segunda era.
  */
+/**
+ * Quién lleva el repaso de un mundo.
+ *
+ * Lo dice el propio repaso cuando lo declara, y si no, quien revise en ese
+ * itinerario (`reparto.revisa`). Nueve de los once repasos no declaran nada
+ * porque son de la segunda era y allí revisa Marasi siempre; declararlo once
+ * veces sería repetir el reparto a mano.
+ *
+ * Estaba resuelto en tres sitios y de dos maneras distintas -«marasi» escrito
+ * en la tarjeta del mundo, un `?? 'marasi'` en la vista del repaso y una tabla
+ * de dos nombres al lado-, así que la tarjeta anunciaba a Marasi en mundos donde
+ * pregunta otro. Una regla y un solo sitio.
+ */
+export function quienRepasa(repaso, mundo) {
+  return repaso?.quien ?? repartoDelMundo(mundo).revisa
+}
+
 export function repartoDelMundo(mundo) {
   const itinerario = ITINERARIOS_POR_ID[mundo?.itinerario]
   return itinerario?.reparto ?? ITINERARIOS_POR_ID[ITINERARIO_POR_DEFECTO].reparto

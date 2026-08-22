@@ -4,9 +4,10 @@ import SombreroEscondido from '../componentes/SombreroEscondido.vue'
 import { useRouter } from 'vue-router'
 
 import { MUNDOS_POR_ID } from '../contenido/mundos.js'
-import { repartoDelMundo } from '../contenido/itinerarios.js'
+import { quienRepasa, repartoDelMundo } from '../contenido/itinerarios.js'
 import { retosDelMundo } from '../contenido/retos/index.js'
 import Avatar from '../componentes/Avatar.vue'
+import { nombreDe } from '../contenido/personajes.js'
 import { REPASOS_POR_MUNDO } from '../contenido/repasos.js'
 import { etiquetaDelTipo } from '../contenido/retos/tipos.js'
 import { usarNarrador } from '../almacen/narrador.js'
@@ -25,6 +26,8 @@ const repaso = computed(() =>
 )
 
 const mundo = computed(() => MUNDOS_POR_ID[props.mundoId])
+/** Quién pregunta en este mundo: lo decide el repaso o el reparto, no la plantilla. */
+const examinador = computed(() => quienRepasa(repaso.value, mundo.value))
 // La voz del itinerario al que pertenece este mundo.
 narrador.ponerNarrador(repartoDelMundo(mundo.value)?.narra)
 
@@ -62,11 +65,14 @@ if (!mundo.value || !progreso.mundoDisponible(props.mundoId)) router.replace('/'
     </section>
 
     <RouterLink v-if="repaso" :to="{ name: 'repaso', params: { mundoId } }" class="panel caso">
-      <Avatar quien="marasi" :tamano="48" />
+      <!-- Estaba escrito «marasi» a mano, así que la tarjeta anunciaba su cara
+           y su nombre también donde pregunta otro. Ver `quienRepasa`. -->
+      <Avatar :quien="examinador" :tamano="48" />
       <div>
         <p class="titulo-caso">{{ repaso.titulo }}</p>
         <p class="tenue">
-          Marasi repasa lo de este mundo con {{ repaso.preguntas.length }} preguntas.
+          {{ nombreDe(examinador) }} repasa lo de este mundo con
+          {{ repaso.preguntas.length }} preguntas.
           <template v-if="repasos.hecho(repaso.id)">
             Tu mejor marca: {{ repasos.mejor(repaso.id) }} de {{ repaso.preguntas.length }}.
           </template>

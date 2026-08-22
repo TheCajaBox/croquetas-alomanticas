@@ -195,6 +195,40 @@ test('la portada de un itinerario presenta sus mundos, y solo los suyos', async 
   }
 })
 
+test('quien repasa un mundo es el suyo, no siempre Marasi', async ({ page }) => {
+  // La tarjeta del repaso llevaba «marasi» escrito a mano, cara y nombre, así
+  // que en los mundos de la primera era anunciaba a alguien que no está allí.
+  // La tarjeta solo sale con el mundo terminado, así que se siembran los dos.
+  const todos = await todosLosRetos()
+  await page.addInitScript((ids) => {
+    const retos = {}
+    for (const id of ids) {
+      retos[id] = {
+        superado: true, intentos: 1, fallos: 0, pistasUsadas: [],
+        codigoGuardado: null, superadoEn: Date.now(), variantesHechas: [],
+      }
+    }
+    localStorage.setItem('gatosYCodigo', JSON.stringify({
+      version: 1,
+      progreso: { retos, vistoLaBienvenida: true, ultimaVisita: Date.now() },
+    }))
+  }, [...todos['primer-dia'], ...todos.ceniza])
+  await page.goto('#/')
+  await page.reload()
+
+  await page.goto('#/mundo/primer-dia')
+  // La segunda era no lo declara en el repaso: sale del reparto, que dice Marasi.
+  await expect(page.locator('.caso')).toContainText('Marasi repasa')
+
+  await page.goto('#/mundo/ceniza')
+  const suya = page.locator('.caso')
+  await expect(suya).toContainText('Brisa repasa')
+  await expect(suya).not.toContainText('Marasi')
+  // Y con su cara: Brisa tiene ilustración, así que es una imagen y no la
+  // inicial dibujada.
+  await expect(suya.locator('img.avatar')).toBeVisible()
+})
+
 test('cada camino presenta a quien lo narra, con su ilustración si la tiene', async ({ page }) => {
   // El retrato grande estaba escrito a mano para Wayne, así que la primera era
   // salía con el disco pequeño de Brisa aunque tuviera ilustración. Ahora lo
