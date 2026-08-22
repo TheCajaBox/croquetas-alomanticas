@@ -66,8 +66,11 @@ async function ejecutarSolucion(reto) {
   }
 }
 
+// Por los entornos de Vue y no por «todo lo que no sea worker»: en cuanto
+// apareció un entorno nuevo -PHP-, este fichero se puso a ejecutar retos de PHP
+// en un sandbox de JavaScript y a decir que su sintaxis estaba mal.
 const retosDeVue = RETOS.filter(
-  (reto) => reto.entorno !== 'worker' && !SIN_CODIGO.includes(reto.tipo),
+  (reto) => ['vue2', 'vue3'].includes(reto.entorno) && !SIN_CODIGO.includes(reto.tipo),
 )
 
 describe('las soluciones de referencia de los mundos de Vue resuelven sus retos', () => {

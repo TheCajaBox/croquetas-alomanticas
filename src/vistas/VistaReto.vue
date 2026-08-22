@@ -30,6 +30,8 @@ import {
 import { analizar } from '../motor/guardaBucles.js'
 import { comprobarRequisitos } from '../motor/chequeosEstaticos.js'
 import { crearPuente } from '../motor/ejecutor.js'
+import { repartoDelMundo } from '../contenido/itinerarios.js'
+import { ENTORNOS } from '../motor/protocolo.js'
 import { usarArmonia } from '../almacen/armonia.js'
 import { usarGatos } from '../almacen/gatos.js'
 import { usarJuego } from '../almacen/juego.js'
@@ -56,6 +58,10 @@ else if (!progreso.retoDisponible(reto.id)) {
 }
 
 const mundo = computed(() => MUNDOS_POR_ID[reto?.mundo])
+
+// Quien narra aquí es de este itinerario: Wayne en la segunda era, Brisa en la
+// primera. Se pone antes de que nadie diga nada.
+narrador.ponerNarrador(repartoDelMundo(mundo.value)?.narra)
 const siguiente = computed(() => (reto ? retoSiguiente(reto) : null))
 // Si el tipo no está declarado, se para aquí. Antes se colaba y salía pintado
 // como un reto de escribir, porque la plantilla acaba en un `v-else` con el
@@ -67,9 +73,15 @@ const esPrediccion = computed(() => reto?.tipo === 'prediccion')
 const seEscribe = computed(() => tipoSeEscribe(reto?.tipo))
 /** Los que se resuelven señalando y colocando: traen su propio botón. */
 const esTactil = computed(() => tipoEsTactil(reto?.tipo))
-/** El componente pintado, solo donde hay algo del jugador que pintar. */
+/**
+ * El componente pintado, solo donde hay algo del jugador que pintar.
+ *
+ * Por el canal del entorno y no por «cualquiera que no sea worker»: en cuanto
+ * apareció PHP -que tampoco pinta nada- salía un panel de «Vista previa» vacío
+ * debajo de cada reto.
+ */
 const muestraVistaPrevia = computed(
-  () => reto?.entorno !== 'worker' && tieneVistaPrevia(reto?.tipo),
+  () => ENTORNOS[reto?.entorno]?.canal === 'iframe' && tieneVistaPrevia(reto?.tipo),
 )
 
 // El puente se crea aquí y se destruye con la vista. La clave por ruta del
@@ -141,6 +153,10 @@ const ficha = computed(() => progreso.ficha(props.retoId))
  */
 const avisosEnVivo = computed(() => {
   if (!gatos.tieneBonus('avisoDeRequisitos') || !reto?.requisitos?.length) return []
+  // Solo en JavaScript: mirar los requisitos mientras escribes necesita un
+  // analizador aquí mismo, y el único que hay es de JavaScript. En PHP los
+  // comprueba el sandbox al ejecutar, así que aquí no hay nada que decir.
+  if (ENTORNOS[reto.entorno]?.lenguaje !== 'js') return []
   if (!codigo.value.trim()) return []
   try {
     return comprobarRequisitos(analizar(codigo.value), reto.requisitos).filter((r) => !r.cumplido)

@@ -1,4 +1,5 @@
-import { ENTORNOS, MENSAJES, rutaDeSandbox } from './protocolo.js'
+import { ENTORNOS, MENSAJES, TIEMPO_LIMITE_ARRANQUE_MS, rutaDeSandbox } from './protocolo.js'
+import { crearWorkerDeModulo } from './workers.js'
 
 /**
  * Canal con el sandbox de los retos de ES6.
@@ -12,11 +13,21 @@ export function crearPuenteWorker(nombreEntorno = 'worker') {
   let trabajador = null
   let listo = null
   let contadorDeId = 0
+  /**
+   * Si este entorno ya ha contestado alguna vez. Solo importa para el primer
+   * envío de los que arrancan un motor entero: ahí el reloj no mide el código
+   * del jugador, mide una descarga.
+   */
+  let yaHaContestado = false
 
   function levantar() {
-    // Worker clásico y no de módulo: así puede cargar con importScripts los
-    // mismos ficheros de public/sandbox/ que usan los runners de Vue.
-    trabajador = new Worker(rutaDeSandbox(entorno.archivo), { type: 'classic' })
+    // Clásico cuando el sandbox es un fichero de public/ -así puede cargar con
+    // importScripts los mismos ficheros que usan los runners de Vue-, y de
+    // módulo cuando lo empaqueta Vite, que es el caso de PHP.
+    trabajador =
+      entorno.canal === 'modulo'
+        ? crearWorkerDeModulo(nombreEntorno)
+        : new Worker(rutaDeSandbox(entorno.archivo), { type: 'classic' })
 
     const actual = trabajador
     listo = new Promise((resolver) => {
@@ -52,16 +63,22 @@ export function crearPuenteWorker(nombreEntorno = 'worker') {
           const datos = evento.data
           if (datos?.tipo !== MENSAJES.RESULTADO || datos.id !== id) return
           dejarDeEscuchar()
+          yaHaContestado = true
           resolver(datos)
         }
 
         actual.addEventListener('message', alRecibir)
 
+        const margen =
+          entorno.arranqueLento && !yaHaContestado
+            ? Math.max(tiempoLimiteMs, TIEMPO_LIMITE_ARRANQUE_MS)
+            : tiempoLimiteMs
+
         temporizador = setTimeout(() => {
           dejarDeEscuchar()
           this.reiniciar()
           resolver({ ok: false, agotado: true, tests: [], consola: [], error: null })
-        }, tiempoLimiteMs)
+        }, margen)
 
         actual.postMessage({ tipo: MENSAJES.EJECUTAR, id, ...peticion })
       })
@@ -71,6 +88,9 @@ export function crearPuenteWorker(nombreEntorno = 'worker') {
       trabajador?.terminate()
       trabajador = null
       listo = null
+      // El motor se ha ido con el worker: el siguiente envío vuelve a tener que
+      // arrancarlo, así que vuelve a merecer el margen largo.
+      yaHaContestado = false
       levantar()
     },
 

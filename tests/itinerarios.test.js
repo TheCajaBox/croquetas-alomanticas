@@ -1,8 +1,7 @@
-import { readFileSync } from 'node:fs'
-
 import { describe, expect, it } from 'vitest'
 
 import { ITINERARIOS, ITINERARIOS_POR_ID, ITINERARIO_POR_DEFECTO } from '../src/contenido/itinerarios.js'
+import { existePersonaje, nombreDe } from '../src/contenido/personajes.js'
 import { MUNDOS, mundosDelItinerario } from '../src/contenido/mundos.js'
 import { LEMAS_POR_NARRADOR } from '../src/contenido/narrador/lineas.js'
 import { SOMBREROS_POR_ID } from '../src/contenido/sombreros.js'
@@ -52,19 +51,26 @@ describe('los itinerarios', () => {
     }
   })
 
-  it('todo el reparto tiene cara, aunque sea la de respaldo', () => {
-    // `Avatar` solo conoce a quien esté en su lista; el que no esté saldría con
-    // la cara de otro, que es peor que no salir.
-    const avatar = readFileSync(new URL('../src/componentes/Avatar.vue', import.meta.url), 'utf8')
-    const quienes = new Set([...avatar.matchAll(/^\s{2}([a-z]+): \{ nombre:/gm)].map((c) => c[1]))
-
+  it('todo el reparto está en el elenco', () => {
+    // El elenco dice quién existe, cómo se llama y de qué color es. Quien no
+    // esté saldría con la cara y el nombre de otro, que es peor que no salir.
     for (const cada of ITINERARIOS) {
       for (const [papel, quien] of Object.entries(cada.reparto)) {
         for (const nombre of [quien].flat()) {
           if (typeof nombre !== 'string') continue
-          expect(quienes.has(nombre), `${cada.id}.${papel} = ${nombre}`).toBe(true)
+          expect(existePersonaje(nombre), `${cada.id}.${papel} = ${nombre}`).toBe(true)
         }
       }
+    }
+  })
+
+  it('cada papel del reparto lo hace alguien con nombre escribible', () => {
+    // El nombre se pinta en pantalla -«Pistas de Fantasma»-, así que no puede
+    // salir vacío ni caer en el de Wayne por descarte.
+    for (const cada of ITINERARIOS) {
+      const quien = cada.reparto.pistas
+      expect(nombreDe(quien), `${cada.id} vende pistas`).toBeTruthy()
+      if (quien !== 'wayne') expect(nombreDe(quien)).not.toBe(nombreDe('wayne'))
     }
   })
 

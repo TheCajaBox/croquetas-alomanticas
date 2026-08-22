@@ -3,7 +3,7 @@ import { readdirSync } from 'node:fs'
 import { expect, test } from '@playwright/test'
 
 import { ITINERARIOS } from '../src/contenido/itinerarios.js'
-import { MUNDOS } from '../src/contenido/mundos.js'
+import { MUNDOS, mundosDelItinerario } from '../src/contenido/mundos.js'
 
 /**
  * Recorrido real por el juego publicado: se resuelve un reto en cada uno de
@@ -180,12 +180,18 @@ test('la entrada ofrece todos los caminos y no salta sola a ninguno', async ({ p
   await expect(page.locator('.camino')).toHaveCount(ITINERARIOS.length)
 })
 
-test('la portada presenta todos los mundos que hay', async ({ page }) => {
+test('la portada de un itinerario presenta sus mundos, y solo los suyos', async ({ page }) => {
   await page.goto('#/itinerario/era2')
+
   // Escritos a mano se quedaban cortos: la prueba decía «los siete mundos»
-  // cuando ya eran nueve, y pasaba igual.
-  for (const mundo of MUNDOS) {
+  // cuando ya eran nueve. Y recorriendo MUNDOS entero se quedó mal por el otro
+  // lado en cuanto hubo mundos de otro itinerario, que aquí no pintan nada.
+  for (const mundo of mundosDelItinerario('era2')) {
     await expect(page.getByRole('heading', { name: mundo.nombre, exact: true })).toBeVisible()
+  }
+
+  for (const mundo of MUNDOS.filter((m) => m.itinerario !== 'era2')) {
+    await expect(page.getByRole('heading', { name: mundo.nombre, exact: true })).toHaveCount(0)
   }
 })
 
@@ -350,6 +356,60 @@ async function sembrarColonia(pagina, ids, { limpieza = 40, felicidad = 88 } = {
     [ids, limpieza, felicidad],
   )
 }
+
+test('un reto de PHP se ejecuta de verdad, con PHP', async ({ page }) => {
+  // El motor son 20 MB de WebAssembly que se piden en diferido, así que este
+  // primer envío tiene margen de sobra: lo que se comprueba es que PHP corre en
+  // el navegador, no lo rápido que va la red de quien pase las pruebas.
+  await irAlReto(page, 'ceniza-01-el-primer-echo')
+  await expect(page.getByRole('heading', { name: 'Lo primero que se dice' })).toBeVisible()
+
+  // Y no sale el panel de vista previa: PHP no pinta nada.
+  await expect(page.locator('.marco-sandbox')).toHaveCount(0)
+  // Las pistas las vende Fantasma en este itinerario, no Wayne.
+  await expect(page.getByRole('heading', { name: /Pistas de Fantasma/ })).toBeVisible()
+
+  await escribirCodigo(page, "<?php\n\necho 'Los Pozos de Hathsin' . PHP_EOL;\necho 'Trece cuadrillas' . PHP_EOL;")
+  await page.getByRole('button', { name: 'Ejecutar', exact: true }).click()
+  await expect(page.getByText('Reto superado.')).toBeVisible({ timeout: 120_000 })
+})
+
+test('en PHP, la sintaxis rota la explica PHP y los requisitos se miran por tokens', async ({ page }) => {
+  await irAlReto(page, 'ceniza-03-la-cuadrilla')
+
+  // 1. Lo que no es PHP todavía: el mensaje viene del propio motor.
+  await escribirCodigo(page, '<?php function mal( { }')
+  await page.getByRole('button', { name: 'Ejecutar', exact: true }).click()
+  await expect(page.locator('.resultados')).toContainText('syntax error', { timeout: 120_000 })
+
+  // 2. Funciona, pero se salta la regla del reto. Lo caza `token_get_all` dentro
+  // del sandbox, que es el único que sabe distinguir una llamada de una palabra
+  // dentro de un comentario.
+  await escribirCodigo(
+    page,
+    '<?php\nfunction cuantos(array $g): int { return count($g); }\nfunction sumar(array $n): int { return array_sum($n); }',
+  )
+  await page.getByRole('button', { name: 'Ejecutar', exact: true }).click()
+  await expect(page.locator('.resultados')).toContainText('array_sum')
+  await expect(page.locator('.resultados')).not.toContainText('Reto superado')
+})
+
+test('el motor de PHP no se descarga jugando en la segunda era', async ({ page }) => {
+  // 20 MB que solo debe pagar quien entre en la primera era. Si algún día un
+  // import se cuela en el paquete principal, esto lo caza.
+  const pedidos = []
+  page.on('request', (peticion) => {
+    if (/php_8_5|\.wasm/.test(peticion.url())) pedidos.push(peticion.url().split('/').pop())
+  })
+
+  await page.goto('#/itinerario/era2')
+  await irAlReto(page, 'dia1-01-variables')
+  await page.locator('.opcion').first().click()
+  await page.getByRole('button', { name: 'Responder' }).click()
+  await expect(page.getByText('Reto superado.')).toBeVisible()
+
+  expect(pedidos).toEqual([])
+})
 
 test('la colonia es una casa con jardín y los gatos se mueven por ella', async ({ page }) => {
   await sembrarColonia(page, ['acero', 'hierro', 'peltre'])

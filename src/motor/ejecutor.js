@@ -1,8 +1,8 @@
-import { analizar, ErrorDeSintaxis, inyectarGuardaDeBucles, MARCA_BUCLE_INFINITO } from './guardaBucles.js'
-import { comprobarRequisitos } from './chequeosEstaticos.js'
+import { MARCA_BUCLE_INFINITO } from './guardaBucles.js'
+import { frenteDe } from './lenguajes/index.js'
 import { crearPuenteIframe } from './puenteIframe.js'
 import { crearPuenteWorker } from './puenteWorker.js'
-import { TIEMPO_LIMITE_MS } from './protocolo.js'
+import { ENTORNOS, TIEMPO_LIMITE_MS } from './protocolo.js'
 
 /** Fases por las que pasa un envío. La primera que falla es la que se muestra. */
 export const FASES = {
@@ -14,7 +14,12 @@ export const FASES = {
 }
 
 export function crearPuente(entorno) {
-  return entorno === 'worker' ? crearPuenteWorker(entorno) : crearPuenteIframe(entorno)
+  // Por el canal declarado y no por el nombre: con dos entornos que hablan por
+  // worker -JavaScript y PHP- comparar contra la cadena 'worker' mandaba PHP al
+  // iframe, que no tiene dónde montar nada.
+  const canal = ENTORNOS[entorno]?.canal
+  if (!canal) throw new Error(`Entorno desconocido: "${entorno}".`)
+  return canal === 'iframe' ? crearPuenteIframe(entorno) : crearPuenteWorker(entorno)
 }
 
 function respuestaVacia(extra) {
@@ -35,29 +40,32 @@ export async function evaluarEnvio({ reto, codigo, puente, tiempoLimiteMs = TIEM
   const arranque = performance.now()
   const cerrar = (extra) => respuestaVacia({ ...extra, tiempoMs: Math.round(performance.now() - arranque) })
 
-  // 1. ¿Se entiende siquiera lo que has escrito?
-  let ast
-  try {
-    ast = analizar(codigo)
-  } catch (error) {
-    if (!(error instanceof ErrorDeSintaxis)) throw error
-    return cerrar({
-      fase: FASES.SINTAXIS,
-      error: { mensaje: error.message, linea: error.linea, columna: error.columna },
-    })
+  // 1 y 2. ¿Se entiende, y respeta las reglas del reto? Cada lenguaje lo mira a
+  // su manera: JavaScript aquí mismo con su analizador, PHP dentro del sandbox
+  // porque quien sabe de PHP es PHP. Ver `motor/lenguajes/`.
+  const frente = frenteDe(reto.entorno)
+  const revision = frente.revisar(codigo, reto)
+
+  if (revision.error) {
+    return cerrar({ fase: FASES.SINTAXIS, error: revision.error })
   }
 
-  // 2. ¿Respeta las reglas del reto?
-  const requisitos = comprobarRequisitos(ast, reto.requisitos)
-  if (requisitos.some((r) => !r.cumplido)) {
-    return cerrar({ fase: FASES.REQUISITOS, requisitos })
+  if (revision.requisitos?.some((r) => !r.cumplido)) {
+    return cerrar({ fase: FASES.REQUISITOS, requisitos: revision.requisitos })
   }
 
-  // 3. A ejecutarlo, con contador de vueltas por si acaso.
+  // 3. A ejecutarlo. Los requisitos van también al sandbox: los lenguajes que no
+  // se pueden revisar desde aquí los comprueban allí y los devuelven.
   const respuesta = await puente.ejecutar(
-    { codigo: inyectarGuardaDeBucles(codigo, ast), tests: reto.tests ?? [] },
+    {
+      codigo: revision.codigo,
+      tests: reto.tests ?? [],
+      requisitos: revision.requisitos === null ? (reto.requisitos ?? []) : [],
+    },
     tiempoLimiteMs,
   )
+
+  const requisitos = revision.requisitos ?? respuesta.requisitos ?? []
 
   if (respuesta.agotado) {
     return cerrar({
@@ -65,6 +73,17 @@ export async function evaluarEnvio({ reto, codigo, puente, tiempoLimiteMs = TIEM
       requisitos,
       error: { mensaje: `Tu código lleva más de ${tiempoLimiteMs / 1000} segundos sin contestar.`, agotado: true },
     })
+  }
+
+  // Lo que el sandbox haya visto: la sintaxis y las reglas que aquí no se podían
+  // mirar. El orden se mantiene -primero si se entiende, luego si vale- para que
+  // el jugador lea siempre lo mismo, venga de donde venga.
+  if (respuesta.error?.sintaxis) {
+    return cerrar({ fase: FASES.SINTAXIS, requisitos: [], error: respuesta.error })
+  }
+
+  if (requisitos.some((r) => !r.cumplido)) {
+    return cerrar({ fase: FASES.REQUISITOS, requisitos, consola: respuesta.consola ?? [] })
   }
 
   if (respuesta.error) {

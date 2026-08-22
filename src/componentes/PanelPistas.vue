@@ -9,6 +9,9 @@ import { usarGatos } from '../almacen/gatos.js'
 import { usarJuego } from '../almacen/juego.js'
 import { usarProgreso } from '../almacen/progreso.js'
 import { TRASTOS_POR_ID } from '../contenido/trastos.js'
+import { MUNDOS_POR_ID } from '../contenido/mundos.js'
+import { repartoDelMundo } from '../contenido/itinerarios.js'
+import { nombreDe } from '../contenido/personajes.js'
 
 const props = defineProps({ reto: { type: Object, required: true } })
 
@@ -16,6 +19,13 @@ const juego = usarJuego()
 const progreso = usarProgreso()
 const economia = usarEconomia()
 const gatos = usarGatos()
+
+/**
+ * Quién vende las pistas aquí. En la segunda era es Wayne; en la primera,
+ * Fantasma. Estaba escrito a mano y La Ceniza salía con «Pistas de Wayne».
+ */
+const vendedor = computed(() => repartoDelMundo(MUNDOS_POR_ID[props.reto.mundo]).pistas)
+const comoSeLlama = computed(() => nombreDe(vendedor.value))
 
 const ultimoTrasto = ref(null)
 const aviso = ref('')
@@ -64,9 +74,9 @@ function pedir(nivel) {
     <SombreroEscondido id="pistas" :posicion="{ bottom: '12px', right: '14px' }" :tamano="17" />
     <div class="cabecera">
       <!-- Que se vea quién cobra. -->
-      <Avatar class="vendedor" quien="wayne" :tamano="46" />
+      <Avatar class="vendedor" :quien="vendedor" :tamano="46" />
       <div class="titulo-pistas">
-        <h3>Pistas de Wayne</h3>
+        <h3>Pistas de {{ comoSeLlama }}</h3>
         <span class="tenue coletilla">{{ esJefe ? 'hoy tiene el puesto cerrado' : 'la primera invita la casa' }}</span>
       </div>
       <span v-if="!esJefe" class="tenue saldo">{{ economia.croquetas }} croquetas</span>

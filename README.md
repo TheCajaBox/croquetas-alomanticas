@@ -252,6 +252,49 @@ intercambia.
 Hay pruebas que vigilan que ningún saco de frases se quede con una sola, que los que más
 salen tengan de sobra y que no haya dos frases repetidas en todo el juego.
 
+## Cómo se ejecuta el código
+
+Cada itinerario declara con qué se ejecuta lo que escribe el jugador, y el motor tiene un
+**frente por lenguaje** (`src/motor/lenguajes/`) que decide qué se mira antes de ejecutar:
+
+| | JavaScript | PHP |
+|---|---|---|
+| ¿Se entiende? | acorn, aquí mismo | el `ParseError` de PHP al incluir el fichero |
+| ¿Cumple las reglas del reto? | el árbol de acorn | `token_get_all()` dentro del sandbox |
+| Bucle sin salida | contador inyectado | se mata el worker, que ya se hacía |
+| Tests | `public/sandbox/aserciones.js` | `sandbox-php/aserciones.php`, mismas palabras |
+
+Antes esto no existía y `evaluarEnvio` daba por hecho que todo era JavaScript: el primer reto
+de PHP contestaba «tu código no se puede ni leer» señalando la línea 1. Un entorno cuyo
+lenguaje no tenga frente **falla al arrancar** en vez de caer en el de JavaScript por descarte.
+
+### PHP en el navegador, sin servidor
+
+PHP 8.5 compilado a WebAssembly (`@php-wasm/web`, el runtime de WordPress Playground) dentro
+de un Web Worker. No hay backend: el código del jugador se ejecuta **en su propio navegador**,
+igual que el de JavaScript, y no sale a ninguna parte.
+
+Lo que costó, medido y no supuesto:
+
+- **`loadWebRuntime` arrastra las ocho versiones de PHP** (5.2 a 8.5) con un `switch` de
+  importaciones dinámicas: unos 140 MB de wasm en `dist/`. Se recorta a la 8.5 con un alias, y
+  las otras siete van a un módulo que avisa si alguien las pide.
+- De las dos variantes de la 8.5 se lleva **solo asyncify**, que funciona en todos los
+  navegadores: cargar también jspi serían 40 MB en vez de 20.
+- Vite intentaba **instanciar** el `.wasm` en vez de darle una URL. Declarándolo recurso
+  (`assetsInclude`) funciona sin plugins.
+- `icu.dat`, 29 MB de datos de internacionalización que el juego no usa, salían en `dist/`
+  pesando más que PHP. Un plugin de diez líneas los sustituye por un fichero vacío.
+- El worker se empaqueta **en una pasada aparte y con sus propios plugins**. Los de arriba no
+  llegan: sin dárselos también a `worker.plugins`, los 29 MB seguían saliendo.
+
+Resultado: `dist/` son **24 MB**, de los que 20 son el binario de PHP **pedido en diferido** —
+solo lo descarga quien entra en la primera era— y el paquete principal se queda en los 0,65 MB
+de siempre. El worker empieza a descargar en cuanto se abre el reto, así que cuando el jugador
+pulsa Ejecutar suele estar listo: 0,9 s el primer envío y 1,6 s los siguientes, medidos en el
+navegador. Y el primer envío tiene un margen de 60 s en vez de 3, porque ahí el reloj no mide
+el código de nadie: mide una descarga.
+
 ## Cuatro caminos
 
 El juego tiene **itinerarios**: caminos de aprendizaje completos, cada uno con su materia, su

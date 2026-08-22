@@ -1,5 +1,10 @@
 /**
- * Los repasos de Marasi.
+ * Los repasos.
+ *
+ * Los de la segunda era los lleva Marasi; los de la primera, Brisa. Cada repaso
+ * dice quién lo abre en `quien`, y la vista lo lee: el papel es el mismo pero la
+ * voz no, y con el nombre escrito en la vista salía Marasi en un mundo donde no
+ * ha estado nunca.
  *
  * Resolver un reto y no volver a ver ese concepto nunca es la forma más rápida
  * de olvidarlo. Al terminar un mundo, Marasi abre el caso y repasa lo que se ha
@@ -1087,6 +1092,127 @@ export const REPASOS = [
           {
             texto: "Pintarlo en otro sitio del documento.",
             porque: "Eso es `<Teleport>`, que sirve para que un diálogo no lo recorte un `overflow: hidden`.",
+          },
+        ],
+      },
+    ],
+  },
+
+  // ------------------------------------------------------------------------
+  // La primera era. Aquí el caso lo abre Brisa, que hace el mismo papel que
+  // Marasi con la mitad de su rigor y el doble de sus palabras.
+  // ------------------------------------------------------------------------
+  {
+    id: "repaso-ceniza",
+    mundo: "ceniza",
+    quien: "brisa",
+    titulo: "Seis preguntas sobre lo primero",
+    preguntas: [
+      {
+        pregunta: "¿Para qué sirve `<?php` al principio de un fichero?",
+        opciones: [
+          {
+            texto: "Para decirle a PHP dónde empieza el código; lo de antes es texto normal.",
+            correcta: true,
+            porque: "Un fichero de PHP puede llevar texto suelto y código en medio. La etiqueta marca la frontera.",
+          },
+          {
+            texto: "Para declarar la versión de PHP que se va a usar.",
+            porque: "La versión la decide el servidor, no el fichero. La etiqueta solo abre el código.",
+          },
+          {
+            texto: "Es opcional: PHP entiende el código igual sin ella.",
+            porque: "Sin la etiqueta, PHP lo trata todo como texto y lo imprime tal cual, código incluido.",
+          },
+        ],
+      },
+      {
+        pregunta: '¿Qué imprime `echo \'Van $cuantos\';` si `$cuantos` vale 3?',
+        opciones: [
+          {
+            texto: "`Van $cuantos`, literal.",
+            correcta: true,
+            porque: "Con comillas simples PHP no mira dentro: sale tal cual, con el dólar y el nombre.",
+          },
+          {
+            texto: "`Van 3`.",
+            porque: "Eso sería con comillas dobles. Es la diferencia que más se confunde el primer día.",
+          },
+          {
+            texto: "Da un error, porque las variables no van dentro de un texto.",
+            porque: "Sí van, pero solo se sustituyen entre comillas dobles. Entre simples no hay error: hay literalidad.",
+          },
+        ],
+      },
+      {
+        pregunta: "¿Cómo se pegan dos textos en PHP?",
+        opciones: [
+          {
+            texto: "Con un punto: `'a' . 'b'`.",
+            correcta: true,
+            porque: "El punto concatena. Es una de las cosas que más despista viniendo de otros lenguajes.",
+          },
+          {
+            texto: "Con un `+`, como en la mayoría de los lenguajes.",
+            porque: "En PHP el `+` es aritmética. Con dos textos que no sean números, da error de tipos.",
+          },
+          {
+            texto: "Con una coma: `'a', 'b'`.",
+            porque: "La coma separa argumentos. En un `echo` funciona por casualidad, pero no está concatenando nada.",
+          },
+        ],
+      },
+      {
+        pregunta: "¿Qué devuelve `count(['Kelsier', 'Brisa'])`?",
+        opciones: [
+          {
+            texto: "2, que es cuántos elementos hay.",
+            correcta: true,
+            porque: "`count` cuenta elementos. No es la última posición: esa sería 1, porque se empieza en cero.",
+          },
+          {
+            texto: "1, que es la última posición.",
+            porque: "Ese es el índice del último, y son dos cosas distintas. Confundirlas es el error clásico del bucle.",
+          },
+          {
+            texto: "El número de letras de todo junto.",
+            porque: "Eso sería `strlen` sobre un texto. `count` es para listas.",
+          },
+        ],
+      },
+      {
+        pregunta: "En un `foreach` que suma, ¿dónde va `$total = 0;`?",
+        opciones: [
+          {
+            texto: "Antes del bucle, fuera.",
+            correcta: true,
+            porque: "El acumulador tiene que sobrevivir a las vueltas. Dentro, cada vuelta lo pone a cero otra vez.",
+          },
+          {
+            texto: "Dentro del bucle, en la primera línea.",
+            porque: "Entonces al final vale lo que valiera el último elemento, y encima parece que funciona con listas de uno.",
+          },
+          {
+            texto: "Da igual: PHP lo entiende de las dos maneras.",
+            porque: "Lo entiende de las dos, y hace dos cosas distintas. Que no dé error es justo lo que lo hace peligroso.",
+          },
+        ],
+      },
+      {
+        pregunta: "Una función declarada `: string` hace `echo` en vez de `return`. ¿Qué pasa?",
+        opciones: [
+          {
+            texto: "Imprime y devuelve null, así que revienta al llamarla esperando texto.",
+            correcta: true,
+            porque: "`echo` saca por pantalla; `return` entrega. Quien la llame no recibe nada, y el tipo declarado lo delata.",
+          },
+          {
+            texto: "Funciona: imprimir y devolver son lo mismo.",
+            porque: "Son cosas distintas. Es de los primeros errores de verdad que se cometen, y de los más útiles de entender.",
+          },
+          {
+            texto: "Devuelve lo impreso, porque PHP lo recoge solo.",
+            porque: "No lo recoge nadie salvo que se le pida expresamente, con búfer de salida. Por defecto se va a la pantalla.",
           },
         ],
       },

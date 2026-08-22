@@ -3,6 +3,9 @@ import { defineStore } from 'pinia'
 import {
   EVENTOS_IMPORTANTES,
   LINEAS,
+  LINEAS_DE_BRISA,
+  LINEAS_DE_BRISA_NARRANDO,
+  LINEAS_DE_FANTASMA,
   LINEAS_DE_ARMONIA,
   LINEAS_DE_MARASI,
   LINEAS_DE_MELAAN,
@@ -24,6 +27,10 @@ const SACOS = {
   steris: LINEAS_DE_STERIS,
   marasi: LINEAS_DE_MARASI,
   melaan: LINEAS_DE_MELAAN,
+  // Brisa hace dos papeles en la primera era: narra y abre los repasos. Los
+  // dos sacos se juntan aquí porque es la misma voz, no dos personas.
+  brisa: { ...LINEAS_DE_BRISA, ...LINEAS_DE_BRISA_NARRANDO },
+  fantasma: LINEAS_DE_FANTASMA,
 }
 
 export const PERSONAJES = {
@@ -50,6 +57,15 @@ export const usarNarrador = defineStore('narrador', {
     waxSePresento: false,
     /** Y quien presenta un mundo, igual: la segunda vez ya te conoce. */
     presentados: [],
+    /**
+     * Quién narra ahora mismo.
+     *
+     * No se guarda en la partida -es de dónde estás, no de lo que llevas
+     * hecho-, y por eso vive aquí y se pone al abrir un mundo o un reto. Antes
+     * todas las llamadas a `decir` daban por hecho que era Wayne, y en un mundo
+     * de la primera era Wayne no ha estado nunca.
+     */
+    quienNarra: 'wayne',
   }),
 
   getters: {
@@ -68,6 +84,11 @@ export const usarNarrador = defineStore('narrador', {
   },
 
   actions: {
+    /** Lo pone la vista al abrir un mundo o un reto, según el reparto. */
+    ponerNarrador(quien) {
+      this.quienNarra = quien ?? 'wayne'
+    },
+
     /**
      * Saca una frase del saco del evento evitando las últimas dichas. Si todas
      * están vistas se olvida del historial y vuelve a empezar: mejor repetirse
@@ -93,18 +114,23 @@ export const usarNarrador = defineStore('narrador', {
      * @param {object} contexto datos para las frases que se rellenan
      * @param {{nivel?: number, forzar?: boolean, personaje?: 'wayne'|'wax'}} opciones
      */
-    decir(evento, contexto = {}, { nivel, forzar = false, personaje = 'wayne' } = {}) {
-      if (!forzar && !this.leTocaHablar(evento, personaje)) return null
+    decir(evento, contexto = {}, { nivel, forzar = false, personaje = null } = {}) {
+      const quien = personaje ?? this.quienNarra
+      if (!forzar && !this.leTocaHablar(evento, quien)) return null
 
-      const sacos = SACOS[personaje] ?? LINEAS
+      // Sin saco propio, callado. Antes se caía en el de Wayne por descarte, y
+      // eso hacía que en un mundo de la primera era hablara Wayne -que no ha
+      // estado allí nunca- con frases de otro itinerario. Mejor no decir nada.
+      const sacos = SACOS[quien]
+      if (!sacos) return null
       const saco = nivel != null ? sacos[evento]?.[nivel] : sacos[evento]
       if (!Array.isArray(saco) || saco.length === 0) return null
 
-      const clave = `${personaje}:${nivel != null ? `${evento}:${nivel}` : evento}`
+      const clave = `${quien}:${nivel != null ? `${evento}:${nivel}` : evento}`
       const linea = saco[this.elegirIndice(clave, saco.length)]
       const texto = typeof linea === 'function' ? linea(contexto) : linea
 
-      this.mensaje = { texto, evento, personaje, cuando: Date.now() }
+      this.mensaje = { texto, evento, personaje: quien, cuando: Date.now() }
       return texto
     },
 
@@ -170,5 +196,8 @@ export const usarNarrador = defineStore('narrador', {
 })
 
 export function engancharNarrador(almacen) {
-  autoguardar(almacen, 'narrador')
+  // `mensaje` y `quienNarra` no son partida: son dónde estás ahora mismo.
+  // Guardarlos haría que al volver te recibiera la voz del último mundo que
+  // visitaste, diciendo lo último que dijo.
+  autoguardar(almacen, 'narrador', { omitir: ['mensaje', 'quienNarra'] })
 }

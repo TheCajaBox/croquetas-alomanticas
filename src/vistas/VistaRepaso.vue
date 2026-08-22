@@ -34,8 +34,16 @@ const pregunta = computed(() => repaso?.preguntas[actual.value])
 const contestada = computed(() => elegida.value !== null)
 const esLaUltima = computed(() => actual.value === repaso.preguntas.length - 1)
 
-// Marasi solo abre el caso si el caso se abre: si esto redirige, se calla.
-if (abierto) narrador.decir('abreCaso', {}, { personaje: 'marasi', forzar: true })
+/**
+ * Quién lleva el repaso. En la segunda era es Marasi; en la primera, Brisa. Lo
+ * dice el propio repaso, porque el papel es el mismo pero la voz no.
+ */
+const quien = repaso?.quien ?? 'marasi'
+const NOMBRES = { marasi: 'Marasi', brisa: 'Brisa' }
+const comoSeLlama = NOMBRES[quien] ?? 'Marasi'
+
+// Solo abre el caso si el caso se abre: si esto redirige, se calla.
+if (abierto) narrador.decir('abreCaso', {}, { personaje: quien, forzar: true })
 
 function responder(indice) {
   if (contestada.value) return
@@ -55,7 +63,7 @@ function siguiente() {
 
   const total = repaso.preguntas.length
   const evento = aciertos.value === total ? 'bordado' : aciertos.value >= total / 2 ? 'bien' : 'flojo'
-  narrador.decir(evento, {}, { personaje: 'marasi', forzar: true })
+  narrador.decir(evento, {}, { personaje: quien, forzar: true })
 }
 
 function otraVez() {
@@ -71,9 +79,9 @@ function otraVez() {
   <div v-if="repaso" class="pila repaso">
     <section class="panel encabezado">
       <div class="cabecera">
-        <Avatar quien="marasi" :tamano="60" />
+        <Avatar :quien="quien" :tamano="60" />
         <div>
-          <p class="quien">El caso de Marasi</p>
+          <p class="quien">El caso de {{ comoSeLlama }}</p>
           <h1>{{ repaso.titulo }}</h1>
           <p class="tenue">
             Seis preguntas sobre {{ mundo.nombre }}. No cuentan para nada salvo para saber qué

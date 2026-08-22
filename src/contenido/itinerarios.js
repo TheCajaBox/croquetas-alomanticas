@@ -137,3 +137,16 @@ export const ITINERARIOS_POR_ID = Object.fromEntries(ITINERARIOS.map((cada) => [
 
 /** El itinerario por defecto: el que se ofrece primero y el de quien llega de nuevas. */
 export const ITINERARIO_POR_DEFECTO = ITINERARIOS[0].id
+
+/**
+ * El reparto que le toca a un mundo.
+ *
+ * Lo preguntan el panel de pistas, el narrador y el repaso: sin esto, cada uno
+ * tenía escrito «Wayne» a mano y La Ceniza -que es de Brisa y de Fantasma-
+ * sonaba a la segunda era.
+ */
+export function repartoDelMundo(mundo) {
+  const itinerario = ITINERARIOS_POR_ID[mundo?.itinerario]
+  return itinerario?.reparto ?? ITINERARIOS_POR_ID[ITINERARIO_POR_DEFECTO].reparto
+}
+

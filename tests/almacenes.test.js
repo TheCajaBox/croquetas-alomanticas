@@ -1,7 +1,12 @@
 import { readFileSync, readdirSync } from 'node:fs'
 
 import { GATOS } from '../src/contenido/gatos.js'
-import { LEMAS_DE_WAYNE, LINEAS } from '../src/contenido/narrador/lineas.js'
+import {
+  LEMAS_DE_WAYNE,
+  LINEAS,
+  LINEAS_DE_BRISA_NARRANDO,
+  LINEAS_DE_FANTASMA,
+} from '../src/contenido/narrador/lineas.js'
 import { ITINERARIOS } from '../src/contenido/itinerarios.js'
 import { MUNDOS, mundosDelItinerario } from '../src/contenido/mundos.js'
 import { retosDelMundo } from '../src/contenido/retos/index.js'
@@ -281,16 +286,24 @@ describe('progreso', () => {
 })
 
 describe('las frases de Wayne', () => {
-  const sacos = Object.entries(LINEAS).flatMap(([evento, saco]) =>
-    Array.isArray(saco)
-      ? [[evento, saco]]
-      : Object.entries(saco).map(([nivel, lineas]) => [`${evento}.${nivel}`, lineas]),
-  )
+  const desplegar = (quien, bolsas) =>
+    Object.entries(bolsas).flatMap(([evento, saco]) =>
+      Array.isArray(saco)
+        ? [[`${quien}.${evento}`, saco]]
+        : Object.entries(saco).map(([nivel, lineas]) => [`${quien}.${evento}.${nivel}`, lineas]),
+    )
 
-  it('ningún saco se queda con una sola frase', () => {
-    // Con una sola, el narrador la repite siempre y deja de ser una gracia
-    // para pasar a ser un cartel.
-    const escasos = sacos.filter(([, lineas]) => lineas.length < 2).map(([evento]) => evento)
+  const sacos = desplegar('wayne', LINEAS)
+  // Las voces de los itinerarios nuevos se miran con la misma regla: un saco
+  // con una sola frase se convierte en un cartel a la tercera vez que sale.
+  const todosLosSacos = [
+    ...sacos,
+    ...desplegar('brisa', LINEAS_DE_BRISA_NARRANDO),
+    ...desplegar('fantasma', LINEAS_DE_FANTASMA),
+  ]
+
+  it('ningún saco se queda con una sola frase, de nadie', () => {
+    const escasos = todosLosSacos.filter(([, lineas]) => lineas.length < 2).map(([evento]) => evento)
     expect(escasos).toEqual([])
   })
 
@@ -302,7 +315,7 @@ describe('las frases de Wayne', () => {
   })
 
   it('no hay dos frases iguales en todo el juego', () => {
-    const dichas = sacos.flatMap(([, lineas]) => lineas).filter((linea) => typeof linea === 'string')
+    const dichas = todosLosSacos.flatMap(([, lineas]) => lineas).filter((linea) => typeof linea === 'string')
     const repetidas = dichas.filter((linea, indice) => dichas.indexOf(linea) !== indice)
     expect(repetidas).toEqual([])
   })

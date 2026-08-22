@@ -11,6 +11,7 @@ import { beforeEach, describe, expect, it } from 'vitest'
 
 import { INSIGNIAS } from '../src/contenido/insignias.js'
 import { LINEAS, LINEAS_DE_MELAAN, LINEAS_DE_STERIS } from '../src/contenido/narrador/lineas.js'
+import { ITINERARIOS_POR_ID } from '../src/contenido/itinerarios.js'
 import { MUNDOS } from '../src/contenido/mundos.js'
 import { RETOS, retosDelMundo } from '../src/contenido/retos/index.js'
 import { usarEconomia } from '../src/almacen/economia.js'
@@ -137,9 +138,15 @@ describe('las frases escritas y sin usar', () => {
     expect(disparados(LINEAS_DE_MELAAN)).toEqual([])
   })
 
-  it('cada mundo con anfitrión tiene quien lo presente', () => {
+  it('el anfitrión de un mundo sale del reparto de su itinerario', () => {
+    // Antes era una lista de cuatro nombres escrita a mano, que con un
+    // itinerario nuevo dejaba fuera a los suyos. Ahora se comprueba contra el
+    // reparto declarado: quien presenta un mundo tiene que trabajar en ese
+    // camino, no en otro.
     for (const mundo of MUNDOS.filter((m) => m.anfitrion)) {
-      expect(['steris', 'wax', 'marasi', 'melaan'], `${mundo.id}`).toContain(mundo.anfitrion)
+      const reparto = ITINERARIOS_POR_ID[mundo.itinerario]?.reparto ?? {}
+      const gente = new Set(Object.values(reparto).flat().filter((quien) => typeof quien === 'string'))
+      expect([...gente], `${mundo.id} lo presenta ${mundo.anfitrion}`).toContain(mundo.anfitrion)
     }
   })
 })

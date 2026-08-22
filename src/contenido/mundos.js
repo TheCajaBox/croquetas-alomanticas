@@ -152,6 +152,27 @@ export const MUNDOS = [
     despedida:
       'Ya sabes cambiar de forma sin cambiar de fondo. Es lo que más vas a hacer en un trabajo de verdad: casi nunca escribes algo desde cero, casi siempre reescribes algo que ya estaba.',
   },
+
+  // ------------------------------------------------------------------------
+  // La primera era. Otro lenguaje, otra gente y su propia cuesta: no se cruza
+  // con la de arriba, así que ningún `requiere` de aquí mira allí.
+  // ------------------------------------------------------------------------
+  {
+    id: 'ceniza',
+    nombre: 'La Ceniza',
+    subtitulo: 'PHP · lo primero',
+    itinerario: 'era1',
+    entorno: 'php',
+    requiere: null,
+    color: '#a8a2bd',
+    anfitrion: 'kelsier',
+    resumen:
+      'Lo que hay que saber antes de saber nada: abrir PHP, imprimir, guardar valores y meterlos en una lista.',
+    presentacion:
+      'Todo el mundo empieza igual: sin saber nada y con alguien delante diciéndole que es más fácil de lo que parece. Yo soy ese alguien y te estoy mintiendo un poco, pero solo un poco. PHP mueve media web y se aprende deprisa; lo que cuesta es aprenderlo bien, y para eso hace falta que lo escribas tú.',
+    despedida:
+      'Ya sabes decirle cosas a la máquina y guardarlas para después. Con eso no se hace nada todavía, y sin eso no se hace nada nunca.',
+  },
 ]
 
 export const MUNDOS_POR_ID = Object.fromEntries(MUNDOS.map((mundo) => [mundo.id, mundo]))

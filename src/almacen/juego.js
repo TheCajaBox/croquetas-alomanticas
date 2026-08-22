@@ -5,6 +5,7 @@ import { FASES, evaluarEnvio } from '../motor/ejecutor.js'
 import { TIEMPO_LIMITE_MS } from '../motor/protocolo.js'
 import { traducirImprevisto } from '../contenido/imprevistos.js'
 import { MUNDOS_POR_ID } from '../contenido/mundos.js'
+import { repartoDelMundo } from '../contenido/itinerarios.js'
 import { usarEconomia } from './economia.js'
 import { usarGatos } from './gatos.js'
 import { usarInsignias } from './insignias.js'
@@ -112,7 +113,13 @@ export const usarJuego = defineStore('juego', {
       if (progreso.ficha(reto.id).pistasUsadas.length === 3) {
         usarRecortes().desbloquear('tres-pistas')
       }
-      narrador.decir('pistaPedida', {}, { nivel: nivel + 1, forzar: true })
+      // Lo dice quien las vende, que no siempre es quien narra: en la primera
+      // era narra Brisa y las pistas las trae Fantasma.
+      narrador.decir(
+        'pistaPedida',
+        {},
+        { nivel: nivel + 1, forzar: true, personaje: repartoDelMundo(MUNDOS_POR_ID[reto.mundo]).pistas },
+      )
 
       const trasto = precio > 0 && !cortesiaDeCobre ? economia.recibirTrasto() : null
       if (trasto) narrador.decir('trastoRecibido', { trasto: trasto.nombre })
