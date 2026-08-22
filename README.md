@@ -289,7 +289,7 @@ Lo que costó, medido y no supuesto:
   llegan: sin dárselos también a `worker.plugins`, los 29 MB seguían saliendo.
 
 Resultado: `dist/` son **24 MB**, de los que 20 son el binario de PHP **pedido en diferido** —
-solo lo descarga quien entra en la primera era— y el paquete principal se queda en 0,72 MB. El
+solo lo descarga quien entra en la primera era— y el paquete principal se queda en 0,49 MB. El
 worker empieza a descargar en cuanto se abre el reto, así que cuando el jugador pulsa Ejecutar
 suele estar listo: 0,9 s el primer envío y 1,6 s los siguientes, medidos en el navegador. Y el
 primer envío tiene un margen de 60 s en vez de 3, porque ahí el reloj no mide el código de
@@ -309,12 +309,51 @@ diferido igual que el binario, con dos trampas que costaron encontrar:
   quería evitar—. Se quita con `build.modulePreload.resolveDependencies`. Lo cazó la prueba de
   extremo a extremo mirando la red, no una revisión del código.
 
-**Lo que queda pendiente y conviene saber:** el catálogo de retos se monta con
-`import.meta.glob(..., { eager: true })`, así que **todos los retos van en el paquete
-principal** con su enunciado, su solución, sus tests y sus pistas dentro. Ocho retos nuevos son
-28 kB. Con los ~170 que faltan por escribir eso serían unos 600 kB añadidos al arranque para
-todo el mundo, así que antes de llegar ahí hay que separar los datos que el índice necesita
-—id, mundo, título, tipo, recompensa— del cuerpo del reto, que solo hace falta al abrirlo.
+## La ficha y el cuerpo de un reto
+
+El catálogo se montaba con `import.meta.glob(..., { eager: true })`, así que **los retos
+viajaban enteros en el paquete principal**: enunciado, código de partida, solución, tests,
+pistas y explicaciones incluidos. Todo eso lo descargaba y lo analizaba quien entraba a mirar
+la portada.
+
+Medido campo por campo sobre los 102 retos:
+
+| | |
+|---|---|
+| Lo que el índice necesita de verdad | **9,2 kB** |
+| El cuerpo del reto, que solo hace falta al abrirlo | **233,8 kB** |
+
+Una proporción de 25 a 1, con `tests` (52,1 kB), `pistas` (41,4 kB), `enunciado` (40,4 kB) y
+`solucion` (25,6 kB) a la cabeza. Así que ahora van por separado:
+
+- La **ficha** —id, mundo, entorno, tipo, título, si es jefe, la recompensa y los requisitos— la
+  genera al construir [`scripts/plugin-fichas-de-retos.mjs`](scripts/plugin-fichas-de-retos.mjs),
+  que importa los retos en Node y emite un módulo virtual. Es lo justo para pintar la lista de
+  un mundo, decidir qué está abierto, contar el avance y repartir insignias.
+- El **cuerpo** se pide al abrir el reto, igual que los apuntes.
+
+Resultado medido: el paquete principal pasa de **725 kB a 488** (de 237 a 169 comprimido), y los
+~170 retos que quedan por escribir añadirán al arranque unos 15 kB en vez de 600.
+
+**Por qué un plugin y no algo más simple.** La forma evidente sería que cada reto exportara dos
+cosas, la ficha y el resto: no funciona, porque el módulo tendría un import estático y otro
+dinámico a la vez y entonces Rollup **no lo separa**. La otra sería un índice generado y
+versionado, y habría que acordarse de regenerarlo con cada reto; quedan unos 170 por escribir y
+añadir uno sigue siendo crear su fichero y nada más.
+
+**La regla que sostiene todo esto:** los `import()` de los cuerpos viven **solo** en
+`contenido/retos/index.js`. Si otro módulo importara un reto de forma estática, Rollup dejaría
+de poder separarlo y su trozo volvería al paquete principal sin que nada fallara ni avisara. Hay
+tres pruebas para eso: una recorre `src/` buscando ese import, otra compara la ficha con el
+fichero del reto campo por campo, y una de extremo a extremo mira la red y comprueba que la
+portada y la lista de un mundo **no piden ningún cuerpo** y que abrir un reto pide exactamente
+el suyo.
+
+Y una que costó encontrar: el cuerpo del reto vive en un `shallowRef`, no en un `ref`. Un `ref`
+normal lo envuelve en un proxy reactivo hasta el último rincón, y el reto viaja al sandbox por
+`postMessage`; un proxy no se puede clonar, así que ejecutar reventaba con `DataCloneError` en
+los 18 recorridos que escriben código. El cuerpo de un reto no cambia nunca, así que la
+reactividad profunda tampoco servía para nada.
 
 ## Cuatro caminos
 

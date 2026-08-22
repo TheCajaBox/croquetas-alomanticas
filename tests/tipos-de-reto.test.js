@@ -9,7 +9,7 @@
 import { readFileSync } from 'node:fs'
 import { describe, expect, it } from 'vitest'
 
-import { RETOS } from '../src/contenido/retos/index.js'
+import { cargarTodosLosRetos } from '../src/contenido/retos/index.js'
 import {
   NOMBRES_DE_TIPO,
   TIPOS_DE_RETO,
@@ -19,6 +19,14 @@ import {
   seEscribe,
   sinCodigo,
 } from '../src/contenido/retos/tipos.js'
+/**
+ * Los retos **enteros**: el catálogo solo trae la ficha de cada uno y el cuerpo
+ * -enunciado, solución, tests, pistas- se pide aparte, que es lo que mantiene
+ * el arranque del juego pequeño. Aquí hacen falta enteros, así que se piden
+ * todos de golpe antes de empezar.
+ */
+const RETOS = await cargarTodosLosRetos()
+
 
 const vistaReto = readFileSync(new URL('../src/vistas/VistaReto.vue', import.meta.url), 'utf8')
 

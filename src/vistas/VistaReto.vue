@@ -1,5 +1,5 @@
 <script setup>
-import { computed, onBeforeUnmount, ref, watch, watchEffect } from 'vue'
+import { computed, onBeforeUnmount, ref, shallowRef, watch, watchEffect } from 'vue'
 import SombreroEscondido from '../componentes/SombreroEscondido.vue'
 import { useRouter } from 'vue-router'
 
@@ -20,7 +20,7 @@ import PanelResultados from '../componentes/PanelResultados.vue'
 import VistaPreviaSandbox from '../componentes/VistaPreviaSandbox.vue'
 import { MUNDOS_POR_ID } from '../contenido/mundos.js'
 import { cargarApunte } from '../contenido/apuntes/index.js'
-import { cuantasVariantes, enVariante, RETOS_POR_ID, retoSiguiente } from '../contenido/retos/index.js'
+import { cargarReto, cuantasVariantes, enVariante, RETOS_POR_ID, retoSiguiente } from '../contenido/retos/index.js'
 import {
   datosDelTipo,
   esTactil as tipoEsTactil,
@@ -47,6 +47,15 @@ const gatos = usarGatos()
 const narrador = usarNarrador()
 const armonia = usarArmonia()
 
+/**
+ * La **ficha** del reto: id, mundo, entorno, tipo, título, si es jefe, la
+ * recompensa y los requisitos. Está desde el primer momento, así que la
+ * cabecera, el candado y el sandbox no esperan a nada.
+ *
+ * Lo demás -enunciado, código de partida, solución, tests, pistas, opciones- es
+ * el **cuerpo**, y se pide aparte: son 234 kB entre todos los retos y no tienen
+ * por qué viajar en el arranque del juego. Ver `contenido/retos/index.js`.
+ */
 const reto = RETOS_POR_ID[props.retoId]
 
 // El candado se hace cumplir AQUÍ, no solo en la lista del mundo: por la
@@ -120,32 +129,59 @@ if (reto) cargarApunte(reto.id).then((texto) => { apunte.value = texto ?? '' })
  * es el mismo y para el progreso sigue siendo un reto ya superado.
  */
 const variante = ref(0)
-/** El reto que se está jugando ahora mismo, con los tests de su tanda. */
-const enJuego = computed(() => enVariante(reto, variante.value))
-const tandasDePractica = cuantasVariantes(reto)
 
-const codigo = ref(progreso.ficha(props.retoId).codigoGuardado ?? reto?.inicial ?? '')
+/**
+ * El cuerpo del reto, en cuanto llega. Es una carga local: se ve al momento.
+ *
+ * `shallowRef` y no `ref` por un motivo que se paga caro: un `ref` normal
+ * envuelve el objeto en un proxy reactivo hasta el último rincón, y el reto
+ * viaja al sandbox por `postMessage`. Un proxy no se puede clonar, así que
+ * ejecutar reventaba con `DataCloneError` sin que nada dijera por qué. Y de
+ * paso: el cuerpo del reto no cambia nunca, así que la reactividad profunda
+ * sobre sus tests y sus pistas no servía para nada.
+ */
+const cuerpo = shallowRef(null)
+const codigo = ref(progreso.ficha(props.retoId).codigoGuardado ?? '')
+
+if (reto) {
+  cargarReto(props.retoId).then((cargado) => {
+    if (!cargado) return
+    cuerpo.value = cargado
+    // El borrador manda sobre el código de partida: es donde lo dejaste.
+    if (!progreso.ficha(props.retoId).codigoGuardado) codigo.value = cargado.inicial ?? ''
+  })
+}
+
+/** El reto que se está jugando ahora mismo, con los tests de su tanda. */
+const enJuego = computed(() => (cuerpo.value ? enVariante(cuerpo.value, variante.value) : null))
+const tandasDePractica = computed(() => cuantasVariantes(cuerpo.value))
+
 const respuesta = ref('')
 const resultado = ref(null)
 const verSolucion = ref(false)
 
-// El borrador es el del reto de verdad. Practicando no se guarda: si no, la
-// primera tanda de práctica te borraría la solución que ya tenías escrita.
 watch(codigo, (nuevo) => {
-  if (variante.value === 0) progreso.guardarBorrador(props.retoId, nuevo)
+  // El borrador es el del reto de verdad. Practicando no se guarda: si no, la
+  // primera tanda de práctica te borraría la solución que ya tenías escrita.
+  if (variante.value !== 0) return
+  // Y el código de partida que trae el reto tampoco es un borrador: sin esto,
+  // abrir un reto y no tocar nada dejaría una copia guardada de lo que ya
+  // viene de fábrica.
+  if (nuevo === cuerpo.value?.inicial && !progreso.ficha(props.retoId).codigoGuardado) return
+  progreso.guardarBorrador(props.retoId, nuevo)
 })
 
 /** Otra tanda con otros datos. Da la vuelta al llegar al final. */
 function practicarOtraVez() {
-  variante.value = variante.value >= tandasDePractica ? 1 : variante.value + 1
-  codigo.value = enJuego.value.inicial ?? ''
+  variante.value = variante.value >= tandasDePractica.value ? 1 : variante.value + 1
+  codigo.value = enJuego.value?.inicial ?? ''
   resultado.value = null
   verSolucion.value = false
 }
 
 function volverAlRetoDeVerdad() {
   variante.value = 0
-  codigo.value = progreso.ficha(props.retoId).codigoGuardado ?? reto?.inicial ?? ''
+  codigo.value = progreso.ficha(props.retoId).codigoGuardado ?? cuerpo.value?.inicial ?? ''
   resultado.value = null
 }
 
@@ -186,20 +222,23 @@ const ficha = computed(() => progreso.ficha(props.retoId))
  * para eso ya está el mensaje de error al ejecutar.
  */
 const avisosEnVivo = computed(() => {
-  if (!gatos.tieneBonus('avisoDeRequisitos') || !enJuego.value?.requisitos?.length) return []
+  // De la ficha: los requisitos viajan con ella justamente para que el oído
+  // fino funcione desde la primera tecla, sin esperar al cuerpo.
+  if (!gatos.tieneBonus('avisoDeRequisitos') || !reto?.requisitos?.length) return []
   // Solo en JavaScript: mirar los requisitos mientras escribes necesita un
   // analizador aquí mismo, y el único que hay es de JavaScript. En PHP los
   // comprueba el sandbox al ejecutar, así que aquí no hay nada que decir.
   if (ENTORNOS[reto.entorno]?.lenguaje !== 'js') return []
   if (!codigo.value.trim()) return []
   try {
-    return comprobarRequisitos(analizar(codigo.value), enJuego.value.requisitos).filter((r) => !r.cumplido)
+    return comprobarRequisitos(analizar(codigo.value), reto.requisitos).filter((r) => !r.cumplido)
   } catch {
     return []
   }
 })
 
 async function ejecutar() {
+  if (!enJuego.value) return
   clearTimeout(impaciencia)
   resultado.value = esPrediccion.value
     ? await juego.resolverPrediccion(enJuego.value, respuesta.value, puente)
@@ -214,6 +253,7 @@ function responderTactil(acertado) {
 
 /** Ordenar y completar sí ejecutan: se monta el código y se manda al sandbox. */
 async function ejecutarMontaje(codigoMontado) {
+  if (!enJuego.value) return
   resultado.value = await juego.enviar(enJuego.value, codigoMontado, puente)
   if (resultado.value?.ok) progreso.apuntarVariante(reto.id, variante.value)
 }
@@ -229,7 +269,7 @@ const mundoRecienCerrado = computed(
 )
 
 function reiniciarCodigo() {
-  codigo.value = enJuego.value.inicial ?? ''
+  codigo.value = enJuego.value?.inicial ?? ''
   resultado.value = null
 }
 </script>
@@ -258,14 +298,19 @@ function reiniciarCodigo() {
       :empieza-abierto="!yaSuperado"
     />
 
-    <div class="tablero">
+    <!-- El cuerpo del reto es una carga local, así que esto se ve un instante o
+         no se ve. La cabecera y el apunte ya están, que es lo que evita que la
+         página parezca vacía mientras llega. -->
+    <p v-if="!enJuego" class="tenue trayendo">Trayendo el reto…</p>
+
+    <div v-else class="tablero">
       <div class="columna izquierda">
         <section class="panel enunciado">
           <SombreroEscondido id="enunciado" :posicion="{ top: '10px', right: '12px' }" :tamano="17" />
           <Marcado :texto="enJuego.enunciado" />
         </section>
 
-        <PanelPistas :reto="reto" />
+        <PanelPistas :reto="enJuego" />
 
         <section v-if="yaSuperado && enJuego.solucion" class="panel solucion">
           <button v-if="!verSolucion" @click="verSolucion = true">Ver una solución posible</button>
@@ -282,7 +327,7 @@ function reiniciarCodigo() {
         <template v-if="esPrediccion">
           <section class="panel bloque">
             <h3>El código</h3>
-            <pre><code>{{ reto.codigoMostrado }}</code></pre>
+            <pre><code>{{ enJuego.codigoMostrado }}</code></pre>
           </section>
 
           <section class="panel bloque">
@@ -299,56 +344,56 @@ function reiniciarCodigo() {
 
         <RetoEleccion
           v-else-if="reto.tipo === 'eleccion'"
-          :reto="reto"
+          :reto="enJuego"
           :contestado="!!resultado"
           @responder="responderTactil"
         />
 
         <RetoEmparejar
           v-else-if="reto.tipo === 'emparejar'"
-          :reto="reto"
+          :reto="enJuego"
           :contestado="!!resultado?.ok"
           @responder="responderTactil"
         />
 
         <RetoOrdenar
           v-else-if="reto.tipo === 'ordenar'"
-          :reto="reto"
+          :reto="enJuego"
           :contestado="!!resultado?.ok"
           @montar="ejecutarMontaje"
         />
 
         <RetoCompletar
           v-else-if="reto.tipo === 'completar'"
-          :reto="reto"
+          :reto="enJuego"
           :contestado="!!resultado?.ok"
           @montar="ejecutarMontaje"
         />
 
         <RetoTrazar
           v-else-if="reto.tipo === 'trazar'"
-          :reto="reto"
+          :reto="enJuego"
           :contestado="!!resultado"
           @responder="responderTactil"
         />
 
         <RetoCazarLinea
           v-else-if="reto.tipo === 'cazar-linea'"
-          :reto="reto"
+          :reto="enJuego"
           :contestado="!!resultado"
           @responder="responderTactil"
         />
 
         <RetoEtiquetar
           v-else-if="reto.tipo === 'etiquetar'"
-          :reto="reto"
+          :reto="enJuego"
           :contestado="!!resultado"
           @responder="responderTactil"
         />
 
         <RetoVerdaderoFalso
           v-else-if="reto.tipo === 'verdadero-o-falso'"
-          :reto="reto"
+          :reto="enJuego"
           :contestado="!!resultado"
           @responder="responderTactil"
         />
@@ -429,6 +474,7 @@ function reiniciarCodigo() {
 </template>
 
 <style scoped>
+.trayendo { margin: 0; font-size: 0.9rem; }
 .etiqueta.practica { color: #8fce9b; border-color: #8fce9b; }
 .practicar { border-color: #8fce9b; color: #8fce9b; }
 

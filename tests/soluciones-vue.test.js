@@ -2,10 +2,18 @@
 import { readFileSync } from 'node:fs'
 import { beforeAll, describe, expect, it } from 'vitest'
 
-import { RETOS } from '../src/contenido/retos/index.js'
+import { cargarTodosLosRetos } from '../src/contenido/retos/index.js'
 import { SIN_CODIGO, codigoDeReferencia } from './revisarRetos.js'
 import { analizar, inyectarGuardaDeBucles } from '../src/motor/guardaBucles.js'
 import { comprobarRequisitos } from '../src/motor/chequeosEstaticos.js'
+
+/**
+ * Los retos **enteros**: el catálogo solo trae la ficha de cada uno y el cuerpo
+ * -enunciado, solución, tests, pistas- se pide aparte, que es lo que mantiene
+ * el arranque del juego pequeño. Aquí hacen falta enteros, así que se piden
+ * todos de golpe antes de empezar.
+ */
+const RETOS = await cargarTodosLosRetos()
 
 /**
  * Lo mismo que tests/soluciones.test.js pero para los retos que necesitan DOM.

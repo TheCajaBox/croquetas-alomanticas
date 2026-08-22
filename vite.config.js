@@ -3,6 +3,7 @@ import { defineConfig } from 'vite'
 import vue from '@vitejs/plugin-vue'
 
 import { baseDelSitio } from './scripts/base-del-sitio.mjs'
+import { fichasDeRetos } from './scripts/plugin-fichas-de-retos.mjs'
 
 // La ruta base sale del nombre del repositorio y no está escrita a mano: ver
 // scripts/base-del-sitio.mjs. Todo lo que apunte a public/ debe construir su
@@ -29,7 +30,7 @@ function sinIcu() {
 
 export default defineConfig({
   base: baseDelSitio(),
-  plugins: [vue(), sinIcu()],
+  plugins: [vue(), sinIcu(), fichasDeRetos()],
   // El cargador de PHP hace `import ruta from './php_8_5.wasm'` y espera una
   // **URL**, no un módulo instanciado. Vite, por defecto, intenta lo segundo -la
   // propuesta de integración de wasm en ESM- y se cae buscando los imports del

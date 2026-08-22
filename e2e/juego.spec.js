@@ -508,6 +508,38 @@ test('un reto se puede practicar otra vez, con otros datos y sin volver a cobrar
   await expect(page.locator('.intentos').first()).toHaveText(intentos)
 })
 
+/**
+ * Los trozos de cuerpo de reto se llaman por su fichero: `03-la-cuadrilla-xxx.js`,
+ * `07-primera-funcion-xxx.js`. Los de los apuntes llevan delante el prefijo del
+ * mundo (`ceniza-03-...`), así que empezar por dos dígitos los distingue.
+ */
+const ES_CUERPO_DE_RETO = /\/assets\/\d\d[a-z]?-[^/]+\.js(\?|$)/
+
+test('el cuerpo de un reto se pide al abrirlo, y solo el suyo', async ({ page }) => {
+  // El catálogo lleva solo la ficha de cada reto -id, mundo, tipo, título,
+  // recompensa- y el cuerpo -enunciado, solución, tests, pistas- se pide aparte.
+  // Eran 234 kB de los 725 del paquete principal. Esto comprueba lo que de
+  // verdad importa de ese reparto: que navegar por el juego no los descargue.
+  const cuerpos = []
+  page.on('request', (peticion) => {
+    if (ES_CUERPO_DE_RETO.test(peticion.url())) cuerpos.push(peticion.url())
+  })
+
+  await page.goto('')
+  await expect(page.getByRole('heading', { name: /Aprende a programar/ })).toBeVisible()
+  await page.goto('#/itinerario/era2')
+  await page.goto('#/mundo/primer-dia')
+  await expect(page.getByRole('heading', { name: 'El primer día' })).toBeVisible()
+
+  expect(cuerpos, 'la portada o la lista de un mundo han pedido cuerpos de reto').toEqual([])
+
+  // Y al abrir uno, el suyo y nada más.
+  await irAlReto(page, 'dia1-07-primera-funcion')
+  await expect(page.locator('.cm-content')).toBeVisible()
+  expect(cuerpos.length, `pedidos: ${cuerpos.join(', ')}`).toBe(1)
+  expect(cuerpos[0]).toContain('07-primera-funcion')
+})
+
 test('el motor de PHP no se descarga jugando en la segunda era', async ({ page }) => {
   // 20 MB que solo debe pagar quien entre en la primera era. Si algún día un
   // import se cuela en el paquete principal, esto lo caza.

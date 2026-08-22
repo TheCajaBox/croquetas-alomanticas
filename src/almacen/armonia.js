@@ -1,7 +1,7 @@
 import { defineStore } from 'pinia'
 
 import { cargarApunte } from '../contenido/apuntes/index.js'
-import { RETOS_POR_ID } from '../contenido/retos/index.js'
+import { cargarReto } from '../contenido/retos/index.js'
 import { buscar } from '../motor/armonia/buscar.js'
 import { contexto, instrucciones, preguntarAlProveedor, sinCodigo } from '../motor/armonia/proveedores.js'
 import { prepararArmonia, responder } from '../motor/armonia/responder.js'
@@ -131,7 +131,10 @@ export const usarArmonia = defineStore('armonia', {
       if (!pregunta) return null
 
       await prepararArmonia()
-      const reto = this.contexto.retoId ? RETOS_POR_ID[this.contexto.retoId] : null
+      // El reto entero, no su ficha: de aquí sale el enunciado que se le da al
+      // modelo, y el enunciado vive en el cuerpo. Es una carga local y esto ya
+      // está esperando a la red, así que no se nota.
+      const reto = this.contexto.retoId ? await cargarReto(this.contexto.retoId) : null
 
       // El diagnóstico local se calcula igual y se le pasa al modelo: es lo que
       // de verdad le pasa al código, y ningún modelo lo sabría por su cuenta.

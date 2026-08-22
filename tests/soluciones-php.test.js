@@ -4,8 +4,16 @@ import { PHP } from '@php-wasm/universal'
 import { loadNodeRuntime } from '@php-wasm/node'
 import { afterAll, beforeAll, describe, expect, it } from 'vitest'
 
-import { cuantasVariantes, enVariante, RETOS } from '../src/contenido/retos/index.js'
+import { cargarTodosLosRetos, cuantasVariantes, enVariante } from '../src/contenido/retos/index.js'
 import { SIN_CODIGO, codigoDeReferencia } from './revisarRetos.js'
+
+/**
+ * Los retos **enteros**: el catálogo solo trae la ficha de cada uno y el cuerpo
+ * -enunciado, solución, tests, pistas- se pide aparte, que es lo que mantiene
+ * el arranque del juego pequeño. Aquí hacen falta enteros, así que se piden
+ * todos de golpe antes de empezar.
+ */
+const RETOS = await cargarTodosLosRetos()
 
 /**
  * Las soluciones de referencia de los retos de PHP, **ejecutando PHP de verdad**.

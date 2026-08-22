@@ -2,7 +2,15 @@ import { describe, expect, it } from 'vitest'
 
 import { PROPORCION_DE_PISTA, precioDePista } from '../src/contenido/retos/comun.js'
 import { MUNDOS } from '../src/contenido/mundos.js'
-import { RETOS, retosDelMundo } from '../src/contenido/retos/index.js'
+import { cargarTodosLosRetos, retosDelMundo } from '../src/contenido/retos/index.js'
+
+/**
+ * Los retos **enteros**: el catálogo solo trae la ficha de cada uno y el cuerpo
+ * -enunciado, solución, tests, pistas- se pide aparte, que es lo que mantiene
+ * el arranque del juego pequeño. Aquí hacen falta enteros, así que se piden
+ * todos de golpe antes de empezar.
+ */
+const RETOS = await cargarTodosLosRetos()
 
 const aplanar = (texto) => (texto ?? '').replace(/\s+/g, ' ').trim()
 

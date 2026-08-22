@@ -3,10 +3,18 @@ import { createContext, runInContext } from 'node:vm'
 import { describe, expect, it } from 'vitest'
 
 import { cargarApunte, hayApunte } from '../src/contenido/apuntes/index.js'
-import { cuantasVariantes, enVariante, RETOS } from '../src/contenido/retos/index.js'
+import { cargarTodosLosRetos, cuantasVariantes, enVariante } from '../src/contenido/retos/index.js'
 import { SIN_CODIGO, codigoDeReferencia, revisarTactil } from './revisarRetos.js'
 import { analizar, inyectarGuardaDeBucles } from '../src/motor/guardaBucles.js'
 import { comprobarRequisitos } from '../src/motor/chequeosEstaticos.js'
+
+/**
+ * Los retos **enteros**: el catálogo solo trae la ficha de cada uno y el cuerpo
+ * -enunciado, solución, tests, pistas- se pide aparte, que es lo que mantiene
+ * el arranque del juego pequeño. Aquí hacen falta enteros, así que se piden
+ * todos de golpe antes de empezar.
+ */
+const RETOS = await cargarTodosLosRetos()
 
 /**
  * Comprobación de todo el contenido que no necesita navegador. Los criterios

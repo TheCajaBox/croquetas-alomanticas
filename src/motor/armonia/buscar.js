@@ -8,7 +8,8 @@
  * Todo el índice se calcula una vez al cargar el módulo.
  */
 import { MUNDOS } from '../../contenido/mundos.js'
-import { RETOS } from '../../contenido/retos/index.js'
+import { cargarTodosLosApuntes } from '../../contenido/apuntes/index.js'
+import { cargarTodosLosRetos } from '../../contenido/retos/index.js'
 import { TERMINOS_BUSCABLES } from '../../contenido/glosario.js'
 import { obtenerCorpus } from '../../contenido/armonia/corpus.js'
 
@@ -144,9 +145,12 @@ let INDICE = null
  */
 export async function prepararBusqueda() {
   if (INDICE) return
-  const { cargarTodosLosApuntes } = await import('../../contenido/apuntes/index.js')
+  // Los apuntes se importan arriba y no aquí con `await import`: `corpus.js` ya
+  // los importa de forma estática, así que hacerlo dinámico aquí no separaba
+  // nada -y Rollup lo avisaba al construir- y solo confundía al leerlo. Lo que
+  // sí va en trozos aparte es cada apunte, que es donde está el peso.
   INDICE = construirIndice(await obtenerCorpus())
-  quienEnsena = construirQuienEnsena(await cargarTodosLosApuntes())
+  quienEnsena = construirQuienEnsena(await cargarTodosLosApuntes(), await cargarTodosLosRetos())
 }
 
 /** Si alguien busca antes de tiempo, mejor saberlo que devolver nada en silencio. */
@@ -202,12 +206,13 @@ export function terminosMencionados(texto) {
  * buena es otra y es exacta: **el primer reto, por orden de juego, donde el
  * término aparece**. Ahí es donde te lo encontraste por primera vez.
  *
- * `RETOS` ya viene ordenado por mundo y por número, así que el orden del array
- * es el orden en que se juega.
+ * El catálogo ya viene ordenado por mundo y por número, así que el orden del
+ * array es el orden en que se juega.
  */
-function construirQuienEnsena(apuntes) {
+function construirQuienEnsena(apuntes, retos) {
   const porTermino = new Map()
-  for (const reto of RETOS) {
+  // Los retos enteros: aquí se lee el enunciado, y eso vive en el cuerpo.
+  for (const reto of retos) {
     const texto = [reto.titulo, reto.enunciado, apuntes[reto.id]].filter(Boolean).join('\n')
     for (const { id } of terminosMencionados(texto)) {
       if (!porTermino.has(id)) porTermino.set(id, [])

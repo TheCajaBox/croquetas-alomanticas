@@ -17,7 +17,7 @@ import { contexto, instrucciones, sinCodigo } from '../src/motor/armonia/proveed
 import { exportarPartida, migrar, volcarAhora } from '../src/almacen/persistencia.js'
 import { GLOSARIO } from '../src/contenido/glosario.js'
 import { IMPREVISTOS } from '../src/contenido/imprevistos.js'
-import { RETOS } from '../src/contenido/retos/index.js'
+import { cargarTodosLosRetos } from '../src/contenido/retos/index.js'
 
 /**
  * Normaliza para comparar: el sangrado y los saltos no cuentan, porque una
@@ -29,9 +29,9 @@ const aplanar = (texto) => (texto ?? '').replace(/\s+/g, ' ').trim()
  * Todo lo que el jugador tiene GRATIS y delante mientras hace un reto: el
  * enunciado, el apunte de Wax, el glosario de Steris y la lista de imprevistos.
  */
-function materialGratuito(apuntes) {
+function materialGratuito(apuntes, retos) {
   const partes = []
-  for (const reto of RETOS) partes.push(reto.titulo, reto.enunciado, apuntes[reto.id])
+  for (const reto of retos) partes.push(reto.titulo, reto.enunciado, apuntes[reto.id])
   for (const entrada of GLOSARIO) partes.push(entrada.termino, entrada.definicion, entrada.ejemplo)
   for (const imprevisto of IMPREVISTOS) partes.push(imprevisto.titulo, ...(imprevisto.causas ?? []))
   return aplanar(partes.filter(Boolean).join(' '))
@@ -42,13 +42,27 @@ function materialGratuito(apuntes) {
  * paquete inicial hay que pedirlos, y sin ellos estos tests comprobarían el
  * vacío y pasarían por no haber mirado nada.
  */
+/**
+ * Los retos **enteros**, antes de que se declare nada.
+ *
+ * El catálogo solo trae la ficha de cada uno, y de aquí se leen el enunciado,
+ * los tests y las pistas: con las fichas, «lo gratuito» se quedaba sin
+ * enunciados y estos tests comprobaban el vacío.
+ *
+ * Se traen con `await` de módulo y no en un `beforeAll` porque hay bloques que
+ * eligen su reto **al declararse** (`RETOS.find(...)`), antes de que corra
+ * ningún gancho: rellenándolos después, esos bloques se quedaban con `undefined`
+ * y las pruebas del requisito y del jefe pasaban a comprobar otra cosa.
+ */
+const RETOS = await cargarTodosLosRetos()
+
 let GRATIS = ''
 let CORPUS = []
 let APUNTES = {}
 
 beforeAll(async () => {
   APUNTES = await cargarTodosLosApuntes()
-  GRATIS = materialGratuito(APUNTES)
+  GRATIS = materialGratuito(APUNTES, RETOS)
   CORPUS = await obtenerCorpus()
   await prepararArmonia()
 })

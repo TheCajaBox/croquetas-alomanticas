@@ -9,7 +9,7 @@ import {
 } from '../src/contenido/narrador/lineas.js'
 import { ITINERARIOS, ITINERARIOS_POR_ID } from '../src/contenido/itinerarios.js'
 import { MUNDOS, mundosDelItinerario } from '../src/contenido/mundos.js'
-import { cuantasVariantes, enVariante, RETOS, retosDelMundo } from '../src/contenido/retos/index.js'
+import { cargarTodosLosRetos, cuantasVariantes, enVariante, retosDelMundo } from '../src/contenido/retos/index.js'
 import { SOMBREROS, SOMBREROS_POR_ID } from '../src/contenido/sombreros.js'
 import { createPinia, setActivePinia } from 'pinia'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
@@ -25,6 +25,14 @@ import { usarNarrador } from '../src/almacen/narrador.js'
 import { usarProgreso } from '../src/almacen/progreso.js'
 import { usarRecortes } from '../src/almacen/recortes.js'
 import { usarSombreros } from '../src/almacen/sombreros.js'
+
+/**
+ * Los retos **enteros**: el catálogo solo trae la ficha de cada uno y el cuerpo
+ * -enunciado, solución, tests, pistas- se pide aparte, que es lo que mantiene
+ * el arranque del juego pequeño. Aquí hacen falta enteros, así que se piden
+ * todos de golpe antes de empezar.
+ */
+const RETOS = await cargarTodosLosRetos()
 
 beforeEach(() => setActivePinia(createPinia()))
 afterEach(() => vi.useRealTimers())

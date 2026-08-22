@@ -21,7 +21,7 @@ import { cargarTodosLosApuntes } from '../apuntes/index.js'
 import { GLOSARIO } from '../glosario.js'
 import { IMPREVISTOS } from '../imprevistos.js'
 import { MUNDOS_POR_ID } from '../mundos.js'
-import { RETOS } from '../retos/index.js'
+import { cargarTodosLosRetos } from '../retos/index.js'
 
 /** Trozos más cortos que esto no se indexan: no dicen nada por sí solos. */
 const MINIMO_UTIL = 40
@@ -136,6 +136,11 @@ function trozosDeApunte(apunte) {
 
 async function construir() {
   const apuntes = await cargarTodosLosApuntes()
+  // Enteros y no fichas: de aquí se lee el enunciado, que vive en el cuerpo del
+  // reto. Con las fichas el corpus se construía igual y sin quejarse, solo que
+  // sin un enunciado dentro -y las pruebas de la lista blanca seguían en verde,
+  // porque había menos material del que filtrar, no más-.
+  const retos = await cargarTodosLosRetos()
   const trozos = []
 
   for (const entrada of GLOSARIO) {
@@ -161,7 +166,7 @@ async function construir() {
     })
   }
 
-  for (const reto of RETOS) {
+  for (const reto of retos) {
     // ---- Lista blanca. Todo lo que se lee del reto sale de estas dos líneas
     // ---- y del apunte, que ahora vive aparte y se ha traído arriba.
     const { id, mundo, titulo, enunciado } = reto

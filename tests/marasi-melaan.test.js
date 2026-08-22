@@ -3,10 +3,18 @@ import { beforeEach, describe, expect, it } from 'vitest'
 
 import { CROQUETAS_POR_ACIERTO, REPASOS } from '../src/contenido/repasos.js'
 import { MUNDOS, MUNDOS_POR_ID } from '../src/contenido/mundos.js'
-import { RETOS, retosDelMundo } from '../src/contenido/retos/index.js'
+import { cargarTodosLosRetos, retosDelMundo } from '../src/contenido/retos/index.js'
 import { CROQUETAS_INICIALES, usarEconomia } from '../src/almacen/economia.js'
 import { usarNarrador } from '../src/almacen/narrador.js'
 import { usarRepasos } from '../src/almacen/repasos.js'
+
+/**
+ * Los retos **enteros**: el catálogo solo trae la ficha de cada uno y el cuerpo
+ * -enunciado, solución, tests, pistas- se pide aparte, que es lo que mantiene
+ * el arranque del juego pequeño. Aquí hacen falta enteros, así que se piden
+ * todos de golpe antes de empezar.
+ */
+const RETOS = await cargarTodosLosRetos()
 
 beforeEach(() => setActivePinia(createPinia()))
 
@@ -95,7 +103,8 @@ describe('los repasos de Marasi', () => {
 })
 
 describe('el mundo de MeLaan', () => {
-  const suyos = retosDelMundo('melaan')
+  // Enteros y no fichas: aquí se mira el código de partida y la solución.
+  const suyos = RETOS.filter((reto) => reto.mundo === 'melaan')
 
   it('existe y va después de las dos rutas de Vue', () => {
     const melaan = MUNDOS.find((m) => m.id === 'melaan')
