@@ -7,6 +7,7 @@ import armonia from '../recursos/armonia-avatar.webp'
 import brisa from '../recursos/brisa-avatar.webp'
 import kelsier from '../recursos/kelsier-avatar.webp'
 import sazed from '../recursos/sazed-avatar.webp'
+import vin from '../recursos/vin-avatar.webp'
 import wayne from '../recursos/wayne-avatar.webp'
 import marasi from '../recursos/marasi-avatar.webp'
 import melaan from '../recursos/melaan-avatar.webp'
@@ -33,13 +34,22 @@ import wax from '../recursos/wax-avatar.webp'
  * fondo -un degradado, no un color plano-, así que el recorte por inundación
  * ni la limpiaría ni respetaría la túnica. Y no hace falta quitarla: la bruma
  * es suya. Va recortado en círculo con ella dentro y un aro dorado de sus
- * pendientes, y queda el único disco oscuro de los seis. Eso dice «este no es
- * como los demás» sin escribirlo en ninguna parte.
+ * pendientes. Eso dice «este no es como los demás» sin escribirlo en ninguna
+ * parte.
+ *
+ * Vin es el segundo caso, y por el mismo motivo: su ilustración no tiene fondo
+ * sino **escena** -bruma, ceniza, la ciudad y las borlas de su capa cruzándola-,
+ * y ahí no hay nada que inundar. Se probó: la torre del fondo es cálida (b-r de
+ * -17) y su cara también (-21), así que ninguna regla de color las separa sin
+ * pintar la máscara a mano. La bruma se queda, que es suya, y lo que se hace es
+ * cerrar el encuadre hasta que su pelo llena el círculo y apagarla un poco hacia
+ * su color: sin eso quedaba el único disco claro entre nueve oscuros y se leía
+ * como un agujero en la fila.
  *
  * Se importan como módulos para que Vite les ponga su hash y su ruta base;
  * escritas a mano, esas rutas se romperían al publicar en GitHub Pages.
  */
-const CARAS = { wayne, wax, steris, marasi, melaan, armonia, brisa, kelsier, sazed }
+const CARAS = { wayne, wax, steris, marasi, melaan, armonia, brisa, kelsier, sazed, vin }
 
 /**
  * Los que tienen ilustración. El resto -los que aún no la tienen- salen con

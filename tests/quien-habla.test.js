@@ -70,6 +70,29 @@ describe('quién habla lo dice el reparto', () => {
     ).toEqual([])
   })
 
+  it('ninguna ilustración es de alguien que no esté en el juego', () => {
+    // Un avatar de alguien que no sale en ningún reparto son kilobytes que
+    // viajan con la aplicación para no verse nunca. Vin todavía no aparece en
+    // pantalla -firma los apuntes de la segunda parte de la primera era, que
+    // aún no está escrita-, pero está en su reparto, así que cuenta.
+    const fuente = readFileSync(
+      fileURLToPath(new URL('../src/componentes/Avatar.vue', import.meta.url)),
+      'utf8',
+    )
+    const linea = fuente.match(/const CARAS = \{([^}]*)\}/)
+    expect(linea, 'no encuentro la lista de caras en Avatar.vue').toBeTruthy()
+    const conCara = linea[1].split(',').map((n) => n.trim()).filter(Boolean)
+    expect(conCara.length).toBeGreaterThan(8)
+
+    const enAlgunReparto = new Set(
+      ITINERARIOS.flatMap((cada) => Object.values(cada.reparto).flat()).filter(
+        (quien) => typeof quien === 'string',
+      ),
+    )
+    const huerfanas = conCara.filter((quien) => !existePersonaje(quien) || !enAlgunReparto.has(quien))
+    expect(huerfanas, 'ilustraciones de gente que no está en ningún reparto').toEqual([])
+  })
+
   it('cada papel del reparto lo hace alguien del elenco, en los cuatro caminos', () => {
     const fantasmas = []
     for (const cada of ITINERARIOS) {

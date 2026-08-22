@@ -92,7 +92,15 @@ ciruela de Brisa, el acero de Kelsier y el oro de Sazed. El disco sale de la mis
 —un 20% de su color sobre `#1d1826`—, así que los que van llegando encajan con los que ya
 estaban sin elegirle un tono a mano a cada uno, y quien todavía no tiene cara sale con ese
 disco y su inicial en vez de con la de otro.
-Viven en `src/recursos/`, pesan 192 kB entre las nueve y se importan como
+Dos son la excepción y a propósito: **Armonía y Vin** no llevan disco, llevan su propia
+escena dentro del círculo. Sus ilustraciones no tienen fondo sino bruma y ceniza, y ahí no hay
+nada que inundar —en la de Vin se midió: la torre del fondo es cálida (`b−r` de −17) y su cara
+también (−21), así que ninguna regla de color las separa sin pintar la máscara a mano—. La
+bruma se queda, que es suya; lo que se hace es cerrar el encuadre hasta que llena el círculo y
+apagarla un poco hacia su color, porque suelta quedaba el único disco claro entre nueve oscuros
+y se leía como un agujero en la fila.
+
+Viven en `src/recursos/`, pesan 203 kB entre las diez y se importan como
 módulos para que Vite les ponga su hash y su ruta base; escritas a mano, esas rutas se
 romperían al publicar en Pages.
 
