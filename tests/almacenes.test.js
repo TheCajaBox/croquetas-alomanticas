@@ -7,9 +7,9 @@ import {
   LINEAS_DE_BRISA_NARRANDO,
   LINEAS_DE_FANTASMA,
 } from '../src/contenido/narrador/lineas.js'
-import { ITINERARIOS } from '../src/contenido/itinerarios.js'
+import { ITINERARIOS, ITINERARIOS_POR_ID } from '../src/contenido/itinerarios.js'
 import { MUNDOS, mundosDelItinerario } from '../src/contenido/mundos.js'
-import { retosDelMundo } from '../src/contenido/retos/index.js'
+import { cuantasVariantes, enVariante, RETOS, retosDelMundo } from '../src/contenido/retos/index.js'
 import { SOMBREROS, SOMBREROS_POR_ID } from '../src/contenido/sombreros.js'
 import { createPinia, setActivePinia } from 'pinia'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
@@ -20,6 +20,7 @@ import { CROQUETAS_POR_SOMBRERO, SOMBREROS } from '../src/contenido/sombreros.js
 import { TRASTOS } from '../src/contenido/trastos.js'
 import { CROQUETAS_INICIALES, usarEconomia } from '../src/almacen/economia.js'
 import { usarGatos } from '../src/almacen/gatos.js'
+import { usarJuego } from '../src/almacen/juego.js'
 import { usarNarrador } from '../src/almacen/narrador.js'
 import { usarProgreso } from '../src/almacen/progreso.js'
 import { usarRecortes } from '../src/almacen/recortes.js'
@@ -324,6 +325,174 @@ describe('las frases de Wayne', () => {
     expect(LEMAS_DE_WAYNE.length).toBeGreaterThanOrEqual(4)
     // Van debajo de una cara, en cursiva: uno largo rompe la portada.
     expect(LEMAS_DE_WAYNE.filter((lema) => lema.length > 70)).toEqual([])
+  })
+})
+
+describe('practicar un reto ya superado', () => {
+  /** El primero que traiga tandas de práctica, sin nombrarlo a mano. */
+  const conPractica = RETOS.find((reto) => cuantasVariantes(reto) > 0)
+
+  it('existe alguno con práctica', () => {
+    expect(conPractica).toBeTruthy()
+  })
+
+  it('no cobra croquetas la segunda vez', () => {
+    const juego = usarJuego()
+    const progreso = usarProgreso()
+    const economia = usarEconomia()
+
+    progreso.registrarVictoria(conPractica.id)
+    const antes = economia.croquetas
+
+    const premio = juego.premiar(enVariante(conPractica, 1))
+    expect(premio.repetido).toBe(true)
+    expect(premio.recompensa).toBeNull()
+    expect(economia.croquetas, 'practicar ha pagado').toBe(antes)
+  })
+
+  it('ni cuenta como intento, que es lo que mira media insignia', () => {
+    const progreso = usarProgreso()
+
+    progreso.registrarIntento(conPractica.id, true)
+    progreso.registrarVictoria(conPractica.id)
+    const intentos = progreso.ficha(conPractica.id).intentos
+
+    // Diez tandas de práctica, y una fallada por en medio.
+    for (let i = 0; i < 10; i += 1) progreso.registrarIntento(conPractica.id, i !== 3)
+
+    expect(progreso.ficha(conPractica.id).intentos, 'la práctica ha contado como intento').toBe(intentos)
+    expect(progreso.ficha(conPractica.id).fallos, 'la práctica ha contado como fallo').toBe(0)
+  })
+
+  it('se apunta qué tandas llevas hechas, y no se repiten en la cuenta', () => {
+    const progreso = usarProgreso()
+
+    progreso.apuntarVariante(conPractica.id, 1)
+    progreso.apuntarVariante(conPractica.id, 1)
+    progreso.apuntarVariante(conPractica.id, 2)
+    // La 0 es el reto de verdad, no una tanda de práctica.
+    progreso.apuntarVariante(conPractica.id, 0)
+
+    expect(progreso.ficha(conPractica.id).variantesHechas).toEqual([1, 2])
+  })
+})
+
+describe('quien interrumpe al narrador', () => {
+  /** Un mundo de cada era, para no depender de cómo se llamen. */
+  const mundoDe = (itinerario) => mundosDelItinerario(itinerario)[0]
+
+  it('en la primera era interrumpe quien dice el reparto, y en la segunda nadie', () => {
+    expect(ITINERARIOS_POR_ID.era1.reparto.interrumpe).toBe('ham')
+    expect(ITINERARIOS_POR_ID.era2.reparto.interrumpe).toBeUndefined()
+  })
+
+  it('se presenta la primera vez que abre la boca, sin esperar turno', () => {
+    const narrador = usarNarrador()
+    narrador.ponerNarrador('brisa')
+
+    expect(narrador.interrumpirEn(mundoDe('era1'), 'retoSuperado')).not.toBeNull()
+    // Sin nadie hablando no hay a quien cortar, así que habla ya. Encolarla
+    // sería perderla: de la cola solo saca quien termina de hablar.
+    expect(narrador.mensaje.personaje).toBe('ham')
+    expect(narrador.mensaje.evento).toBe('presentacion')
+    expect(narrador.cola).toEqual([])
+  })
+
+  it('y después pregunta una de cada tres veces, para no ser un pesado', () => {
+    const narrador = usarNarrador()
+    narrador.ponerNarrador('brisa')
+    const mundo = mundoDe('era1')
+
+    narrador.interrumpirEn(mundo, 'retoSuperado') // la presentación
+    narrador.callar()
+
+    expect(narrador.interrumpirEn(mundo, 'retoSuperado')).toBeNull()
+    expect(narrador.interrumpirEn(mundo, 'retoSuperado')).toBeNull()
+    expect(narrador.interrumpirEn(mundo, 'retoSuperado')).not.toBeNull()
+    expect(narrador.mensaje.evento).toBe('retoSuperado')
+    expect(narrador.mensaje.personaje).toBe('ham')
+  })
+
+  it('en la segunda era no interrumpe nadie, por mucho que se le llame', () => {
+    const narrador = usarNarrador()
+    narrador.ponerNarrador('wayne')
+    const mundo = mundoDe('era2')
+
+    for (let i = 0; i < 10; i += 1) narrador.interrumpirEn(mundo, 'retoSuperado')
+    expect(narrador.cola).toEqual([])
+    expect(narrador.mensaje).toBeNull()
+  })
+
+  it('quien ha pedido silencio no recibe dos voces en vez de una', () => {
+    const narrador = usarNarrador()
+    narrador.ponerNarrador('brisa')
+    narrador.verborrea = 'callado'
+
+    for (let i = 0; i < 6; i += 1) narrador.interrumpirEn(mundoDe('era1'), 'retoSuperado')
+    expect(narrador.cola).toEqual([])
+    expect(narrador.mensaje).toBeNull()
+  })
+
+  it('la interrupción espera su turno: no pisa lo que se está diciendo', () => {
+    const narrador = usarNarrador()
+    narrador.ponerNarrador('brisa')
+    const mundo = mundoDe('era1')
+
+    narrador.decir('retoSuperado')
+    const deBrisa = narrador.mensaje.texto
+    narrador.interrumpirEn(mundo, 'retoSuperado')
+
+    expect(narrador.mensaje.texto, 'la interrupción ha pisado la frase del narrador').toBe(deBrisa)
+    expect(narrador.cola).toHaveLength(1)
+
+    narrador.pasarAlSiguiente()
+    expect(narrador.mensaje.personaje).toBe('ham')
+    expect(narrador.cola).toEqual([])
+
+    // Y al terminar esa, silencio: la cola no se queda dando vueltas.
+    narrador.pasarAlSiguiente()
+    expect(narrador.mensaje).toBeNull()
+  })
+
+  it('cerrar el bocadillo calla también a quien esperaba', () => {
+    const narrador = usarNarrador()
+    narrador.ponerNarrador('brisa')
+    narrador.decir('retoSuperado')
+    narrador.interrumpirEn(mundoDe('era1'), 'retoSuperado')
+
+    narrador.callar()
+    expect(narrador.mensaje).toBeNull()
+    expect(narrador.cola).toEqual([])
+  })
+
+  it('tiene algo que decir en todos los eventos con los que se le llama', () => {
+    // Si se le llama con un evento que no tiene escrito, no interrumpe y no se
+    // entera nadie: el hueco solo se nota jugando.
+    const narrador = usarNarrador()
+    narrador.ponerNarrador('brisa')
+    const mundo = mundoDe('era1')
+    const eventos = [
+      'presentacion',
+      'entrarAlMundo',
+      'retoSuperado',
+      'superadoSinPistas',
+      'jefeDerrotado',
+      'errorDeSintaxis',
+      'testFallado',
+      'requisitoIncumplido',
+    ]
+
+    for (const evento of eventos) {
+      expect(narrador.frase('ham', evento), `Ham no tiene nada que decir en «${evento}»`).toBeTruthy()
+    }
+    expect(mundo.itinerario).toBe('era1')
+  })
+
+  it('no pregunta lo mismo dos veces seguidas cuando tiene de qué elegir', () => {
+    const narrador = usarNarrador()
+    const dichas = new Set()
+    for (let i = 0; i < 3; i += 1) dichas.add(narrador.frase('ham', 'retoSuperado'))
+    expect(dichas.size).toBeGreaterThan(1)
   })
 })
 

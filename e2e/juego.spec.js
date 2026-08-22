@@ -238,11 +238,25 @@ test('la cabecera cabe en una línea, con racha y todo', async ({ page }) => {
   await page.reload()
   await expect(page.locator('.contador.racha')).toBeVisible()
 
-  const filas = await page.evaluate(() => {
+  // Dos cosas, y hacen falta las dos: que sea una sola fila -la barra tiene
+  // altura fija y la segunda se saldría por abajo- y que **quepa de verdad**.
+  // Con `nowrap` la primera se cumple sola, así que sin la segunda esta prueba
+  // dejaría de proteger nada: lo que se rompe al añadir retos es que el último
+  // enlace se sale por la derecha.
+  const cabecera = await page.evaluate(() => {
     const enlaces = [...document.querySelectorAll('.navegacion > *')]
-    return new Set(enlaces.map((enlace) => Math.round(enlace.getBoundingClientRect().top))).size
+    const cajas = enlaces.map((enlace) => enlace.getBoundingClientRect())
+    const nav = document.querySelector('.navegacion').getBoundingClientRect()
+    return {
+      filas: new Set(cajas.map((caja) => Math.round(caja.top))).size,
+      // Lo que sobresale del hueco de la navegación, en píxeles.
+      desbordado: Math.max(0, Math.round(Math.max(...cajas.map((c) => c.right)) - nav.right)),
+      fueraDeLaVentana: cajas.filter((caja) => caja.right > window.innerWidth).length,
+    }
   })
-  expect(filas).toBe(1)
+  expect(cabecera.filas).toBe(1)
+  expect(cabecera.desbordado, 'la navegación no cabe y se desplaza').toBe(0)
+  expect(cabecera.fueraDeLaVentana, 'hay enlaces fuera de la ventana').toBe(0)
 })
 
 for (const [retoId, solucion] of Object.entries(SOLUCIONES)) {
@@ -392,6 +406,106 @@ test('en PHP, la sintaxis rota la explica PHP y los requisitos se miran por toke
   await page.getByRole('button', { name: 'Ejecutar', exact: true }).click()
   await expect(page.locator('.resultados')).toContainText('array_sum')
   await expect(page.locator('.resultados')).not.toContainText('Reto superado')
+})
+
+test('Ham interrumpe en la primera era, y no aparece en la segunda', async ({ page }) => {
+  // Sin la bienvenida de Wayne por medio: es lo último que se dice al arrancar
+  // el juego por primera vez y pisaría al anfitrión del mundo. Aquí lo que se
+  // prueba es quién interrumpe, no el orden del primer saludo de la partida.
+  await page.addInitScript(() => {
+    localStorage.setItem(
+      'gatosYCodigo',
+      JSON.stringify({
+        version: 1,
+        progreso: { retos: {}, vistoLaBienvenida: true, vistoLaAntesala: true, ultimaVisita: Date.now() },
+      }),
+    )
+  })
+
+  // La primera vez que abre la boca se presenta, sin esperar turno: si no, un
+  // desconocido te haría preguntas y encima solo una de cada tres veces.
+  await page.goto('#/mundo/ceniza')
+
+  // Le recibe el anfitrión del mundo, que es Kelsier.
+  await expect(page.locator('.narrador .quien')).toHaveText('Kelsier')
+  // Y a los cinco segundos le corta Ham, que es lo que hace Ham.
+  await expect(page.locator('.narrador .quien')).toHaveText('Ham', { timeout: 15_000 })
+  await expect(page.locator('.narrador .dice')).toContainText(/pregunt/i)
+
+  // En la segunda era no hay nadie puesto para interrumpir, así que no
+  // interrumpe nadie: el reparto lo decide, no el código.
+  await page.goto('#/mundo/primer-dia')
+  await expect(page.locator('.narrador')).toBeVisible()
+  await expect(page.locator('.narrador .quien')).not.toHaveText('Ham')
+  await page.waitForTimeout(6_000)
+  await expect(page.locator('.narrador .quien')).not.toHaveText('Ham')
+})
+
+test('el editor colorea PHP como PHP, y su gramática no la paga la segunda era', async ({ page }) => {
+  // Antes se coloreaba todo con la gramática de JavaScript, y `<?php` salía
+  // como dos operadores y una variable.
+  const pedidos = []
+  page.on('request', (peticion) => pedidos.push(peticion.url()))
+
+  await irAlReto(page, 'ceniza-01-el-primer-echo')
+  await escribirCodigo(page, "<?php\n\n$metal = 'peltre';\necho $metal;")
+
+  // La gramática se pide en diferido: se espera a que llegue el trozo.
+  await expect
+    .poll(() => pedidos.filter((url) => url.includes('gramatica-php')).length, { timeout: 30_000 })
+    .toBeGreaterThan(0)
+
+  // Y coloreando de verdad: CodeMirror parte el código en trozos con estilo, y
+  // sin gramática no hay trozos, hay una línea de texto plano.
+  const conColor = await page.locator('.cm-content .cm-line span[class]').count()
+  expect(conColor, 'el editor no está coloreando nada').toBeGreaterThan(2)
+
+  // La otra mitad: en la segunda era no se paga esa descarga.
+  // La otra mitad: en la segunda era esa descarga no se paga. No hace falta
+  // resolver nada -lo que se mira es la red-, solo abrir el editor y escribir.
+  pedidos.length = 0
+  await irAlReto(page, 'dia1-07-primera-funcion')
+  await escribirCodigo(page, "function saludar(nombre) {\n  return `Hola, ${nombre}`\n}")
+  // Se espera a que JavaScript esté coloreando: así ha pasado tiempo de sobra
+  // para que una descarga que no debería ocurrir hubiera ocurrido ya.
+  await expect(page.locator('.cm-content .cm-line span[class]').first()).toBeVisible()
+  expect(pedidos.filter((url) => url.includes('gramatica-php'))).toEqual([])
+})
+
+test('un reto se puede practicar otra vez, con otros datos y sin volver a cobrar', async ({ page }) => {
+  await irAlReto(page, 'ceniza-03-la-cuadrilla')
+
+  const bien = [
+    '<?php',
+    'function cuantos(array $g): int { return count($g); }',
+    'function sumar(array $n): int {',
+    '    $t = 0;',
+    '    foreach ($n as $x) { $t += $x; }',
+    '    return $t;',
+    '}',
+  ].join('\n')
+
+  await escribirCodigo(page, bien)
+  await page.getByRole('button', { name: 'Ejecutar', exact: true }).click()
+  await expect(page.getByText('Reto superado.')).toBeVisible({ timeout: 120_000 })
+
+  const croquetas = await page.locator('.croquetas').first().innerText()
+  const intentos = await page.locator('.intentos').first().innerText()
+
+  // Otra tanda: mismos requisitos, otros datos.
+  await page.getByRole('button', { name: /Otra vez, con otros datos/ }).click()
+  await expect(page.locator('.etiqueta.practica')).toContainText('práctica 1 de')
+  await expect(page.getByText('Reto superado.')).toHaveCount(0)
+  await expect(page.locator('.intentos')).toContainText('no se cobra')
+
+  await escribirCodigo(page, bien)
+  await page.getByRole('button', { name: 'Ejecutar', exact: true }).click()
+  await expect(page.getByText('Reto superado.')).toBeVisible({ timeout: 120_000 })
+
+  // Y lo que importa: practicar no paga, y no cuenta como intento.
+  await expect(page.locator('.croquetas').first()).toHaveText(croquetas)
+  await page.getByRole('button', { name: 'Volver al reto original' }).click()
+  await expect(page.locator('.intentos').first()).toHaveText(intentos)
 })
 
 test('el motor de PHP no se descarga jugando en la segunda era', async ({ page }) => {

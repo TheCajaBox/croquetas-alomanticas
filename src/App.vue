@@ -9,9 +9,11 @@ import SombreroEscondido from './componentes/SombreroEscondido.vue'
 import { usarArmonia } from './almacen/armonia.js'
 import { usarEconomia } from './almacen/economia.js'
 import { usarGatos } from './almacen/gatos.js'
+import { usarNarrador } from './almacen/narrador.js'
 import { usarProgreso } from './almacen/progreso.js'
 import { usarRecortes } from './almacen/recortes.js'
 import { usarSombreros } from './almacen/sombreros.js'
+import { nombreDe } from './contenido/personajes.js'
 import { RETOS } from './contenido/retos/index.js'
 import { RECORTES_POR_ID } from './contenido/recortes.js'
 import { SOMBREROS_POR_ID } from './contenido/sombreros.js'
@@ -19,6 +21,7 @@ import { SOMBREROS_POR_ID } from './contenido/sombreros.js'
 const armonia = usarArmonia()
 const economia = usarEconomia()
 const gatos = usarGatos()
+const narrador = usarNarrador()
 const progreso = usarProgreso()
 const sombreros = usarSombreros()
 const recortes = usarRecortes()
@@ -70,7 +73,9 @@ watch(ultimoRecorte, (nuevo) => {
         <RouterLink to="/" class="marca">
           <SombreroEscondido id="cabecera" :posicion="{ top: '-2px', right: '-16px' }" :tamano="17" />
           <span class="titulo">Gatos y Código</span>
-          <span class="apagado lema">narra Wayne · pagan los gatos</span>
+          <!-- Quien narra depende de dónde estés: en la primera era no es Wayne.
+             Estaba escrito a mano y mentía en tres de los cuatro caminos. -->
+        <span class="apagado lema">narra {{ nombreDe(narrador.quienNarra) }} · pagan los gatos</span>
         </RouterLink>
 
         <nav class="navegacion">
@@ -202,7 +207,22 @@ watch(ultimoRecorte, (nuevo) => {
 .titulo { font-weight: 700; letter-spacing: -0.01em; }
 .lema { font-size: 0.72rem; }
 
-.navegacion { display: flex; gap: 4px; margin-left: auto; flex-wrap: wrap; }
+/* `nowrap` a propósito y no por descuido: la barra tiene altura fija, así que
+   una segunda fila no se aprieta, se sale por debajo y tapa el contenido. Cada
+   reto que se añade ensancha el contador de retos un carácter, y así es como se
+   rompió: con «0/97» cabía y con «0/105» ya no. Sin poder doblarse, cuando no
+   quepa se desplaza -que se ve y se arregla- en vez de romper la página. */
+.navegacion {
+  display: flex;
+  gap: 4px;
+  margin-left: auto;
+  flex-wrap: nowrap;
+  min-width: 0;
+  overflow-x: auto;
+  scrollbar-width: none;
+}
+.navegacion::-webkit-scrollbar { display: none; }
+.navegacion a, .navegacion .como-enlace { flex-shrink: 0; }
 .navegacion a,
 .navegacion .como-enlace {
   position: relative;
@@ -346,9 +366,15 @@ watch(ultimoRecorte, (nuevo) => {
 /* La barra dejó de caber en una línea cuando aparecieron el contador de racha y
    dos secciones más: a partir de aquí la navegación baja a su propia fila, en
    vez de doblarse dentro de una barra de altura fija y salirse por abajo. */
+/* El lema es adorno: es lo primero que se va cuando la barra va justa, y con
+   eso la navegación gana los cien píxeles que necesita para caber entera. */
+@media (max-width: 1360px) {
+  .lema { display: none; }
+}
+
 @media (max-width: 1150px) {
   .barra-superior { height: auto; padding-top: 12px; padding-bottom: 12px; flex-wrap: wrap; }
-  .navegacion { order: 3; width: 100%; margin-left: 0; }
+  .navegacion { order: 3; width: 100%; margin-left: 0; overflow-x: visible; flex-wrap: wrap; }
 }
 
 @media (max-width: 860px) {

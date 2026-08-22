@@ -3,19 +3,29 @@ import { computed, onBeforeUnmount, onMounted, ref, watch } from 'vue'
 import { storeToRefs } from 'pinia'
 
 import Avatar from './Avatar.vue'
-import { PERSONAJES, usarNarrador } from '../almacen/narrador.js'
+import { nombreDe } from '../contenido/personajes.js'
+import { usarNarrador } from '../almacen/narrador.js'
 
 /** Lo que tarda el bocadillo en quitarse solo. Suficiente para leerlo sin prisa. */
 const DURACION_MS = 14_000
+/**
+ * Y lo que dura cuando alguien va a interrumpir.
+ *
+ * Una interrupción a los catorce segundos no interrumpe nada: es otra frase
+ * suelta. Ham corta a Brisa a media idea, que es lo que hace Ham.
+ */
+const DURACION_ANTES_DE_INTERRUMPIR_MS = 5_000
 /** Silencio a partir del cual Wayne se aburre y suelta algo por su cuenta. */
 const SILENCIO_PARA_CHARLAR_MS = 95_000
 const CADA_CUANTO_MIRA_MS = 20_000
 
 const narrador = usarNarrador()
-const { mensaje, verborrea } = storeToRefs(narrador)
+const { cola, mensaje, verborrea } = storeToRefs(narrador)
 
 const quien = computed(() => mensaje.value?.personaje ?? 'wayne')
-const nombre = computed(() => PERSONAJES[quien.value]?.nombre ?? 'Wayne')
+// Del elenco entero, no de la lista corta que había aquí: con seis nombres,
+// Brisa y Fantasma hablaban con el rótulo de «Wayne» encima.
+const nombre = computed(() => nombreDe(quien.value))
 
 // El bocadillo está fijo sobre la página: si no se retirara acabaría tapando el
 // panel de pistas de forma permanente.
@@ -26,7 +36,8 @@ watch(mensaje, (nuevo) => {
   clearTimeout(temporizador)
   if (!nuevo) return
   ultimaVez.value = Date.now()
-  temporizador = setTimeout(() => narrador.callar(), DURACION_MS)
+  const dura = cola.value.length ? DURACION_ANTES_DE_INTERRUMPIR_MS : DURACION_MS
+  temporizador = setTimeout(() => narrador.pasarAlSiguiente(), dura)
 })
 
 // Wayne habla también cuando no ha pasado nada. No informa de nada: es que está

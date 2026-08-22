@@ -13,6 +13,8 @@ const fichaVacia = () => ({
   pistasUsadas: [],
   codigoGuardado: null,
   superadoEn: null,
+  /** Qué variantes se han practicado, por su índice. Ver `enVariante`. */
+  variantesHechas: [],
 })
 
 export const usarProgreso = defineStore('progreso', {
@@ -179,9 +181,24 @@ export const usarProgreso = defineStore('progreso', {
      */
     registrarIntento(retoId, acertado, { indultado = false } = {}) {
       const ficha = this.asegurarFicha(retoId)
+
+      // Un reto ya superado no se vuelve a intentar: se practica. `intentos` es
+      // lo que costó resolverlo, y dos insignias se miran ahí -«el mundo entero
+      // a la primera» y la de los jefes-, así que contar la práctica las
+      // volvía inalcanzables por volver a abrir un reto que ya estaba hecho.
+      if (ficha.superado) return ficha
+
       ficha.intentos += 1
       if (!acertado && !indultado) ficha.fallos += 1
       return ficha
+    },
+
+    /** Una tanda de práctica resuelta. No paga nada: cuenta para verse a uno mismo. */
+    apuntarVariante(retoId, indice) {
+      if (!indice) return
+      const ficha = this.asegurarFicha(retoId)
+      if (!ficha.variantesHechas) ficha.variantesHechas = []
+      if (!ficha.variantesHechas.includes(indice)) ficha.variantesHechas.push(indice)
     },
 
     /** Marasi ha leído el código y no ha encontrado nada que objetar. */

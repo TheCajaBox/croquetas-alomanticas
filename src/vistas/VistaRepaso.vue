@@ -43,7 +43,11 @@ const NOMBRES = { marasi: 'Marasi', brisa: 'Brisa' }
 const comoSeLlama = NOMBRES[quien] ?? 'Marasi'
 
 // Solo abre el caso si el caso se abre: si esto redirige, se calla.
-if (abierto) narrador.decir('abreCaso', {}, { personaje: quien, forzar: true })
+// Cuántas son se cuenta, no se escribe: un repaso de nueve preguntas anunciado
+// como «seis» es la misma errata que tenían los sombreros.
+if (abierto) {
+  narrador.decir('abreCaso', { cuantas: repaso.preguntas.length }, { personaje: quien, forzar: true })
+}
 
 function responder(indice) {
   if (contestada.value) return
@@ -84,7 +88,7 @@ function otraVez() {
           <p class="quien">El caso de {{ comoSeLlama }}</p>
           <h1>{{ repaso.titulo }}</h1>
           <p class="tenue">
-            Seis preguntas sobre {{ mundo.nombre }}. No cuentan para nada salvo para saber qué
+            {{ repaso.preguntas.length }} preguntas sobre {{ mundo.nombre }}. No cuentan para nada salvo para saber qué
             se te ha quedado; se puede repetir, pero solo se cobra lo que se mejore.
           </p>
         </div>

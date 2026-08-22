@@ -20,7 +20,7 @@ import PanelResultados from '../componentes/PanelResultados.vue'
 import VistaPreviaSandbox from '../componentes/VistaPreviaSandbox.vue'
 import { MUNDOS_POR_ID } from '../contenido/mundos.js'
 import { cargarApunte } from '../contenido/apuntes/index.js'
-import { RETOS_POR_ID, retoSiguiente } from '../contenido/retos/index.js'
+import { cuantasVariantes, enVariante, RETOS_POR_ID, retoSiguiente } from '../contenido/retos/index.js'
 import {
   datosDelTipo,
   esTactil as tipoEsTactil,
@@ -84,6 +84,9 @@ const muestraVistaPrevia = computed(
   () => ENTORNOS[reto?.entorno]?.canal === 'iframe' && tieneVistaPrevia(reto?.tipo),
 )
 
+/** Con qué gramática colorea el editor. Del entorno, no del mundo. */
+const lenguajeDelReto = computed(() => ENTORNOS[reto?.entorno]?.lenguaje ?? 'js')
+
 // El puente se crea aquí y se destruye con la vista. La clave por ruta del
 // RouterView garantiza que cambiar de reto levante un sandbox limpio.
 const puente = reto ? crearPuente(reto.entorno) : null
@@ -108,12 +111,43 @@ if (reto && !progreso.superado(reto.id)) {
 const apunte = ref('')
 if (reto) cargarApunte(reto.id).then((texto) => { apunte.value = texto ?? '' })
 
+/**
+ * En qué tanda de práctica estás. La 0 es el reto de siempre.
+ *
+ * Un reto de escribir se resuelve una vez y ahí se queda, y una vez no basta
+ * para que se te quede. Al superarlo aparece «otra vez, con otros números» y se
+ * juega el mismo reto con otros datos: **sin volver a cobrar**, porque el `id`
+ * es el mismo y para el progreso sigue siendo un reto ya superado.
+ */
+const variante = ref(0)
+/** El reto que se está jugando ahora mismo, con los tests de su tanda. */
+const enJuego = computed(() => enVariante(reto, variante.value))
+const tandasDePractica = cuantasVariantes(reto)
+
 const codigo = ref(progreso.ficha(props.retoId).codigoGuardado ?? reto?.inicial ?? '')
 const respuesta = ref('')
 const resultado = ref(null)
 const verSolucion = ref(false)
 
-watch(codigo, (nuevo) => progreso.guardarBorrador(props.retoId, nuevo))
+// El borrador es el del reto de verdad. Practicando no se guarda: si no, la
+// primera tanda de práctica te borraría la solución que ya tenías escrita.
+watch(codigo, (nuevo) => {
+  if (variante.value === 0) progreso.guardarBorrador(props.retoId, nuevo)
+})
+
+/** Otra tanda con otros datos. Da la vuelta al llegar al final. */
+function practicarOtraVez() {
+  variante.value = variante.value >= tandasDePractica ? 1 : variante.value + 1
+  codigo.value = enJuego.value.inicial ?? ''
+  resultado.value = null
+  verSolucion.value = false
+}
+
+function volverAlRetoDeVerdad() {
+  variante.value = 0
+  codigo.value = progreso.ficha(props.retoId).codigoGuardado ?? reto?.inicial ?? ''
+  resultado.value = null
+}
 
 /**
  * Armonía necesita saber dónde estás para que su diagnóstico valga algo: sin
@@ -152,14 +186,14 @@ const ficha = computed(() => progreso.ficha(props.retoId))
  * para eso ya está el mensaje de error al ejecutar.
  */
 const avisosEnVivo = computed(() => {
-  if (!gatos.tieneBonus('avisoDeRequisitos') || !reto?.requisitos?.length) return []
+  if (!gatos.tieneBonus('avisoDeRequisitos') || !enJuego.value?.requisitos?.length) return []
   // Solo en JavaScript: mirar los requisitos mientras escribes necesita un
   // analizador aquí mismo, y el único que hay es de JavaScript. En PHP los
   // comprueba el sandbox al ejecutar, así que aquí no hay nada que decir.
   if (ENTORNOS[reto.entorno]?.lenguaje !== 'js') return []
   if (!codigo.value.trim()) return []
   try {
-    return comprobarRequisitos(analizar(codigo.value), reto.requisitos).filter((r) => !r.cumplido)
+    return comprobarRequisitos(analizar(codigo.value), enJuego.value.requisitos).filter((r) => !r.cumplido)
   } catch {
     return []
   }
@@ -168,8 +202,9 @@ const avisosEnVivo = computed(() => {
 async function ejecutar() {
   clearTimeout(impaciencia)
   resultado.value = esPrediccion.value
-    ? await juego.resolverPrediccion(reto, respuesta.value, puente)
-    : await juego.enviar(reto, codigo.value, puente)
+    ? await juego.resolverPrediccion(enJuego.value, respuesta.value, puente)
+    : await juego.enviar(enJuego.value, codigo.value, puente)
+  if (resultado.value?.ok) progreso.apuntarVariante(reto.id, variante.value)
 }
 
 /** Elegir y emparejar se corrigen sin ejecutar nada. */
@@ -179,7 +214,8 @@ function responderTactil(acertado) {
 
 /** Ordenar y completar sí ejecutan: se monta el código y se manda al sandbox. */
 async function ejecutarMontaje(codigoMontado) {
-  resultado.value = await juego.enviar(reto, codigoMontado, puente)
+  resultado.value = await juego.enviar(enJuego.value, codigoMontado, puente)
+  if (resultado.value?.ok) progreso.apuntarVariante(reto.id, variante.value)
 }
 
 /**
@@ -193,7 +229,7 @@ const mundoRecienCerrado = computed(
 )
 
 function reiniciarCodigo() {
-  codigo.value = reto.inicial ?? ''
+  codigo.value = enJuego.value.inicial ?? ''
   resultado.value = null
 }
 </script>
@@ -208,6 +244,9 @@ function reiniciarCodigo() {
         <span class="etiqueta" :style="{ color: mundo.color, borderColor: mundo.color }">{{ mundo.subtitulo }}</span>
         <span v-if="reto.jefe" class="etiqueta jefe">jefe</span>
         <span v-if="yaSuperado" class="etiqueta superado">superado</span>
+        <span v-if="variante" class="etiqueta practica">
+          práctica {{ variante }} de {{ tandasDePractica }}
+        </span>
       </div>
       <h1>{{ reto.titulo }}</h1>
     </header>
@@ -223,17 +262,17 @@ function reiniciarCodigo() {
       <div class="columna izquierda">
         <section class="panel enunciado">
           <SombreroEscondido id="enunciado" :posicion="{ top: '10px', right: '12px' }" :tamano="17" />
-          <Marcado :texto="reto.enunciado" />
+          <Marcado :texto="enJuego.enunciado" />
         </section>
 
         <PanelPistas :reto="reto" />
 
-        <section v-if="yaSuperado && reto.solucion" class="panel solucion">
+        <section v-if="yaSuperado && enJuego.solucion" class="panel solucion">
           <button v-if="!verSolucion" @click="verSolucion = true">Ver una solución posible</button>
           <template v-else>
             <h3>Una solución posible</h3>
             <p class="tenue nota">No es la única. Si la tuya pasa los tests, la tuya vale.</p>
-            <pre><code>{{ reto.solucion }}</code></pre>
+            <pre><code>{{ enJuego.solucion }}</code></pre>
           </template>
         </section>
       </div>
@@ -320,7 +359,7 @@ function reiniciarCodigo() {
               <h3>Tu código</h3>
               <button class="menudo" @click="reiniciarCodigo">Empezar de nuevo</button>
             </div>
-            <EditorCodigo v-model="codigo" />
+            <EditorCodigo v-model="codigo" :lenguaje="lenguajeDelReto" />
           </section>
         </template>
 
@@ -335,7 +374,10 @@ function reiniciarCodigo() {
           <button class="principal" :class="{ trabajando: juego.ejecutando }" :disabled="juego.ejecutando" @click="ejecutar">
             {{ juego.ejecutando ? 'Ejecutando…' : esPrediccion ? 'Comprobar predicción' : 'Ejecutar' }}
           </button>
-          <span class="tenue intentos">
+          <span v-if="variante" class="tenue intentos">
+            Práctica: no se cobra y no cuenta como intento.
+          </span>
+          <span v-else class="tenue intentos">
             {{ ficha.intentos }} intento{{ ficha.intentos === 1 ? '' : 's' }}
           </span>
         </div>
@@ -371,6 +413,15 @@ function reiniciarCodigo() {
           <RouterLink v-else :to="{ name: 'mundo', params: { mundoId: reto.mundo } }" class="boton-siguiente">
             Has terminado este mundo →
           </RouterLink>
+
+          <!-- Resolverlo una vez no basta para que se te quede. Esto no paga
+               croquetas: se practica porque se quiere, no porque rente. -->
+          <button v-if="tandasDePractica" class="menudo practicar" @click="practicarOtraVez">
+            {{ variante ? 'Otra tanda' : 'Otra vez, con otros datos' }}
+          </button>
+          <button v-if="variante" class="menudo" @click="volverAlRetoDeVerdad">
+            Volver al reto original
+          </button>
         </div>
       </div>
     </div>
@@ -378,6 +429,9 @@ function reiniciarCodigo() {
 </template>
 
 <style scoped>
+.etiqueta.practica { color: #8fce9b; border-color: #8fce9b; }
+.practicar { border-color: #8fce9b; color: #8fce9b; }
+
 .encabezado { margin-bottom: 20px; }
 .volver { display: inline-block; text-decoration: none; font-size: 0.85rem; margin-bottom: 10px; }
 .etiquetas { gap: 6px; margin-bottom: 8px; }

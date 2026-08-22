@@ -30,3 +30,28 @@ export function retoSiguiente(reto) {
   const hermanos = retosDelMundo(reto.mundo)
   return hermanos[hermanos.indexOf(reto) + 1] ?? null
 }
+
+/**
+ * Cuántas tandas de práctica extra trae un reto, además de la original.
+ *
+ * Un reto de escribir se supera una vez y se queda ahí, y lo que hace falta
+ * para que algo se te quede no es resolverlo una vez: es resolverlo tres con
+ * otros datos. Las `variantes` son eso, y salen casi gratis porque los `tests`
+ * de un reto ya son datos y no código: una variante es otra tanda de tests.
+ */
+export const cuantasVariantes = (reto) => reto?.variantes?.length ?? 0
+
+/**
+ * El reto tal y como se juega en una de sus variantes.
+ *
+ * La 0 es la de siempre. De la 1 en adelante se toma lo que la variante
+ * cambie -normalmente los `tests`, y a veces el enunciado y el código de
+ * partida- y el resto se queda igual: mismas pistas, mismo apunte, mismos
+ * requisitos y **mismo `id`**, que es lo que hace que practicar no vuelva a
+ * pagar croquetas ni cuente como un reto nuevo.
+ */
+export function enVariante(reto, indice = 0) {
+  const variante = reto?.variantes?.[indice - 1]
+  if (!variante) return reto
+  return { ...reto, ...variante, variante: indice }
+}

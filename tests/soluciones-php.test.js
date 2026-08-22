@@ -4,8 +4,8 @@ import { PHP } from '@php-wasm/universal'
 import { loadNodeRuntime } from '@php-wasm/node'
 import { afterAll, beforeAll, describe, expect, it } from 'vitest'
 
-import { RETOS } from '../src/contenido/retos/index.js'
-import { codigoDeReferencia } from './revisarRetos.js'
+import { cuantasVariantes, enVariante, RETOS } from '../src/contenido/retos/index.js'
+import { SIN_CODIGO, codigoDeReferencia } from './revisarRetos.js'
 
 /**
  * Las soluciones de referencia de los retos de PHP, **ejecutando PHP de verdad**.
@@ -23,7 +23,11 @@ const ASERCIONES = readFileSync(new URL('../src/motor/sandbox-php/aserciones.php
 const GUION = readFileSync(new URL('../src/motor/sandbox-php/guion.php', import.meta.url), 'utf8')
 const MARCA = '__GATOS__'
 
-const retosDePhp = RETOS.filter((reto) => reto.entorno === 'php')
+// Los de señalar no ejecutan nada del jugador -no hay código de referencia que
+// correr- y de que estén bien montados se encarga `revisarTactil` en
+// tests/soluciones.test.js. Sin este filtro, el primero que apareció en La
+// Ceniza intentó escribir `null` en el disco del sandbox y abortó el runtime.
+const retosDePhp = RETOS.filter((reto) => reto.entorno === 'php' && !SIN_CODIGO.includes(reto.tipo))
 
 let php = null
 
@@ -59,19 +63,29 @@ describe('las soluciones de referencia de los retos de PHP resuelven sus retos',
     expect(retosDePhp.length).toBeGreaterThan(0)
   })
 
+  /** El mismo examen para el reto y para cada una de sus tandas de práctica. */
+  async function comprobar(reto) {
+    const informe = await correr(reto, codigoDeReferencia(reto))
+
+    expect(informe.error, 'la solución de referencia revienta').toBe(null)
+
+    const incumplidos = informe.requisitos.filter((r) => !r.cumplido).map((r) => r.tipo)
+    expect(incumplidos, 'la solución de referencia no cumple los requisitos del propio reto').toEqual([])
+
+    const rojos = informe.tests.filter((t) => !t.ok)
+    expect(rojos.map((t) => `${t.nombre}: ${t.mensaje}`), 'tests en rojo').toEqual([])
+    expect(informe.tests.length, 'un reto de escribir sin tests no comprueba nada').toBeGreaterThan(0)
+  }
+
   for (const reto of retosDePhp) {
-    it(`${reto.id}: ${reto.titulo}`, async () => {
-      const informe = await correr(reto, codigoDeReferencia(reto))
+    it(`${reto.id}: ${reto.titulo}`, () => comprobar(reto), 30_000)
 
-      expect(informe.error, 'la solución de referencia revienta').toBe(null)
-
-      const incumplidos = informe.requisitos.filter((r) => !r.cumplido).map((r) => r.tipo)
-      expect(incumplidos, 'la solución de referencia no cumple los requisitos del propio reto').toEqual([])
-
-      const rojos = informe.tests.filter((t) => !t.ok)
-      expect(rojos.map((t) => `${t.nombre}: ${t.mensaje}`), 'tests en rojo').toEqual([])
-      expect(informe.tests.length, 'un reto de escribir sin tests no comprueba nada').toBeGreaterThan(0)
-    }, 30_000)
+    // Las variantes son otra tanda de tests sobre el mismo código, y por eso
+    // mismo se equivocan igual de fácil: una tanda de práctica imposible es un
+    // reto imposible que además parece resuelto.
+    for (let i = 1; i <= cuantasVariantes(reto); i += 1) {
+      it(`${reto.id}: práctica ${i} de ${cuantasVariantes(reto)}`, () => comprobar(enVariante(reto, i)), 30_000)
+    }
   }
 })
 

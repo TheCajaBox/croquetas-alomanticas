@@ -167,11 +167,11 @@ export const MUNDOS = [
     color: '#a8a2bd',
     anfitrion: 'kelsier',
     resumen:
-      'Lo que hay que saber antes de saber nada: abrir PHP, imprimir, guardar valores y meterlos en una lista.',
+      'Lo que hay que saber antes de saber nada: abrir PHP, imprimir, guardar valores, saber de qué tipo son, comparar sin que te engañen y entrar dentro de una lista.',
     presentacion:
       'Todo el mundo empieza igual: sin saber nada y con alguien delante diciéndole que es más fácil de lo que parece. Yo soy ese alguien y te estoy mintiendo un poco, pero solo un poco. PHP mueve media web y se aprende deprisa; lo que cuesta es aprenderlo bien, y para eso hace falta que lo escribas tú.',
     despedida:
-      'Ya sabes decirle cosas a la máquina y guardarlas para después. Con eso no se hace nada todavía, y sin eso no se hace nada nunca.',
+      'Ya sabes decirle cosas a la máquina, guardarlas, mirar de qué son y sacarlas de una lista. Con eso no se hace nada todavía, y sin eso no se hace nada nunca.',
   },
 ]
 

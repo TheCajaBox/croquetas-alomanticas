@@ -286,6 +286,14 @@ export const usarJuego = defineStore('juego', {
       else if (sinPistas && aLaPrimera) narrador.decir('superadoSinPistas')
       else narrador.decir('retoSuperado')
 
+      // Y aquí es donde alguien pregunta por qué. Que el test pase no es lo
+      // mismo que entender por qué pasa, y la pregunta cae justo cuando más
+      // apetece no hacérsela: al ver el verde.
+      narrador.interrumpirEn(
+        MUNDOS_POR_ID[reto.mundo],
+        reto.jefe ? 'jefeDerrotado' : sinPistas && aLaPrimera ? 'superadoSinPistas' : 'retoSuperado',
+      )
+
       if (rachaRota) narrador.decir('rachaRota', { racha: rachaAntes }, { forzar: true })
 
       // Las insignias van al final, cuando ya está todo apuntado: si se
@@ -317,22 +325,36 @@ export const usarJuego = defineStore('juego', {
       if (mundo?.anfitrion === 'steris' && traducirImprevisto(resultado.error?.mensaje)) {
         narrador.decirAnfitrion(mundo, 'previsto')
       }
-      switch (resultado.fase) {
-        case FASES.SINTAXIS:
-          return narrador.decir('errorDeSintaxis', { linea: resultado.error?.linea }, { forzar: true })
-        case FASES.REQUISITOS:
-          return narrador.decir('requisitoIncumplido', {}, { forzar: true })
-        case FASES.TIEMPO:
-          return narrador.decir('tiempoAgotado', {}, { forzar: true })
-        case FASES.EJECUCION:
-          return resultado.error?.bucleInfinito
-            ? narrador.decir('bucleInfinito', {}, { forzar: true })
-            : narrador.decir('testFallado', { fallo: resultado.error?.mensaje })
-        default: {
-          const primerFallo = resultado.tests?.find((test) => !test.ok)
-          return narrador.decir('testFallado', { fallo: primerFallo?.mensaje })
+      const dicho = (() => {
+        switch (resultado.fase) {
+          case FASES.SINTAXIS:
+            return narrador.decir('errorDeSintaxis', { linea: resultado.error?.linea }, { forzar: true })
+          case FASES.REQUISITOS:
+            return narrador.decir('requisitoIncumplido', {}, { forzar: true })
+          case FASES.TIEMPO:
+            return narrador.decir('tiempoAgotado', {}, { forzar: true })
+          case FASES.EJECUCION:
+            return resultado.error?.bucleInfinito
+              ? narrador.decir('bucleInfinito', {}, { forzar: true })
+              : narrador.decir('testFallado', { fallo: resultado.error?.mensaje })
+          default: {
+            const primerFallo = resultado.tests?.find((test) => !test.ok)
+            return narrador.decir('testFallado', { fallo: primerFallo?.mensaje })
+          }
         }
-      }
+      })()
+
+      // Fallar también se puede entender: por qué se ha roto vale más que qué
+      // hay que cambiar para que deje de romperse.
+      narrador.interrumpirEn(
+        mundo,
+        resultado.fase === FASES.SINTAXIS
+          ? 'errorDeSintaxis'
+          : resultado.fase === FASES.REQUISITOS
+            ? 'requisitoIncumplido'
+            : 'testFallado',
+      )
+      return dicho
     },
   },
 })

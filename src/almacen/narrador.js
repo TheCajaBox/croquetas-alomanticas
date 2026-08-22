@@ -6,16 +6,28 @@ import {
   LINEAS_DE_BRISA,
   LINEAS_DE_BRISA_NARRANDO,
   LINEAS_DE_FANTASMA,
+  LINEAS_DE_HAM,
+  LINEAS_DE_KELSIER,
   LINEAS_DE_ARMONIA,
   LINEAS_DE_MARASI,
   LINEAS_DE_MELAAN,
   LINEAS_DE_STERIS,
   LINEAS_DE_WAX,
 } from '../contenido/narrador/lineas.js'
+import { repartoDelMundo } from '../contenido/itinerarios.js'
 import { autoguardar } from './persistencia.js'
 
 /** Cuántas frases recientes se recuerdan por evento para no repetirlas. */
 const MEMORIA = 3
+
+/**
+ * Una de cada cuántas veces interrumpe quien interrumpe.
+ *
+ * En todas sería un pesado, y a un pesado se le cierra el bocadillo sin leerlo;
+ * en una de cada diez no existiría. Se cuenta, no se sortea: así la pregunta
+ * cae siempre a la misma altura para todo el mundo y se puede probar.
+ */
+const CADA_CUANTAS_INTERRUMPE = 3
 
 /** Eventos que con la verborrea normal sobran: son ruido de Wayne, no información. */
 const SOLO_CON_VERBORREA_ALTA = new Set(['primerIntento', 'gatoCuidado'])
@@ -31,15 +43,8 @@ const SACOS = {
   // dos sacos se juntan aquí porque es la misma voz, no dos personas.
   brisa: { ...LINEAS_DE_BRISA, ...LINEAS_DE_BRISA_NARRANDO },
   fantasma: LINEAS_DE_FANTASMA,
-}
-
-export const PERSONAJES = {
-  wayne: { nombre: 'Wayne' },
-  wax: { nombre: 'Wax' },
-  armonia: { nombre: 'Armonía' },
-  steris: { nombre: 'Steris' },
-  marasi: { nombre: 'Marasi' },
-  melaan: { nombre: 'MeLaan' },
+  ham: LINEAS_DE_HAM,
+  kelsier: LINEAS_DE_KELSIER,
 }
 
 export const NIVELES_DE_VERBORREA = [
@@ -66,6 +71,16 @@ export const usarNarrador = defineStore('narrador', {
      * de la primera era Wayne no ha estado nunca.
      */
     quienNarra: 'wayne',
+    /**
+     * Lo que se va a decir en cuanto acabe la frase de ahora.
+     *
+     * Cabe una sola cosa, y es para las interrupciones: quien interrumpe
+     * espera a que el narrador termine y entonces le corta. Guardar una lista
+     * larga acabaría soltando de golpe preguntas de hace tres retos.
+     */
+    cola: [],
+    /** Cuántas veces se ha podido interrumpir, para interrumpir una de cada tres. */
+    ocasionesDeInterrumpir: 0,
   }),
 
   getters: {
@@ -110,14 +125,12 @@ export const usarNarrador = defineStore('narrador', {
     },
 
     /**
-     * @param {string} evento clave de src/contenido/narrador/lineas.js
-     * @param {object} contexto datos para las frases que se rellenan
-     * @param {{nivel?: number, forzar?: boolean, personaje?: 'wayne'|'wax'}} opciones
+     * Elige qué diría esa persona ante ese evento, sin decirlo todavía.
+     *
+     * Separado de `decir` porque hay dos destinos: el bocadillo de ahora y la
+     * cola de quien va a interrumpir después.
      */
-    decir(evento, contexto = {}, { nivel, forzar = false, personaje = null } = {}) {
-      const quien = personaje ?? this.quienNarra
-      if (!forzar && !this.leTocaHablar(evento, quien)) return null
-
+    frase(quien, evento, contexto = {}, nivel = null) {
       // Sin saco propio, callado. Antes se caía en el de Wayne por descarte, y
       // eso hacía que en un mundo de la primera era hablara Wayne -que no ha
       // estado allí nunca- con frases de otro itinerario. Mejor no decir nada.
@@ -128,10 +141,74 @@ export const usarNarrador = defineStore('narrador', {
 
       const clave = `${quien}:${nivel != null ? `${evento}:${nivel}` : evento}`
       const linea = saco[this.elegirIndice(clave, saco.length)]
-      const texto = typeof linea === 'function' ? linea(contexto) : linea
+      return typeof linea === 'function' ? linea(contexto) : linea
+    },
+
+    /**
+     * @param {string} evento clave de src/contenido/narrador/lineas.js
+     * @param {object} contexto datos para las frases que se rellenan
+     * @param {{nivel?: number, forzar?: boolean, personaje?: string}} opciones
+     */
+    decir(evento, contexto = {}, { nivel, forzar = false, personaje = null } = {}) {
+      const quien = personaje ?? this.quienNarra
+      if (!forzar && !this.leTocaHablar(evento, quien)) return null
+
+      const texto = this.frase(quien, evento, contexto, nivel ?? null)
+      if (texto == null) return null
 
       this.mensaje = { texto, evento, personaje: quien, cuando: Date.now() }
       return texto
+    },
+
+    /**
+     * Alguien le corta al narrador para preguntar por qué.
+     *
+     * Quién interrumpe lo dice el reparto del itinerario (`interrumpe`), así
+     * que en la segunda era no interrumpe nadie: allí no hay nadie puesto para
+     * eso y esto no hace nada. La frase no sustituye a la del narrador, espera
+     * a que termine; el componente le da menos tiempo cuando ve que hay algo
+     * esperando, porque una interrupción a los catorce segundos no interrumpe.
+     */
+    interrumpirEn(mundo, evento, contexto = {}) {
+      const quien = repartoDelMundo(mundo)?.interrumpe
+      if (!quien || quien === this.quienNarra) return null
+      // Con el narrador callado del todo, tampoco interrumpe nadie: quien pide
+      // silencio no quiere dos voces en vez de una.
+      if (this.verborrea === 'callado') return null
+
+      // La primera vez que abre la boca dice quién es. Sin esto aparecería un
+      // desconocido preguntándote cosas, y encima solo una de cada tres veces:
+      // la presentación no puede depender de un contador.
+      let cual = evento
+      if (!this.presentados.includes(quien)) {
+        this.presentados = [...this.presentados, quien]
+        cual = 'presentacion'
+      } else {
+        this.ocasionesDeInterrumpir += 1
+        if (this.ocasionesDeInterrumpir % CADA_CUANTAS_INTERRUMPE !== 0) return null
+      }
+
+      const texto = this.frase(quien, cual, contexto)
+      if (texto == null) return null
+
+      // Si no hay nadie hablando, no hay a quien interrumpir: se dice ya. Sin
+      // esto la frase se quedaba en la cola para siempre -nadie la sacaba,
+      // porque quien la saca es el final de la frase anterior- y el silencio
+      // parecía que Ham no existía.
+      if (!this.mensaje) {
+        this.mensaje = { texto, evento: cual, personaje: quien, cuando: Date.now() }
+        return texto
+      }
+
+      this.cola = [{ texto, evento: cual, personaje: quien }]
+      return texto
+    },
+
+    /** Se acaba la frase de ahora: o entra lo que esperaba, o se hace el silencio. */
+    pasarAlSiguiente() {
+      const [siguiente, ...resto] = this.cola
+      this.cola = resto
+      this.mensaje = siguiente ? { ...siguiente, cuando: Date.now() } : null
     },
 
     /**
@@ -144,9 +221,13 @@ export const usarNarrador = defineStore('narrador', {
       // de la segunda visita el mundo lo abre Wayne, como todos los demás.
       if (anfitrion && !this.presentados.includes(anfitrion)) {
         this.presentados = [...this.presentados, anfitrion]
-        return this.decir('presentacion', {}, { personaje: anfitrion, forzar: true })
+        const presentacion = this.decir('presentacion', {}, { personaje: anfitrion, forzar: true })
+        this.interrumpirEn(mundo, 'entrarAlMundo')
+        return presentacion
       }
-      return this.decir('entrarAlMundo')
+      const dicho = this.decir('entrarAlMundo')
+      this.interrumpirEn(mundo, 'entrarAlMundo')
+      return dicho
     },
 
     /**
@@ -182,6 +263,8 @@ export const usarNarrador = defineStore('narrador', {
 
     callar() {
       this.mensaje = null
+      // Quien cierra el bocadillo quiere silencio, no la siguiente frase.
+      this.cola = []
     },
 
     cambiarVerborrea(nivel) {
@@ -196,8 +279,10 @@ export const usarNarrador = defineStore('narrador', {
 })
 
 export function engancharNarrador(almacen) {
-  // `mensaje` y `quienNarra` no son partida: son dónde estás ahora mismo.
-  // Guardarlos haría que al volver te recibiera la voz del último mundo que
-  // visitaste, diciendo lo último que dijo.
-  autoguardar(almacen, 'narrador', { omitir: ['mensaje', 'quienNarra'] })
+  // `mensaje`, `quienNarra` y la cola no son partida: son dónde estás ahora
+  // mismo. Guardarlos haría que al volver te recibiera la voz del último mundo
+  // que visitaste, diciendo lo último que dijo.
+  autoguardar(almacen, 'narrador', {
+    omitir: ['mensaje', 'quienNarra', 'cola', 'ocasionesDeInterrumpir'],
+  })
 }

@@ -1,5 +1,5 @@
 /**
- * El apunte de Kelsier para «ceniza-04-el-informe».
+ * El apunte de Kelsier para «ceniza-12-el-informe».
  *
  * De la primera era: más corto que los de Wax a propósito, porque aquí la mitad
  * de lo que se aprende está en los retos, que son más y más pequeños.

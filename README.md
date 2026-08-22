@@ -179,7 +179,7 @@ ahora mismo**, porque lee lo que has escrito y mira qué test se ha puesto rojo.
 Lo que no hace, nunca, es darte la solución. Y no porque se lo hayamos prohibido: es que no
 la tiene. Lo que Armonía recuerda se construye con una lista blanca de tres campos —título,
 enunciado y apunte—, así que las soluciones, los tests y las pistas quedan fuera por
-construcción. Un test recorre los 90 retos y comprueba que **cada palabra que puede decir
+construcción. Un test recorre los 102 retos y comprueba que **cada palabra que puede decir
 sale de material que ya tienes gratis y abierto en la misma pantalla**.
 
 Que se contenga es el personaje, no una norma nuestra: en la era 2, Armonía podría
@@ -230,10 +230,10 @@ mundos.
 
 Y ninguna pista da ya la solución entera. La escalera es: **gratis**, dónde mirar; **60%**,
 qué concepto te falta; **200%**, el paso exacto que te queda, sin la línea escrita. Un test
-recorre los 49 retos con pistas y comprueba que la última no contenga ni una línea de su
+recorre los 92 retos con pistas y comprueba que la última no contenga ni una línea de su
 solución — es lo que impide que esto se relaje con el tiempo.
 
-Los siete jefes no tienen pistas en absoluto. Cierran un mundo, y todo lo que hace falta se
+Los diez jefes no tienen pistas en absoluto. Cierran un mundo, y todo lo que hace falta se
 ha visto en los retos de antes: saber que lo sabes es resolverlo sin nadie detrás. Ahí solo
 queda Armonía, y en los jefes él tampoco diagnostica — únicamente traduce errores y define
 palabras, que es la válvula para que nadie se quede mirando un muro en inglés.
@@ -289,17 +289,38 @@ Lo que costó, medido y no supuesto:
   llegan: sin dárselos también a `worker.plugins`, los 29 MB seguían saliendo.
 
 Resultado: `dist/` son **24 MB**, de los que 20 son el binario de PHP **pedido en diferido** —
-solo lo descarga quien entra en la primera era— y el paquete principal se queda en los 0,65 MB
-de siempre. El worker empieza a descargar en cuanto se abre el reto, así que cuando el jugador
-pulsa Ejecutar suele estar listo: 0,9 s el primer envío y 1,6 s los siguientes, medidos en el
-navegador. Y el primer envío tiene un margen de 60 s en vez de 3, porque ahí el reloj no mide
-el código de nadie: mide una descarga.
+solo lo descarga quien entra en la primera era— y el paquete principal se queda en 0,72 MB. El
+worker empieza a descargar en cuanto se abre el reto, así que cuando el jugador pulsa Ejecutar
+suele estar listo: 0,9 s el primer envío y 1,6 s los siguientes, medidos en el navegador. Y el
+primer envío tiene un margen de 60 s en vez de 3, porque ahí el reloj no mide el código de
+nadie: mide una descarga.
+
+Y el editor **colorea PHP como PHP**: antes lo pintaba con la gramática de JavaScript y `<?php`
+salía como dos operadores y una variable. La gramática son otros 154 kB, así que se pide en
+diferido igual que el binario, con dos trampas que costaron encontrar:
+
+- El trozo empaquetado salía como `index-xxxx.js`, indistinguible de otros cuatro con el mismo
+  nombre. Se le pone nombre con un módulo propio de una línea
+  ([`motor/gramatica-php.js`](src/motor/gramatica-php.js)) y no con `manualChunks`, que se
+  llevaba dentro el núcleo de CodeMirror: el trozo pasaba de 154 a 536 kB y el editor acababa
+  necesitando la gramática de PHP para arrancar.
+- Vite mete las dependencias de un trozo en la lista de **precarga** de la ruta que lo pide, así
+  que abrir cualquier reto de JavaScript descargaba el analizador de PHP —justo lo que se
+  quería evitar—. Se quita con `build.modulePreload.resolveDependencies`. Lo cazó la prueba de
+  extremo a extremo mirando la red, no una revisión del código.
+
+**Lo que queda pendiente y conviene saber:** el catálogo de retos se monta con
+`import.meta.glob(..., { eager: true })`, así que **todos los retos van en el paquete
+principal** con su enunciado, su solución, sus tests y sus pistas dentro. Ocho retos nuevos son
+28 kB. Con los ~170 que faltan por escribir eso serían unos 600 kB añadidos al arranque para
+todo el mundo, así que antes de llegar ahí hay que separar los datos que el índice necesita
+—id, mundo, título, tipo, recompensa— del cuerpo del reto, que solo hace falta al abrirlo.
 
 ## Cuatro caminos
 
 El juego tiene **itinerarios**: caminos de aprendizaje completos, cada uno con su materia, su
-temario y su reparto. De momento solo está terminado el primero; los otros tres se anuncian en
-la entrada y dicen «en obras» hasta que tengan mundos.
+temario y su reparto. El primero está terminado y **el de PHP tiene su primer mundo jugable**;
+Elantris y Sel se anuncian en la entrada y dicen «en obras» hasta que tengan mundos.
 
 | Itinerario | Materia | Narra | Quién explica |
 |---|---|---|---|
@@ -318,6 +339,45 @@ No compiten: no hay que terminar uno para empezar otro, y **comparten croquetas,
 sombreros e insignias**, porque es un solo juego con varios temarios. Lo primero al entrar es
 elegir cuál, y esa pantalla **no redirige sola** al que venías jugando: si `/` saltara al
 itinerario de siempre, los demás dejarían de existir para quien ya tuviera partida.
+
+## Menos texto y más práctica, a propósito
+
+Los itinerarios nuevos cambian el equilibrio respecto a la segunda era, y no por casualidad:
+
+- **Doce retos por mundo** y **la mitad como mucho de escribir código**. El resto son
+  predicciones, trazas, elegir, emparejar, verdadero o falso y rellenar huecos, que ya existían
+  y no dependen del lenguaje.
+- **Apuntes de la mitad de largo**: hasta 4.500 caracteres en vez de los 7.000 a 9.000 de los
+  de Wax. Lo que antes era un párrafo explicando algo, aquí es un reto que te lo hace ver.
+- **Cuatro tipos de reto distintos como mínimo** por mundo, o serían doce retos iguales.
+
+Las tres cosas las vigila una prueba, y solo se les exigen a los itinerarios nuevos: El kandra
+es refactor de principio a fin y eso es su gracia, no un defecto.
+
+### Las tandas de práctica
+
+Un reto de escribir puede traer **`variantes`**: más tandas de tests con otros datos. Al
+superarlo aparece «otra vez, con otros datos» y se juega el mismo reto contra otros números,
+tantas veces como se quiera. Cuesta cuatro líneas de motor porque los `tests` de un reto ya son
+datos y no código.
+
+Practicar **no paga croquetas y no cuenta como intento**. Lo segundo importa más de lo que
+parece: dos insignias se miran en `intentos`, así que contar la práctica las volvía
+inalcanzables por el simple hecho de volver a abrir un reto que ya estabas haciendo bien. Y las
+soluciones de referencia de **cada tanda** se ejecutan en las pruebas: una tanda imposible es
+un reto imposible que además parece resuelto.
+
+### Ham interrumpe
+
+En la primera era, Brisa cuenta lo que ha pasado y **Ham le corta para preguntar por qué**. Que
+un test pase no es lo mismo que entender por qué pasa, y esa distancia es la que separa copiar
+de aprender; la pregunta cae justo cuando menos apetece hacérsela, al ver el verde.
+
+Interrumpe **una de cada tres veces** que podría —en todas sería un pesado, y a un pesado se le
+cierra el bocadillo sin leerlo—, se presenta la primera vez que abre la boca, y no aparece
+donde el reparto del itinerario no declara `interrumpe`: en la segunda era no interrumpe nadie.
+Su frase espera a que el narrador termine en vez de pisarla, y con el narrador callado del todo
+tampoco habla: quien pide silencio no quiere dos voces en vez de una.
 
 ## La portada de un itinerario
 
@@ -423,7 +483,7 @@ de lo que se anima hace falta para jugar.
 ```bash
 npm install     # instala y copia los runtimes de Vue a public/vendor/
 npm run dev
-npm test        # motor, almacenes, Armonía, Marasi y las soluciones de los 90 retos
+npm test        # motor, almacenes, Armonía, Marasi y las soluciones de los 102 retos
 npm run test:e2e
 ```
 

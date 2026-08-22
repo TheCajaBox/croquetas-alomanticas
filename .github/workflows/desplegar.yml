@@ -52,3 +52,16 @@ jobs:
     steps:
       - id: despliegue
         uses: actions/deploy-pages@v4
+
+      # La dirección publicada sale del nombre del repositorio, así que un
+      # renombrado la cambia sin avisar. Aquí queda escrita en el resumen de la
+      # ejecución, a la vista, en vez de enterrada en el registro de un paso:
+      # es la única forma de saber a qué enlace hay que ir.
+      - name: Dejar dicho dónde ha quedado
+        run: |
+          echo "### Publicado" >> "$GITHUB_STEP_SUMMARY"
+          echo "" >> "$GITHUB_STEP_SUMMARY"
+          echo "**${{ steps.despliegue.outputs.page_url }}**" >> "$GITHUB_STEP_SUMMARY"
+          echo "" >> "$GITHUB_STEP_SUMMARY"
+          echo "Commit \`${GITHUB_SHA:0:7}\` de la rama \`${GITHUB_REF_NAME}\`." >> "$GITHUB_STEP_SUMMARY"
+

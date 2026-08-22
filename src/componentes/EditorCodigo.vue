@@ -1,6 +1,6 @@
 <script setup>
 import { onBeforeUnmount, onMounted, ref, watch } from 'vue'
-import { EditorState } from '@codemirror/state'
+import { Compartment, EditorState } from '@codemirror/state'
 import { EditorView, keymap, lineNumbers, highlightActiveLine } from '@codemirror/view'
 import { defaultKeymap, history, historyKeymap, indentWithTab } from '@codemirror/commands'
 import { javascript } from '@codemirror/lang-javascript'
@@ -10,11 +10,50 @@ import { tags } from '@lezer/highlight'
 const props = defineProps({
   modelValue: { type: String, default: '' },
   soloLectura: { type: Boolean, default: false },
+  /** Con qué gramática se colorea. Ver `ENTORNOS[…].lenguaje` en el protocolo. */
+  lenguaje: { type: String, default: 'js' },
 })
 const emit = defineEmits(['update:modelValue'])
 
 const hueco = ref(null)
 let vista = null
+
+/**
+ * El lenguaje va en un compartimento porque se cambia en caliente.
+ *
+ * Un reto de PHP coloreado con la gramática de JavaScript se lee mal de verdad:
+ * `<?php` sale como dos operadores y una variable, `$nombre` no es nada, y
+ * `->` tampoco. Se notaba al abrir La Ceniza.
+ *
+ * La gramática de PHP se pide en diferido: quien juega en la segunda era no
+ * tiene por qué descargarla, igual que no descarga el wasm.
+ */
+const gramatica = new Compartment()
+
+const GRAMATICAS = {
+  js: () => Promise.resolve(javascript()),
+  php: async () => {
+    // Por el módulo de al lado y no por el paquete: así el trozo empaquetado
+    // se llama `gramatica-php` y se puede comprobar que no se descarga donde no
+    // toca. Ver src/motor/gramatica-php.js.
+    const { php } = await import('../motor/gramatica-php.js')
+    // `plain: false` -que es el valor de serie, y se escribe para que se vea-
+    // porque el código del jugador empieza por `<?php`. Con `plain: true` el
+    // analizador daría por hecho que ya está dentro de PHP y la etiqueta de
+    // apertura saldría marcada como sobrante.
+    return php({ plain: false })
+  },
+}
+
+/** Cambia la gramática de la vista ya montada, si el lenguaje tiene una. */
+async function ponerGramatica(cual) {
+  const cargar = GRAMATICAS[cual] ?? GRAMATICAS.js
+  const extension = await cargar()
+  // Entre el `await` y aquí el componente puede haberse desmontado, o el reto
+  // haber cambiado a otro lenguaje.
+  if (!vista) return
+  vista.dispatch({ effects: gramatica.reconfigure(extension) })
+}
 
 const colores = HighlightStyle.define([
   { tag: tags.keyword, color: '#c88fd8' },
@@ -54,7 +93,9 @@ onMounted(() => {
         bracketMatching(),
         highlightActiveLine(),
         indentUnit.of('  '),
-        javascript(),
+        // Arranca en JavaScript y se reconfigura al vuelo: montar el editor no
+        // puede esperar a una descarga.
+        gramatica.of(javascript()),
         syntaxHighlighting(colores),
         tema,
         keymap.of([...defaultKeymap, ...historyKeymap, indentWithTab]),
@@ -66,7 +107,11 @@ onMounted(() => {
       ],
     }),
   })
+
+  if (props.lenguaje !== 'js') ponerGramatica(props.lenguaje)
 })
+
+watch(() => props.lenguaje, (nuevo) => ponerGramatica(nuevo))
 
 // Solo se reemplaza el contenido cuando el cambio viene de fuera (reiniciar el
 // reto, cargar la solución); si no, cada tecla movería el cursor al final.

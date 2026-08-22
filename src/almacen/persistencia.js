@@ -11,6 +11,18 @@ export const VERSION = 1
 const hayNavegador = () => typeof localStorage !== 'undefined'
 
 /**
+ * Retos que han cambiado de identificador, del viejo al nuevo.
+ *
+ * Un reto se llama por su sitio en el mundo, y al meter ocho retos por delante
+ * del jefe de La Ceniza el jefe pasó de ser el cuarto a ser el duodécimo.
+ * Cambiar el nombre sin más borraría el progreso de quien ya lo hubiera
+ * superado: aparecería sin hacer y el mundo dejaría de estar completo.
+ */
+const RETOS_RENOMBRADOS = {
+  'ceniza-04-el-informe': 'ceniza-12-el-informe',
+}
+
+/**
  * Punto único de migraciones. Hoy solo sabe reconocer lo que no entiende y
  * empezar de cero, que es mejor que arrancar con datos a medias.
  */
@@ -19,6 +31,7 @@ export function migrar(datos) {
     return { version: VERSION }
   }
   limpiarLaClave(datos)
+  renombrarRetos(datos)
   if (datos.version === VERSION) return datos
   if (typeof datos.version !== 'number') return { version: VERSION }
   // De momento no hay saltos de versión que traducir: se conserva lo que haya
@@ -36,6 +49,22 @@ export function migrar(datos) {
  */
 function limpiarLaClave(datos) {
   if (datos.armonia?.proveedor) delete datos.armonia.proveedor
+}
+
+/**
+ * Traslada el progreso de un reto que ha cambiado de nombre.
+ *
+ * Si por lo que sea las dos fichas existen, gana la nueva: es la que se ha
+ * jugado con el nombre de ahora.
+ */
+function renombrarRetos(datos) {
+  const retos = datos.progreso?.retos
+  if (!retos) return
+  for (const [viejo, nuevo] of Object.entries(RETOS_RENOMBRADOS)) {
+    if (!retos[viejo]) continue
+    if (!retos[nuevo]) retos[nuevo] = retos[viejo]
+    delete retos[viejo]
+  }
 }
 
 function leerDelDisco() {

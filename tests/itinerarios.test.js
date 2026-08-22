@@ -3,6 +3,9 @@ import { describe, expect, it } from 'vitest'
 import { ITINERARIOS, ITINERARIOS_POR_ID, ITINERARIO_POR_DEFECTO } from '../src/contenido/itinerarios.js'
 import { existePersonaje, nombreDe } from '../src/contenido/personajes.js'
 import { MUNDOS, mundosDelItinerario } from '../src/contenido/mundos.js'
+import { cargarApunte } from '../src/contenido/apuntes/index.js'
+import { retosDelMundo } from '../src/contenido/retos/index.js'
+import { seEscribe } from '../src/contenido/retos/tipos.js'
 import { LEMAS_POR_NARRADOR } from '../src/contenido/narrador/lineas.js'
 import { SOMBREROS_POR_ID } from '../src/contenido/sombreros.js'
 
@@ -103,4 +106,84 @@ describe('los itinerarios', () => {
       }
     }
   })
+})
+
+/**
+ * El equilibrio de los itinerarios nuevos: más práctica y menos texto.
+ *
+ * Es una decisión de diseño, no una casualidad, y por eso se vigila. En la
+ * segunda era los apuntes son largos y hay mundos de puro escribir -El kandra
+ * es refactor de principio a fin-; aquí se cambia a propósito: **doce retos por
+ * mundo, la mitad como mucho de escribir código, y apuntes de la mitad de
+ * largo**. Sin esta prueba, el siguiente mundo se escribe con la costumbre
+ * antigua y nadie se entera hasta que alguien se aburre jugando.
+ */
+const ITINERARIOS_NUEVOS = ['era1', 'elantris', 'sel']
+const RETOS_POR_MUNDO = 12
+const TOPE_DE_APUNTE = 4500
+
+describe('quien recibe en un mundo tiene algo que decir', () => {
+  it('todo anfitrión sabe presentarse', async () => {
+    // Un mundo con anfitrión sin frases se abre en silencio: `decir` no
+    // encuentra su saco y devuelve null. No falla nada, simplemente no habla
+    // nadie, y eso es lo más difícil de notar. Le pasaba a Kelsier, que recibe
+    // en el primer mundo de la primera era.
+    const { createPinia, setActivePinia } = await import('pinia')
+    const { usarNarrador } = await import('../src/almacen/narrador.js')
+    setActivePinia(createPinia())
+    const narrador = usarNarrador()
+
+    const mudos = MUNDOS.filter(
+      (mundo) => mundo.anfitrion && !narrador.frase(mundo.anfitrion, 'presentacion'),
+    )
+    expect(mudos.map((mundo) => `${mundo.id} → ${mundo.anfitrion}`)).toEqual([])
+  })
+
+  it('y quien interrumpe también, o su primera aparición sería un desconocido', async () => {
+    const { createPinia, setActivePinia } = await import('pinia')
+    const { usarNarrador } = await import('../src/almacen/narrador.js')
+    setActivePinia(createPinia())
+    const narrador = usarNarrador()
+
+    for (const cada of ITINERARIOS) {
+      if (!cada.reparto.interrumpe) continue
+      expect(
+        narrador.frase(cada.reparto.interrumpe, 'presentacion'),
+        `${cada.reparto.interrumpe} interrumpe en ${cada.id} y no sabe presentarse`,
+      ).toBeTruthy()
+    }
+  })
+})
+
+describe('los itinerarios nuevos tienen más práctica y menos texto', () => {
+  const mundosNuevos = ITINERARIOS_NUEVOS.flatMap((id) => mundosDelItinerario(id))
+
+  it('hay mundos nuevos que vigilar', () => {
+    expect(mundosNuevos.length).toBeGreaterThan(0)
+  })
+
+  for (const mundo of mundosNuevos) {
+    it(`${mundo.id}: doce retos y como mucho la mitad de escribir`, () => {
+      const retos = retosDelMundo(mundo.id)
+      expect(retos.length, 'menos de doce retos: falta práctica').toBeGreaterThanOrEqual(RETOS_POR_MUNDO)
+
+      const deEscribir = retos.filter((reto) => seEscribe(reto.tipo))
+      expect(
+        deEscribir.length * 2,
+        `${deEscribir.length} de ${retos.length} son de escribir: pasa de la mitad`,
+      ).toBeLessThanOrEqual(retos.length)
+
+      // Y que la variedad sea variedad de verdad: cuatro tipos distintos como
+      // mínimo, o son doce retos iguales con otros datos.
+      expect(new Set(retos.map((reto) => reto.tipo)).size, 'poca variedad de tipos').toBeGreaterThanOrEqual(4)
+    })
+
+    for (const reto of retosDelMundo(mundo.id)) {
+      it(`${reto.id}: el apunte no pasa de ${TOPE_DE_APUNTE} caracteres`, async () => {
+        const apunte = await cargarApunte(reto.id)
+        expect(apunte, 'sin apunte').toBeTruthy()
+        expect(apunte.length).toBeLessThanOrEqual(TOPE_DE_APUNTE)
+      })
+    }
+  }
 })

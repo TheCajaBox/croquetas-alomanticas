@@ -1,7 +1,7 @@
 import { codigo } from '../comun.js'
 
 export default {
-  id: "ceniza-04-el-informe",
+  id: "ceniza-12-el-informe",
   mundo: "ceniza",
   entorno: "php",
   tipo: "codigo",

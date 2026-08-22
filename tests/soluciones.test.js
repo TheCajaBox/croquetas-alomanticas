@@ -3,7 +3,7 @@ import { createContext, runInContext } from 'node:vm'
 import { describe, expect, it } from 'vitest'
 
 import { cargarApunte, hayApunte } from '../src/contenido/apuntes/index.js'
-import { RETOS } from '../src/contenido/retos/index.js'
+import { cuantasVariantes, enVariante, RETOS } from '../src/contenido/retos/index.js'
 import { SIN_CODIGO, codigoDeReferencia, revisarTactil } from './revisarRetos.js'
 import { analizar, inyectarGuardaDeBucles } from '../src/motor/guardaBucles.js'
 import { comprobarRequisitos } from '../src/motor/chequeosEstaticos.js'
@@ -65,6 +65,44 @@ describe('los retos de señalar están bien montados', () => {
       expect(revisarTactil(reto)).toEqual([])
     })
   }
+})
+
+describe('las tandas de práctica están bien montadas', () => {
+  const conVariantes = RETOS.filter((reto) => cuantasVariantes(reto) > 0)
+
+  it('hay retos con práctica extra', () => {
+    expect(conVariantes.length).toBeGreaterThan(0)
+  })
+
+  for (const reto of conVariantes) {
+    it(`${reto.id}: ${cuantasVariantes(reto)} tandas`, () => {
+      // Practicar solo tiene sentido escribiendo: en un reto de señalar la
+      // respuesta ya se sabe y repetirlo es pulsar el mismo sitio.
+      expect(SIN_CODIGO, `«${reto.tipo}» no es de escribir`).not.toContain(reto.tipo)
+
+      for (let i = 1; i <= cuantasVariantes(reto); i += 1) {
+        const tanda = enVariante(reto, i)
+
+        expect(tanda.variante, 'la tanda no se identifica').toBe(i)
+        expect(tanda.id, 'una tanda con otro id cobraría otra vez').toBe(reto.id)
+        expect(tanda.tests?.length, 'una tanda sin tests no comprueba nada').toBeGreaterThan(0)
+        expect(
+          JSON.stringify(tanda.tests),
+          'la tanda repite los mismos tests: practicar con los mismos datos no practica nada',
+        ).not.toBe(JSON.stringify(reto.tests))
+        // El código de partida y las pistas son los del reto: lo que cambia
+        // son los datos, no la lección.
+        expect(tanda.pistas).toEqual(reto.pistas)
+      }
+    })
+  }
+
+  it('pedir una tanda que no existe devuelve el reto de siempre', () => {
+    const reto = conVariantes[0]
+    expect(enVariante(reto, 0)).toBe(reto)
+    expect(enVariante(reto, 99)).toBe(reto)
+    expect(enVariante(reto)).toBe(reto)
+  })
 })
 
 describe('todos los retos traen apunte, y pistas los que deben', () => {

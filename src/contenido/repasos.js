@@ -1106,7 +1106,7 @@ export const REPASOS = [
     id: "repaso-ceniza",
     mundo: "ceniza",
     quien: "brisa",
-    titulo: "Seis preguntas sobre lo primero",
+    titulo: "El caso de la ceniza",
     preguntas: [
       {
         pregunta: "¿Para qué sirve `<?php` al principio de un fichero?",
@@ -1213,6 +1213,60 @@ export const REPASOS = [
           {
             texto: "Devuelve lo impreso, porque PHP lo recoge solo.",
             porque: "No lo recoge nadie salvo que se le pida expresamente, con búfer de salida. Por defecto se va a la pantalla.",
+          },
+        ],
+      },
+      {
+        pregunta: "¿Qué diferencia hay entre `==` y `===`?",
+        opciones: [
+          {
+            texto: "`==` compara el valor y convierte si hace falta; `===` exige además el mismo tipo.",
+            correcta: true,
+            porque: "Por eso `1 == '1'` es cierto y `1 === '1'` no. La costumbre buena es usar `===` por defecto.",
+          },
+          {
+            texto: "`===` es más rápido, pero comparan lo mismo.",
+            porque: "No comparan lo mismo: uno se permite convertir tipos y el otro no. La velocidad es lo de menos.",
+          },
+          {
+            texto: "`==` es para números y `===` para textos.",
+            porque: "Los dos valen para todo. Lo que cambia es si el tipo cuenta o no.",
+          },
+        ],
+      },
+      {
+        pregunta: "Con `$m = ['a', 'b', 'c']`, ¿cuál es el último elemento?",
+        opciones: [
+          {
+            texto: "`$m[count($m) - 1]`, porque las posiciones empiezan en cero.",
+            correcta: true,
+            porque: "Tres elementos, posiciones 0, 1 y 2. `count` dice 3 y hay que restar uno.",
+          },
+          {
+            texto: "`$m[count($m)]`.",
+            porque: "Esa posición no existe: es una más allá del final. PHP avisa y vale `null`.",
+          },
+          {
+            texto: "`$m[3]`, que es el tercero.",
+            porque: "El tercero es `$m[2]`. Contar desde uno y acceder desde cero es el despiste más repetido que hay.",
+          },
+        ],
+      },
+      {
+        pregunta: "¿Qué contesta `empty($x)` si `$x` vale `0`?",
+        opciones: [
+          {
+            texto: "`true`: para `empty`, el cero está vacío.",
+            correcta: true,
+            porque: "También lo están `''`, `'0'`, `false`, `null` y `[]`. Con precios y cantidades eso da fallos reales: si lo que quieres saber es si existe, `isset`.",
+          },
+          {
+            texto: "`false`, porque el cero es un valor como cualquier otro.",
+            porque: "Debería serlo, y para `empty` no lo es. Ahí está la trampa entera de esa función.",
+          },
+          {
+            texto: "Da error, porque `empty` solo acepta textos y arrays.",
+            porque: "Acepta cualquier cosa. El problema no es que falle: es que contesta algo que no esperabas.",
           },
         ],
       },

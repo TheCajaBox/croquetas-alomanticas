@@ -39,6 +39,23 @@ export default defineConfig({
   // módulos: `icu.dat` -30 MB de datos de internacionalización- y los `.so` de
   // sus extensiones. Declarados recurso, son URLs y no explotan el build.
   assetsInclude: ['**/*.wasm', '**/*.dat', '**/*.so'],
+  build: {
+    /**
+     * La gramática de PHP no se precarga.
+     *
+     * Vite mete las dependencias de un trozo en la lista de precarga de la ruta
+     * que lo pide, y ahí acababa colándose la gramática: **abrir cualquier reto
+     * de JavaScript descargaba los 154 kB del analizador de PHP**, que es justo
+     * lo que se quería evitar cargándola en diferido. Lo cazó la prueba de
+     * extremo a extremo mirando la red.
+     *
+     * Se descarga cuando se necesita -al abrir un reto de PHP- y no antes.
+     */
+    modulePreload: {
+      resolveDependencies: (_url, dependencias) =>
+        dependencias.filter((cada) => !cada.includes('gramatica-php')),
+    },
+  },
   // El worker de PHP se empaqueta como módulo y **en una pasada aparte, con sus
   // propios plugins**: los de arriba no llegan aquí, así que el que quita el
   // icu hay que dárselo también. Medido: sin esto, los 29 MB seguían saliendo.

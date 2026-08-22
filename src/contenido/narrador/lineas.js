@@ -449,7 +449,8 @@ export const LINEAS_DE_BRISA = {
 
   abreCaso: [
     'Unas preguntas, querido amigo. No para juzgarte -eso lo hace Kelsier- sino para ver qué se te ha quedado y qué se ha ido por el desagüe.',
-    'Seis preguntas. Las he elegido donde la gente se equivoca, que es donde merece la pena preguntar.',
+    (contexto) =>
+      `${contexto.cuantas} preguntas. Las he elegido donde la gente se equivoca, que es donde merece la pena preguntar.`,
   ],
 
   bordado: [
@@ -565,6 +566,109 @@ export const LINEAS_DE_BRISA_NARRANDO = {
 }
 
 /**
+ * Lo que dice Kelsier al recibirte en La Ceniza.
+ *
+ * Es el anfitrión del primer mundo y quien escribe los apuntes de la primera
+ * mitad del itinerario. Recluta: te dice que se puede hacer, te hace creer que
+ * tú puedes hacerlo, y sonríe cuando debería estar preocupado. No miente del
+ * todo -eso lo hace la esperanza que vende- pero tampoco te avisa de lo que va
+ * a costar.
+ *
+ * Le faltaba voz: era el anfitrión de un mundo y al entrar no decía nada,
+ * porque no tenía saco. Se veía como un silencio, que es la forma más difícil
+ * de notar que falta contenido.
+ */
+export const LINEAS_DE_KELSIER = {
+  presentacion: [
+    'Kelsier. Yo te enseño la primera mitad de esto. La segunda te la enseñará otro, y ya hablaremos de por qué.',
+    'Así que quieres aprender a programar. Bien. Todo el mundo dice que es imposible hasta que alguien lo hace delante.',
+    'Kelsier. Voy a contarte lo básico y voy a decirte que es fácil. Lo primero es verdad.',
+  ],
+
+  loBasico: [
+    'Esto de aquí no impresiona a nadie. Y sin esto no se sostiene nada de lo que venga después.',
+    'Los cimientos no se ven cuando el edificio está en pie. Se ven cuando se cae.',
+  ],
+
+  funcionaYaLoSe: [
+    'Funciona, sí. Que funcione es el mínimo, no el objetivo.',
+  ],
+}
+
+/**
+ * Lo que dice Ham cuando interrumpe.
+ *
+ * Ham es el músculo de la banda y hace preguntas filosóficas que nadie quiere
+ * contestar. Brisa se desespera con él, Kelsier le sigue el juego a ratos, y
+ * todos acaban pensando en lo que ha preguntado.
+ *
+ * Aquí hace exactamente eso, y por eso está en el juego: **pregunta por qué**.
+ * Brisa cuenta lo que ha pasado; Ham pregunta la razón. Que un test pase no es
+ * lo mismo que entender por qué pasa, y esa distancia es la que separa copiar
+ * de aprender. Sus frases son preguntas de verdad -no hay que contestarlas por
+ * escrito ni dan croquetas- y por eso no llevan respuesta: la respuesta la
+ * pones tú, para ti, mirando lo que acabas de escribir.
+ *
+ * Interrumpe **una de cada tres veces** que podría (ver `CADA_CUANTAS_INTERRUMPE`
+ * en el almacén). En todas sería un pesado, y un pesado se cierra sin leer.
+ */
+export const LINEAS_DE_HAM = {
+  presentacion: [
+    'Ham. Yo pego cuando hay que pegar, y el resto del tiempo pregunto cosas. Vas a ver que lo segundo molesta más.',
+  ],
+
+  retoSuperado: [
+    'Funciona, vale. Pero ¿por qué funciona? Si no sabes contestar eso, no lo has resuelto: lo has acertado.',
+    'Espera, espera. ¿Habrías sabido escribirlo si no te lo hubieran pedido así?',
+    'Una pregunta y me callo: ¿qué línea de ahí es la que hace el trabajo de verdad? Las otras acompañan.',
+    '¿Y si te lo pidieran mañana otra vez, con otros números? ¿Cambiarías algo o cambiarías todo?',
+    'Ahí hay una parte que has escrito porque la entendías y otra que has escrito porque sonaba bien. ¿Sabes cuál es cuál?',
+  ],
+
+  superadoSinPistas: [
+    'Sin ayuda. Entonces ya lo sabías, ¿o lo has deducido? No es lo mismo, y conviene saber de qué vas sobrado.',
+    'A la primera. ¿Suerte o lo tenías claro? Contéstate en voz baja, que aquí nadie te va a corregir.',
+  ],
+
+  errorDeSintaxis: [
+    'Se ha roto por un símbolo. ¿Y por qué el ordenador necesita ese símbolo y tú no? Piénsalo, que tiene su gracia.',
+    'No lo entiende. Fíjate en que no dice que esté mal: dice que no sabe leerlo. Son dos cosas distintas.',
+  ],
+
+  testFallado: [
+    'Ha fallado. ¿Sabías que iba a fallar? Porque si no lo sabías, lo interesante no es el fallo: es lo que creías tú.',
+    'Antes de cambiar nada: ¿qué pensabas que iba a salir? Escríbelo por dentro y luego mira lo que ha salido.',
+    'Está mal, sí. ¿Está mal la idea o está mal cómo la has escrito? Se arreglan de maneras muy distintas.',
+  ],
+
+  requisitoIncumplido: [
+    'Funciona y no vale. ¿Por qué crees que el reto pide esa manera y no la tuya? Casi siempre hay un motivo.',
+  ],
+
+  entrarAlMundo: [
+    'Antes de entrar: ¿para qué sirve esto que vas a aprender? Si no lo sabes todavía, apúntalo y pregúntatelo al salir.',
+    'Yo siempre pregunto lo mismo al llegar a un sitio nuevo: ¿qué se puede hacer aquí que no se pudiera antes?',
+  ],
+
+  jefeDerrotado: [
+    'Ha caído el gordo. ¿Y qué has usado de todo lo anterior? Eso es lo que te has quedado de verdad.',
+    'Bien. Ahora la pregunta incómoda: ¿podrías volver a hacerlo desde cero, sin mirar?',
+  ],
+
+  charla: [
+    'Una cosa que llevo pensando: si un programa hace lo correcto por el motivo equivocado, ¿está bien o está mal?',
+    'Brisa dice que preguntar por qué es perder el tiempo. Brisa también dice que hablar es trabajar.',
+    'Nadie sabe explicar del todo lo que entiende. Pero si no puedes explicarlo ni un poco, no lo entiendes.',
+    '¿Por qué la gente copia código que no entiende y luego se sorprende de que se rompa? Lo pregunto en serio.',
+    'Kelsier resuelve. Yo pregunto. Los dos hacemos falta, aunque él no lo diría así.',
+  ],
+
+  mundoCompletado: [
+    (contexto) => `${contexto.mundo}, hecho. ¿Qué sabes hacer hoy que no supieras al entrar? Dilo en una frase; si no puedes, vuelve a mirarlo.`,
+  ],
+}
+
+/**
  * Lo que dice Fantasma cuando te vende una pista.
  *
  * Habla en jerga de los barrios bajos, con «tío» y palabras cortadas, y le pone
@@ -603,7 +707,8 @@ export const LINEAS_DE_MARASI = {
 
   abreCaso: [
     'He revisado por dónde vas y he sacado las preguntas de lo que más se confunde. No es un examen: es para ver qué se ha quedado.',
-    'Seis preguntas sobre lo que ya has hecho. Si fallas alguna, mejor: eso es exactamente lo que había que encontrar.',
+    (contexto) =>
+      `${contexto.cuantas} preguntas sobre lo que ya has hecho. Si fallas alguna, mejor: eso es exactamente lo que había que encontrar.`,
   ],
 
   bordado: [
