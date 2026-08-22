@@ -88,10 +88,25 @@ que le quitas a tus gatos. En los jefes ni siquiera abre el puesto.
 Todos tienen su cara: las ilustraciones de los personajes, recortadas del fondo y
 compuestas sobre un disco con el color que cada uno lleva en la interfaz — el cobre de Wayne,
 el azul acero de Wax, el gris ordenado de Steris, el vino de Marasi, el jade de MeLaan, el
-ciruela de Brisa, el acero de Kelsier y el oro de Sazed. El disco sale de la misma fórmula que el de quien **no** tiene ilustración
+ciruela de Brisa, el acero de Kelsier, el oro de Sazed y el azul de Elend. El disco sale de la misma fórmula que el de quien **no** tiene ilustración
 —un 20% de su color sobre `#1d1826`—, así que los que van llegando encajan con los que ya
 estaban sin elegirle un tono a mano a cada uno, y quien todavía no tiene cara sale con ese
 disco y su inicial en vez de con la de otro.
+Quitar el fondo no tiene un método, tiene cuatro, porque cada ilustración viene con el suyo. La
+inundación entra siempre por el borde —así la piel clara de dentro del contorno no se alcanza
+nunca— y lo que cambia es **en qué eje se separan** el fondo y el personaje:
+
+| Ilustración | El fondo es | Se separa por |
+|---|---|---|
+| Brisa | blanco plano y una sombra azul | claro **y nunca cálido** (`b ≥ r`) |
+| Kelsier | crema pintado, y su pelo rubio igual de luminoso | saturación: `r − b ≤ 24` |
+| Sazed | gris azulado, y sus túnicas crema | temperatura: el fondo es frío, él cálido |
+| Elend | una pared en una banda muy estrecha | banda: `−18 ≤ b − r ≤ 2`, porque su camisa es fría (+12) y su cara más cálida (−22) |
+
+Después, en todas, se quitan las islas sueltas: se buscan los grupos de píxeles opacos y se
+borra lo que no sea el grande, que es la persona. Eso limpia las motas de textura del fondo sin
+tocarle a nadie una manga.
+
 Dos son la excepción y a propósito: **Armonía y Vin** no llevan disco, llevan su propia
 escena dentro del círculo. Sus ilustraciones no tienen fondo sino bruma y ceniza, y ahí no hay
 nada que inundar —en la de Vin se midió: la torre del fondo es cálida (`b−r` de −17) y su cara
@@ -100,7 +115,7 @@ bruma se queda, que es suya; lo que se hace es cerrar el encuadre hasta que llen
 apagarla un poco hacia su color, porque suelta quedaba el único disco claro entre nueve oscuros
 y se leía como un agujero en la fila.
 
-Viven en `src/recursos/`, pesan 203 kB entre las diez y se importan como
+Viven en `src/recursos/`, pesan 222 kB entre las once y se importan como
 módulos para que Vite les ponga su hash y su ruta base; escritas a mano, esas rutas se
 romperían al publicar en Pages.
 
