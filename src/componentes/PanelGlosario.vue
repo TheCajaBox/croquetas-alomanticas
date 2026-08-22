@@ -3,6 +3,10 @@ import { computed, onBeforeUnmount, onMounted, watch } from 'vue'
 import { useRoute } from 'vue-router'
 
 import Avatar from './Avatar.vue'
+import { repartoDelMundo } from '../contenido/itinerarios.js'
+import { MUNDOS_POR_ID } from '../contenido/mundos.js'
+import { nombreDe } from '../contenido/personajes.js'
+import { RETOS_POR_ID } from '../contenido/retos/index.js'
 import { usarGlosario } from '../almacen/glosario.js'
 
 /**
@@ -14,9 +18,27 @@ import { usarGlosario } from '../almacen/glosario.js'
 const glosario = usarGlosario()
 const entrada = computed(() => glosario.entrada)
 
+const ruta = useRoute()
+
+/**
+ * De quién es el glosario depende de dónde estés.
+ *
+ * Estaba escrito «steris» a mano, así que en la primera era -donde lo lleva
+ * Sazed- salía ella. El mundo se saca de la ruta: un reto sabe a qué mundo
+ * pertenece, y fuera de un mundo manda el reparto del itinerario por defecto,
+ * que es el de Steris.
+ */
+const suMundo = computed(() => {
+  const { mundoId, retoId } = ruta.params
+  if (mundoId) return MUNDOS_POR_ID[mundoId]
+  if (retoId) return MUNDOS_POR_ID[RETOS_POR_ID[retoId]?.mundo]
+  return null
+})
+const quien = computed(() => repartoDelMundo(suMundo.value).glosario)
+
 // Al cambiar de pantalla se cierra solo. Si no, el diálogo sobrevive a la
 // navegación y su fondo se queda tapando la página siguiente.
-watch(useRoute(), () => glosario.cerrar())
+watch(ruta, () => glosario.cerrar())
 
 function alPulsarTecla(evento) {
   if (evento.key === 'Escape') glosario.cerrar()
@@ -31,9 +53,9 @@ onBeforeUnmount(() => window.removeEventListener('keydown', alPulsarTecla))
     <div v-if="entrada" class="fondo" @click.self="glosario.cerrar()">
       <div class="ficha" role="dialog" aria-modal="true" :aria-label="`Qué es ${entrada.termino}`">
         <header>
-          <Avatar quien="steris" :tamano="44" />
+          <Avatar :quien="quien" :tamano="44" />
           <div class="titulo">
-            <p class="quien">Del glosario de Steris</p>
+            <p class="quien">Del glosario de {{ nombreDe(quien) }}</p>
             <h2>{{ entrada.termino }}</h2>
           </div>
           <button class="cerrar" title="Cerrar" @click="glosario.cerrar()">×</button>

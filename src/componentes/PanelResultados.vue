@@ -5,6 +5,9 @@ import SombreroEscondido from './SombreroEscondido.vue'
 import Avatar from './Avatar.vue'
 import Marcado from './Marcado.vue'
 import { traducirImprevisto } from '../contenido/imprevistos.js'
+import { repartoDelMundo } from '../contenido/itinerarios.js'
+import { MUNDOS_POR_ID } from '../contenido/mundos.js'
+import { nombreDe } from '../contenido/personajes.js'
 import { FASES } from '../motor/ejecutor.js'
 import { revisar } from '../motor/marasi/revisar.js'
 import { usarArmonia } from '../almacen/armonia.js'
@@ -13,9 +16,22 @@ import { usarGatos } from '../almacen/gatos.js'
 const props = defineProps({
   resultado: { type: Object, default: null },
   ejecutando: { type: Boolean, default: false },
-  /** Lo que el jugador tiene escrito, para que Marasi pueda revisarlo. */
+  /** Lo que el jugador tiene escrito, para que quien revise pueda revisarlo. */
   codigo: { type: String, default: '' },
+  /**
+   * El mundo donde se está jugando, para saber quién habla aquí.
+   *
+   * Estaban escritos «steris» y «marasi» a mano, así que en la primera era los
+   * dos paneles salían con la cara y el nombre de quien no está allí: los
+   * errores los traduce Sazed y el código lo revisa Brisa.
+   */
+  mundoId: { type: String, default: null },
 })
+
+/** Quién habla en este camino: lo dice el reparto, no la plantilla. */
+const suReparto = computed(() => repartoDelMundo(MUNDOS_POR_ID[props.mundoId]))
+const quienTraduce = computed(() => suReparto.value.glosario)
+const quienRevisa = computed(() => suReparto.value.revisa)
 
 const armonia = usarArmonia()
 const gatos = usarGatos()
@@ -118,12 +134,12 @@ const imprevisto = computed(() => {
         Bronce ha apartado {{ ocultosPorBronce }} test{{ ocultosPorBronce === 1 ? '' : 's' }} para que veas primero el que importa.
       </p>
 
-      <!-- La lista de imprevistos de Steris -->
+      <!-- La lista de imprevistos: de quien lleve el glosario en este camino -->
       <section v-if="imprevisto" class="imprevisto">
         <header>
-          <Avatar quien="steris" :tamano="34" />
+          <Avatar :quien="quienTraduce" :tamano="34" />
           <div>
-            <p class="quien">Steris lo tenía previsto</p>
+            <p class="quien">{{ nombreDe(quienTraduce) }} lo tenía previsto</p>
             <p class="titulo-imprevisto">{{ imprevisto.titulo }}</p>
           </div>
         </header>
@@ -164,9 +180,9 @@ const imprevisto = computed(() => {
            segunda; preguntarla antes de tiempo solo desanima. -->
       <section v-if="informe.length" class="informe">
         <header>
-          <Avatar quien="marasi" :tamano="34" />
+          <Avatar :quien="quienRevisa" :tamano="34" />
           <div>
-            <p class="quien">El informe de Marasi</p>
+            <p class="quien">El informe de {{ nombreDe(quienRevisa) }}</p>
             <p class="tenue nota-informe">Funciona. Ahora hablemos de cómo está escrito.</p>
           </div>
         </header>

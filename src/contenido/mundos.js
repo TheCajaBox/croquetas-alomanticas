@@ -159,6 +159,8 @@ export const MUNDOS = [
   // ------------------------------------------------------------------------
   {
     id: 'ceniza',
+    // La primera mitad la explica Kelsier; ver `quienEscribeElApunte`.
+    parte: 'primera',
     nombre: 'La Ceniza',
     subtitulo: 'PHP · lo primero',
     itinerario: 'era1',
@@ -175,6 +177,8 @@ export const MUNDOS = [
   },
   {
     id: 'tripulacion',
+    // La primera mitad la explica Kelsier; ver `quienEscribeElApunte`.
+    parte: 'primera',
     nombre: 'La tripulación',
     subtitulo: 'PHP · decidir y repetir',
     itinerario: 'era1',

@@ -146,6 +146,21 @@ export const ITINERARIO_POR_DEFECTO = ITINERARIOS[0].id
  * sonaba a la segunda era.
  */
 /**
+ * Quién escribe los apuntes de un mundo.
+ *
+ * Casi siempre es uno para todo el itinerario -Wax en la segunda era-, pero la
+ * primera cambia de manos a mitad de camino: Kelsier explica la primera parte y
+ * cuando ya no está, la segunda la explican Elend y Vin. Eso no es un adorno, es
+ * la historia que se cuenta por debajo, así que el mundo dice de qué parte es
+ * con su campo `parte` y aquí se traduce a quién firma.
+ */
+export function quienEscribeElApunte(mundo) {
+  const reparto = repartoDelMundo(mundo)
+  const deSuParte = reparto.apuntesPorParte?.[mundo?.parte ?? 'primera']
+  return deSuParte?.[0] ?? reparto.apuntes?.[0] ?? 'wax'
+}
+
+/**
  * Quién lleva el repaso de un mundo.
  *
  * Lo dice el propio repaso cuando lo declara, y si no, quien revise en ese

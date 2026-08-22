@@ -195,6 +195,27 @@ test('la portada de un itinerario presenta sus mundos, y solo los suyos', async 
   }
 })
 
+test('en la primera era habla su gente, no la de la segunda', async ({ page }) => {
+  // Cinco paneles llevaban el personaje escrito a mano, así que en los mundos de
+  // PHP anunciaban a gente que no está allí: el apunte lo firma Kelsier y no
+  // Wax, el glosario es de Sazed y no de Steris, y las pistas las vende
+  // Fantasma. Se comprueban los tres en el mismo reto.
+  await irAlReto(page, 'ceniza-03-la-cuadrilla')
+
+  await expect(page.locator('.apunte .titulo')).toContainText('El apunte de Kelsier')
+  await expect(page.getByRole('heading', { name: /Pistas de Fantasma/ })).toBeVisible()
+
+  // El glosario, al pulsar un término del enunciado o del apunte.
+  await page.locator('button[data-termino]').first().click()
+  await expect(page.locator('.ficha .quien')).toContainText('Sazed')
+
+  // Y en la segunda era sigue siendo la suya.
+  await irAlReto(page, 'dia1-07-primera-funcion')
+  await expect(page.locator('.apunte .titulo')).toContainText('El apunte de Wax')
+  await page.locator('button[data-termino]').first().click()
+  await expect(page.locator('.ficha .quien')).toContainText('Steris')
+})
+
 test('quien repasa un mundo es el suyo, no siempre Marasi', async ({ page }) => {
   // La tarjeta del repaso llevaba «marasi» escrito a mano, cara y nombre, así
   // que en los mundos de la primera era anunciaba a alguien que no está allí.

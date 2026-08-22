@@ -3,6 +3,7 @@ import { computed } from 'vue'
 
 import Avatar from './Avatar.vue'
 import Marcado from './Marcado.vue'
+import { repartoDelMundo } from '../contenido/itinerarios.js'
 import { MUNDOS, MUNDOS_POR_ID } from '../contenido/mundos.js'
 import { REPASOS_POR_MUNDO } from '../contenido/repasos.js'
 import { usarGatos } from '../almacen/gatos.js'
@@ -28,6 +29,7 @@ const gatos = usarGatos()
 const insignias = usarInsignias()
 
 const mundo = computed(() => MUNDOS_POR_ID[props.mundoId])
+const narrador = computed(() => repartoDelMundo(mundo.value).narra)
 const repaso = computed(() => REPASOS_POR_MUNDO[props.mundoId])
 
 const retosDelMundo = computed(() => progreso.superadosDelMundo(props.mundoId))
@@ -65,7 +67,9 @@ const insigniasRecientes = computed(() => insignias.mias.slice(-2))
 <template>
   <section v-if="mundo" class="cierre panel">
     <header class="fila">
-      <Avatar quien="wayne" :tamano="46" />
+      <!-- Celebra quien narra ese camino, no Wayne siempre: en la primera era
+           cerrar un mundo lo cuenta Brisa. -->
+      <Avatar :quien="narrador" :tamano="46" />
       <div>
         <p class="titular">{{ mundo.nombre }}, terminado</p>
         <p class="tenue cuenta">

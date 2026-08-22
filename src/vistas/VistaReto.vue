@@ -30,7 +30,7 @@ import {
 import { analizar } from '../motor/guardaBucles.js'
 import { comprobarRequisitos } from '../motor/chequeosEstaticos.js'
 import { crearPuente } from '../motor/ejecutor.js'
-import { repartoDelMundo } from '../contenido/itinerarios.js'
+import { quienEscribeElApunte, repartoDelMundo } from '../contenido/itinerarios.js'
 import { ENTORNOS } from '../motor/protocolo.js'
 import { usarArmonia } from '../almacen/armonia.js'
 import { usarGatos } from '../almacen/gatos.js'
@@ -117,6 +117,8 @@ if (reto && !progreso.superado(reto.id)) {
   else if (mundo.value?.anfitrion === 'steris') narrador.decirAnfitrion(mundo.value, 'loBasico')
 }
 
+/** Quién firma el apunte: Wax en la segunda era, Kelsier en la primera. */
+const autorDelApunte = computed(() => quienEscribeElApunte(mundo.value))
 const apunte = ref('')
 if (reto) cargarApunte(reto.id).then((texto) => { apunte.value = texto ?? '' })
 
@@ -295,6 +297,7 @@ function reiniciarCodigo() {
       v-if="apunte"
       class="apunte-ancho"
       :texto="apunte"
+      :quien="autorDelApunte"
       :empieza-abierto="!yaSuperado"
     />
 
@@ -438,6 +441,7 @@ function reiniciarCodigo() {
           :resultado="resultado"
           :ejecutando="juego.ejecutando"
           :codigo="seEscribe ? codigo : ''"
+          :mundo-id="reto.mundo"
         />
 
         <section v-if="resultado?.ok && esPrediccion" class="panel bloque">

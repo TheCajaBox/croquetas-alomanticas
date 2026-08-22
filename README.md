@@ -88,11 +88,11 @@ que le quitas a tus gatos. En los jefes ni siquiera abre el puesto.
 Todos tienen su cara: las ilustraciones de los personajes, recortadas del fondo y
 compuestas sobre un disco con el color que cada uno lleva en la interfaz — el cobre de Wayne,
 el azul acero de Wax, el gris ordenado de Steris, el vino de Marasi, el jade de MeLaan, el
-ciruela de Brisa y el acero de Kelsier. El disco sale de la misma fórmula que el de quien **no** tiene ilustración
+ciruela de Brisa, el acero de Kelsier y el oro de Sazed. El disco sale de la misma fórmula que el de quien **no** tiene ilustración
 —un 20% de su color sobre `#1d1826`—, así que los que van llegando encajan con los que ya
 estaban sin elegirle un tono a mano a cada uno, y quien todavía no tiene cara sale con ese
 disco y su inicial en vez de con la de otro.
-Viven en `src/recursos/`, pesan 179 kB entre las ocho y se importan como
+Viven en `src/recursos/`, pesan 192 kB entre las nueve y se importan como
 módulos para que Vite les ponga su hash y su ruta base; escritas a mano, esas rutas se
 romperían al publicar en Pages.
 
@@ -376,7 +376,22 @@ tengan mundos.
 Cada uno declara con qué se **ejecuta** el código (`lenguajes`) y su **reparto**: quién narra,
 quién escribe el temario, quién vende las pistas, quién lleva el glosario y quién contesta
 dudas sin dar la solución. El reparto no es adorno: un itinerario con el reparto mal puesto
-suena a otro. Seguridad es el único con dos lenguajes, porque una inyección de SQL no se
+suena a otro.
+
+Y **de ahí sale quién habla en cada panel**, no de la plantilla. Es el fallo que más veces ha
+aparecido en este proyecto —cinco— y siempre igual: alguien escribe `quien="marasi"` porque en
+la segunda era es Marasi, y el día que hay otro camino el panel sigue anunciando a alguien que
+no está allí. No falla nada y no avisa nadie. Van cazados la tarjeta y la vista del repaso, el
+retrato de la portada, el lema de la cabecera, el rótulo del bocadillo, la firma del apunte, el
+glosario, los imprevistos, el informe de código y la celebración de cerrar un mundo; y hay una
+prueba que **recorre las plantillas buscando personajes escritos a mano** y falla si aparece
+uno nuevo, con una lista de excepciones donde cada una tiene que estar justificada —la antesala
+es de Steris siempre, porque no pertenece a ningún camino—.
+
+La firma del apunte tiene además su propia regla: en la primera era el temario **cambia de
+manos a mitad de camino** —Kelsier explica la primera parte y cuando ya no está la explican
+Elend y Vin—, así que cada mundo dice de qué parte es y `quienEscribeElApunte` lo traduce a
+quién firma. Seguridad es el único con dos lenguajes, porque una inyección de SQL no se
 entiende sin una base de datos recibiéndola de verdad.
 
 No compiten: no hay que terminar uno para empezar otro, y **comparten croquetas, gatos,

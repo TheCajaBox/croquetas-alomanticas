@@ -3,6 +3,7 @@ import { ref } from 'vue'
 
 import Avatar from './Avatar.vue'
 import Marcado from './Marcado.vue'
+import { nombreDe } from '../contenido/personajes.js'
 
 /**
  * El apunte de Wax: la explicación del concepto que hace falta para el reto.
@@ -14,6 +15,11 @@ import Marcado from './Marcado.vue'
 const props = defineProps({
   texto: { type: String, required: true },
   empiezaAbierto: { type: Boolean, default: true },
+  /**
+   * Quién lo escribe. Estaba puesto «wax» a mano, así que los apuntes de la
+   * primera era salían con su cara y su nombre aunque los firme Kelsier.
+   */
+  quien: { type: String, default: 'wax' },
 })
 
 const abierto = ref(props.empiezaAbierto)
@@ -22,9 +28,9 @@ const abierto = ref(props.empiezaAbierto)
 <template>
   <section class="apunte panel" :class="{ cerrado: !abierto }">
     <button class="titulo" :aria-expanded="abierto" @click="abierto = !abierto">
-      <Avatar class="retrato" quien="wax" :tamano="38" />
+      <Avatar class="retrato" :quien="quien" :tamano="38" />
       <span class="texto-titulo">
-        <span class="quien">El apunte de Wax</span>
+        <span class="quien">El apunte de {{ nombreDe(quien) }}</span>
         <span class="coletilla">gratis, esto no se cobra</span>
       </span>
       <span class="flecha" aria-hidden="true">{{ abierto ? '▾' : '▸' }}</span>
