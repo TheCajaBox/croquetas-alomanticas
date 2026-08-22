@@ -45,14 +45,34 @@ const QUIENES = {
   marasi: { nombre: 'Marasi', color: '#b06f8a' },
   melaan: { nombre: 'MeLaan', color: '#4fb89c' },
   armonia: { nombre: 'Armonía', color: '#c6a45c' },
-  vin: { nombre: 'Vin', color: '#a8a2bd' },
-  kelsier: { nombre: 'Kelsier', color: '#d8d2e4' },
+  // La primera era.
+  brisa: { nombre: 'Brisa', color: '#b07a9a' },
+  ham: { nombre: 'Ham', color: '#9a8f6a' },
+  kelsier: { nombre: 'Kelsier', color: '#cfd6e0' },
+  fantasma: { nombre: 'Fantasma', color: '#d0a24f' },
+  // A Sazed le toca el mismo color que a Armonía. No es un descuido: es el
+  // mismo, unos cuantos siglos antes.
   sazed: { nombre: 'Sazed', color: '#c6a45c' },
-  brisa: { nombre: 'Brisa', color: '#c98bb0' },
-  dockson: { nombre: 'Dockson', color: '#8a9aa8' },
-  tensoon: { nombre: 'TenSoon', color: '#6fb08a' },
   elend: { nombre: 'Elend', color: '#7f8fd8' },
+  vin: { nombre: 'Vin', color: '#a8a2bd' },
+  tensoon: { nombre: 'TenSoon', color: '#6fb08a' },
+  dockson: { nombre: 'Dockson', color: '#8a9aa8' },
   marsh: { nombre: 'Marsh', color: '#8a8a96' },
+
+  // Elantris.
+  galladon: { nombre: 'Galladon', color: '#b98a63' },
+  raoden: { nombre: 'Raoden', color: '#e0c987' },
+  sarene: { nombre: 'Sarene', color: '#63b0c9' },
+  adien: { nombre: 'Adien', color: '#cbd6e4' },
+  karata: { nombre: 'Karata', color: '#8a7f8c' },
+  hrathen: { nombre: 'Hrathen', color: '#b0503f' },
+
+  // Sel, cien días para falsificar un alma.
+  shai: { nombre: 'Shai', color: '#c46a5a' },
+  gaotona: { nombre: 'Gaotona', color: '#b9a678' },
+  hanshuxen: { nombre: 'Han ShuXen', color: '#7f8a96' },
+  sellador: { nombre: 'el Sellador de sangre', color: '#8f2f2f' },
+  frava: { nombre: 'Frava', color: '#7a6f92' },
 }
 
 const props = defineProps({

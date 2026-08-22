@@ -12,8 +12,8 @@ import { usarProgreso } from '../almacen/progreso.js'
  * La puerta: qué se quiere aprender.
  *
  * Antes esto era la lista de mundos, y con un solo itinerario estaba bien. Con
- * dos, lo primero tiene que ser elegir, y **no se redirige solo** al que venías
- * jugando: si `/` salta directo al itinerario de siempre, el otro lenguaje deja
+ * varios, lo primero tiene que ser elegir, y **no se redirige solo** al que
+ * venías jugando: si `/` salta directo al itinerario de siempre, los demás dejan
  * de existir para quien ya tenía partida. Se marca por dónde ibas en cada uno y
  * se elige igual.
  */
@@ -37,6 +37,14 @@ const caminos = computed(() =>
 )
 
 const colonia = computed(() => gatos.adoptados)
+
+const NUMEROS = ['ningún', 'un', 'dos', 'tres', 'cuatro', 'cinco', 'seis', 'siete']
+/** Contarlos a mano en el texto se rompe solo en cuanto se añade otro. */
+const cuantos = computed(() => NUMEROS[caminos.value.length] ?? caminos.value.length)
+const materias = computed(() => {
+  const nombres = caminos.value.map((camino) => camino.materia)
+  return `${nombres.slice(0, -1).join(', ')} y ${nombres.at(-1)}`
+})
 </script>
 
 <template>
@@ -45,13 +53,14 @@ const colonia = computed(() => gatos.adoptados)
       <SombreroEscondido id="entrada" :posicion="{ top: '14px', right: '18px' }" />
       <h1>Aprende a programar y págalo en croquetas</h1>
       <p class="tenue entradilla">
-        Dos caminos, dos lenguajes y código que se ejecuta de verdad, con sus tests: nada de
-        elegir la respuesta correcta de una lista. Con lo que ganes das de comer a una colonia
-        de gatos que vive en su casa y que, cuando están contentos, te devuelven el favor.
+        {{ cuantos.charAt(0).toUpperCase() + cuantos.slice(1) }} caminos —{{ materias }}— y código
+        que se ejecuta de verdad, con sus tests: nada de elegir la respuesta correcta de una
+        lista. Con lo que ganes das de comer a una colonia de gatos que vive en su casa y que,
+        cuando están contentos, te devuelven el favor.
       </p>
       <p class="tenue entradilla">
-        Los dos caminos comparten croquetas, gatos, sombreros e insignias, y no hay que
-        terminar uno para empezar el otro. Elige por dónde te apetece hoy.
+        Todos comparten croquetas, gatos, sombreros e insignias, y no hay que terminar uno para
+        empezar otro. Elige por dónde te apetece hoy.
       </p>
     </section>
 
@@ -72,7 +81,7 @@ const colonia = computed(() => gatos.adoptados)
         </div>
 
         <div class="fila titulo">
-          <Avatar :quien="camino.narrador" :tamano="56" />
+          <Avatar :quien="camino.reparto.narra" :tamano="56" />
           <div>
             <h2>{{ camino.nombre }}</h2>
             <p class="tenue ambiente">{{ camino.ambiente }}</p>
@@ -126,7 +135,7 @@ const colonia = computed(() => gatos.adoptados)
         <RouterLink to="/colonia" class="tenue">Ir a la casa →</RouterLink>
       </div>
       <p class="tenue vive-aqui">
-        Los mismos gatos para los dos caminos: lo que ganes en uno se lo comen igual.
+        Los mismos gatos para todos los caminos: lo que ganes en uno se lo comen igual.
       </p>
       <div class="miniaturas">
         <RouterLink v-for="gato in colonia" :key="gato.id" to="/colonia" class="miniatura" :title="gato.nombre">
@@ -148,7 +157,10 @@ const colonia = computed(() => gatos.adoptados)
 .entradilla { max-width: 70ch; margin: 0 0 0.8em; }
 .entradilla:last-child { margin-bottom: 0; }
 
-.caminos { display: grid; grid-template-columns: repeat(auto-fit, minmax(340px, 1fr)); gap: 18px; }
+/* 400 y no 340: con cuatro caminos, a 340 entran tres en la primera fila y el
+   cuarto se queda solo debajo. A 400 caen de dos en dos y se lee como una
+   rejilla en vez de como una lista mal cortada. */
+.caminos { display: grid; grid-template-columns: repeat(auto-fit, minmax(400px, 1fr)); gap: 18px; }
 .camino {
   display: flex;
   flex-direction: column;
@@ -159,7 +171,7 @@ const colonia = computed(() => gatos.adoptados)
   transition: transform 0.15s, background 0.15s;
 }
 a.camino:hover { transform: translateY(-3px); background: var(--panel-alto); }
-.camino.obras { opacity: 0.6; }
+.camino.obras { opacity: 0.72; }
 
 .cabecera { gap: 8px; }
 .lenguaje { color: var(--color-camino); border-color: var(--color-camino); }

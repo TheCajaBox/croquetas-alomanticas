@@ -58,8 +58,44 @@ export const LEMAS_DE_VIN = [
   'Yo tampoco sabía. Aprendí.',
 ]
 
-/** Quién dice qué debajo de su retrato, por narrador. */
-export const LEMAS_POR_NARRADOR = { wayne: LEMAS_DE_WAYNE, vin: LEMAS_DE_VIN }
+/**
+ * Los de Brisa, que narra la primera era.
+ *
+ * Aplacador de oficio: habla mucho, se escucha con gusto y te está empujando el
+ * ánimo mientras te lo cuenta. Nunca dice tres palabras si le caben nueve.
+ */
+export const LEMAS_DE_BRISA = [
+  'Yo no te obligo a nada. Solo te lo pongo fácil.',
+  'Hablar es gratis. Escuchar, no siempre.',
+  'Todo el mundo quiere algo. Averigua qué, y ya está.',
+  'Una buena explicación es media victoria. La otra media es tuya.',
+  'Confía en mí, querido amigo. Es literalmente mi trabajo.',
+]
+
+/** Los de Galladon, que narra Elantris: escéptico y con paciencia corta. */
+export const LEMAS_DE_GALLADON = [
+  'Una línea de más y el aon no hace nada. Nada de nada.',
+  'Aquí todo el mundo tiene un plan. Pregúntame qué tal salen.',
+  'Trázalo bien o no lo traces.',
+  'En mi tierra a esto lo llamaríamos optimismo.',
+]
+
+/** Los de Shai, que narra Sel: falsificadora, y buena. */
+export const LEMAS_DE_SHAI = [
+  'Todo lo que hay que verificar se puede falsificar.',
+  'Nadie mira los sellos. Ese es el problema.',
+  'No robo objetos. Robo el original.',
+  'Si pasa la inspección, es verdad. Por ahora.',
+]
+
+/** Quién dice qué debajo de su retrato, por quien narre. */
+export const LEMAS_POR_NARRADOR = {
+  wayne: LEMAS_DE_WAYNE,
+  vin: LEMAS_DE_VIN,
+  brisa: LEMAS_DE_BRISA,
+  galladon: LEMAS_DE_GALLADON,
+  shai: LEMAS_DE_SHAI,
+}
 
 export const LINEAS = {
   bienvenida: [

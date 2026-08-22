@@ -39,7 +39,7 @@ const sombreros = usarSombreros()
 
 /** Una frase distinta cada vez que se entra. Es su casa; que hable. */
 const lema = computed(() => {
-  const suyos = LEMAS_POR_NARRADOR[itinerario.value.narrador] ?? []
+  const suyos = LEMAS_POR_NARRADOR[itinerario.value.reparto.narra] ?? []
   return suyos.length ? suyos[Math.floor(Math.random() * suyos.length)] : null
 })
 
@@ -139,7 +139,7 @@ const marcadores = computed(() =>
           height="700"
           alt="Wayne, con su sombrero y el bastón al hombro"
         />
-        <Avatar v-else :quien="itinerario.narrador" :tamano="150" />
+        <Avatar v-else :quien="itinerario.reparto.narra" :tamano="150" />
         <figcaption v-if="lema">«{{ lema }}»</figcaption>
       </figure>
     </section>

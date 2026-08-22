@@ -252,16 +252,29 @@ intercambia.
 Hay pruebas que vigilan que ningún saco de frases se quede con una sola, que los que más
 salen tengan de sobra y que no haya dos frases repetidas en todo el juego.
 
-## Dos caminos
+## Cuatro caminos
 
-El juego tiene **itinerarios**: caminos de aprendizaje completos, cada uno con su lenguaje, su
-temario y quien lo narra. La segunda era enseña JavaScript y Vue, la narra Wayne y es la que
-está terminada; la primera era enseña PHP, la narra Vin y está en camino.
+El juego tiene **itinerarios**: caminos de aprendizaje completos, cada uno con su materia, su
+temario y su reparto. De momento solo está terminado el primero; los otros tres se anuncian en
+la entrada y dicen «en obras» hasta que tengan mundos.
 
-No compiten: no hay que terminar uno para empezar el otro, y **comparten croquetas, gatos,
-sombreros e insignias**, porque es un solo juego con dos temarios. Lo primero al entrar es
+| Itinerario | Materia | Narra | Quién explica |
+|---|---|---|---|
+| **La segunda era** | JavaScript y Vue | Wayne | Wax |
+| **La primera era** | PHP | Brisa, y Ham le interrumpe | Kelsier la primera mitad; Elend y Vin la segunda |
+| **Elantris** | SQL | Galladon | Raoden |
+| **El alma del emperador** | Ciberseguridad | Shai | Gaotona |
+
+Cada uno declara con qué se **ejecuta** el código (`lenguajes`) y su **reparto**: quién narra,
+quién escribe el temario, quién vende las pistas, quién lleva el glosario y quién contesta
+dudas sin dar la solución. El reparto no es adorno: un itinerario con el reparto mal puesto
+suena a otro. Seguridad es el único con dos lenguajes, porque una inyección de SQL no se
+entiende sin una base de datos recibiéndola de verdad.
+
+No compiten: no hay que terminar uno para empezar otro, y **comparten croquetas, gatos,
+sombreros e insignias**, porque es un solo juego con varios temarios. Lo primero al entrar es
 elegir cuál, y esa pantalla **no redirige sola** al que venías jugando: si `/` saltara al
-itinerario de siempre, el otro lenguaje dejaría de existir para quien ya tuviera partida.
+itinerario de siempre, los demás dejarían de existir para quien ya tuviera partida.
 
 ## La portada de un itinerario
 

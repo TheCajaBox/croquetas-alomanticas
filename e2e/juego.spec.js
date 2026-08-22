@@ -159,7 +159,7 @@ test.beforeEach(async ({ page }) => {
   await page.evaluate(() => localStorage.clear())
 })
 
-test('la entrada ofrece los dos caminos y no salta sola a ninguno', async ({ page }) => {
+test('la entrada ofrece todos los caminos y no salta sola a ninguno', async ({ page }) => {
   await page.goto('')
 
   // Los dos itinerarios, con su lenguaje, y sin haber elegido nada todavía.

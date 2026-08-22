@@ -1,4 +1,4 @@
-import { readdirSync } from 'node:fs'
+import { readFileSync } from 'node:fs'
 
 import { describe, expect, it } from 'vitest'
 
@@ -26,26 +26,53 @@ describe('los itinerarios', () => {
     expect(mundosDelItinerario(ITINERARIO_POR_DEFECTO).length).toBeGreaterThan(0)
   })
 
-  it('cada uno se presenta entero: lenguaje, narrador y de qué va', () => {
+  it('cada uno se presenta entero: materia, lenguajes y de qué va', () => {
     for (const cada of ITINERARIOS) {
       expect(cada.nombre, cada.id).toBeTruthy()
-      expect(cada.lenguaje, cada.id).toBeTruthy()
+      expect(cada.materia, cada.id).toBeTruthy()
       expect(cada.etiquetaLenguaje, cada.id).toBeTruthy()
       expect(cada.lenguajeEnFrase, cada.id).toBeTruthy()
-      expect(cada.narrador, cada.id).toBeTruthy()
+      expect(cada.lenguajes?.length, cada.id).toBeGreaterThan(0)
       expect(cada.resumen, cada.id).toBeTruthy()
       expect(cada.promesa, cada.id).toBeTruthy()
       expect(cada.presentacion, cada.id).toBeTruthy()
     }
   })
 
-  it('quien narra tiene cara y tiene lemas para su retrato', () => {
-    // Sin cara, `Avatar` caía en la de Wayne por descarte y Vin salía con
-    // sombrero. Sin lemas, el retrato queda con un pie vacío.
-    const avatar = readdirSync(new URL('../src/componentes/', import.meta.url))
-    expect(avatar).toContain('Avatar.vue')
+  it('el reparto de cada uno dice quién hace qué', () => {
+    // Un itinerario sin reparto suena a otro: es de donde sale quién narra,
+    // quién escribe el temario, quién vende las pistas y quién contesta dudas.
     for (const cada of ITINERARIOS) {
-      expect(LEMAS_POR_NARRADOR[cada.narrador]?.length, cada.narrador).toBeGreaterThan(0)
+      const reparto = cada.reparto ?? {}
+      expect(reparto.narra, `${cada.id} sin narrador`).toBeTruthy()
+      expect(reparto.pistas, `${cada.id} sin quien venda pistas`).toBeTruthy()
+      expect(reparto.apuntes?.length, `${cada.id} sin quien escriba el temario`).toBeGreaterThan(0)
+      expect(reparto.glosario, `${cada.id} sin glosario`).toBeTruthy()
+      expect(reparto.ayuda, `${cada.id} sin quien conteste dudas`).toBeTruthy()
+    }
+  })
+
+  it('todo el reparto tiene cara, aunque sea la de respaldo', () => {
+    // `Avatar` solo conoce a quien esté en su lista; el que no esté saldría con
+    // la cara de otro, que es peor que no salir.
+    const avatar = readFileSync(new URL('../src/componentes/Avatar.vue', import.meta.url), 'utf8')
+    const quienes = new Set([...avatar.matchAll(/^\s{2}([a-z]+): \{ nombre:/gm)].map((c) => c[1]))
+
+    for (const cada of ITINERARIOS) {
+      for (const [papel, quien] of Object.entries(cada.reparto)) {
+        for (const nombre of [quien].flat()) {
+          if (typeof nombre !== 'string') continue
+          expect(quienes.has(nombre), `${cada.id}.${papel} = ${nombre}`).toBe(true)
+        }
+      }
+    }
+  })
+
+  it('quien narra tiene lemas para su retrato', () => {
+    // Sin lemas, el retrato de la portada queda con el pie vacío.
+    for (const cada of ITINERARIOS) {
+      const quien = cada.reparto.narra
+      expect(LEMAS_POR_NARRADOR[quien]?.length, quien).toBeGreaterThan(0)
     }
   })
 
@@ -65,7 +92,9 @@ describe('los itinerarios', () => {
 
     for (const cada of ITINERARIOS) {
       if (mundosDelItinerario(cada.id).length === 0) continue
-      expect(entornos.has(cada.lenguaje), `${cada.id} habla ${cada.lenguaje}`).toBe(true)
+      for (const lenguaje of cada.lenguajes) {
+        expect(entornos.has(lenguaje), `${cada.id} habla ${lenguaje}`).toBe(true)
+      }
     }
   })
 })
