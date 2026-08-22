@@ -173,6 +173,22 @@ export const MUNDOS = [
     despedida:
       'Ya sabes decirle cosas a la máquina, guardarlas, mirar de qué son y sacarlas de una lista. Con eso no se hace nada todavía, y sin eso no se hace nada nunca.',
   },
+  {
+    id: 'tripulacion',
+    nombre: 'La tripulación',
+    subtitulo: 'PHP · decidir y repetir',
+    itinerario: 'era1',
+    entorno: 'php',
+    requiere: 'ceniza',
+    color: '#9a8f6a',
+    anfitrion: 'kelsier',
+    resumen:
+      'Que el programa decida y que repita: condiciones, bucles, funciones con sus parámetros, y listas con nombre en vez de con número.',
+    presentacion:
+      'Una cuadrilla no es gente junta: es gente con un cometido cada uno. Un programa igual. Hasta ahora le has dicho a la máquina qué hacer, en orden, sin más. Aquí empieza a decidir sola y a repetir sin que se lo pidas cada vez, y tú a repartir el trabajo en funciones que se llaman por su nombre. Es donde programar deja de parecerse a escribir una lista de la compra.',
+    despedida:
+      'Ya no escribes órdenes: escribes decisiones. Con condiciones, bucles, funciones y arrays con clave se puede hacer prácticamente cualquier cosa; lo que viene después es hacerla bien.',
+  },
 ]
 
 export const MUNDOS_POR_ID = Object.fromEntries(MUNDOS.map((mundo) => [mundo.id, mundo]))

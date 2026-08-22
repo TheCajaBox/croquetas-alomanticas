@@ -179,7 +179,7 @@ ahora mismo**, porque lee lo que has escrito y mira qué test se ha puesto rojo.
 Lo que no hace, nunca, es darte la solución. Y no porque se lo hayamos prohibido: es que no
 la tiene. Lo que Armonía recuerda se construye con una lista blanca de tres campos —título,
 enunciado y apunte—, así que las soluciones, los tests y las pistas quedan fuera por
-construcción. Un test recorre los 102 retos y comprueba que **cada palabra que puede decir
+construcción. Un test recorre los 114 retos y comprueba que **cada palabra que puede decir
 sale de material que ya tienes gratis y abierto en la misma pantalla**.
 
 Que se contenga es el personaje, no una norma nuestra: en la era 2, Armonía podría
@@ -230,10 +230,10 @@ mundos.
 
 Y ninguna pista da ya la solución entera. La escalera es: **gratis**, dónde mirar; **60%**,
 qué concepto te falta; **200%**, el paso exacto que te queda, sin la línea escrita. Un test
-recorre los 92 retos con pistas y comprueba que la última no contenga ni una línea de su
+recorre los 103 retos con pistas y comprueba que la última no contenga ni una línea de su
 solución — es lo que impide que esto se relaje con el tiempo.
 
-Los diez jefes no tienen pistas en absoluto. Cierran un mundo, y todo lo que hace falta se
+Los once jefes no tienen pistas en absoluto. Cierran un mundo, y todo lo que hace falta se
 ha visto en los retos de antes: saber que lo sabes es resolverlo sin nadie detrás. Ahí solo
 queda Armonía, y en los jefes él tampoco diagnostica — únicamente traduce errores y define
 palabras, que es la válvula para que nadie se quede mirando un muro en inglés.
@@ -316,7 +316,7 @@ viajaban enteros en el paquete principal**: enunciado, código de partida, soluc
 pistas y explicaciones incluidos. Todo eso lo descargaba y lo analizaba quien entraba a mirar
 la portada.
 
-Medido campo por campo sobre los 102 retos:
+Medido campo por campo sobre los retos que había entonces, 102:
 
 | | |
 |---|---|
@@ -358,8 +358,9 @@ reactividad profunda tampoco servía para nada.
 ## Cuatro caminos
 
 El juego tiene **itinerarios**: caminos de aprendizaje completos, cada uno con su materia, su
-temario y su reparto. El primero está terminado y **el de PHP tiene su primer mundo jugable**;
-Elantris y Sel se anuncian en la entrada y dicen «en obras» hasta que tengan mundos.
+temario y su reparto. El primero está terminado y **el de PHP lleva dos mundos jugables** —La
+Ceniza y La tripulación—; Elantris y Sel se anuncian en la entrada y dicen «en obras» hasta que
+tengan mundos.
 
 | Itinerario | Materia | Narra | Quién explica |
 |---|---|---|---|
@@ -522,7 +523,7 @@ de lo que se anima hace falta para jugar.
 ```bash
 npm install     # instala y copia los runtimes de Vue a public/vendor/
 npm run dev
-npm test        # motor, almacenes, Armonía, Marasi y las soluciones de los 102 retos
+npm test        # motor, almacenes, Armonía, Marasi y las soluciones de los 114 retos
 npm run test:e2e
 ```
 
