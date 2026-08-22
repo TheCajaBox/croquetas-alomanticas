@@ -44,6 +44,23 @@ export const LEMAS_DE_WAYNE = [
   'Consuélate: podría ser peor. Casi siempre puede.',
 ]
 
+/**
+ * Los de Vin, para el retrato de la primera era.
+ *
+ * Ella no hace gracias: comprueba. Cuatro palabras y ya está dicho, que es
+ * justo lo contrario de Wayne y por eso funciona tenerlos en el mismo juego.
+ */
+export const LEMAS_DE_VIN = [
+  'No confíes en lo que no has probado.',
+  'Si funciona a la primera, míralo otra vez.',
+  'Nadie te va a dar nada. Cógelo.',
+  'La ceniza cae igual para todos.',
+  'Yo tampoco sabía. Aprendí.',
+]
+
+/** Quién dice qué debajo de su retrato, por narrador. */
+export const LEMAS_POR_NARRADOR = { wayne: LEMAS_DE_WAYNE, vin: LEMAS_DE_VIN }
+
 export const LINEAS = {
   bienvenida: [
     'Bueno, bueno. Otro que quiere aprender a programar. Yo de eso no sé nada, pero se me da de miedo opinar.',

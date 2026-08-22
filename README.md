@@ -252,15 +252,26 @@ intercambia.
 Hay pruebas que vigilan que ningún saco de frases se quede con una sola, que los que más
 salen tengan de sobra y que no haya dos frases repetidas en todo el juego.
 
-## La portada
+## Dos caminos
 
-Lo primero que hay al entrar, si ya has empezado, es **por dónde ibas**: el reto que toca, en
-qué mundo, lo que llevas hecho —retos, racha, insignias, sombreros, croquetas— y un botón que
-lleva justo ahí. Antes la portada enseñaba nueve mundos y ni una palabra de dónde te habías
-quedado, así que para seguir jugando había que acordarse. Recién llegado dice «por aquí se
-empieza» y señala el primero.
+El juego tiene **itinerarios**: caminos de aprendizaje completos, cada uno con su lenguaje, su
+temario y quien lo narra. La segunda era enseña JavaScript y Vue, la narra Wayne y es la que
+está terminada; la primera era enseña PHP, la narra Vin y está en camino.
 
-Debajo del retrato de Wayne va un lema distinto cada vez que se entra: el mismo siempre
+No compiten: no hay que terminar uno para empezar el otro, y **comparten croquetas, gatos,
+sombreros e insignias**, porque es un solo juego con dos temarios. Lo primero al entrar es
+elegir cuál, y esa pantalla **no redirige sola** al que venías jugando: si `/` saltara al
+itinerario de siempre, el otro lenguaje dejaría de existir para quien ya tuviera partida.
+
+## La portada de un itinerario
+
+Dentro de cada camino, lo primero que hay si ya has empezado es **por dónde ibas**: el reto
+que toca, en qué mundo, lo que llevas hecho —retos, racha, insignias, sombreros, croquetas— y
+un botón que lleva justo ahí. Antes la portada enseñaba los mundos y ni una palabra de dónde
+te habías quedado, así que para seguir jugando había que acordarse. Recién llegado dice «por
+aquí se empieza» y señala el primero.
+
+Debajo del retrato de quien narra va un lema distinto cada vez que se entra: el mismo siempre
 acababa siendo parte del mueble.
 
 ## Los gatos

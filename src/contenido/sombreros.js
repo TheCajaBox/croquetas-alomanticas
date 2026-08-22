@@ -18,10 +18,17 @@ export const SOMBREROS = [
     dice: 'Ese estaba ahí desde el principio. Llevas todo el rato mirándolo.',
   },
   {
+    id: 'entrada',
+    nombre: 'El de las dos eras',
+    pista: 'En la puerta, donde se elige qué se quiere aprender.',
+    donde: 'En la entrada, arriba a la derecha.',
+    dice: 'Ese lo dejé para el que llegara. Y has llegado tú, mira qué suerte.',
+  },
+  {
     id: 'mundos',
     nombre: 'El polvoriento',
-    pista: 'Donde se eligen los mundos, alguien dejó uno en la puerta.',
-    donde: 'En la portada, junto al titular.',
+    pista: 'Donde se eligen los mundos de un camino, alguien dejó uno en la puerta.',
+    donde: 'En la portada de un itinerario, junto al titular.',
     dice: 'Cogió polvo de los Áridos. Le sienta bien, la verdad.',
   },
   {

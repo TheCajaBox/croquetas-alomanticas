@@ -92,7 +92,10 @@ const insigniasRecientes = computed(() => insignias.mias.slice(-2))
       <RouterLink v-if="repaso" :to="{ name: 'repaso', params: { mundoId } }" class="boton-siguiente">
         El repaso de Marasi →
       </RouterLink>
-      <RouterLink to="/" class="tenue volver-portada">Volver a los mundos</RouterLink>
+      <RouterLink
+        :to="{ name: 'itinerario', params: { itinerarioId: mundo.itinerario } }"
+        class="tenue volver-portada"
+      >Volver a los mundos</RouterLink>
     </div>
   </section>
 </template>

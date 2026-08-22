@@ -1,6 +1,6 @@
 import { defineStore } from 'pinia'
 
-import { MUNDOS } from '../contenido/mundos.js'
+import { MUNDOS, mundosDelItinerario } from '../contenido/mundos.js'
 import { RETOS, RETOS_POR_ID, retosDelMundo } from '../contenido/retos/index.js'
 import { autoguardar } from './persistencia.js'
 
@@ -86,14 +86,39 @@ export const usarProgreso = defineStore('progreso', {
      * Es lo que la portada necesita para poder decir «sigue por aquí» en vez de
      * dejarte buscando en qué mundo te habías quedado. Dentro de un mundo el
      * primero sin superar es justo el que está abierto, porque se abren en fila.
+     *
+     * Se pide por itinerario, porque cada camino se lleva por separado: haber
+     * terminado la segunda era no dice nada de por dónde ibas en la primera.
+     * Sin itinerario mira todos, que es lo que hacía antes de haber dos.
      */
     porDondeIba() {
-      for (const mundo of MUNDOS) {
-        if (!this.mundoDisponible(mundo.id)) continue
-        const reto = retosDelMundo(mundo.id).find((r) => !this.superado(r.id))
-        if (reto) return reto
+      return (itinerarioId = null) => {
+        const donde = itinerarioId ? mundosDelItinerario(itinerarioId) : MUNDOS
+        for (const mundo of donde) {
+          if (!this.mundoDisponible(mundo.id)) continue
+          const reto = retosDelMundo(mundo.id).find((r) => !this.superado(r.id))
+          if (reto) return reto
+        }
+        return null
       }
-      return null
+    },
+
+    /** Lo que llevas de un itinerario, para poder enseñarlo en la entrada. */
+    avanceDelItinerario() {
+      return (itinerarioId) => {
+        const mundos = mundosDelItinerario(itinerarioId)
+        const retos = mundos.flatMap((mundo) => retosDelMundo(mundo.id))
+        return {
+          mundos: mundos.length,
+          total: retos.length,
+          hechos: retos.filter((reto) => this.superado(reto.id)).length,
+          // Haberlo tocado, no haberlo superado: quien ha probado un reto y ha
+          // fallado también «venía por aquí», y la entrada tiene que decírselo.
+          empezado: retos.some(
+            (reto) => this.retos[reto.id]?.superado || (this.retos[reto.id]?.intentos ?? 0) > 0,
+          ),
+        }
+      }
     },
 
     jefesDerrotados: (estado) =>

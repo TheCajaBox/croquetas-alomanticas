@@ -51,7 +51,7 @@ if (!mundo.value || !progreso.mundoDisponible(props.mundoId)) router.replace('/'
   <div v-if="mundo" class="pila">
     <section class="panel encabezado" :style="{ '--color-mundo': mundo.color }">
       <SombreroEscondido id="mundo" :posicion="{ bottom: '16px', right: '20px' }" />
-      <RouterLink to="/" class="tenue volver">← Mundos</RouterLink>
+      <RouterLink :to="{ name: 'itinerario', params: { itinerarioId: mundo.itinerario } }" class="tenue volver">← Mundos</RouterLink>
       <span class="etiqueta" :style="{ color: mundo.color, borderColor: mundo.color }">{{ mundo.subtitulo }}</span>
       <h1>{{ mundo.nombre }}</h1>
       <p class="presentacion">{{ mundo.presentacion }}</p>

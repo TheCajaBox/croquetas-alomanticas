@@ -74,7 +74,7 @@ watch(ultimoRecorte, (nuevo) => {
         </RouterLink>
 
         <nav class="navegacion">
-          <RouterLink to="/">Mundos</RouterLink>
+          <RouterLink to="/">Caminos</RouterLink>
           <RouterLink to="/colonia">Colonia</RouterLink>
           <RouterLink to="/glosario">Glosario</RouterLink>
           <!-- Armonía no es una pantalla, es un cajón que se abre encima: va

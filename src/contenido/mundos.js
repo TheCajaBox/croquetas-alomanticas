@@ -10,12 +10,17 @@
  * Cada mundo declara de cuál depende en `requiere`, y de ahí sale el candado.
  * Ninguno se salta: quien llega a Vue sin saber qué es un objeto no aprende
  * Vue, sufre Vue.
+ *
+ * Y declara a qué **itinerario** pertenece (ver `contenido/itinerarios.js`). Los
+ * de aquí son todos de la segunda era; los de la primera hablan otro lenguaje y
+ * tienen su propia cuesta, que no se cruza con esta.
  */
 export const MUNDOS = [
   {
     id: 'primer-dia',
     nombre: 'El primer día',
     subtitulo: 'Sin escribir una línea (casi)',
+    itinerario: 'era2',
     entorno: 'worker',
     requiere: null,
     color: '#7fb2d8',
@@ -29,6 +34,7 @@ export const MUNDOS = [
     id: 'comisaria',
     nombre: 'La comisaría',
     subtitulo: 'Decidir, repetir y guardar',
+    itinerario: 'era2',
     entorno: 'worker',
     requiere: 'primer-dia',
     color: '#8ba3bd',
@@ -44,6 +50,7 @@ export const MUNDOS = [
     id: 'es6',
     nombre: 'Los Áridos',
     subtitulo: 'JavaScript ES6',
+    itinerario: 'era2',
     entorno: 'worker',
     requiere: 'comisaria',
     color: '#c98b4b',
@@ -57,6 +64,7 @@ export const MUNDOS = [
     id: 'taller',
     nombre: 'El taller',
     subtitulo: 'JavaScript de verdad',
+    itinerario: 'era2',
     entorno: 'worker',
     requiere: 'es6',
     color: '#b06f6f',
@@ -72,6 +80,7 @@ export const MUNDOS = [
     id: 'elendel',
     nombre: 'Elendel',
     subtitulo: 'Fuera del archivo',
+    itinerario: 'era2',
     entorno: 'worker',
     requiere: 'taller',
     color: '#a05a72',
@@ -87,6 +96,7 @@ export const MUNDOS = [
     id: 'vue2',
     nombre: 'La mansión Ladrian',
     subtitulo: 'Vue 2 · Options API',
+    itinerario: 'era2',
     entorno: 'vue2',
     requiere: 'taller',
     color: '#8f6fb0',
@@ -100,6 +110,7 @@ export const MUNDOS = [
     id: 'vue3',
     nombre: 'La Nueva Seran',
     subtitulo: 'Vue 3 · Composition API',
+    itinerario: 'era2',
     entorno: 'vue3',
     requiere: 'taller',
     color: '#4f9d8c',
@@ -113,6 +124,7 @@ export const MUNDOS = [
     id: 'ferrocarril',
     nombre: 'El ferrocarril',
     subtitulo: 'Vue 3 · una aplicación entera',
+    itinerario: 'era2',
     entorno: 'vue3',
     requiere: ['vue3', 'elendel'],
     color: '#3f7f96',
@@ -128,6 +140,7 @@ export const MUNDOS = [
     id: 'melaan',
     nombre: 'Cambio de forma',
     subtitulo: 'Reescribir lo que ya funciona',
+    itinerario: 'era2',
     entorno: 'vue3',
     requiere: 'vue3',
     color: '#4fb89c',
@@ -142,3 +155,7 @@ export const MUNDOS = [
 ]
 
 export const MUNDOS_POR_ID = Object.fromEntries(MUNDOS.map((mundo) => [mundo.id, mundo]))
+
+/** Los mundos de un itinerario, en el orden en que se juegan. */
+export const mundosDelItinerario = (itinerarioId) =>
+  MUNDOS.filter((mundo) => mundo.itinerario === itinerarioId)

@@ -2,7 +2,8 @@ import { readFileSync, readdirSync } from 'node:fs'
 
 import { GATOS } from '../src/contenido/gatos.js'
 import { LEMAS_DE_WAYNE, LINEAS } from '../src/contenido/narrador/lineas.js'
-import { MUNDOS } from '../src/contenido/mundos.js'
+import { ITINERARIOS } from '../src/contenido/itinerarios.js'
+import { MUNDOS, mundosDelItinerario } from '../src/contenido/mundos.js'
 import { retosDelMundo } from '../src/contenido/retos/index.js'
 import { SOMBREROS, SOMBREROS_POR_ID } from '../src/contenido/sombreros.js'
 import { createPinia, setActivePinia } from 'pinia'
@@ -184,15 +185,15 @@ describe('progreso', () => {
     const retos = retosDelMundo(primerMundo)
 
     // Recién llegado: por el primero de todos.
-    expect(progreso.porDondeIba?.id).toBe(retos[0].id)
+    expect(progreso.porDondeIba()?.id).toBe(retos[0].id)
 
     // Con dos hechos: por el tercero.
     progreso.registrarVictoria(retos[0].id)
     progreso.registrarVictoria(retos[1].id)
-    expect(progreso.porDondeIba?.id).toBe(retos[2].id)
+    expect(progreso.porDondeIba()?.id).toBe(retos[2].id)
 
     // Y siempre es uno al que se puede entrar de verdad.
-    expect(progreso.retoDisponible(progreso.porDondeIba.id)).toBe(true)
+    expect(progreso.retoDisponible(progreso.porDondeIba().id)).toBe(true)
   })
 
   it('cuando no queda nada, no señala ningún reto', () => {
@@ -200,7 +201,37 @@ describe('progreso', () => {
     for (const mundo of MUNDOS) {
       for (const reto of retosDelMundo(mundo.id)) progreso.registrarVictoria(reto.id)
     }
-    expect(progreso.porDondeIba).toBe(null)
+    expect(progreso.porDondeIba()).toBe(null)
+  })
+
+  it('lleva cada itinerario por separado', () => {
+    // Terminar la segunda era no dice nada de por dónde ibas en la primera, y
+    // al revés: cada camino tiene su propio «sigue por aquí».
+    const progreso = usarProgreso()
+    for (const itinerario of ITINERARIOS) {
+      const mundos = mundosDelItinerario(itinerario.id)
+      const suyo = progreso.porDondeIba(itinerario.id)
+      if (mundos.length === 0) {
+        expect(suyo, itinerario.id).toBe(null)
+        continue
+      }
+      expect(suyo, itinerario.id).not.toBe(null)
+      expect(mundos.map((m) => m.id), itinerario.id).toContain(suyo.mundo)
+    }
+  })
+
+  it('cuenta el avance de cada itinerario con sus propios retos', () => {
+    const progreso = usarProgreso()
+    const [primero] = mundosDelItinerario('era2')
+    const retos = retosDelMundo(primero.id)
+
+    expect(progreso.avanceDelItinerario('era2').hechos).toBe(0)
+    progreso.registrarVictoria(retos[0].id)
+    const avance = progreso.avanceDelItinerario('era2')
+    expect(avance.hechos).toBe(1)
+    expect(avance.total).toBeGreaterThan(avance.hechos)
+    expect(avance.mundos).toBe(mundosDelItinerario('era2').length)
+    expect(avance.empezado).toBe(true)
   })
 
   it('rehacer un reto ya superado no vuelve a subir la racha', () => {

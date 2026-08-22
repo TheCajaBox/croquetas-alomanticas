@@ -29,13 +29,30 @@ import wax from '../recursos/wax-avatar.webp'
  * escritas a mano, esas rutas se romperían al publicar en GitHub Pages.
  */
 const CARAS = { wayne, wax, steris, marasi, melaan, armonia }
-const NOMBRES = {
-  wayne: 'Wayne',
-  wax: 'Wax',
-  steris: 'Steris',
-  marasi: 'Marasi',
-  melaan: 'MeLaan',
-  armonia: 'Armonía',
+
+/**
+ * Todos los que hablan en el juego, tengan ilustración o no.
+ *
+ * Los de la primera era todavía no la tienen —no hay imágenes que poner— y
+ * hasta que aparezcan salen con un disco de su color y su inicial, dibujado
+ * aquí mismo. Antes, un `quien` desconocido caía en la cara de Wayne por
+ * descarte: Vin salía con el sombrero puesto, que es peor que no salir.
+ */
+const QUIENES = {
+  wayne: { nombre: 'Wayne', color: '#c98b4b' },
+  wax: { nombre: 'Wax', color: '#7fa3c4' },
+  steris: { nombre: 'Steris', color: '#9aa8d8' },
+  marasi: { nombre: 'Marasi', color: '#b06f8a' },
+  melaan: { nombre: 'MeLaan', color: '#4fb89c' },
+  armonia: { nombre: 'Armonía', color: '#c6a45c' },
+  vin: { nombre: 'Vin', color: '#a8a2bd' },
+  kelsier: { nombre: 'Kelsier', color: '#d8d2e4' },
+  sazed: { nombre: 'Sazed', color: '#c6a45c' },
+  brisa: { nombre: 'Brisa', color: '#c98bb0' },
+  dockson: { nombre: 'Dockson', color: '#8a9aa8' },
+  tensoon: { nombre: 'TenSoon', color: '#6fb08a' },
+  elend: { nombre: 'Elend', color: '#7f8fd8' },
+  marsh: { nombre: 'Marsh', color: '#8a8a96' },
 }
 
 const props = defineProps({
@@ -45,13 +62,16 @@ const props = defineProps({
   animado: { type: Boolean, default: false },
 })
 
-const cara = computed(() => CARAS[props.quien] ?? CARAS.wayne)
-const nombre = computed(() => NOMBRES[props.quien] ?? 'Wayne')
+const quien = computed(() => QUIENES[props.quien] ?? QUIENES.wayne)
+const cara = computed(() => CARAS[props.quien] ?? null)
+const nombre = computed(() => quien.value.nombre)
+const inicial = computed(() => nombre.value.slice(0, 1))
 const lado = computed(() => `${props.tamano}px`)
 </script>
 
 <template>
   <img
+    v-if="cara"
     :src="cara"
     class="avatar"
     :class="{ animado }"
@@ -61,10 +81,36 @@ const lado = computed(() => `${props.tamano}px`)
     :alt="nombre"
     decoding="async"
   />
+
+  <!-- Sin ilustración: su color y su inicial, que al menos se distinguen. -->
+  <svg
+    v-else
+    class="avatar sin-cara"
+    :class="{ animado }"
+    :style="{ width: lado, height: lado, '--suyo': quien.color }"
+    viewBox="0 0 64 64"
+    role="img"
+    :aria-label="nombre"
+  >
+    <circle cx="32" cy="32" r="31" />
+    <text x="32" y="42" text-anchor="middle">{{ inicial }}</text>
+  </svg>
 </template>
 
 <style scoped>
 .avatar { display: block; border-radius: 50%; flex-shrink: 0; }
+
+.sin-cara circle {
+  fill: color-mix(in srgb, var(--suyo) 20%, #1d1826);
+  stroke: color-mix(in srgb, var(--suyo) 55%, transparent);
+  stroke-width: 2;
+}
+.sin-cara text {
+  fill: var(--suyo);
+  font-family: inherit;
+  font-size: 30px;
+  font-weight: 650;
+}
 .avatar.animado { animation: asomar-avatar 0.45s cubic-bezier(0.2, 1.4, 0.4, 1) backwards; }
 
 @keyframes asomar-avatar {

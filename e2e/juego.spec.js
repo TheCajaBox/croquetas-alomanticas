@@ -2,6 +2,7 @@ import { readdirSync } from 'node:fs'
 
 import { expect, test } from '@playwright/test'
 
+import { ITINERARIOS } from '../src/contenido/itinerarios.js'
 import { MUNDOS } from '../src/contenido/mundos.js'
 
 /**
@@ -158,8 +159,29 @@ test.beforeEach(async ({ page }) => {
   await page.evaluate(() => localStorage.clear())
 })
 
-test('la portada presenta todos los mundos que hay', async ({ page }) => {
+test('la entrada ofrece los dos caminos y no salta sola a ninguno', async ({ page }) => {
   await page.goto('')
+
+  // Los dos itinerarios, con su lenguaje, y sin haber elegido nada todavía.
+  for (const itinerario of ITINERARIOS) {
+    const camino = page.locator('.camino', { hasText: itinerario.nombre })
+    await expect(camino).toBeVisible()
+    await expect(camino).toContainText(itinerario.etiquetaLenguaje)
+  }
+  expect(page.url()).toMatch(/#\/$|\/$/)
+
+  // Y se entra por la tarjeta al camino que tenga mundos.
+  await page.locator('.camino', { hasText: 'La segunda era' }).click()
+  await expect(page.getByRole('heading', { name: 'La segunda era' })).toBeVisible()
+  await expect(page.getByRole('heading', { name: 'El primer día' })).toBeVisible()
+
+  // Con partida empezada sigue habiendo que elegir: nadie pierde el otro camino.
+  await page.goto('')
+  await expect(page.locator('.camino')).toHaveCount(ITINERARIOS.length)
+})
+
+test('la portada presenta todos los mundos que hay', async ({ page }) => {
+  await page.goto('#/itinerario/era2')
   // Escritos a mano se quedaban cortos: la prueba decía «los siete mundos»
   // cuando ya eran nueve, y pasaba igual.
   for (const mundo of MUNDOS) {
@@ -169,7 +191,7 @@ test('la portada presenta todos los mundos que hay', async ({ page }) => {
 
 test('la portada dice por dónde ibas y lleva a ese reto', async ({ page }) => {
   // Recién llegado: por dónde se empieza.
-  await page.goto('')
+  await page.goto('#/itinerario/era2')
   const seguir = page.locator('.seguir')
   await expect(seguir).toContainText('Por aquí se empieza')
   await expect(seguir.getByRole('link', { name: /Empezar/ })).toBeVisible()
@@ -183,7 +205,7 @@ test('la portada dice por dónde ibas y lleva a ese reto', async ({ page }) => {
     }
     localStorage.setItem('gatosYCodigo', JSON.stringify({ version: 1, progreso: { retos } }))
   }, ids.slice(0, 3))
-  await page.goto('')
+  await page.goto('#/itinerario/era2')
   await page.reload()
 
   await expect(seguir).toContainText('Por dónde ibas')
@@ -246,8 +268,8 @@ test('un bucle infinito se corta y la página sigue viva', async ({ page }) => {
 
   await expect(page.getByText(/Bucle sin salida|Se acabó el tiempo/)).toBeVisible({ timeout: 20_000 })
   // Si la pestaña se hubiera congelado, esto no respondería.
-  await page.getByRole('link', { name: 'Mundos' }).click()
-  await expect(page.getByRole('heading', { name: 'Los Áridos' })).toBeVisible()
+  await page.getByRole('link', { name: 'Caminos' }).click()
+  await expect(page.getByRole('heading', { name: 'La segunda era' })).toBeVisible()
 })
 
 test('la partida sobrevive a recargar la página', async ({ page }) => {
@@ -416,16 +438,16 @@ test('jugar con un gato es que persiga una pluma', async ({ page }) => {
 })
 
 test('los sombreros se encuentran, se pagan y se guardan', async ({ page }) => {
-  await page.goto('')
+  await page.goto('#/itinerario/era2')
 
   // Están casi transparentes hasta que alguien pasa por encima: se pulsan igual.
-  await expect(page.locator('.contador.sombreros')).toContainText('0/14')
+  await expect(page.locator('.contador.sombreros')).toContainText('0/15')
   const croquetasAntes = Number(await page.locator('.contador.croquetas').textContent())
 
   await page.locator('.portada .sombrero-escondido').click()
 
   await expect(page.getByText('Sombrero encontrado')).toBeVisible()
-  await expect(page.locator('.contador.sombreros')).toContainText('1/14')
+  await expect(page.locator('.contador.sombreros')).toContainText('1/15')
   // Wayne jura que era suyo y lo paga.
   await expect
     .poll(async () => Number(await page.locator('.contador.croquetas').textContent()))
@@ -435,11 +457,11 @@ test('los sombreros se encuentran, se pagan y se guardan', async ({ page }) => {
   await expect(page.locator('.portada .sombrero-escondido')).toHaveCount(0)
   await page.goto('#/sombrerera')
   await expect(page.getByRole('heading', { name: 'El polvoriento' })).toBeVisible()
-  await expect(page.getByText('1 de 14 encontrados')).toBeVisible()
+  await expect(page.getByText('1 de 15 encontrados')).toBeVisible()
 
   // Y sobrevive a recargar.
   await page.reload()
-  await expect(page.locator('.contador.sombreros')).toContainText('1/14')
+  await expect(page.locator('.contador.sombreros')).toContainText('1/15')
 })
 
 test('la racha se ve en la cabecera y se pierde al comprar una pista', async ({ page }) => {
@@ -644,7 +666,7 @@ test('los términos del glosario se pueden pulsar sin salir del reto', async ({ 
 
 test('la antesala explica de qué va todo esto', async ({ page }) => {
   await page.goto('')
-  // Mientras no se haya leído, la portada la ofrece.
+  // Mientras no se haya leído, la entrada la ofrece.
   await page.getByText('¿No has programado nunca?').click()
 
   await expect(page.getByRole('heading', { name: 'Antes de empezar' })).toBeVisible()
@@ -869,7 +891,7 @@ test('el cajón de Armonía se cierra al navegar y no deja el fondo bloqueando',
   await preguntarAArmonia(page, '¿qué es un bucle?')
   await expect(page.locator('.cajon')).toBeVisible()
 
-  await page.goto('#/')
+  await page.goto('#/itinerario/era2')
   await expect(page.locator('.cajon')).toHaveCount(0)
   // Y la portada se puede usar: si el fondo hubiera sobrevivido, esto fallaría.
   await page.getByRole('heading', { name: 'El primer día' }).click()

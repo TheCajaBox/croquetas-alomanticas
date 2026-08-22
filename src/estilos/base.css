@@ -19,6 +19,10 @@
   --morado: #9578ba;
 
   --radio: 10px;
+  /* Para lo pequeño: campos, botones menudos, avisos. Cuatro ficheros lo
+     usaban ya y no estaba definido en ninguna parte, así que salían con las
+     esquinas rectas y nadie sabía por qué. */
+  --radio-menudo: 7px;
   --sombra: 0 10px 30px rgba(0, 0, 0, 0.35);
   --mono: ui-monospace, SFMono-Regular, "SF Mono", Menlo, Consolas, "Liberation Mono", monospace;
 }

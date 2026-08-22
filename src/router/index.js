@@ -1,6 +1,6 @@
 import { createRouter, createWebHashHistory } from 'vue-router'
 
-import VistaInicio from '../vistas/VistaInicio.vue'
+import VistaEntrada from '../vistas/VistaEntrada.vue'
 
 /**
  * Historial de hash y no de rutas limpias: el juego se publica en GitHub
@@ -11,7 +11,16 @@ export function crearEnrutador() {
   return createRouter({
     history: createWebHashHistory(import.meta.env.BASE_URL),
     routes: [
-      { path: '/', name: 'inicio', component: VistaInicio },
+      // La puerta es elegir lenguaje; la lista de mundos es lo de dentro de
+      // cada itinerario. Antes «/» era la lista, y con dos caminos eso dejaba
+      // uno de los dos sin sitio donde vivir.
+      { path: '/', name: 'entrada', component: VistaEntrada },
+      {
+        path: '/itinerario/:itinerarioId',
+        name: 'itinerario',
+        component: () => import('../vistas/VistaInicio.vue'),
+        props: true,
+      },
       {
         path: '/mundo/:mundoId',
         name: 'mundo',

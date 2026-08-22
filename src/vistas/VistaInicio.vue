@@ -2,8 +2,9 @@
 import { computed } from 'vue'
 import SombreroEscondido from '../componentes/SombreroEscondido.vue'
 
-import { LEMAS_DE_WAYNE } from '../contenido/narrador/lineas.js'
-import { MUNDOS, MUNDOS_POR_ID } from '../contenido/mundos.js'
+import { LEMAS_POR_NARRADOR } from '../contenido/narrador/lineas.js'
+import { ITINERARIOS_POR_ID, ITINERARIO_POR_DEFECTO } from '../contenido/itinerarios.js'
+import { MUNDOS_POR_ID, mundosDelItinerario } from '../contenido/mundos.js'
 import { retosDelMundo } from '../contenido/retos/index.js'
 import { usarEconomia } from '../almacen/economia.js'
 import { usarGatos } from '../almacen/gatos.js'
@@ -14,21 +15,42 @@ import Avatar from '../componentes/Avatar.vue'
 import GatoSvg from '../componentes/GatoSvg.vue'
 import wayneRetrato from '../recursos/wayne-retrato.webp'
 
+/**
+ * La portada de un itinerario: sus mundos y por dónde ibas en él.
+ *
+ * Antes esto era la única portada y enseñaba todos los mundos que había. Ahora
+ * la puerta es la entrada -elegir lenguaje- y esto es lo de dentro de cada
+ * camino, que es lo mismo pero de uno solo.
+ */
+const props = defineProps({
+  itinerarioId: { type: String, default: ITINERARIO_POR_DEFECTO },
+})
+
 const progreso = usarProgreso()
 const gatos = usarGatos()
+
+const itinerario = computed(
+  () => ITINERARIOS_POR_ID[props.itinerarioId] ?? ITINERARIOS_POR_ID[ITINERARIO_POR_DEFECTO],
+)
+const mundosDeAqui = computed(() => mundosDelItinerario(itinerario.value.id))
 const economia = usarEconomia()
 const insignias = usarInsignias()
 const sombreros = usarSombreros()
 
 /** Una frase distinta cada vez que se entra. Es su casa; que hable. */
-const lema = LEMAS_DE_WAYNE[Math.floor(Math.random() * LEMAS_DE_WAYNE.length)]
+const lema = computed(() => {
+  const suyos = LEMAS_POR_NARRADOR[itinerario.value.narrador] ?? []
+  return suyos.length ? suyos[Math.floor(Math.random() * suyos.length)] : null
+})
 
 const NUMEROS = ['Cero', 'Un', 'Dos', 'Tres', 'Cuatro', 'Cinco', 'Seis', 'Siete', 'Ocho', 'Nueve']
 
 // Contar los mundos y los retos a mano en el texto es una promesa que se rompe
 // sola: se añade contenido y la portada se queda mintiendo. Se calculan.
-const cuantosMundos = computed(() => NUMEROS[MUNDOS.length] ?? MUNDOS.length)
-const cuantosRetos = computed(() => MUNDOS.reduce((suma, mundo) => suma + retosDelMundo(mundo.id).length, 0))
+const cuantosMundos = computed(() => NUMEROS[mundosDeAqui.value.length] ?? mundosDeAqui.value.length)
+const cuantosRetos = computed(() =>
+  mundosDeAqui.value.reduce((suma, mundo) => suma + retosDelMundo(mundo.id).length, 0),
+)
 
 /** Los mundos que le faltan a este para abrirse, ya escritos como frase. */
 function nombresQueFaltan(mundo) {
@@ -36,14 +58,14 @@ function nombresQueFaltan(mundo) {
   const exigidos = Array.isArray(mundo.requiere) ? mundo.requiere : [mundo.requiere]
   const nombres = exigidos
     .filter((id) => !progreso.mundoCompletado(id))
-    .map((id) => MUNDOS.find((otro) => otro.id === id)?.nombre)
+    .map((id) => MUNDOS_POR_ID[id]?.nombre)
     .filter(Boolean)
   if (nombres.length === 0) return null
   return nombres.length === 1 ? nombres[0] : `${nombres.slice(0, -1).join(', ')} y ${nombres.at(-1)}`
 }
 
 const mundos = computed(() =>
-  MUNDOS.map((mundo) => {
+  mundosDeAqui.value.map((mundo) => {
     const total = retosDelMundo(mundo.id).length
     const hechos = progreso.superadosDelMundo(mundo.id)
     return {
@@ -70,7 +92,7 @@ const colonia = computed(() => gatos.adoptados)
  * al entrar, si ya has empezado, es el reto siguiente y un botón.
  */
 const siguiente = computed(() => {
-  const reto = progreso.porDondeIba
+  const reto = progreso.porDondeIba(itinerario.value.id)
   if (!reto) return null
   return { ...reto, mundo: MUNDOS_POR_ID[reto.mundo] }
 })
@@ -94,32 +116,31 @@ const marcadores = computed(() =>
       <SombreroEscondido id="mundos" :posicion="{ top: '14px', right: '18px' }" />
 
       <div class="texto-portada">
-        <h1>Aprende a programar y págalo en croquetas</h1>
+        <RouterLink to="/" class="volver tenue">← Elegir otro camino</RouterLink>
+        <h1>{{ itinerario.nombre }}</h1>
         <p class="tenue entradilla">
-          {{ cuantosMundos }} mundos, {{ cuantosRetos }} retos y código que se ejecuta de verdad, con sus
-          tests: nada de elegir la respuesta correcta de una lista. Se empieza señalando y
-          colocando piezas, se pasa por seguir la ejecución paso a paso o cazar la línea
-          culpable, y se acaba montando una aplicación entera de Vue.
+          {{ cuantosMundos }} mundos, {{ cuantosRetos }} retos y código {{ itinerario.lenguajeEnFrase }} que
+          se ejecuta de verdad, con sus tests: nada de elegir la respuesta correcta de una
+          lista. {{ itinerario.resumen }}
         </p>
         <p class="tenue entradilla">
-          Wayne lo cuenta todo, se ríe de lo que haces y te vende pistas a precio de amigo. Wax
-          escribe los apuntes, Steris traduce los errores que asustan, Marasi te revisa el
-          código y Armonía contesta dudas sin darte nunca la solución. Con lo que ganes das de
-          comer a una colonia de gatos que vive en su casa y que, cuando están contentos, te
-          devuelven el favor.
+          {{ itinerario.presentacion }} Con lo que ganes das de comer a una colonia de gatos que
+          vive en su casa y que, cuando están contentos, te devuelven el favor.
         </p>
       </div>
 
-      <!-- Wayne, en grande y presidiendo. Es su juego, al fin y al cabo. -->
+      <!-- Quien narra, en grande y presidiendo. Es su itinerario, al fin y al cabo. -->
       <figure class="anfitrion">
         <img
+          v-if="itinerario.retrato === 'wayne'"
           :src="wayneRetrato"
           class="retrato-wayne"
           width="480"
           height="700"
           alt="Wayne, con su sombrero y el bastón al hombro"
         />
-        <figcaption>«{{ lema }}»</figcaption>
+        <Avatar v-else :quien="itinerario.narrador" :tamano="150" />
+        <figcaption v-if="lema">«{{ lema }}»</figcaption>
       </figure>
     </section>
 
@@ -242,6 +263,8 @@ const marcadores = computed(() =>
   border-color: var(--borde);
 }
 .texto-portada { flex: 1; min-width: 0; }
+.volver { display: inline-block; margin-bottom: 6px; font-size: 0.82rem; text-decoration: none; }
+.volver:hover { color: var(--texto); }
 .portada h1 { max-width: 20ch; }
 .entradilla { max-width: 62ch; margin: 0 0 0.8em; }
 .entradilla:last-child { margin-bottom: 0; }
