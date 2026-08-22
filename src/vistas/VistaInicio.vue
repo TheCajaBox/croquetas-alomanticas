@@ -13,6 +13,7 @@ import { usarProgreso } from '../almacen/progreso.js'
 import { usarSombreros } from '../almacen/sombreros.js'
 import Avatar from '../componentes/Avatar.vue'
 import GatoSvg from '../componentes/GatoSvg.vue'
+import brisaRetrato from '../recursos/brisa-retrato.webp'
 import wayneRetrato from '../recursos/wayne-retrato.webp'
 
 /**
@@ -22,6 +23,19 @@ import wayneRetrato from '../recursos/wayne-retrato.webp'
  * la puerta es la entrada -elegir lenguaje- y esto es lo de dentro de cada
  * camino, que es lo mismo pero de uno solo.
  */
+/**
+ * Los retratos grandes de quien narra, con su tamaño real.
+ *
+ * Estaba escrito a mano -`v-if="itinerario.retrato === 'wayne'"`-, así que la
+ * primera era enseñaba el disco pequeño de Brisa aunque tuviera ilustración.
+ * Aquí basta con declararla; el itinerario dice a quién le toca con su campo
+ * `retrato`, y quien no tenga sigue saliendo con su avatar.
+ */
+const RETRATOS = {
+  wayne: { fuente: wayneRetrato, ancho: 480, alto: 700, alt: 'Wayne, con su sombrero y el bastón al hombro' },
+  brisa: { fuente: brisaRetrato, ancho: 480, alto: 469, alt: 'Brisa, de chaleco y corbata, mirando de lado' },
+}
+
 const props = defineProps({
   itinerarioId: { type: String, default: ITINERARIO_POR_DEFECTO },
 })
@@ -33,6 +47,7 @@ const itinerario = computed(
   () => ITINERARIOS_POR_ID[props.itinerarioId] ?? ITINERARIOS_POR_ID[ITINERARIO_POR_DEFECTO],
 )
 const mundosDeAqui = computed(() => mundosDelItinerario(itinerario.value.id))
+const retrato = computed(() => RETRATOS[itinerario.value.retrato] ?? null)
 const economia = usarEconomia()
 const insignias = usarInsignias()
 const sombreros = usarSombreros()
@@ -132,12 +147,12 @@ const marcadores = computed(() =>
       <!-- Quien narra, en grande y presidiendo. Es su itinerario, al fin y al cabo. -->
       <figure class="anfitrion">
         <img
-          v-if="itinerario.retrato === 'wayne'"
-          :src="wayneRetrato"
-          class="retrato-wayne"
-          width="480"
-          height="700"
-          alt="Wayne, con su sombrero y el bastón al hombro"
+          v-if="retrato"
+          :src="retrato.fuente"
+          class="retrato-grande"
+          :width="retrato.ancho"
+          :height="retrato.alto"
+          :alt="retrato.alt"
         />
         <Avatar v-else :quien="itinerario.reparto.narra" :tamano="150" />
         <figcaption v-if="lema">«{{ lema }}»</figcaption>
@@ -270,7 +285,7 @@ const marcadores = computed(() =>
 .entradilla:last-child { margin-bottom: 0; }
 
 .anfitrion { flex-shrink: 0; margin: 0; text-align: center; }
-.retrato-wayne {
+.retrato-grande {
   display: block;
   width: 200px;
   height: auto;

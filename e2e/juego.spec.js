@@ -195,6 +195,27 @@ test('la portada de un itinerario presenta sus mundos, y solo los suyos', async 
   }
 })
 
+test('cada camino presenta a quien lo narra, con su ilustración si la tiene', async ({ page }) => {
+  // El retrato grande estaba escrito a mano para Wayne, así que la primera era
+  // salía con el disco pequeño de Brisa aunque tuviera ilustración. Ahora lo
+  // decide el campo `retrato` del itinerario, y esto lo comprueba en los dos.
+  await page.goto('#/itinerario/era2')
+  await expect(page.locator('.retrato-grande')).toHaveAttribute('alt', /Wayne/)
+
+  await page.goto('#/itinerario/era1')
+  const suyo = page.locator('.retrato-grande')
+  await expect(suyo).toBeVisible()
+  await expect(suyo).toHaveAttribute('alt', /Brisa/)
+  // Y la imagen carga de verdad: una ruta mal puesta daría un 404 silencioso y
+  // el hueco se vería igual de vacío que si no existiera el retrato.
+  expect(await suyo.evaluate((img) => img.naturalWidth)).toBeGreaterThan(100)
+
+  // Sel todavía no tiene ilustración: sale su avatar y no un hueco.
+  await page.goto('#/itinerario/sel')
+  await expect(page.locator('.retrato-grande')).toHaveCount(0)
+  await expect(page.locator('.anfitrion .avatar, .anfitrion svg')).toBeVisible()
+})
+
 test('la portada dice por dónde ibas y lleva a ese reto', async ({ page }) => {
   // Recién llegado: por dónde se empieza.
   await page.goto('#/itinerario/era2')

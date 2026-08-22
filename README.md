@@ -87,8 +87,12 @@ que le quitas a tus gatos. En los jefes ni siquiera abre el puesto.
 
 Todos tienen su cara: las ilustraciones de los personajes, recortadas del fondo y
 compuestas sobre un disco con el color que cada uno lleva en la interfaz — el cobre de Wayne,
-el azul acero de Wax, el gris ordenado de Steris, el vino de Marasi, el jade de MeLaan.
-Viven en `src/recursos/`, pesan 126 kB entre las seis y se importan como
+el azul acero de Wax, el gris ordenado de Steris, el vino de Marasi, el jade de MeLaan y el
+ciruela de Brisa. El disco sale de la misma fórmula que el de quien **no** tiene ilustración
+—un 20% de su color sobre `#1d1826`—, así que los que van llegando encajan con los que ya
+estaban sin elegirle un tono a mano a cada uno, y quien todavía no tiene cara sale con ese
+disco y su inicial en vez de con la de otro.
+Viven en `src/recursos/`, pesan 166 kB entre las siete y se importan como
 módulos para que Vite les ponga su hash y su ruta base; escritas a mano, esas rutas se
 romperían al publicar en Pages.
 

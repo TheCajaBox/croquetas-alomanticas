@@ -4,6 +4,7 @@ import { computed } from 'vue'
 import { PERSONAJES } from '../contenido/personajes.js'
 
 import armonia from '../recursos/armonia-avatar.webp'
+import brisa from '../recursos/brisa-avatar.webp'
 import wayne from '../recursos/wayne-avatar.webp'
 import marasi from '../recursos/marasi-avatar.webp'
 import melaan from '../recursos/melaan-avatar.webp'
@@ -15,10 +16,15 @@ import wax from '../recursos/wax-avatar.webp'
  *
  * Son las ilustraciones de los personajes, recortadas del fondo y compuestas
  * sobre un disco con los colores que cada uno tiene en la interfaz: el cobre de
- * Wayne, el azul acero de Wax, el lavanda de Steris, el granate de Marasi y el
- * jade de MeLaan. Sobre un disco y no recortadas a pelo, porque una cabeza sin
- * fondo dentro de un círculo se lee como una cabeza flotando y no como un
- * avatar.
+ * Wayne, el azul acero de Wax, el lavanda de Steris, el granate de Marasi, el
+ * jade de MeLaan y el ciruela de Brisa. Sobre un disco y no recortadas a pelo,
+ * porque una cabeza sin fondo dentro de un círculo se lee como una cabeza
+ * flotando y no como un avatar.
+ *
+ * El disco se compone con la misma fórmula que el de quien no tiene
+ * ilustración -20% de su color sobre `#1d1826`, ver `.sin-cara` más abajo-, así
+ * que los que van llegando encajan con los que ya estaban sin tener que
+ * elegirle un tono a mano a cada uno.
  *
  * Armonía es la excepción, y a propósito. Su ilustración tiene la bruma de
  * fondo -un degradado, no un color plano-, así que el recorte por inundación
@@ -30,10 +36,10 @@ import wax from '../recursos/wax-avatar.webp'
  * Se importan como módulos para que Vite les ponga su hash y su ruta base;
  * escritas a mano, esas rutas se romperían al publicar en GitHub Pages.
  */
-const CARAS = { wayne, wax, steris, marasi, melaan, armonia }
+const CARAS = { wayne, wax, steris, marasi, melaan, armonia, brisa }
 
 /**
- * Los que tienen ilustración. El resto -los de los itinerarios nuevos- salen con
+ * Los que tienen ilustración. El resto -los que aún no la tienen- salen con
  * un disco de su color y su inicial, dibujado aquí mismo: antes un `quien`
  * desconocido caía en la cara de Wayne por descarte, y Vin salía con sombrero.
  * El elenco entero, con nombres y colores, está en `contenido/personajes.js`.

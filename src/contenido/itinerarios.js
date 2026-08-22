@@ -55,7 +55,7 @@ export const ITINERARIOS = [
     etiquetaLenguaje: 'PHP',
     lenguajeEnFrase: 'PHP',
     lenguajes: ['php'],
-    retrato: null,
+    retrato: 'brisa',
     color: '#a8a2bd',
     resumen:
       'PHP desde cero: lo que mueve media web y casi nadie enseña con orden. Del primer echo a las clases.',
