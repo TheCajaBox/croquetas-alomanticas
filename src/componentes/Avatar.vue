@@ -8,6 +8,7 @@ import brisa from '../recursos/brisa-avatar.webp'
 import elend from '../recursos/elend-avatar.webp'
 import kelsier from '../recursos/kelsier-avatar.webp'
 import sazed from '../recursos/sazed-avatar.webp'
+import tensoon from '../recursos/tensoon-avatar.webp'
 import vin from '../recursos/vin-avatar.webp'
 import wayne from '../recursos/wayne-avatar.webp'
 import marasi from '../recursos/marasi-avatar.webp'
@@ -47,10 +48,23 @@ import wax from '../recursos/wax-avatar.webp'
  * su color: sin eso quedaba el único disco claro entre nueve oscuros y se leía
  * como un agujero en la fila.
  *
+ * TenSoon es el tercer caso raro, por otro motivo: es un perro, y un perro negro
+ * dentro de un disco oscuro es una mancha. Su ilustración se recorta como las
+ * demás -el cielo de Luthadel es claro y el perro casi negro, así que la
+ * inundación los separa sola-, pero hubo que hacerle dos cosas más. Una: una
+ * cinta de plata le cruza la cara, la inundación se colaba por ella y le abría
+ * un agujero en el hocico; el recorte se **cierra** con forma redonda -difuminar
+ * y cortar, porque el núcleo cuadrado dejaba tacos rectangulares- y luego se
+ * rellena lo que no llega al borde, así que la cinta se queda a la vista, que es
+ * lo que hay en el dibujo. Dos: se le suben las sombras sin quemar las luces,
+ * porque tal cual venía no se le veía la cara a 46 píxeles, que es el tamaño al
+ * que sale en el bocadillo. Subirlas de más -se probó- lo convertía en un perro
+ * gris, y el suyo es negro.
+ *
  * Se importan como módulos para que Vite les ponga su hash y su ruta base;
  * escritas a mano, esas rutas se romperían al publicar en GitHub Pages.
  */
-const CARAS = { wayne, wax, steris, marasi, melaan, armonia, brisa, kelsier, sazed, vin, elend }
+const CARAS = { wayne, wax, steris, marasi, melaan, armonia, brisa, kelsier, sazed, vin, elend, tensoon }
 
 /**
  * Los que tienen ilustración. El resto -los que aún no la tienen- salen con
