@@ -1761,6 +1761,50 @@ export const GLOSARIO = [
     definicion:
       "Lo que tu sistema cuenta de sí mismo sin que se lo pregunten: cabeceras como `Server` o `X-Powered-By`, rastros de excepciones, mensajes de error con versiones. Con la versión exacta se busca su lista pública de agujeros conocidos. Quitarlo no protege por sí solo y le quita el atajo a quien prueba en masa.",
   },
+  {
+    id: "costura",
+    desde: { sel: 'alma' },
+    termino: "costura",
+    definicion:
+      "El sitio donde acaba una defensa y empieza otra, y donde están casi todos los agujeros que duran años. Todos los retos de este camino que **no tenían ningún error** son de este tipo: cada pieza bien y la unión mal. Cualquier sitio donde un dato exista dos veces -crudo y tratado- es una costura.",
+  },
+  {
+    id: "flujo-del-dato",
+    desde: { sel: 'alma' },
+    termino: "flujo del dato",
+    alias: ["seguir el dato"],
+    definicion:
+      "La manera de leer código buscando agujeros: se empieza por lo peligroso -una consulta, un `innerHTML`, una escritura- y se sigue el dato **hacia atrás** hasta ver de dónde sale. Si en algún punto viene de fuera y nadie lo ha aprobado, ahí está. Y si lo aprobó alguien pero aprobó otra variable, también.",
+  },
+  {
+    id: "test-hostil",
+    desde: { sel: 'alma' },
+    termino: "test hostil",
+    definicion:
+      "Un test que parte de un uso **hostil** y comprueba que rebota, en vez de partir de un uso correcto y comprobar el resultado. Es la diferencia que decide en esta materia: un test de resultado no distingue la versión buena de la mala en ninguno de los retos de este camino.",
+  },
+  {
+    id: "defensa-en-profundidad",
+    desde: { sel: 'alma' },
+    termino: "defensa en profundidad",
+    definicion:
+      "Encadenar defensas de modo que lo que deja pasar una lo coja la siguiente. Cada una para a alguien distinto -el hash lento a quien roba la tabla, el límite de intentos a quien prueba en la puerta- y por eso hacen falta todas. Antes de dar algo por protegido, la pregunta es **de quién**.",
+  },
+  {
+    id: "encarecer-el-ataque",
+    desde: { sel: 'alma' },
+    termino: "encarecer el ataque",
+    definicion:
+      "De lo que va todo esto. El hash lento, la ventana de intentos, la caducidad corta, el identificador de treinta y dos caracteres: ninguno hace imposible un ataque; todos lo hacen costar más de lo que vale. «Contra recursos ilimitados no hay nada que hacer» es la frase que justifica no hacer nada, y nadie tiene recursos ilimitados.",
+  },
+  {
+    id: "detectar",
+    desde: { sel: 'alma' },
+    termino: "detectar",
+    alias: ["registro de auditoría"],
+    definicion:
+      "La otra mitad del trabajo, que este camino no cubre: registros que se guarden, alertas que salten y la capacidad de reconstruir qué pasó. «No hemos tenido incidentes» y «no hemos detectado incidentes» son dos frases distintas, y casi siempre se dice la primera queriendo decir la segunda.",
+  },
 ]
 
 export const GLOSARIO_POR_ID = Object.fromEntries(GLOSARIO.map((entrada) => [entrada.id, entrada]))

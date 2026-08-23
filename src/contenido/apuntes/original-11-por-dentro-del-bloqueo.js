@@ -77,6 +77,7 @@ export default codigo(
   "",
   "## Cómo se plantea",
   "",
-  "Tres nombres no están en el código, y uno de los tres es el que de verdad haría falta. De",
-  "los cuatro que sí están, solo uno puede impedir una instalación.",
+  "De los cuatro campos que hay, tres describen y uno comprueba: el que comprueba es el único",
+  "que puede impedir una instalación. Y de lo que no aparece, lo interesante es lo que haría",
+  "falta y todavía no existe: saber **quién** publicó el paquete.",
 )

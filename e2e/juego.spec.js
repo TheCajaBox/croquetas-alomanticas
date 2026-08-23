@@ -1376,6 +1376,35 @@ test('el glosario y el cerebro de Armonía no viajan en el arranque', async ({ p
     .toBeGreaterThan(0)
 })
 
+test('el final de Sel: los dos actos y el cierre del cuarto camino', async ({ page }) => {
+  const todos = await todosLosRetos()
+  // Se siembra hasta el acto II, que **incluye** el acto I: al acto II no se
+  // entra sin haber pasado el primero, y sembrar solo hasta el acto I dejaría
+  // el último cerrado y la vista rebotaría al mundo.
+  await sembrarLoAnterior(page, todos.alma.at(-1))
+  await page.goto('#/')
+  await page.reload()
+
+  await page.goto('#/mundo/alma')
+  await expect(page.locator('.etiqueta.acto')).toHaveCount(2)
+  await expect(page.locator('.etiqueta.acto').first()).toHaveText('acto I')
+  await expect(page.locator('.etiqueta.acto').last()).toHaveText('acto II')
+
+  // El acto II es el jefe, así que no vende pistas: es el examen.
+  await page.goto(`#/reto/${todos.alma.at(-1)}`)
+  await page.reload()
+  await expect(page.locator('h1')).toContainText('alma del emperador')
+  await expect(page.locator('.pistas .lista')).toHaveCount(0)
+  await expect(page.locator('.pistas .cerrado')).toBeVisible()
+
+  // Y el editor trae el sistema entero de partida: el acto II se resuelve
+  // tapando el agujero del acto I, no escribiendo de cero. Se mira arriba del
+  // todo, que es lo único que CodeMirror tiene en el DOM: solo pinta las líneas
+  // que se ven.
+  await expect(page.locator('.cm-content')).toContainText('No lo toques')
+  await expect(page.locator('.cm-content')).toContainText('QUIEN_PUEDE')
+})
+
 test('las voces del narrador se piden una a una, y solo las del camino', async ({ page }) => {
   // El fichero de frases era uno y lo importaba el almacén del narrador, que se
   // monta al arrancar: las quince voces viajaban en el paquete inicial para que
