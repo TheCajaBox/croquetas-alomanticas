@@ -202,6 +202,92 @@ export const MUROS = {
   datos: `${GREMIOS.datos}\n\n${PUESTOS_CON_GREMIO.datos}`,
 }
 
+// ---- El mercado: el total deja de ser una columna --------------------------
+//
+// En los muros, lo que recaudó un puesto era **un dato guardado**: la columna
+// `monedas`. Aquí abajo no existe. Lo que hay es una fila por venta, y el total
+// se calcula.
+//
+// Ese es el cambio que hace el mundo, y es el mismo salto que el anterior: un
+// total guardado a mano se queda desfasado en cuanto entra una venta y no se
+// puede desglosar -¿cuánto fue el lunes?-. Calculado siempre cuadra, y a cambio
+// hay que aprender a agrupar.
+//
+// Las sumas están hechas para que coincidan con la columna `monedas` de los
+// muros: Aon Aon recaudó 140 allí y aquí sus tres ventas suman 140. No es un
+// adorno -deja ver que el total y sus partes son lo mismo mirado de dos maneras-.
+//
+// Y hay dos huecos, otra vez a propósito:
+//
+// - `La muralla` **no tiene ninguna venta**. Es el grupo vacío: el que un `JOIN`
+//   normal borra del informe y el que hace visible la diferencia entre
+//   `COUNT(*)` y `COUNT(columna)`.
+// - `El tenderete` sigue sin gremio, así que agrupando por gremio cae en un
+//   grupo cuyo nombre es nulo.
+export const PUESTOS_SIN_TOTAL = {
+  esquema: codigo(
+    'CREATE TABLE puestos (',
+    '  id INTEGER PRIMARY KEY,',
+    '  nombre TEXT NOT NULL,',
+    '  gremio_id INTEGER REFERENCES gremios(id)',
+    ');',
+  ),
+  datos: codigo(
+    'INSERT INTO puestos (id, nombre, gremio_id) VALUES',
+    "  (1, 'Aon Aon',      1),",
+    "  (2, 'La piedra',    2),",
+    "  (3, 'El caldero',   3),",
+    "  (4, 'Aon Ien',      1),",
+    "  (5, 'El yunque',    4),",
+    "  (6, 'Los dos ríos', 5),",
+    "  (7, 'Aon Ashe',     1),",
+    "  (8, 'La muralla',   2),",
+    "  (9, 'El tenderete', NULL);",
+  ),
+}
+
+/** Una fila por venta: tres días de mercado y dieciséis ventas. */
+export const VENTAS = {
+  esquema: codigo(
+    'CREATE TABLE ventas (',
+    '  id INTEGER PRIMARY KEY,',
+    '  puesto_id INTEGER NOT NULL REFERENCES puestos(id),',
+    '  dia TEXT NOT NULL,',
+    '  monedas INTEGER NOT NULL',
+    ');',
+  ),
+  datos: codigo(
+    'INSERT INTO ventas (id, puesto_id, dia, monedas) VALUES',
+    "  ( 1, 1, 'lunes',     40),",
+    "  ( 2, 1, 'lunes',     60),",
+    "  ( 3, 1, 'martes',    40),",
+    "  ( 4, 2, 'lunes',     95),",
+    "  ( 5, 3, 'lunes',    120),",
+    "  ( 6, 3, 'martes',    90),",
+    "  ( 7, 4, 'martes',    60),",
+    "  ( 8, 5, 'lunes',    100),",
+    "  ( 9, 5, 'martes',    80),",
+    "  (10, 6, 'lunes',    200),",
+    "  (11, 6, 'martes',   120),",
+    "  (12, 7, 'lunes',     35),",
+    "  (13, 7, 'martes',    35),",
+    "  (14, 7, 'miércoles', 35),",
+    "  (15, 9, 'lunes',     80),",
+    "  (16, 9, 'martes',    85);",
+  ),
+}
+
+/**
+ * El mercado entero: gremios, puestos sin total y las ventas.
+ *
+ * El orden de creación importa y no es estético: cada tabla apunta a la
+ * anterior con una clave ajena y las claves ajenas van encendidas.
+ */
+export const MERCADO = {
+  esquema: `${GREMIOS.esquema}\n\n${PUESTOS_SIN_TOTAL.esquema}\n\n${VENTAS.esquema}`,
+  datos: `${GREMIOS.datos}\n\n${PUESTOS_SIN_TOTAL.datos}\n\n${VENTAS.datos}`,
+}
+
 /** Las dos juntas, para los retos que hablan del mercado y del censo a la vez. */
 export const KAE = {
   esquema: `${HABITANTES.esquema}\n\n${PUESTOS.esquema}`,

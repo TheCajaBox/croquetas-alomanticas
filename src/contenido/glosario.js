@@ -1105,6 +1105,40 @@ export const GLOSARIO = [
       "Quita las filas repetidas del resultado. Suele hacer falta después de unir, porque una fila de la izquierda con tres parejas sale tres veces. Y conviene desconfiar: casi siempre es mejor entender por qué se repite que taparlo.",
     ejemplo: "SELECT DISTINCT gremios.nombre FROM ...",
   },
+  // ---- SQL · El mercado -------------------------------------------------
+  {
+    id: "funcion-de-agregacion",
+    desde: { elantris: 'mercado' },
+    termino: "función de agregación",
+    alias: ["funciones de agregación", "agregado", "agregados"],
+    definicion:
+      "Una función que recibe **muchas filas y devuelve una**: `COUNT`, `SUM`, `AVG`, `MIN`, `MAX`. Todas se saltan los nulos, menos `COUNT(*)`, que cuenta filas y no valores.",
+    ejemplo: "SELECT SUM(monedas) AS total FROM ventas",
+  },
+  {
+    id: "group-by",
+    desde: { elantris: 'mercado' },
+    termino: "GROUP BY",
+    definicion:
+      "Parte las filas en montones según una columna y aplica los agregados **a cada montón**. Sin él, un agregado resume la tabla entera en una fila; con él, una fila por montón.",
+    ejemplo: "SELECT puesto_id, SUM(monedas) FROM ventas GROUP BY puesto_id",
+  },
+  {
+    id: "having",
+    desde: { elantris: 'mercado' },
+    termino: "HAVING",
+    definicion:
+      "Como el `WHERE`, pero para **grupos** y después de agrupar. El `WHERE` decide qué filas entran en los montones; el `HAVING` decide qué montones salen. Un `WHERE` no puede hablar de una suma, porque cuando él trabaja no hay sumas todavía.",
+    ejemplo: "GROUP BY puesto_id HAVING SUM(monedas) > 150",
+  },
+  {
+    id: "count",
+    desde: { elantris: 'mercado' },
+    termino: "COUNT",
+    definicion:
+      "Cuenta. Y hay dos, que no son lo mismo: `COUNT(*)` cuenta **filas** y nunca da cero en un grupo que existe; `COUNT(columna)` cuenta **valores no nulos**, así que en un grupo sin nada da cero. Esa diferencia es lo que hace que un informe diga que un puesto tuvo una venta cuando tuvo ninguna.",
+    ejemplo: "COUNT(*) AS filas, COUNT(v.id) AS ventas",
+  },
 ]
 
 export const GLOSARIO_POR_ID = Object.fromEntries(GLOSARIO.map((entrada) => [entrada.id, entrada]))

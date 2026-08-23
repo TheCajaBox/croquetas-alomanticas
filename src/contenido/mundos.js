@@ -302,6 +302,22 @@ export const MUNDOS = [
     despedida:
       'Ya sabes juntar dos tablas y, lo que es más raro, sabes qué pasa con lo que se queda sin pareja. Eso último se lo salta casi todo el mundo, y es exactamente donde se pierden filas sin que nadie se entere.',
   },
+  {
+    id: 'mercado',
+    nombre: 'El mercado',
+    subtitulo: 'SQL · agrupar y contar',
+    itinerario: 'elantris',
+    entorno: 'sql',
+    requiere: 'muros',
+    color: '#b8a878',
+    anfitrion: 'raoden',
+    resumen:
+      'Una fila por grupo en vez de una por cosa: contar, sumar, promediar, y la confusión de siempre entre filtrar filas y filtrar grupos.',
+    presentacion:
+      'Aquí el total de un puesto ya no es una columna: es la suma de sus ventas. Se gana que siempre cuadre y se paga que haya que calcularlo, y calcular sobre muchas filas para sacar una es lo que se llama agrupar. Es el salto que más cambia la manera de pensar en todo el camino: hasta ahora una fila del resultado era una cosa, y a partir de aquí una fila del resultado es **un montón de cosas resumido**.',
+    despedida:
+      'Ya sabes convertir muchas filas en una y decir qué quieres saber de ellas. Y sabes la diferencia entre quitar filas antes de agrupar y quitar grupos después, que es donde se equivoca casi todo el mundo la primera vez.',
+  },
 ]
 
 export const MUNDOS_POR_ID = Object.fromEntries(MUNDOS.map((mundo) => [mundo.id, mundo]))
