@@ -6,6 +6,7 @@ import { cargarTodosLosRetos } from '../src/contenido/retos/index.js'
 import { SIN_CODIGO, codigoDeReferencia } from './revisarRetos.js'
 import { analizar, inyectarGuardaDeBucles } from '../src/motor/guardaBucles.js'
 import { comprobarRequisitos } from '../src/motor/chequeosEstaticos.js'
+import { normalizar } from '../src/almacen/juego.js'
 
 /**
  * Los retos **enteros**: el catálogo solo trae la ficha de cada uno y el cuerpo
@@ -71,6 +72,7 @@ async function ejecutarSolucion(reto) {
   return {
     incumplidos: requisitos.filter((r) => !r.cumplido).map((r) => r.tipo),
     resultados: api.resultados,
+    consola: api.consola,
   }
 }
 
@@ -89,6 +91,37 @@ describe('las soluciones de referencia de los mundos de Vue resuelven sus retos'
       expect(incumplidos, 'la solución incumple requisitos del propio reto').toEqual([])
       expect(resultados.length, 'el reto no tiene ni un test').toBeGreaterThan(0)
       expect(resultados.filter((r) => !r.ok).map((r) => `${r.nombre}: ${r.mensaje}`), 'tests en rojo').toEqual([])
+    })
+  }
+})
+
+/**
+ * Los retos de predecir de Vue: que lo esperado sea lo que de verdad se imprime.
+ *
+ * Un reto de predecir no se corrige ejecutando: se compara lo que has escrito con
+ * `respuestaEsperada` (ver `normalizar` en `almacen/juego.js`). Si esa cadena no
+ * es lo que el componente imprime, **quien acierta recibe un «no»** y encima con
+ * la salida real al lado contradiciendo el veredicto. Y aquí es más fácil que en
+ * ningún otro sitio equivocarse, porque lo que se predice es **cuándo** corre
+ * cada cosa: el orden de un `computed`, de un `watch` y de un ciclo de vida.
+ */
+describe('lo que hay que predecir en Vue es lo que de verdad se imprime', () => {
+  const aPredecir = RETOS.filter(
+    (reto) => reto.tipo === 'prediccion' && ['vue2', 'vue3'].includes(reto.entorno),
+  )
+
+  it('hay retos de predecir en Vue', () => {
+    expect(aPredecir.length).toBeGreaterThan(0)
+  })
+
+  for (const reto of aPredecir) {
+    it(`${reto.id}: ${reto.titulo}`, async () => {
+      const { consola } = await ejecutarSolucion(reto)
+      const real = consola.map((linea) => linea.texto).join('\n')
+      expect(
+        normalizar(real),
+        `la salida real no es la respuesta esperada:\n--- real ---\n${real}\n--- esperada ---\n${reto.respuestaEsperada}`,
+      ).toBe(normalizar(reto.respuestaEsperada))
     })
   }
 })

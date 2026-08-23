@@ -18,7 +18,18 @@ import { usarRecortes } from './recortes.js'
 /** Con la burbuja de Bendaloy, el código tiene bastante más margen. */
 const TIEMPO_LIMITE_AMPLIADO_MS = 8000
 
-const normalizar = (texto) =>
+/**
+ * Cómo se comparan una predicción escrita y la respuesta esperada: por líneas,
+ * sin espacios de sobra, sin líneas vacías y sin distinguir mayúsculas.
+ *
+ * Se exporta **para que las pruebas puedan corregir igual que corrige el juego**.
+ * Un reto de predecir se califica contra `respuestaEsperada`, así que si esa
+ * cadena no es lo que el código imprime de verdad, quien acierte recibe un «no»
+ * con la salida real delante contradiciéndolo. Es el peor fallo posible en un
+ * juego para aprender, y no fallaba nada: hay una prueba por reto que ejecuta el
+ * código mostrado y compara con esta misma función.
+ */
+export const normalizar = (texto) =>
   String(texto ?? '')
     .split('\n')
     .map((linea) => linea.replace(/\s+/g, ' ').trim())

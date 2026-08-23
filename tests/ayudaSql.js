@@ -46,10 +46,19 @@ export async function sandboxSql() {
     async corregir({ codigo, esquema, datos, tests, entradas }) {
       const api = global.crearAserciones({})
       let error = null
+      // Interceptar la consola es lo que hace el worker de verdad
+      // (`entorno-sql.js`) **antes** de corregir, y aquí faltaba: el resultado de
+      // la consulta lo escribe `comoTabla` por consola, así que sin esto el
+      // informe salía con `consola` vacía y esta ayuda decía ser fiel al
+      // sandbox sin serlo. Se notó al comparar la tabla real con la que hay que
+      // predecir: las ocho comparaciones daban vacío contra algo.
+      const restaurar = api.interceptarConsola()
       try {
         await global.nucleoSql.corregir(SQL, { codigo, esquema, datos, tests, entradas }, api)
       } catch (fallo) {
         error = { mensaje: fallo?.message ?? String(fallo), sintaxis: !!fallo?.sintaxis }
+      } finally {
+        restaurar()
       }
       return {
         ok: !error && api.resultados.every((r) => r.ok),

@@ -6,6 +6,7 @@ import { afterAll, beforeAll, describe, expect, it } from 'vitest'
 
 import { cargarTodosLosRetos, cuantasVariantes, enVariante } from '../src/contenido/retos/index.js'
 import { SIN_CODIGO, codigoDeReferencia } from './revisarRetos.js'
+import { normalizar } from '../src/almacen/juego.js'
 
 /**
  * Los retos **enteros**: el catálogo solo trae la ficha de cada uno y el cuerpo
@@ -148,4 +149,37 @@ describe('el sandbox de PHP distingue lo que tiene que distinguir', () => {
     const usandola = await correr(conRequisito, '<?php function sumar($n) { return array_sum($n); }')
     expect(usandola.requisitos[0].cumplido).toBe(false)
   })
+})
+
+/**
+ * Los retos de predecir de PHP: que lo esperado sea lo que de verdad se imprime.
+ *
+ * Un reto de predecir no se corrige ejecutando: se compara lo que has escrito
+ * con `respuestaEsperada` (ver `normalizar` en `almacen/juego.js`). Si esa cadena
+ * no es exactamente lo que el código imprime, **quien acierta recibe un «no»** y
+ * encima con la salida real al lado contradiciendo el veredicto. Sus propios
+ * `tests` no lo cazan: comparan la consola con una cadena escrita en el test,
+ * que puede estar bien mientras la otra está mal.
+ */
+describe('lo que hay que predecir en PHP es lo que de verdad se imprime', () => {
+  const aPredecir = RETOS.filter((reto) => reto.tipo === 'prediccion' && reto.entorno === 'php')
+
+  it('hay retos de predecir en PHP', () => {
+    expect(aPredecir.length).toBeGreaterThan(0)
+  })
+
+  for (const reto of aPredecir) {
+    it(
+      `${reto.id}: ${reto.titulo}`,
+      async () => {
+        const informe = await correr(reto, codigoDeReferencia(reto))
+        expect(informe.error, 'el código mostrado revienta').toBe(null)
+        expect(
+          normalizar(informe.consola),
+          `la salida real no es la respuesta esperada:\n--- real ---\n${informe.consola}\n--- esperada ---\n${reto.respuestaEsperada}`,
+        ).toBe(normalizar(reto.respuestaEsperada))
+      },
+      30_000,
+    )
+  }
 })

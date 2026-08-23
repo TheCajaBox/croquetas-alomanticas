@@ -4,6 +4,7 @@ import { comprobarRequisitosSql, cuentaPalabra, esqueletoSql, sentenciasDe } fro
 import { cargarTodosLosRetos, cuantasVariantes, enVariante } from '../src/contenido/retos/index.js'
 import { SIN_CODIGO, codigoDeReferencia } from './revisarRetos.js'
 import { sandboxSql } from './ayudaSql.js'
+import { normalizar } from '../src/almacen/juego.js'
 
 /**
  * Las consultas de referencia de los retos de SQL, **ejecutando SQLite de verdad**.
@@ -339,4 +340,86 @@ describe('las entradas se atan como parámetros de verdad', () => {
     expect(informe.error).toBe(null)
     expect(contar(informe)).toBe(1)
   })
+})
+
+/**
+ * Los retos de predecir de SQL: que la tabla esperada sea la que de verdad sale.
+ *
+ * Un reto de predecir no se corrige ejecutando: se compara lo que has escrito con
+ * `respuestaEsperada` (ver `normalizar` en `almacen/juego.js`). En SQL lo que se
+ * predice es **el resultado**, escrito como lo escribe `comoTabla` en
+ * `nucleo-sql.js`: la línea de las columnas y una por fila, separadas por ` | `,
+ * con los nulos como `NULL`.
+ *
+ * Si esa cadena no es lo que la consulta devuelve, **quien acierta recibe un
+ * «no»** y encima con la tabla real al lado contradiciendo el veredicto. Sus
+ * propios `tests` no lo cazan: miran `filas` y `columnas` por separado, no el
+ * texto contra el que se corrige.
+ */
+describe('lo que hay que predecir en SQL es la tabla que de verdad sale', () => {
+  const aPredecir = RETOS.filter((reto) => reto.tipo === 'prediccion' && reto.entorno === 'sql')
+
+  /**
+   * Los dos que **no** piden reproducir la salida, sino contestar algo sobre
+   * ella. Ahí la respuesta esperada no puede ser el texto entero de la consola,
+   * y exigirlo sería exigir que el reto fuera otro reto.
+   *
+   * De esos se comprueba lo que sí tiene que cumplirse: que cada línea de la
+   * respuesta **aparezca** en lo que de verdad sale. Es más flojo que la
+   * igualdad, y sigue cazando el fallo que importa -una respuesta que la
+   * realidad contradice-.
+   */
+  const RESPONDEN_UNA_PREGUNTA = {
+    'trazos-03-que-deja-la-orden':
+      'son dos órdenes y solo se predice lo que devuelve la segunda; la consola enseña las dos',
+    'grieta-05-el-union-que-se-lleva-otra-tabla':
+      'no se pide la salida sino cuántas filas y de qué tabla, que son dos palabras que la salida contiene',
+  }
+
+  it('hay retos de predecir en SQL', () => {
+    expect(aPredecir.length).toBeGreaterThan(0)
+  })
+
+  it('la lista de excepciones no tiene fantasmas', () => {
+    // Un id mal escrito aquí dejaría a un reto sin comprobar y a la excepción
+    // protegiendo a nadie.
+    for (const id of Object.keys(RESPONDEN_UNA_PREGUNTA)) {
+      expect(aPredecir.some((reto) => reto.id === id), `${id} no es un reto de predecir de SQL`).toBe(true)
+    }
+  })
+
+  for (const reto of aPredecir) {
+    it(
+      `${reto.id}: ${reto.titulo}`,
+      async () => {
+        const sandbox = await sandboxSql()
+        const informe = await sandbox.corregir({
+          codigo: codigoDeReferencia(reto),
+          esquema: reto.esquema,
+          datos: reto.datos,
+          tests: reto.tests ?? [],
+          entradas: reto.entradas,
+        })
+        expect(informe.error, 'la consulta mostrada revienta').toBe(null)
+        const real = (informe.consola ?? []).map((linea) => linea.texto).join('\n')
+        const porque = RESPONDEN_UNA_PREGUNTA[reto.id]
+
+        if (!porque) {
+          expect(
+            normalizar(real),
+            `la tabla real no es la respuesta esperada:\n--- real ---\n${real}\n--- esperada ---\n${reto.respuestaEsperada}`,
+          ).toBe(normalizar(reto.respuestaEsperada))
+          return
+        }
+
+        for (const linea of normalizar(reto.respuestaEsperada).split('\n')) {
+          expect(
+            normalizar(real).split('\n'),
+            `${porque}; y «${linea}» no sale por ninguna parte:\n--- real ---\n${real}`,
+          ).toContain(linea)
+        }
+      },
+      30_000,
+    )
+  }
 })

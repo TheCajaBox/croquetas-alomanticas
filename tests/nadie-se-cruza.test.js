@@ -7,7 +7,11 @@ import { antesalaDe } from '../src/contenido/antesala.js'
 import { glosarioDe } from '../src/contenido/glosario.js'
 import { IMPREVISTOS } from '../src/contenido/imprevistos.js'
 import { INSIGNIAS, porqueDe } from '../src/contenido/insignias.js'
-import { ITINERARIOS, ITINERARIOS_POR_ID } from '../src/contenido/itinerarios.js'
+import {
+  ITINERARIOS,
+  ITINERARIOS_POR_ID,
+  quienEscribeElApunte,
+} from '../src/contenido/itinerarios.js'
 import { MUNDOS, mundosDelItinerario } from '../src/contenido/mundos.js'
 import { PERSONAJES } from '../src/contenido/personajes.js'
 import { RECORTES, recorteDe } from '../src/contenido/recortes.js'
@@ -251,6 +255,114 @@ describe('cada camino tiene su propia prensa', () => {
     for (const recorte of RECORTES) {
       const consejos = ITINERARIOS.map((cada) => recorteDe(recorte.id, cada.id).consejo)
       expect(new Set(consejos).size, `${recorte.id} cambia de consejo según el camino`).toBe(1)
+    }
+  })
+})
+
+/**
+ * Y el que faltaba: **nadie sale del trozo de camino que es suyo**.
+ *
+ * Hasta aquí la prueba iba por caminos, y eso deja fuera el reparto que cambia
+ * de manos **dentro** de un camino. La primera era se cuenta en dos mitades y no
+ * por capricho: Kelsier explica la primera y no llega al final, y cuando ya no
+ * está la segunda la explican Elend y Vin. Es la historia que se cuenta por
+ * debajo del temario, y un enunciado que nombre a Kelsier en La Fundación la
+ * rompe entera sin que falle nada.
+ *
+ * No hace falta declarar nada nuevo: `apuntesPorParte` ya dice quién enseña en
+ * cada mitad y `parte` ya está en cada mundo.
+ *
+ * ## El relevo va en un solo sentido, y eso es la mitad de la prueba
+ *
+ * La primera versión de esto miraba las dos direcciones y cazó a Vin en La
+ * Ceniza y en El Pozo. Y estaba **mal la prueba**, no el contenido: Vin sale ahí
+ * como dato de un ejemplo -`['Vin', 'Elend']`, `saludo('Vin', 3)`- y Vin está en
+ * Luthadel desde el principio. Lo que empieza en la segunda mitad es que
+ * *enseñe*, no que exista.
+ *
+ * Lo que sí es una ruptura es la otra dirección: quien entrega el temario **no
+ * vuelve**. Nombrar a Kelsier en La Fundación como si estuviera delante rompe lo
+ * único que este camino cuenta por debajo del temario. Así que la regla es que
+ * un mundo no nombre a quien enseñaba en una mitad **anterior** a la suya; los
+ * de la mitad siguiente pueden aparecer antes, porque ya estaban.
+ */
+describe('nadie sale de su mitad del camino', () => {
+  /** Todo lo que un mundo le pone delante al jugador, en un solo texto. */
+  function textoDelMundo(mundo) {
+    return [
+      mundo.nombre,
+      mundo.lema,
+      mundo.intro,
+      mundo.resumen,
+      mundo.presentacion,
+      mundo.despedida,
+      ...retosDelMundo(mundo.id).flatMap((ficha) => {
+        const reto = RETOS.find((cada) => cada.id === ficha.id)
+        return [
+          reto.titulo,
+          reto.enunciado,
+          reto.explicacion,
+          ...(reto.pistas ?? []).map((cada) => cada.texto ?? cada),
+          ...(reto.opciones ?? []).map((cada) => `${cada.texto ?? ''} ${cada.porque ?? ''}`),
+          APUNTES[reto.id],
+        ]
+      }),
+    ]
+      .filter(Boolean)
+      .join(' ')
+  }
+
+  it('quien entrega el temario no vuelve a aparecer después', () => {
+    const colados = []
+    for (const mundo of MUNDOS) {
+      const porParte = ITINERARIOS_POR_ID[mundo.itinerario]?.reparto?.apuntesPorParte
+      if (!porParte) continue
+
+      // Las mitades en el orden en que se declaran, que es el orden en que se
+      // juegan. De aquí sale «anterior a la mía».
+      const orden = Object.keys(porParte)
+      const mia = orden.indexOf(mundo.parte ?? 'primera')
+      const yaEntregaron = orden.slice(0, mia).flatMap((parte) => porParte[parte])
+
+      const texto = textoDelMundo(mundo)
+      for (const quien of yaEntregaron) {
+        const nombre = PERSONAJES[quien]?.nombre
+        if (nombre && busca(texto, nombre)) {
+          colados.push(`${mundo.id} nombra a ${nombre}, que ya había entregado el temario`)
+        }
+      }
+    }
+    expect(
+      colados,
+      'alguien que ya dejó de enseñar sigue apareciendo en los mundos de después',
+    ).toEqual([])
+  })
+
+  it('y las dos mitades existen de verdad, con mundos en cada una', () => {
+    // Si un día alguien quita los `parte` de los mundos, la prueba de arriba
+    // dejaría de comprobar nada y no se quejaría: `deLaOtra` saldría vacío.
+    for (const itinerario of ITINERARIOS) {
+      const porParte = itinerario.reparto.apuntesPorParte
+      if (!porParte) continue
+      for (const parte of Object.keys(porParte)) {
+        const suyos = mundosDelItinerario(itinerario.id).filter(
+          (mundo) => (mundo.parte ?? 'primera') === parte,
+        )
+        expect(suyos.length, `${itinerario.id}: la mitad «${parte}» no tiene mundos`).toBeGreaterThan(0)
+      }
+    }
+  })
+
+  it('quien firma el apunte de un mundo es de la mitad de ese mundo', () => {
+    for (const mundo of MUNDOS) {
+      const porParte = ITINERARIOS_POR_ID[mundo.itinerario]?.reparto?.apuntesPorParte
+      if (!porParte) continue
+      const quien = quienEscribeElApunte(mundo)
+      const mia = mundo.parte ?? 'primera'
+      // El mundo puede declarar su propia firma -el de refactor lo lleva TenSoon-
+      // y entonces manda la suya, que es lo correcto.
+      if (mundo.apunte) continue
+      expect(porParte[mia], `${mundo.id}: la mitad «${mia}» no tiene quien enseñe`).toContain(quien)
     }
   })
 })
