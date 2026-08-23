@@ -1,0 +1,193 @@
+import { codigo } from '../comun.js'
+import { MERCADO } from '../tablas-de-elantris.js'
+
+export default {
+  id: "dor-12-el-informe-del-dor",
+  mundo: "dor",
+  entorno: "sql",
+  tipo: "codigo",
+  jefe: true,
+  titulo: "Jefe: el informe del Dor",
+  enunciado: codigo(
+    "Aquí no hay pistas. Todo lo que hace falta lo has visto en los once retos de antes.",
+    "",
+    "El consejo quiere un informe de **los puestos que han vendido algo**, cada uno con su sitio",
+    "dentro de su gremio y comparado con la media del mercado. Cinco columnas, con estos nombres",
+    "exactos y en este orden:",
+    "",
+    "- `gremio` — el nombre de su gremio, o `'sin gremio'` si no tiene.",
+    "- `puesto` — el nombre del puesto.",
+    "- `total` — lo que recaudó.",
+    "- `sitio` — qué número hace dentro de su gremio, del que más recauda al que menos.",
+    "- `sobre_la_media` — `'encima'` si su total pasa de la media de los totales de todos los",
+    "  puestos, `'debajo'` si no.",
+    "",
+    "Ordenado por gremio de la A a la Z y, dentro de cada gremio, por su sitio.",
+    "",
+    "Cuatro cosas que se comprueban, y las cuatro han tenido su reto:",
+    "",
+    "- **El tenderete sale**, y su gremio se lee `sin gremio` y no un hueco.",
+    "- **La muralla no sale**: no ha vendido nada, y el informe es de los que han vendido.",
+    "- **La media es la de los totales de puesto** -159,375-, no la de las ventas sueltas.",
+    "- Y el `sitio` **empieza por 1 en cada gremio**.",
+  ),
+  esquema: MERCADO.esquema,
+  datos: MERCADO.datos,
+  inicial: codigo(
+    "WITH totales AS (",
+    "  -- Un puesto por fila.",
+    ")",
+    "SELECT",
+    "FROM totales",
+  ),
+  solucion: codigo(
+    "WITH totales AS (",
+    "  SELECT",
+    "    p.id,",
+    "    p.nombre,",
+    "    COALESCE(g.nombre, 'sin gremio') AS gremio,",
+    "    SUM(v.monedas) AS total",
+    "  FROM ventas AS v",
+    "  JOIN puestos AS p ON v.puesto_id = p.id",
+    "  LEFT JOIN gremios AS g ON p.gremio_id = g.id",
+    "  GROUP BY p.id",
+    ")",
+    "SELECT",
+    "  t.gremio AS gremio,",
+    "  t.nombre AS puesto,",
+    "  t.total AS total,",
+    "  ROW_NUMBER() OVER (PARTITION BY t.gremio ORDER BY t.total DESC) AS sitio,",
+    "  CASE WHEN t.total > (SELECT AVG(total) FROM totales) THEN 'encima' ELSE 'debajo' END AS sobre_la_media",
+    "FROM totales AS t",
+    "ORDER BY gremio ASC, sitio ASC;",
+  ),
+  requisitos: [
+    { tipo: "usaPalabra", valor: "WITH", texto: "El paso intermedio, con nombre" },
+    { tipo: "usaPalabra", valor: "ROW_NUMBER", texto: "El sitio dentro del gremio, con `ROW_NUMBER`" },
+    { tipo: "usaPalabra", valor: "PARTITION BY", texto: "Y que se reinicie en cada gremio" },
+    { tipo: "usaPalabra", valor: "COALESCE", texto: "El gremio que falta se lee, no se deja en blanco" },
+    { tipo: "usaPalabra", valor: "AVG", texto: "La media, dentro de una subconsulta" },
+    { tipo: "prohibeAsterisco", texto: "Nombra las columnas" },
+    { tipo: "unaSolaConsulta", texto: "Una sola consulta" },
+    { tipo: "usaPalabra", valor: "ORDER BY", texto: "Ordena con `ORDER BY`" },
+  ],
+  tests: [
+    {
+      nombre: "las cinco columnas, con sus nombres y en su orden",
+      codigo: "esperar(columnas, 'las columnas').igualA(['gremio', 'puesto', 'total', 'sitio', 'sobre_la_media'])",
+    },
+    {
+      nombre: "ocho filas: los puestos que han vendido algo",
+      codigo: "esperar(filas, 'las filas').tieneLongitud(8)",
+    },
+    {
+      nombre: "La muralla no está: no ha vendido nada",
+      codigo: "esperar(filas.map((f) => f.puesto), 'los puestos').noContiene('La muralla')",
+    },
+    {
+      nombre: "el tenderete sale, y su gremio se lee",
+      codigo: codigo(
+        "const tenderete = filas.find((f) => f.puesto === 'El tenderete')",
+        "esperar(tenderete, 'la fila del tenderete').existe()",
+        "esperar(tenderete.gremio, 'su gremio').igualA('sin gremio')",
+        "esperar(tenderete.sitio, 'su sitio').igualA(1)",
+      ),
+    },
+    {
+      nombre: "los tres escribas, numerados del uno al tres",
+      codigo: codigo(
+        "const escribas = filas.filter((f) => f.gremio === 'escribas')",
+        "esperar(escribas.map((f) => f.puesto), 'los escribas').igualA(['Aon Aon', 'Aon Ashe', 'Aon Ien'])",
+        "esperar(escribas.map((f) => f.sitio), 'sus sitios').igualA([1, 2, 3])",
+      ),
+    },
+    {
+      nombre: "cada gremio empieza por el sitio 1",
+      codigo: codigo(
+        "const porGremio = {}",
+        "for (const fila of filas) (porGremio[fila.gremio] ??= []).push(fila.sitio)",
+        "const malos = Object.entries(porGremio).filter(([, sitios]) => sitios[0] !== 1).map(([g]) => g)",
+        "esperar(malos, 'los gremios que no empiezan por 1').igualA([])",
+      ),
+    },
+    {
+      nombre: "la media que decide es la de los totales de puesto: 159,375",
+      codigo: codigo(
+        "// Y aquí está la trampa de este jefe. La media de las ventas sueltas es 79,69",
+        "// y con ella siete puestos estarían «encima»; con la media de los totales de",
+        "// puesto son cuatro. Las dos cifras son creíbles.",
+        "esperar(filas.filter((f) => f.sobre_la_media === 'encima').length, 'los que están encima').igualA(4)",
+      ),
+    },
+    {
+      nombre: "y son los cuatro que más recaudan, con el tenderete entre ellos",
+      codigo: codigo(
+        "// El puesto que no es de ningún gremio está por encima de la media, y eso es",
+        "// justo lo que el informe existe para que se vea.",
+        "const encima = filas.filter((f) => f.sobre_la_media === 'encima').map((f) => f.puesto).sort()",
+        "esperar(encima, 'los de encima').igualA(['El caldero', 'El tenderete', 'El yunque', 'Los dos ríos'])",
+      ),
+    },
+    {
+      nombre: "el orden: por gremio y, dentro, por sitio",
+      codigo: codigo(
+        "esperar(filas.map((f) => f.gremio), 'los gremios').igualA([",
+        "  'canteros', 'cocineros', 'comercio', 'escribas', 'escribas', 'escribas', 'herreros', 'sin gremio',",
+        "])",
+      ),
+    },
+    {
+      nombre: "ni un nulo, y las tablas intactas",
+      codigo: codigo(
+        "const conNulos = filas.filter((f) => Object.values(f).some((v) => v === null))",
+        "esperar(conNulos.map((f) => f.puesto), 'las filas con algún nulo').igualA([])",
+        "esperar(cuantas('ventas'), 'las ventas').igualA(16)",
+      ),
+    },
+  ],
+  variantes: [
+    {
+      titulo: "El informe del Dor · otro mercado",
+      datos: codigo(
+        'INSERT INTO gremios (id, nombre, maestro) VALUES',
+        "  (1, 'escribas', 'Adien'), (2, 'canteros', 'Karata'), (3, 'cocineros', NULL),",
+        "  (4, 'herreros', 'Saolin'), (5, 'comercio', 'Roial'), (6, 'aones', 'Raoden');",
+        '',
+        'INSERT INTO puestos (id, nombre, gremio_id) VALUES',
+        "  (1, 'Aon Aon', 1), (2, 'La piedra', 2), (3, 'El caldero', 3),",
+        "  (4, 'Aon Ien', 1), (5, 'El yunque', 4), (6, 'Los dos ríos', 5),",
+        "  (7, 'Aon Ashe', 1), (8, 'La muralla', 2), (9, 'El tenderete', NULL);",
+        '',
+        'INSERT INTO ventas (id, puesto_id, dia, monedas) VALUES',
+        "  (1, 1, 'lunes', 300), (2, 4, 'lunes', 200), (3, 7, 'lunes', 100),",
+        "  (4, 2, 'lunes', 50), (5, 9, 'lunes', 40);",
+      ),
+      tests: [
+        {
+          nombre: "las cinco columnas",
+          codigo: "esperar(columnas).igualA(['gremio', 'puesto', 'total', 'sitio', 'sobre_la_media'])",
+        },
+        { nombre: "cinco puestos han vendido", codigo: "esperar(filas).tieneLongitud(5)" },
+        {
+          nombre: "los tres escribas numerados, y el orden por gremio",
+          codigo: codigo(
+            "esperar(filas.map((f) => f.gremio)).igualA(['canteros', 'escribas', 'escribas', 'escribas', 'sin gremio'])",
+            "esperar(filas.slice(1, 4).map((f) => f.sitio)).igualA([1, 2, 3])",
+          ),
+        },
+        {
+          nombre: "la media de los totales es 138, así que solo dos están encima",
+          codigo: codigo(
+            "esperar(filas.filter((f) => f.sobre_la_media === 'encima').map((f) => f.puesto).sort())",
+            "  .igualA(['Aon Aon', 'Aon Ien'])",
+          ),
+        },
+        {
+          nombre: "y el tenderete sale con su gremio legible",
+          codigo: "esperar(filas.at(-1).gremio).igualA('sin gremio')",
+        },
+      ],
+    },
+  ],
+  recompensa: { croquetas: 15 },
+}

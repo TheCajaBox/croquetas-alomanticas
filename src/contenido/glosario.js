@@ -1139,6 +1139,65 @@ export const GLOSARIO = [
       "Cuenta. Y hay dos, que no son lo mismo: `COUNT(*)` cuenta **filas** y nunca da cero en un grupo que existe; `COUNT(columna)` cuenta **valores no nulos**, así que en un grupo sin nada da cero. Esa diferencia es lo que hace que un informe diga que un puesto tuvo una venta cuando tuvo ninguna.",
     ejemplo: "COUNT(*) AS filas, COUNT(v.id) AS ventas",
   },
+  // ---- SQL · El Dor -----------------------------------------------------
+  {
+    id: "subconsulta",
+    desde: { elantris: 'dor' },
+    termino: "subconsulta",
+    alias: ["subconsultas"],
+    definicion:
+      "Una consulta dentro de otra, entre paréntesis. Sirve para usar el resultado de una pregunta como parte de otra: «los que vendieron más que la media» son dos preguntas, y la de la media va dentro.",
+    ejemplo: "WHERE monedas > (SELECT AVG(monedas) FROM ventas)",
+  },
+  {
+    id: "cte",
+    desde: { elantris: 'dor' },
+    termino: "WITH",
+    alias: ["CTE", "expresión de tabla común"],
+    definicion:
+      "Le pone **nombre a un paso intermedio** antes de usarlo. La misma consulta que con subconsultas anidadas, escrita de arriba abajo y en el orden en que se piensa. No suele cambiar lo que tarda; cambia que se pueda leer.",
+    ejemplo: "WITH totales AS (SELECT …) SELECT … FROM totales",
+  },
+  {
+    id: "exists",
+    desde: { elantris: 'dor' },
+    termino: "EXISTS",
+    definicion:
+      "Pregunta si una subconsulta devuelve **al menos una fila**, sin mirar qué hay dentro. Se para en la primera que encuentra, y a diferencia de `IN` no se rompe con los nulos.",
+    ejemplo: "WHERE EXISTS (SELECT 1 FROM ventas v WHERE v.puesto_id = p.id)",
+  },
+  {
+    id: "funcion-de-ventana",
+    desde: { elantris: 'dor' },
+    termino: "función de ventana",
+    alias: ["funciones de ventana", "OVER", "window function"],
+    definicion:
+      "Un cálculo que mira **las filas de al lado sin agrupar**: cada fila sigue saliendo, y además trae el número que le corresponde dentro de su grupo. Es lo que un `GROUP BY` no puede hacer, porque agrupar reduce filas y esto no.",
+    ejemplo: "ROW_NUMBER() OVER (PARTITION BY gremio_id ORDER BY total DESC)",
+  },
+  {
+    id: "row-number",
+    desde: { elantris: 'dor' },
+    termino: "ROW_NUMBER",
+    definicion:
+      "Numera las filas dentro de su ventana: 1, 2, 3, sin repetir nunca. Es la herramienta de «el mejor de cada grupo»: se numera y se pide el número 1. `RANK` hace lo mismo pero repite el número en los empates y luego salta; `DENSE_RANK` repite y no salta.",
+  },
+  {
+    id: "is-null",
+    desde: { elantris: 'dor' },
+    termino: "IS NULL",
+    alias: ["IS NOT NULL"],
+    definicion:
+      "La única manera de preguntar si algo es nulo. `= NULL` **no funciona** y no da error: da «no se sabe», que ninguna condición deja pasar. No es un capricho de sintaxis: es que la igualdad, con nulos, no significa nada.",
+    ejemplo: "WHERE gremio_id IS NULL",
+  },
+  {
+    id: "logica-de-tres-valores",
+    desde: { elantris: 'dor' },
+    termino: "lógica de tres valores",
+    definicion:
+      "En SQL una condición no vale verdadero o falso: vale verdadero, falso o **desconocido**, y lo tercero aparece en cuanto hay un nulo. Las condiciones solo dejan pasar lo verdadero, así que «desconocido» se comporta como falso al filtrar y **no** al negar: lo contrario de desconocido sigue siendo desconocido.",
+  },
 ]
 
 export const GLOSARIO_POR_ID = Object.fromEntries(GLOSARIO.map((entrada) => [entrada.id, entrada]))

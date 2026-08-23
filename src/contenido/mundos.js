@@ -318,6 +318,22 @@ export const MUNDOS = [
     despedida:
       'Ya sabes convertir muchas filas en una y decir qué quieres saber de ellas. Y sabes la diferencia entre quitar filas antes de agrupar y quitar grupos después, que es donde se equivoca casi todo el mundo la primera vez.',
   },
+  {
+    id: 'dor',
+    nombre: 'El Dor',
+    subtitulo: 'SQL · lo que da poder',
+    itinerario: 'elantris',
+    entorno: 'sql',
+    requiere: 'mercado',
+    color: '#9a86c4',
+    anfitrion: 'raoden',
+    resumen:
+      'Consultas dentro de consultas, nombres para los pasos intermedios, ventanas que miran las filas de al lado, y el nulo a fondo: no es un valor, es una pregunta sin respuesta.',
+    presentacion:
+      'El Dor es lo que hay detrás de los aones: la fuerza que los hace funcionar, y que trazada mal no hace nada y trazada bien hace de todo. Aquí están las herramientas que separan una consulta que contesta de una consulta que resuelve: preguntar dentro de una pregunta, ponerle nombre a un paso intermedio, y mirar una fila sabiendo lo que hay en las de al lado. Y de paso se cierra la cuenta pendiente de los tres mundos anteriores: qué es exactamente un nulo, y por qué se lleva mal con todo.',
+    despedida:
+      'Ya sabes contestar preguntas que no caben en una consulta plana: el mejor de cada grupo, lo que va por encima de la media, un acumulado. Y sabes por qué una consulta con un `NOT IN` puede devolver cero filas teniendo razón.',
+  },
 ]
 
 export const MUNDOS_POR_ID = Object.fromEntries(MUNDOS.map((mundo) => [mundo.id, mundo]))
