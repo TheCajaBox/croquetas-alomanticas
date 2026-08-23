@@ -6,12 +6,28 @@ import { RECORTES } from '../contenido/recortes.js'
 import { TRASTOS, TRASTOS_POR_ID } from '../contenido/trastos.js'
 import { usarEconomia } from '../almacen/economia.js'
 
+import { porqueDe } from '../contenido/insignias.js'
 import { usarInsignias } from '../almacen/insignias.js'
 import { usarRecortes } from '../almacen/recortes.js'
+import { usarRumbo } from '../almacen/rumbo.js'
+import { ITINERARIOS_POR_ID } from '../contenido/itinerarios.js'
+import { nombreDe } from '../contenido/personajes.js'
 
 const economia = usarEconomia()
 const recortes = usarRecortes()
 const insignias = usarInsignias()
+
+/**
+ * De quién son las insignias.
+ *
+ * El cajón es una página global -las insignias se ganan en cualquier camino- y
+ * ponía «Las insignias de Marasi» a mano, que es quien revisa en la segunda era.
+ * Las reparte quien revisa allí donde estés: en la primera era, Brisa.
+ */
+const rumbo = usarRumbo()
+const quienLasReparte = computed(
+  () => ITINERARIOS_POR_ID[rumbo.dondeEstoy]?.reparto.revisa ?? 'marasi',
+)
 
 const mios = computed(() =>
   [...new Set(economia.trastos)].map((id) => ({
@@ -52,7 +68,7 @@ const mios = computed(() =>
     </section>
 
     <section class="panel encabezado">
-      <h2>Las insignias de Marasi</h2>
+      <h2>Las insignias de {{ nombreDe(quienLasReparte) }}</h2>
       <p class="tenue">
         Las apunta ella, y no valen ni una croqueta a propósito: si pagaran dejarían de ser
         un reconocimiento y pasarían a ser deberes. Nadie te las pide y no hacen falta para
@@ -64,7 +80,7 @@ const mios = computed(() =>
     <div v-if="insignias.mias.length" class="rejilla">
       <article v-for="insignia in insignias.mias" :key="insignia.id" class="insignia panel">
         <h3>{{ insignia.nombre }}</h3>
-        <p class="tenue">{{ insignia.porque }}</p>
+        <p class="tenue">{{ porqueDe(insignia, rumbo.dondeEstoy) }}</p>
       </article>
     </div>
 

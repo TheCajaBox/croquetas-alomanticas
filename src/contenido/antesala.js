@@ -1,14 +1,36 @@
 import { codigo } from './retos/comun.js'
+import { ITINERARIOS_POR_ID, ITINERARIO_POR_DEFECTO, quienEscribeElApunte } from './itinerarios.js'
+import { mundosDelItinerario } from './mundos.js'
+import { nombreDe } from './personajes.js'
+import { retosDelMundo } from './retos/index.js'
 
 /**
- * La antesala: la orientación de Steris antes del primer reto.
+ * La antesala: la orientación antes del primer reto.
  *
  * Está pensada para quien no ha visto código en su vida y no sabe siquiera a
- * qué ha venido: qué es un programa, qué es JavaScript, qué pinta Vue y cómo
- * funciona esto. Se lee en un par de minutos y se puede volver cuando sea.
+ * qué ha venido: qué es un programa, qué lenguaje va a escribir y cómo funciona
+ * esto. Se lee en un par de minutos y se puede volver cuando sea.
  *
  * Se pinta con Marcado, así que los términos del glosario salen ya pulsables:
  * es justo la página donde más falta hacen.
+ *
+ * ## Compartida, pero no de un solo camino
+ *
+ * La escribe Steris en los cuatro caminos y eso es a propósito: es el mostrador
+ * de entrada del juego, y se puede leer antes de elegir por dónde ir.
+ *
+ * Lo que **no** puede ser compartido es lo que cuenta. Esta página explicaba
+ * «Qué es JavaScript» y «Qué es Vue», nombraba el apunte de Wax y las pistas de
+ * Wayne, decía «siete mundos, cincuenta y seis retos» y acababa con un botón al
+ * primer mundo de la segunda era. Todo eso es mentira desde la primera era:
+ * allí se escribe PHP, el apunte lo firma Kelsier, las pistas las vende Fantasma
+ * y el primer mundo es La Ceniza.
+ *
+ * Así que la antesala tiene dos mitades. Las secciones **compartidas** llevan
+ * huecos -`{apunte}`, `{pistas}`, `{narra}`, `{cuantosMundos}`- que se rellenan
+ * con el reparto y las cuentas del camino donde estés. Y las secciones **del
+ * camino** -qué es este lenguaje y por qué- las trae cada itinerario en
+ * `porCamino`. `antesalaDe` monta las dos y devuelve la página ya resuelta.
  */
 export const ANTESALA = {
   entradilla: codigo(
@@ -32,6 +54,85 @@ export const ANTESALA = {
         "alguien que no entiende de nada pueda seguirlos.",
       ),
     },
+    {
+      titulo: "Cómo funciona esto",
+      texto: codigo(
+        "{cuantosMundos} mundos, {cuantosRetos} retos. Se empieza señalando y colocando piezas,",
+        "y se acaba escribiendo código que hace algo de verdad.",
+        "",
+        "El código que escribes **se ejecuta de verdad** y se comprueba con tests: pequeñas",
+        "pruebas que llaman a tu código y miran si el resultado es el que debía ser. No hay",
+        "respuestas de opción múltiple disfrazadas.",
+        "",
+        "En cada reto vas a encontrar tres cosas, y conviene usarlas en este orden:",
+        "",
+        "1. **El apunte de {apunte}**, arriba del todo. La explicación del concepto, con",
+        "   ejemplos. Es gratis y está antes del ejercicio a propósito: primero se lee.",
+        "2. **Los términos subrayados con puntitos**. Son míos: pulsa cualquiera y te digo",
+        "   qué significa esa palabra, sin salir del reto.",
+        "3. **Las pistas de {pistas}**. La primera invita la casa; las otras cuestan",
+        "   croquetas. Van de menos a más reveladora.",
+        "",
+        "Si un reto se te resiste tres veces, aparece {apunte} por su cuenta. Y si algo revienta,",
+        "yo traduzco el error: salen en inglés y no dicen nada útil hasta que alguien te",
+        "explica qué significan.",
+      ),
+    },
+    {
+      titulo: "Las croquetas y los gatos",
+      texto: codigo(
+        "Cada reto superado paga en **croquetas**. Se gana más resolviéndolo sin pistas y a",
+        "la primera.",
+        "",
+        "Con las croquetas se compran dos cosas: las pistas de {pistas} y la comida de los",
+        "gatos. Ahí está la única decisión económica del juego, y es deliberada: cada pista",
+        "que le compras es comida que no le das a la colonia.",
+        "",
+        "Los gatos no son un adorno. Cada uno lleva el nombre de un metal y da un beneficio",
+        "real mientras está contento: más croquetas, pistas más baratas, más tiempo de",
+        "ejecución, un fallo perdonado. Un gato desatendido deja de dárselo hasta que le",
+        "hagas caso.",
+        "",
+        "Advertencia que me parece necesaria: **ningún gato se muere ni se va nunca**. Esto",
+        "es un juego para aprender, no para castigar.",
+      ),
+    },
+    {
+      titulo: "Contingencias previstas",
+      texto: codigo(
+        "He anotado las que ocurren con más frecuencia.",
+        "",
+        "- **Rompes algo.** No puedes. Tu código se ejecuta aparte del juego, en un sitio",
+        "  aislado; ni siquiera puede leer tu partida. Prueba lo que quieras.",
+        "- **Se queda colgado.** Si escribes un bucle sin salida, se corta solo a las cien",
+        "  mil vueltas y te lo digo. La página no se congela.",
+        "- **Sale un error largo en inglés.** Léelo hasta el final y luego mira mi",
+        "  traducción, que sale justo debajo. Casi siempre es un símbolo sin cerrar o un",
+        "  nombre mal escrito.",
+        "- **No entiendes una palabra del enunciado.** Si está subrayada con puntitos,",
+        "  púlsala. Si no lo está y crees que debería, es un fallo mío.",
+        "- **Llevas veinte minutos con lo mismo.** Levántate. Vuelve luego. Está estudiado y",
+        "  funciona, aunque nadie sepa explicar del todo por qué.",
+        "- **Pierdes el progreso.** Se guarda en este navegador. Si vas a cambiar de",
+        "  dispositivo, en Ajustes puedes exportar la partida y traerla.",
+      ),
+    },
+  ],
+  cierre: codigo(
+    "Eso es todo lo que considero imprescindible. {narra} dirá que sobra la mitad; {narra} no ha",
+    "preparado una lista en su vida.",
+  ),
+}
+
+/**
+ * Lo que cada camino explica de su propio lenguaje.
+ *
+ * Va aparte y no dentro de `ANTESALA` porque es lo único que no se puede
+ * compartir: aquí se cuenta qué se va a escribir y por qué merece la pena, y eso
+ * no se parece en nada de un camino a otro.
+ */
+export const POR_CAMINO = {
+  era2: [
     {
       titulo: "Qué es JavaScript",
       texto: codigo(
@@ -70,72 +171,88 @@ export const ANTESALA = {
         "dos por separado.",
       ),
     },
+  ],
+  era1: [
     {
-      titulo: "Cómo funciona esto",
+      titulo: "Qué es PHP",
       texto: codigo(
-        "Siete mundos, cincuenta y seis retos. Se empieza señalando y colocando piezas, y se",
-        "acaba montando componentes.",
+        "PHP es el idioma en el que se le dan esas órdenes, y se ejecuta **en el servidor**:",
+        "no en el ordenador de quien mira la página, sino en la máquina que la prepara y la",
+        "manda. Eso es toda la diferencia, y explica el resto.",
         "",
-        "El código que escribes **se ejecuta de verdad** y se comprueba con tests: pequeñas",
-        "pruebas que llaman a tu código y miran si el resultado es el que debía ser. No hay",
-        "respuestas de opción múltiple disfrazadas.",
+        "Cuando pides una página, en el servidor se ejecuta un programa que consulta lo que",
+        "haga falta, monta la respuesta y la envía. Ese programa está escrito en PHP en una",
+        "parte enorme de la web: Wikipedia, casi todas las tiendas pequeñas y unas cuatro de",
+        "cada diez páginas que has abierto hoy.",
         "",
-        "En cada reto vas a encontrar tres cosas, y conviene usarlas en este orden:",
+        "Tiene mala fama y la tuvo merecida durante quince años. La cuestión es que el PHP",
+        "de entonces y el de ahora se parecen poco: hoy tiene tipos declarados, clases,",
+        "excepciones y herramientas serias. Lo que se aprende aquí es el de ahora.",
         "",
-        "1. **El apunte de Wax**, arriba del todo. La explicación del concepto, con",
-        "   ejemplos. Es gratis y está antes del ejercicio a propósito: primero se lee.",
-        "2. **Los términos subrayados con puntitos**. Son míos: pulsa cualquiera y te digo",
-        "   qué significa esa palabra, sin salir del reto.",
-        "3. **Las pistas de Wayne**. La primera invita la casa; las otras cuestan",
-        "   croquetas. Van de menos a más reveladora.",
-        "",
-        "Si un reto se te resiste tres veces, aparece Wax por su cuenta. Y si algo revienta,",
-        "yo traduzco el error: salen en inglés y no dicen nada útil hasta que alguien te",
-        "explica qué significan.",
+        "Se escribe en texto normal y corriente, con unas reglas estrictas de puntuación. La",
+        "mayoría de los errores de quien empieza son de puntuación, no de ideas. Es buena",
+        "noticia: los de puntuación se arreglan solos con el tiempo.",
       ),
     },
     {
-      titulo: "Las croquetas y los gatos",
+      titulo: "Por qué empezar por aquí, y qué se lleva puesto",
       texto: codigo(
-        "Cada reto superado paga en **croquetas**. Se gana más resolviéndolo sin pistas y a",
-        "la primera.",
+        "PHP es un buen primer lenguaje por un motivo poco romántico: **el circuito completo",
+        "es corto**. Escribes, se ejecuta, sale algo. No hay que montar nada alrededor para",
+        "ver el resultado, y ver el resultado es lo que sostiene las primeras semanas.",
         "",
-        "Con las croquetas se compran dos cosas: las pistas de Wayne y la comida de los",
-        "gatos. Ahí está la única decisión económica del juego, y es deliberada: cada pista",
-        "que le compras a Wayne es comida que no le das a la colonia.",
+        "Y casi todo lo que vas a aprender aquí no es de PHP, es **de programar**: una",
+        "variable, una condición, un bucle, una función, una lista. Eso está igual en",
+        "JavaScript, en Python y en cualquier otro, con la puntuación cambiada. Cuando",
+        "cambies de idioma no empiezas de cero: empiezas con acento.",
         "",
-        "Los gatos no son un adorno. Cada uno lleva el nombre de un metal y da un beneficio",
-        "real mientras está contento: más croquetas, pistas más baratas, más tiempo de",
-        "ejecución, un fallo perdonado. Un gato desatendido deja de dárselo hasta que le",
-        "hagas caso.",
-        "",
-        "Advertencia que me parece necesaria: **ningún gato se muere ni se va nunca**. Esto",
-        "es un juego para aprender, no para castigar.",
-      ),
-    },
-    {
-      titulo: "Contingencias previstas",
-      texto: codigo(
-        "He anotado las que ocurren con más frecuencia.",
-        "",
-        "- **Rompes algo.** No puedes. Tu código se ejecuta aparte del juego, en un sitio",
-        "  aislado; ni siquiera puede leer tu partida. Prueba lo que quieras.",
-        "- **Se queda colgado.** Si escribes un bucle sin salida, se corta solo a las cien",
-        "  mil vueltas y te lo digo. La página no se congela.",
-        "- **Sale un error largo en inglés.** Léelo hasta el final y luego mira mi",
-        "  traducción, que sale justo debajo. Casi siempre es un símbolo sin cerrar o un",
-        "  nombre mal escrito.",
-        "- **No entiendes una palabra del enunciado.** Si está subrayada con puntitos,",
-        "  púlsala. Si no lo está y crees que debería, es un fallo mío.",
-        "- **Llevas veinte minutos con lo mismo.** Levántate. Vuelve luego. Está estudiado y",
-        "  funciona, aunque nadie sepa explicar del todo por qué.",
-        "- **Pierdes el progreso.** Se guarda en este navegador. Si vas a cambiar de",
-        "  dispositivo, en Ajustes puedes exportar la partida y traerla.",
+        "Lo que sí es de PHP -el `$` delante de cada variable, `echo`, los arrays que hacen",
+        "de lista y de diccionario a la vez- se aprende deprisa y se avisa cuando toca.",
       ),
     },
   ],
-  cierre: codigo(
-    "Eso es todo lo que considero imprescindible. Wayne dirá que sobra la mitad; Wayne no ha",
-    "preparado una lista en su vida.",
-  ),
+}
+
+/** Los huecos que se rellenan con el camino donde estés. */
+function huecosDe(itinerarioId) {
+  const itinerario = ITINERARIOS_POR_ID[itinerarioId] ?? ITINERARIOS_POR_ID[ITINERARIO_POR_DEFECTO]
+  const mundos = mundosDelItinerario(itinerario.id)
+  return {
+    apunte: nombreDe(quienEscribeElApunte(mundos[0])),
+    pistas: nombreDe(itinerario.reparto.pistas),
+    glosario: nombreDe(itinerario.reparto.glosario),
+    narra: nombreDe(itinerario.reparto.narra),
+    lenguaje: itinerario.lenguajeEnFrase,
+    cuantosMundos: mundos.length,
+    cuantosRetos: mundos.reduce((suma, mundo) => suma + retosDelMundo(mundo.id).length, 0),
+  }
+}
+
+const rellenar = (texto, huecos) =>
+  texto.replace(/\{(\w+)\}/g, (entero, hueco) => (hueco in huecos ? String(huecos[hueco]) : entero))
+
+/**
+ * La antesala de un camino: sus secciones y las compartidas, ya resueltas.
+ *
+ * La sección del lenguaje va **después** de «Qué es un programa» y antes de
+ * «Cómo funciona esto», que es el orden en que hacen falta: primero qué es
+ * programar, luego en qué se va a programar, y al final cómo va este juego.
+ */
+export function antesalaDe(itinerarioId) {
+  const huecos = huecosDe(itinerarioId)
+  const suyas = POR_CAMINO[itinerarioId] ?? POR_CAMINO[ITINERARIO_POR_DEFECTO] ?? []
+  const secciones = [ANTESALA.secciones[0], ...suyas, ...ANTESALA.secciones.slice(1)]
+  return {
+    entradilla: rellenar(ANTESALA.entradilla, huecos),
+    cierre: rellenar(ANTESALA.cierre, huecos),
+    secciones: secciones.map((seccion) => ({
+      titulo: rellenar(seccion.titulo, huecos),
+      texto: rellenar(seccion.texto, huecos),
+    })),
+  }
+}
+
+/** El primer mundo del camino, que es a donde manda el botón del final. */
+export function primerMundoDe(itinerarioId) {
+  return mundosDelItinerario(itinerarioId)[0] ?? mundosDelItinerario(ITINERARIO_POR_DEFECTO)[0]
 }

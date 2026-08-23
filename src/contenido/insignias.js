@@ -1,5 +1,8 @@
+import { ITINERARIOS_POR_ID, ITINERARIO_POR_DEFECTO } from './itinerarios.js'
+import { nombreDe } from './personajes.js'
+
 /**
- * Las insignias que apunta Marasi.
+ * Las insignias que apunta quien revise en tu camino.
  *
  * ## Por qué no dan croquetas
  *
@@ -22,6 +25,18 @@
  *
  * `cumple` recibe los almacenes ya leídos y devuelve un booleano. Se comprueban
  * al superar un reto y al terminar un repaso, que es cuando puede cambiar algo.
+ *
+ * ## Los huecos, y por qué no se quitaron los nombres
+ *
+ * Cinco de estos textos nombraban a Wayne o a Marasi, y las insignias se ganan
+ * en cualquier camino y se leen en el cajón, que no pertenece a ninguno: en la
+ * primera era anunciaban a gente que no está allí.
+ *
+ * La salida fácil era quitar los nombres y dejar «quien vende las pistas», y es
+ * peor: la mitad de la gracia de una insignia es que alguien concreto opine de
+ * ti. Así que llevan huecos -`{pistas}`, `{revisa}`, `{narra}`- y los rellena el
+ * reparto del camino donde estés. En la primera era, «el puesto de Fantasma es
+ * decorativo».
  */
 export const INSIGNIAS = [
   {
@@ -44,8 +59,8 @@ export const INSIGNIAS = [
   },
   {
     id: 'sin-preguntar',
-    nombre: 'Sin preguntarle a Wayne',
-    porque: 'Un mundo entero sin comprar una sola pista. Él lo lleva peor que tú.',
+    nombre: 'Sin preguntarle a nadie',
+    porque: 'Un mundo entero sin comprar una sola pista. Quien las vende lo lleva peor que tú.',
     cumple: ({ mundosSinPistas }) => mundosSinPistas >= 1,
   },
   {
@@ -57,7 +72,7 @@ export const INSIGNIAS = [
   {
     id: 'racha-de-veinte',
     nombre: 'Veinte de seguido',
-    porque: 'Veinte. A estas alturas el puesto de Wayne es decorativo.',
+    porque: 'Veinte. A estas alturas el puesto de {pistas} es decorativo.',
     cumple: ({ progreso }) => progreso.mejorRacha >= 20,
   },
   {
@@ -81,19 +96,19 @@ export const INSIGNIAS = [
   {
     id: 'repaso-bordado',
     nombre: 'Un caso sin fisuras',
-    porque: 'Un repaso de Marasi con las seis. Ella no lo dirá, pero le ha gustado.',
+    porque: 'Un repaso de {revisa} con las seis. No lo dirá, pero le ha gustado.',
     cumple: ({ repasos }) => repasos.perfectos >= 1,
   },
   {
     id: 'todos-los-repasos',
     nombre: 'El expediente completo',
-    porque: 'Todos los repasos bordados. Marasi ya no tiene nada que objetarte.',
+    porque: 'Todos los repasos bordados. {revisa} ya no tiene nada que objetarte.',
     cumple: ({ repasos, totalDeMundos }) => repasos.perfectos >= totalDeMundos,
   },
   {
     id: 'coleccionista',
     nombre: 'La sombrerera llena',
-    porque: 'Los catorce sombreros. Wayne jura que eran todos suyos.',
+    porque: 'Los catorce sombreros. {narra} jura que eran todos suyos.',
     cumple: ({ sombreros }) => sombreros.estanTodos,
   },
   {
@@ -123,7 +138,7 @@ export const INSIGNIAS = [
   {
     id: 'limpio',
     nombre: 'Nada que objetar',
-    porque: 'Diez retos seguidos sin que Marasi te encontrara una sola pega en el código.',
+    porque: 'Diez retos seguidos sin que {revisa} te encontrara una sola pega en el código.',
     cumple: ({ revisionesLimpias }) => revisionesLimpias >= 10,
   },
   {
@@ -135,3 +150,17 @@ export const INSIGNIAS = [
 ]
 
 export const INSIGNIAS_POR_ID = Object.fromEntries(INSIGNIAS.map((i) => [i.id, i]))
+
+/**
+ * El texto de una insignia con los huecos rellenos por el reparto del camino
+ * donde estés. Un hueco que no se sepa rellenar se queda como está, que es
+ * feo pero visible; borrarlo dejaría la frase sin sujeto.
+ */
+export function porqueDe(insignia, itinerarioId) {
+  const reparto =
+    ITINERARIOS_POR_ID[itinerarioId]?.reparto ?? ITINERARIOS_POR_ID[ITINERARIO_POR_DEFECTO].reparto
+  return String(insignia?.porque ?? '').replace(/\{(\w+)\}/g, (entero, papel) => {
+    const quien = [reparto[papel]].flat()[0]
+    return quien ? nombreDe(quien) : entero
+  })
+}

@@ -34,9 +34,13 @@ describe('el glosario, según el camino', () => {
   it('cada camino ve menos entradas que la lista entera', () => {
     for (const lenguaje of LENGUAJES) {
       const suyas = glosarioDe(lenguaje)
-      expect(suyas.length, lenguaje).toBeGreaterThan(50)
+      expect(suyas.length, lenguaje).toBeGreaterThan(30)
       expect(suyas.length, lenguaje).toBeLessThan(GLOSARIO.length)
     }
+    // Y el de PHP es más corto que el de JavaScript, porque la primera era
+    // tiene dos mundos escritos y la segunda nueve. Cuando se escriban los
+    // otros cuatro, esta diferencia se cerrará sola.
+    expect(glosarioDe('php').length).toBeLessThan(glosarioDe('js').length)
   })
 
   it('los términos de un lenguaje no salen en el otro', () => {
@@ -120,12 +124,14 @@ describe('el glosario, según el camino', () => {
     expect(terminosBuscablesDe('php')).toBe(terminosBuscablesDe('php'))
   })
 
-  it('un lenguaje que aún no tiene glosario propio no revienta', () => {
-    // SQL y seguridad llegan después. Hasta entonces, lo compartido y ya.
+  it('un lenguaje sin un solo mundo escrito tiene el glosario vacío, y no revienta', () => {
+    // SQL llega después. Hasta que tenga mundos, ningún término declara que se
+    // enseñe ahí, así que la respuesta honrada es «nada»: prestarle los términos
+    // de JavaScript sería prometer un temario que no existe.
     const deSql = glosarioDe('sql')
     expect(Array.isArray(deSql)).toBe(true)
-    expect(deSql.length).toBeGreaterThan(30)
-    expect(deSql.some((cada) => cada.id === 'ref')).toBe(false)
+    expect(deSql).toEqual([])
+    expect(terminosBuscablesDe('sql')).toEqual([])
   })
 })
 

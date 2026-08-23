@@ -3,7 +3,9 @@ import { beforeEach, describe, expect, it } from 'vitest'
 
 import { GLOSARIO, TERMINOS_BUSCABLES } from '../src/contenido/glosario.js'
 import { IMPREVISTOS, traducirImprevisto } from '../src/contenido/imprevistos.js'
-import { ANTESALA } from '../src/contenido/antesala.js'
+import { ANTESALA, antesalaDe, primerMundoDe } from '../src/contenido/antesala.js'
+import { mundosDelItinerario } from '../src/contenido/mundos.js'
+import { retosDelMundo } from '../src/contenido/retos/index.js'
 import { enlazarTerminos } from '../src/motor/enlazarTerminos.js'
 import { usarGlosario } from '../src/almacen/glosario.js'
 
@@ -147,19 +149,70 @@ describe('la lista de imprevistos traduce los errores', () => {
 })
 
 describe('la antesala', () => {
-  it('cubre lo que hace falta antes de empezar', () => {
-    expect(ANTESALA.secciones.length).toBeGreaterThanOrEqual(5)
-    for (const seccion of ANTESALA.secciones) {
-      expect(seccion.titulo).toBeTruthy()
-      expect(seccion.texto.length).toBeGreaterThan(150)
+  it('cubre lo que hace falta antes de empezar, en los dos caminos', () => {
+    for (const camino of ['era2', 'era1']) {
+      const antesala = antesalaDe(camino)
+      expect(antesala.secciones.length, camino).toBeGreaterThanOrEqual(5)
+      for (const seccion of antesala.secciones) {
+        expect(seccion.titulo, camino).toBeTruthy()
+        expect(seccion.texto.length, `${camino}/${seccion.titulo}`).toBeGreaterThan(150)
+      }
     }
   })
 
-  it('explica qué es un programa, JavaScript y Vue', () => {
-    const todo = ANTESALA.secciones.map((s) => `${s.titulo} ${s.texto}`).join(' ')
+  it('cada camino explica su lenguaje y no el del otro', () => {
+    // Esta página explicaba «Qué es JavaScript» y «Qué es Vue» a quien había
+    // elegido PHP, y acababa con un botón al primer mundo de la segunda era.
+    const deJs = antesalaDe('era2').secciones.map((s) => `${s.titulo} ${s.texto}`).join(' ')
+    const dePhp = antesalaDe('era1').secciones.map((s) => `${s.titulo} ${s.texto}`).join(' ')
+
     for (const asunto of ['programa', 'JavaScript', 'Vue', 'croquetas']) {
-      expect(todo, `falta hablar de ${asunto}`).toContain(asunto)
+      expect(deJs, `falta hablar de ${asunto}`).toContain(asunto)
     }
+    for (const asunto of ['programa', 'PHP', 'servidor', 'croquetas']) {
+      expect(dePhp, `falta hablar de ${asunto}`).toContain(asunto)
+    }
+    // Vue no pinta nada en la primera era. Con límite de palabra, que si no
+    // «Vuelve luego» cuenta como Vue -me pasó-.
+    expect(dePhp).not.toMatch(/\bVue\b/)
+    expect(antesalaDe('era1').secciones.map((s) => s.titulo)).not.toContain('Qué es JavaScript')
+  })
+
+  it('los huecos se rellenan con el reparto de cada camino, y no queda ninguno', () => {
+    const deJs = antesalaDe('era2')
+    const dePhp = antesalaDe('era1')
+    const todoJs = [deJs.entradilla, deJs.cierre, ...deJs.secciones.map((s) => s.texto)].join(' ')
+    const todoPhp = [dePhp.entradilla, dePhp.cierre, ...dePhp.secciones.map((s) => s.texto)].join(' ')
+
+    expect(todoJs).toContain('El apunte de Wax')
+    expect(todoJs).toContain('Las pistas de Wayne')
+    expect(todoPhp).toContain('El apunte de Kelsier')
+    expect(todoPhp).toContain('Las pistas de Fantasma')
+    // Y nadie de la segunda era anda por la primera.
+    for (const ajeno of ['Wax', 'Wayne', 'Marasi', 'Steris']) {
+      expect(todoPhp, `${ajeno} no está en la primera era`).not.toMatch(new RegExp(`\\b${ajeno}\\b`))
+    }
+    // Ni queda un hueco sin rellenar, que saldría en pantalla tal cual.
+    for (const texto of [todoJs, todoPhp]) expect(texto).not.toMatch(/\{\w+\}/)
+  })
+
+  it('las cuentas que da son las de verdad', () => {
+    // Decía «siete mundos, cincuenta y seis retos» cuando ya eran nueve y
+    // noventa, y en la primera era decía eso mismo teniendo dos mundos.
+    for (const camino of ['era2', 'era1']) {
+      const mundos = mundosDelItinerario(camino)
+      const retos = mundos.reduce((suma, mundo) => suma + retosDelMundo(mundo.id).length, 0)
+      const todo = antesalaDe(camino).secciones.map((s) => s.texto).join(' ')
+      expect(todo, camino).toContain(`${mundos.length} mundos`)
+      expect(todo, camino).toContain(`${retos} retos`)
+    }
+  })
+
+  it('el botón del final manda al primer mundo del camino donde estás', () => {
+    expect(primerMundoDe('era2').id).toBe(mundosDelItinerario('era2')[0].id)
+    expect(primerMundoDe('era1').id).toBe('ceniza')
+    // Y un camino sin mundos no deja el botón muerto.
+    expect(primerMundoDe('elantris')).toBeTruthy()
   })
 })
 

@@ -46,6 +46,7 @@ export default {
   ),
   requisitos: [
     { tipo: "usaPalabra", valor: "foreach", texto: "Recorre la cuadrilla con `foreach`" },
+    { tipo: "usaPalabra", valor: "return", texto: "Devuelve el informe con `return`, no lo imprimas" },
   ],
   tests: [
     {
@@ -66,6 +67,36 @@ export default {
     {
       nombre: "la última línea también lleva su salto",
       codigo: "esperar(informe(['Vin']), 'el informe')->igualA('1. Vin' . PHP_EOL);",
+    },
+    {
+      nombre: "pasa del nueve al diez sin descolocarse",
+      codigo: codigo(
+        "$diez = informe(['a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i', 'j']);",
+        "esperar($diez, 'el informe de diez')->contiene('9. i' . PHP_EOL . '10. j');",
+      ),
+    },
+    {
+      nombre: "no se cuela un número de más al final",
+      codigo: codigo(
+        "esperar(informe(['Vin', 'Elend']), 'el informe')",
+        "  ->noContiene('3.');",
+      ),
+    },
+    {
+      nombre: "los nombres salen tal cual, sin tocarlos",
+      codigo: codigo(
+        "esperar(informe(['Tindwyl', 'Sazed']), 'el informe')->contiene('1. Tindwyl');",
+        "esperar(informe(['0']), 'el informe')->igualA('1. 0' . PHP_EOL);",
+      ),
+    },
+    {
+      nombre: "devuelve el informe, no lo imprime",
+      codigo: codigo(
+        "// Un `echo` dentro de la función deja la consola con texto y esto lo caza:",
+        "// es la confusión de siempre entre devolver y imprimir.",
+        "informe(['Vin']);",
+        "esperar($consola, 'la consola')->igualA('');",
+      ),
     },
   ],
   recompensa: { croquetas: 12 },

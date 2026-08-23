@@ -4,7 +4,7 @@ import { computed, ref } from 'vue'
 import Avatar from '../componentes/Avatar.vue'
 import Marcado from '../componentes/Marcado.vue'
 import SombreroEscondido from '../componentes/SombreroEscondido.vue'
-import { glosarioDe } from '../contenido/glosario.js'
+import { glosarioPorMundos } from '../contenido/glosario.js'
 import { ITINERARIOS } from '../contenido/itinerarios.js'
 import { mundosDelItinerario } from '../contenido/mundos.js'
 import { nombreDe } from '../contenido/personajes.js'
@@ -15,37 +15,56 @@ const filtro = ref('')
 
 /**
  * Esta página se abre desde la barra, fuera de cualquier mundo, así que aquí no
- * hay lenguaje que deducir: se elige.
+ * hay camino que deducir: se elige.
  *
- * Y hace falta elegirlo, porque el glosario no es el mismo en los dos caminos:
- * `ref` y `computed` son de Vue, `foreach` y la interpolación son de PHP, y
- * «variable» se explica con `const sombrero` o con `$sombrero` según dónde
- * estés. Antes esta página enseñaba las cien entradas con los ejemplos de
- * JavaScript, incluidos los términos que en PHP no existen.
+ * Y hace falta elegirlo, porque el glosario no es el mismo en los dos: `ref` y
+ * `computed` son de Vue, `foreach` y la interpolación son de PHP, y «variable»
+ * se explica con `const sombrero` o con `$sombrero` según dónde estés.
+ *
+ * Aquí sí sale el temario **completo** del camino, y a propósito: dentro de un
+ * reto el glosario se corta en el mundo donde estás -no tiene sentido ofrecer
+ * «herencia» en el tercer reto de La Ceniza-, pero esta página es la de
+ * consultar, y se viene a ella justamente a mirar lo que no sabes todavía. Lo
+ * que hace es **partirlo por mundos**: así se ve de un vistazo qué enseña cada
+ * uno y en qué orden, que es media gracia de mirarlo.
  *
  * Solo salen los caminos que ya tienen mundos: anunciar un glosario de SQL sin
  * un solo reto de SQL sería prometer algo que no está.
  */
 const CAMINOS = ITINERARIOS.filter((cada) => mundosDelItinerario(cada.id).length > 0).map((cada) => ({
-  lenguaje: cada.lenguajes[0],
+  id: cada.id,
   etiqueta: cada.etiquetaLenguaje,
   quien: cada.reparto.glosario,
 }))
-const lenguaje = ref(CAMINOS[0].lenguaje)
-const camino = computed(() => CAMINOS.find((cada) => cada.lenguaje === lenguaje.value) ?? CAMINOS[0])
-const todas = computed(() => glosarioDe(lenguaje.value))
+const eleccion = ref(CAMINOS[0].id)
+const camino = computed(() => CAMINOS.find((cada) => cada.id === eleccion.value) ?? CAMINOS[0])
+
+const porMundos = computed(() => glosarioPorMundos(camino.value.id))
+const cuantas = computed(() => porMundos.value.reduce((suma, grupo) => suma + grupo.entradas.length, 0))
 
 const sinTildes = (texto) =>
   texto.normalize('NFD').replace(/[̀-ͯ]/g, '').toLowerCase()
 
-const entradas = computed(() => {
+/** El filtro se aplica dentro de cada mundo, y un mundo sin resultados no sale. */
+const grupos = computed(() => {
   const buscado = sinTildes(filtro.value.trim())
-  const ordenadas = [...todas.value].sort((a, b) => a.termino.localeCompare(b.termino, 'es'))
-  if (!buscado) return ordenadas
-  return ordenadas.filter((entrada) =>
-    sinTildes(`${entrada.termino} ${(entrada.alias ?? []).join(' ')} ${entrada.definicion}`).includes(buscado),
-  )
+  return porMundos.value
+    .map((grupo) => ({
+      ...grupo,
+      entradas: [...grupo.entradas]
+        .sort((a, b) => a.termino.localeCompare(b.termino, 'es'))
+        .filter(
+          (entrada) =>
+            !buscado ||
+            sinTildes(
+              `${entrada.termino} ${(entrada.alias ?? []).join(' ')} ${entrada.definicion}`,
+            ).includes(buscado),
+        ),
+    }))
+    .filter((grupo) => grupo.entradas.length > 0)
 })
+
+const encontradas = computed(() => grupos.value.reduce((suma, g) => suma + g.entradas.length, 0))
 </script>
 
 <template>
@@ -59,7 +78,8 @@ const entradas = computed(() => {
           <h1>El glosario de {{ nombreDe(camino.quien) }}</h1>
           <p class="tenue">
             Toda palabra técnica que sale en el juego, explicada sin usar otras palabras
-            técnicas sin explicar. No hace falta leerlo entero: está entero por si acaso.
+            técnicas sin explicar. Va por mundos y en el orden en que se juegan: no hace falta
+            leerlo entero, está entero por si acaso.
           </p>
         </div>
       </div>
@@ -70,39 +90,46 @@ const entradas = computed(() => {
         <div v-if="CAMINOS.length > 1" class="fila caminos-glosario">
           <button
             v-for="cada in CAMINOS"
-            :key="cada.lenguaje"
+            :key="cada.id"
             type="button"
             class="menudo"
-            :class="{ elegido: cada.lenguaje === lenguaje }"
-            @click="lenguaje = cada.lenguaje"
+            :class="{ elegido: cada.id === eleccion }"
+            @click="eleccion = cada.id"
           >
             {{ cada.etiqueta }}
           </button>
         </div>
         <span class="tenue cuenta">
-          {{ entradas.length }} de {{ todas.length }} · {{ glosario.cuantosConsultados }} consultados
+          {{ encontradas }} de {{ cuantas }} · {{ glosario.cuantosConsultados }} consultados
         </span>
       </div>
     </section>
 
-    <div class="rejilla">
-      <article
-        v-for="entrada in entradas"
-        :key="entrada.id"
-        class="termino panel"
-        :class="{ visto: glosario.consultado(entrada.id) }"
-      >
-        <h3>{{ entrada.termino }}</h3>
-        <p v-if="entrada.alias?.length" class="tenue alias">
-          también: {{ entrada.alias.join(', ') }}
-        </p>
-        <!-- Sin enlazar: dentro del glosario, enlazar al glosario no lleva a nada. -->
-        <Marcado class="definicion" :texto="entrada.definicion" :enlazar="false" />
-        <pre v-if="entrada.ejemplo"><code>{{ entrada.ejemplo }}</code></pre>
-      </article>
-    </div>
+    <section v-for="grupo in grupos" :key="grupo.mundo.id" class="mundo-glosario">
+      <div class="fila cabecera-mundo">
+        <h2>{{ grupo.mundo.nombre }}</h2>
+        <span class="tenue">{{ grupo.entradas.length }} términos · aquí se aprenden</span>
+      </div>
 
-    <p v-if="!entradas.length" class="panel centrado tenue">
+      <div class="rejilla">
+        <article
+          v-for="entrada in grupo.entradas"
+          :key="entrada.id"
+          class="termino panel"
+          :class="{ visto: glosario.consultado(entrada.id) }"
+        >
+          <h3>{{ entrada.termino }}</h3>
+          <p v-if="entrada.alias?.length" class="tenue alias">
+            también: {{ entrada.alias.join(', ') }}
+          </p>
+          <!-- Sin enlazar: dentro del glosario, enlazar al glosario no lleva a nada. -->
+          <Marcado class="definicion" :texto="entrada.definicion" :enlazar="false" />
+          <pre v-if="entrada.ejemplo"><code>{{ entrada.ejemplo }}</code></pre>
+        </article>
+      </div>
+    </section>
+
+    <p v-if="!grupos.length" class="panel centrado tenue">
       Nada con ese nombre. {{ nombreDe(camino.quien) }} pide disculpas y toma nota.
     </p>
   </div>
@@ -120,6 +147,11 @@ const entradas = computed(() => {
 
 .buscador { flex: 1; max-width: 320px; }
 .cuenta { font-size: 0.85rem; }
+
+.mundo-glosario { display: flex; flex-direction: column; gap: 10px; }
+.cabecera-mundo { justify-content: space-between; align-items: baseline; }
+.cabecera-mundo h2 { margin: 0; font-size: 1.05rem; color: var(--cobre-claro); }
+.cabecera-mundo span { font-size: 0.82rem; }
 
 .rejilla { display: grid; grid-template-columns: repeat(auto-fill, minmax(290px, 1fr)); gap: 14px; }
 .termino h3 { margin: 0 0 2px; font-size: 1rem; color: var(--cobre-claro); }

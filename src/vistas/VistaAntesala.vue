@@ -2,12 +2,27 @@
 import Avatar from '../componentes/Avatar.vue'
 import Marcado from '../componentes/Marcado.vue'
 import SombreroEscondido from '../componentes/SombreroEscondido.vue'
-import { ANTESALA } from '../contenido/antesala.js'
+import { computed } from 'vue'
+
+import { antesalaDe, primerMundoDe } from '../contenido/antesala.js'
 import { usarProgreso } from '../almacen/progreso.js'
+import { usarRumbo } from '../almacen/rumbo.js'
 
 const progreso = usarProgreso()
 // Con haberla abierto basta: a partir de aquí la portada deja de insistir.
 progreso.vistoLaAntesala = true
+
+/**
+ * La antesala del camino donde estés.
+ *
+ * Esta página no cuelga de ningún mundo -se abre desde la portada y desde la
+ * entrada-, así que el camino lo dice el rumbo. Antes explicaba «Qué es
+ * JavaScript» y «Qué es Vue» a quien había elegido PHP, nombraba a Wax y a
+ * Wayne, y su botón mandaba al primer mundo de la segunda era.
+ */
+const rumbo = usarRumbo()
+const antesala = computed(() => antesalaDe(rumbo.dondeEstoy))
+const primerMundo = computed(() => primerMundoDe(rumbo.dondeEstoy))
 </script>
 
 <template>
@@ -20,22 +35,22 @@ progreso.vistoLaAntesala = true
         <div>
           <p class="quien">Steris Harms</p>
           <h1>Antes de empezar</h1>
-          <Marcado class="entradilla tenue" :texto="ANTESALA.entradilla" />
+          <Marcado class="entradilla tenue" :texto="antesala.entradilla" />
         </div>
       </div>
     </section>
 
     <ol class="secciones">
-      <li v-for="(seccion, orden) in ANTESALA.secciones" :key="seccion.titulo" class="seccion panel">
+      <li v-for="(seccion, orden) in antesala.secciones" :key="seccion.titulo" class="seccion panel">
         <h2><span class="numero">{{ orden + 1 }}</span>{{ seccion.titulo }}</h2>
         <Marcado :texto="seccion.texto" />
       </li>
     </ol>
 
     <section class="panel cierre">
-      <Marcado :texto="ANTESALA.cierre" />
-      <RouterLink :to="{ name: 'mundo', params: { mundoId: 'primer-dia' } }" class="empezar">
-        Empezar por el primer día →
+      <Marcado :texto="antesala.cierre" />
+      <RouterLink :to="{ name: 'mundo', params: { mundoId: primerMundo.id } }" class="empezar">
+        Empezar por {{ primerMundo.nombre }} →
       </RouterLink>
     </section>
   </div>

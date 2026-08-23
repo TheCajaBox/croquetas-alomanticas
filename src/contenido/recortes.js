@@ -33,9 +33,9 @@ export const RECORTES = [
   {
     id: 'tres-pistas',
     titular: 'UN CIUDADANO COMPRA TRES PISTAS Y SIGUE SIN SABER NADA',
-    entradilla: 'El vendedor, un tal W., asegura que el producto se entregó en perfectas condiciones.',
+    entradilla: 'El vendedor asegura que el producto se entregó en perfectas condiciones.',
     consejo:
-      'Si has necesitado las tres pistas, el problema no era ese reto: era el concepto de antes. Vuelve al apunte de Wax y léelo entero. Es gratis y suele ser más rápido.',
+      'Si has necesitado las tres pistas, el problema no era ese reto: era el concepto de antes. Vuelve al apunte del reto anterior y léelo entero. Es gratis y suele ser más rápido.',
   },
   {
     id: 'sin-tocar-nada',

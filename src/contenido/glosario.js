@@ -1,3 +1,7 @@
+import { ENTORNOS } from '../motor/protocolo.js'
+import { ITINERARIOS, ITINERARIOS_POR_ID } from './itinerarios.js'
+import { MUNDOS_POR_ID, mundosDelItinerario } from './mundos.js'
+
 /**
  * El glosario de Steris.
  *
@@ -6,48 +10,71 @@
  * los apuntes -ver src/motor/enlazarTerminos.js- y se pueden pulsar allí donde
  * aparezcan, sin salir del reto.
  *
+ * ## Cada término tiene su sitio, y antes de su sitio no existe
+ *
+ * Cada entrada declara `desde`: **en qué mundo se enseña**, camino por camino.
+ * `{ era2: 'taller', era1: 'fundacion' }` significa que «clase» se explica en El
+ * taller si vienes por JavaScript y en La Fundación si vienes por PHP, y que
+ * antes de esos mundos no sale: ni en el glosario, ni enlazada en un enunciado,
+ * ni pulsable. Un camino que no aparece en `desde` es un camino donde ese
+ * término no existe -`ref` es de Vue, `foreach` es de PHP-.
+ *
+ * Esto sustituye a la etiqueta de lenguaje que había antes, y no es lo mismo:
+ * el lenguaje separaba `foreach` de `ref`, pero dejaba las cien entradas
+ * disponibles desde el primer reto. Medido en La Ceniza, el primer mundo de PHP:
+ * el glosario ofrecía 65 términos y **27 de ellos solo se enseñan en la segunda
+ * era** -`map`, `clase`, `herencia`, `sandbox`, `cache`-. Alguien en su tercer
+ * reto de la vida podía pulsar «herencia» y leer una definición de algo que no
+ * verá en cinco mundos. Ahora en La Ceniza hay 23.
+ *
+ * El mundo de cada término está escrito contra el temario real de su mundo -los
+ * títulos de sus doce retos- y no contra la primera vez que la palabra aparece
+ * en un texto: `clase` se menciona de pasada el primer día y se enseña en El
+ * taller, cuatro mundos después.
+ *
+ * ## Listado y alcanzable no son lo mismo
+ *
+ * `desde` decide lo que se **lista** y lo que se **enlaza**. Por id sigue
+ * alcanzando cualquier entrada (`entradaDe`), porque una definición puede citar
+ * un término de más adelante y dejar el enlace muerto sería peor.
+ *
  * Los `alias` son las otras formas de escribir lo mismo: plurales, sinónimos y
  * el nombre en inglés, que es como se va a encontrar el término por ahí fuera.
- *
- * ## El lenguaje, que es lo que decide qué se ve
- *
- * Casi todas las definiciones valen para cualquier lenguaje -una variable es un
- * nombre puesto a un valor en todos-, así que se escriben una vez. Lo que cambia
- * es el **ejemplo**, y ahí `ejemplo` puede ser un texto -vale para todos- o
- * `{ js, php }`.
- *
- * Y hay términos que **solo existen en un lenguaje**: `ref` y `computed` son de
- * Vue, y `foreach` y la interpolación son de PHP. Esos declaran `lenguajes` y
- * fuera de ahí no salen ni en el glosario ni enlazados en un enunciado. Sin
- * esto, Sazed explicaba «lista» con `['Wax', 'Marasi']` -sintaxis de
- * JavaScript- en un mundo de PHP.
+ * Y el **ejemplo** cambia con el lenguaje: `ejemplo` puede ser un texto -vale
+ * para todos- o `{ js, php }`. Sin eso, Sazed explicaba «lista» con
+ * `['Wax', 'Marasi']` -sintaxis de JavaScript- en un mundo de PHP.
  */
 export const GLOSARIO = [
   {
     id: "programa",
+    desde: { era2: 'primer-dia', era1: 'ceniza' },
     termino: "programa",
     alias: ["programas"],
     definicion: "Una lista de órdenes que el ordenador ejecuta una detrás de otra, de arriba abajo. Eso es todo lo que es.",
   },
   {
     id: "codigo",
+    desde: { era2: 'primer-dia', era1: 'ceniza' },
     termino: "código",
     definicion: "El texto de un programa. Se escribe con unas reglas muy estrictas: si sobra o falta un símbolo, el ordenador no lo entiende y se para.",
   },
   {
     id: "ejecutar",
+    desde: { era2: 'primer-dia', era1: 'ceniza' },
     termino: "ejecutar",
     alias: ["ejecuta", "ejecutarlo", "ejecución"],
     definicion: "Decirle al ordenador que haga lo que pone en el código, línea a línea y desde arriba.",
   },
   {
     id: "consola",
+    desde: { era2: 'primer-dia', era1: 'ceniza' },
     termino: "consola",
     definicion: "El sitio donde el programa escribe mensajes para que tú los leas. No los ve el usuario del programa: son para quien lo está haciendo.",
     ejemplo: { js: "console.log('estoy aquí')", php: "echo 'estoy aquí';" },
   },
   {
     id: "variable",
+    desde: { era2: 'primer-dia', era1: 'ceniza' },
     termino: "variable",
     alias: ["variables"],
     definicion: "Un nombre puesto a un valor para poder usarlo después. Guardas algo, le pones nombre, y a partir de ahí lo llamas por su nombre.",
@@ -55,12 +82,14 @@ export const GLOSARIO = [
   },
   {
     id: "valor",
+    desde: { era2: 'primer-dia', era1: 'ceniza' },
     termino: "valor",
     alias: ["valores"],
     definicion: "Un dato concreto: un texto, un número, una lista. Lo que se guarda dentro de una variable.",
   },
   {
     id: "declarar",
+    desde: { era2: 'primer-dia', era1: 'ceniza' },
     termino: "declarar",
     alias: ["declara", "declaras", "declaración", "declarada", "declarado"],
     definicion: "Crear una variable por primera vez, diciendo cómo se llama. Se hace una sola vez; después ya solo se usa.",
@@ -68,6 +97,7 @@ export const GLOSARIO = [
   },
   {
     id: "asignar",
+    desde: { era2: 'primer-dia', era1: 'ceniza' },
     termino: "asignar",
     alias: ["asigna", "asignarle", "asignación"],
     definicion: "Meter un valor dentro de una variable con el signo `=`. Ojo: `=` no significa «es igual a», significa «guarda esto ahí».",
@@ -75,6 +105,7 @@ export const GLOSARIO = [
   },
   {
     id: "constante",
+    desde: { era2: 'primer-dia' },
     termino: "constante",
     alias: ["constantes"],
     definicion: "Una variable a la que no se le puede asignar otro valor después de creada. Se declara con `const` y es lo que se usa por defecto.",
@@ -82,19 +113,22 @@ export const GLOSARIO = [
   },
   {
     id: "tipo",
+    desde: { era2: 'primer-dia', era1: 'ceniza' },
     termino: "tipo",
     alias: ["tipos"],
     definicion: "La clase de dato que es un valor: texto, número, booleano, lista u objeto. Importa porque no todos se pueden operar igual.",
   },
   {
     id: "texto",
+    desde: { era2: 'primer-dia', era1: 'ceniza' },
     termino: "texto",
     alias: ["textos", "cadena", "cadenas", "string"],
     definicion: "Un valor formado por caracteres. Va siempre entre comillas. `42` es un número; `'42'` es un texto que parece un número.",
-    ejemplo: "'Wayne'",
+    ejemplo: { js: "'Wayne'", php: "'Kelsier'" },
   },
   {
     id: "numero",
+    desde: { era2: 'primer-dia', era1: 'ceniza' },
     termino: "número",
     alias: ["números"],
     definicion: "Un valor con el que se puede hacer cuentas. Se escribe sin comillas y sin separadores de miles.",
@@ -102,6 +136,7 @@ export const GLOSARIO = [
   },
   {
     id: "booleano",
+    desde: { era2: 'comisaria', era1: 'ceniza' },
     termino: "booleano",
     alias: ["booleanos"],
     definicion: "Un valor que solo puede ser `true` (verdadero) o `false` (falso). Es lo que devuelven las comparaciones.",
@@ -109,20 +144,23 @@ export const GLOSARIO = [
   },
   {
     id: "lista",
+    desde: { era2: 'primer-dia', era1: 'ceniza' },
     termino: "lista",
     alias: ["listas", "array", "arrays"],
     definicion: "Varios valores guardados en orden, entre corchetes. Cada uno ocupa una posición, y la primera posición es la 0, no la 1.",
-    ejemplo: "['Wax', 'Marasi']",
+    ejemplo: { js: "['Wax', 'Marasi']", php: "['Kelsier', 'Brisa']" },
   },
   {
     id: "objeto",
+    desde: { era2: 'comisaria' },
     termino: "objeto",
     alias: ["objetos"],
     definicion: "Varios valores guardados con nombre, entre llaves. En vez de por posición, a cada uno se llega por su nombre.",
-    ejemplo: { js: "{ nombre: 'Wayne', edad: 37 }", php: "new Agente('Wayne')" },
+    ejemplo: { js: "{ nombre: 'Wayne', edad: 37 }", php: "new Agente('Kelsier')" },
   },
   {
     id: "propiedad",
+    desde: { era2: 'comisaria' },
     termino: "propiedad",
     alias: ["propiedades"],
     definicion: "Cada uno de los valores con nombre que tiene un objeto. Se lee poniendo un punto detrás del objeto.",
@@ -130,6 +168,7 @@ export const GLOSARIO = [
   },
   {
     id: "indice",
+    desde: { era2: 'comisaria', era1: 'ceniza' },
     termino: "índice",
     alias: ["índices"],
     definicion: "La posición que ocupa algo dentro de una lista. Empiezan en 0: el primer elemento es el índice 0.",
@@ -137,18 +176,19 @@ export const GLOSARIO = [
   },
   {
     id: "nulo",
+    desde: { era2: 'comisaria', era1: 'ceniza' },
     termino: "null",
     definicion: "Un valor que significa «aquí no hay nada, y consta que no lo hay». Es distinto de un cero o de un texto vacío.",
   },
   {
     id: "indefinido",
-    lenguajes: ["js"],
+    desde: { era2: 'primer-dia' },
     termino: "undefined",
     definicion: "Lo que hay dentro de algo que nunca se ha rellenado. Es la forma que tiene JavaScript de decir «esto no existe».",
   },
   {
     id: "plantilla-de-texto",
-    lenguajes: ["js"],
+    desde: { era2: 'primer-dia' },
     termino: "plantilla de texto",
     alias: ["plantillas de texto"],
     definicion: "Un texto entre comillas invertidas que permite meter valores dentro con `${...}`. Con comillas normales no funciona.",
@@ -156,6 +196,7 @@ export const GLOSARIO = [
   },
   {
     id: "funcion",
+    desde: { era2: 'primer-dia', era1: 'ceniza' },
     termino: "función",
     alias: ["funciones"],
     definicion: "Un trozo de programa con nombre, que se escribe una vez y se usa tantas veces como haga falta.",
@@ -163,6 +204,7 @@ export const GLOSARIO = [
   },
   {
     id: "parametro",
+    desde: { era2: 'primer-dia', era1: 'tripulacion' },
     termino: "parámetro",
     alias: ["parámetros"],
     definicion: "El hueco que una función deja para recibir un dato. Se declara entre los paréntesis del nombre.",
@@ -170,6 +212,7 @@ export const GLOSARIO = [
   },
   {
     id: "argumento",
+    desde: { era2: 'primer-dia', era1: 'tripulacion' },
     termino: "argumento",
     alias: ["argumentos"],
     definicion: "El valor concreto que le pasas a una función al usarla. El parámetro es el hueco; el argumento, lo que metes en él.",
@@ -177,13 +220,15 @@ export const GLOSARIO = [
   },
   {
     id: "llamar",
+    desde: { era2: 'primer-dia', era1: 'ceniza' },
     termino: "llamar",
     alias: ["llama", "llamada", "llamadas", "llamarla", "llamarlo"],
     definicion: "Usar una función, poniendo su nombre y unos paréntesis. Sin los paréntesis no la usas: solo la nombras.",
-    ejemplo: { js: "saludar('Wayne')", php: "saludar('Wayne');" },
+    ejemplo: { js: "saludar('Wayne')", php: "saludar('Kelsier');" },
   },
   {
     id: "devolver",
+    desde: { era2: 'primer-dia', era1: 'ceniza' },
     termino: "devolver",
     alias: ["devuelve", "devuelva", "devuelven", "return"],
     definicion: "Entregar un valor al que llamó a la función, con `return`. No es lo mismo que escribirlo por consola: `console.log` enseña, `return` entrega.",
@@ -191,7 +236,7 @@ export const GLOSARIO = [
   },
   {
     id: "funcion-flecha",
-    lenguajes: ["js"],
+    desde: { era2: 'es6' },
     termino: "función flecha",
     alias: ["funciones flecha", "flecha"],
     definicion: "Una forma corta de escribir una función. Además no tiene `this` propio: usa el del sitio donde está escrita, y por eso funciona dentro de un método.",
@@ -199,18 +244,21 @@ export const GLOSARIO = [
   },
   {
     id: "this",
+    desde: { era2: 'es6' },
     termino: "this",
     definicion: "Dentro de un método, el objeto sobre el que se está trabajando. Se pierde con facilidad si pasas una función normal a otro sitio.",
     ejemplo: { js: "this.nombres", php: "$this->nombres" },
   },
   {
     id: "ambito",
+    desde: { era2: 'es6', era1: 'tripulacion' },
     termino: "ámbito",
     alias: ["alcance", "scope"],
     definicion: "La zona del programa donde una variable existe. Fuera de su ámbito es como si no estuviera declarada.",
   },
   {
     id: "metodo",
+    desde: { era2: 'es6' },
     termino: "método",
     alias: ["métodos"],
     definicion: "Una función que vive dentro de un objeto. Se usa poniendo un punto: `objeto.metodo()`.",
@@ -218,6 +266,7 @@ export const GLOSARIO = [
   },
   {
     id: "bucle",
+    desde: { era2: 'comisaria', era1: 'ceniza' },
     termino: "bucle",
     alias: ["bucles"],
     definicion: "Una instrucción que repite algo muchas veces. Necesita siempre una condición de salida y algo que la acabe cumpliendo.",
@@ -225,6 +274,7 @@ export const GLOSARIO = [
   },
   {
     id: "bucle-infinito",
+    desde: { era2: 'comisaria', era1: 'tripulacion' },
     termino: "bucle infinito",
     alias: ["bucles infinitos"],
     definicion: "Un bucle al que se le ha olvidado la salida y repite para siempre. En este juego se corta solo a las cien mil vueltas.",
@@ -232,25 +282,28 @@ export const GLOSARIO = [
   },
   {
     id: "map",
+    desde: { era2: 'es6' },
     termino: "map",
     definicion: "Recorre una lista y devuelve otra lista nueva con cada elemento transformado. No toca la original.",
     ejemplo: { js: "precios.map((p) => p * 2)", php: "array_map(fn($p) => $p * 2, $precios)" },
   },
   {
     id: "filter",
+    desde: { era2: 'es6' },
     termino: "filter",
     definicion: "Recorre una lista y devuelve otra solo con los elementos que cumplen lo que le digas.",
     ejemplo: { js: "precios.filter((p) => p > 30)", php: "array_filter($precios, fn($p) => $p > 30)" },
   },
   {
     id: "reduce",
+    desde: { era2: 'es6' },
     termino: "reduce",
     definicion: "Recorre una lista y la aplasta en un solo valor: una suma, un total, un texto. El segundo argumento es el valor de partida.",
     ejemplo: { js: "precios.reduce((s, p) => s + p, 0)", php: "array_reduce($precios, fn($s, $p) => $s + $p, 0)" },
   },
   {
     id: "desestructurar",
-    lenguajes: ["js"],
+    desde: { era2: 'es6' },
     termino: "desestructurar",
     alias: ["desestructuración", "desestructurando"],
     definicion: "Sacar valores de un objeto o de una lista dándoles nombre en el mismo gesto, en vez de uno a uno.",
@@ -258,14 +311,14 @@ export const GLOSARIO = [
   },
   {
     id: "promesa",
-    lenguajes: ["js"],
+    desde: { era2: 'es6' },
     termino: "promesa",
     alias: ["promesas"],
     definicion: "Un valor que todavía no ha llegado: llegará luego, o fallará. Es lo que devuelve todo lo que tarda.",
   },
   {
     id: "asincrono",
-    lenguajes: ["js"],
+    desde: { era2: 'es6' },
     termino: "asíncrono",
     alias: ["asíncrona", "asincronía", "async", "await"],
     definicion: "Que no da el resultado al momento. `async` marca una función que espera; `await` es el punto donde espera sin bloquear el resto.",
@@ -273,14 +326,14 @@ export const GLOSARIO = [
   },
   {
     id: "componente",
-    lenguajes: ["js"],
+    desde: { era2: 'vue2' },
     termino: "componente",
     alias: ["componentes"],
     definicion: "Una pieza de interfaz con sus datos y su aspecto, que se puede usar muchas veces en la misma página.",
   },
   {
     id: "plantilla",
-    lenguajes: ["js"],
+    desde: { era2: 'vue2' },
     termino: "plantilla",
     alias: ["plantillas", "template"],
     definicion: "El HTML de un componente: lo que se ve. Ahí dentro los datos se pintan con dobles llaves.",
@@ -288,7 +341,7 @@ export const GLOSARIO = [
   },
   {
     id: "directiva",
-    lenguajes: ["js"],
+    desde: { era2: 'vue2' },
     termino: "directiva",
     alias: ["directivas"],
     definicion: "Un atributo de Vue que empieza por `v-` y le dice a la plantilla qué hacer: repetir algo, mostrarlo o esconderlo.",
@@ -296,7 +349,7 @@ export const GLOSARIO = [
   },
   {
     id: "prop",
-    lenguajes: ["js"],
+    desde: { era2: 'vue2' },
     termino: "prop",
     alias: ["props"],
     definicion: "Un dato que un componente padre le pasa a un hijo. El hijo lo usa pero no lo toca: es de quien lo manda.",
@@ -304,7 +357,7 @@ export const GLOSARIO = [
   },
   {
     id: "evento",
-    lenguajes: ["js"],
+    desde: { era2: 'vue2' },
     termino: "evento",
     alias: ["eventos"],
     definicion: "Un aviso de que ha pasado algo: una pulsación, un cambio en un campo. Se escucha con `@`.",
@@ -312,7 +365,7 @@ export const GLOSARIO = [
   },
   {
     id: "emitir",
-    lenguajes: ["js"],
+    desde: { era2: 'vue2' },
     termino: "emitir",
     alias: ["emite", "emitiendo"],
     definicion: "Que un componente hijo avise hacia arriba de que ha pasado algo, para que el padre decida qué hacer.",
@@ -320,40 +373,40 @@ export const GLOSARIO = [
   },
   {
     id: "reactividad",
-    lenguajes: ["js"],
+    desde: { era2: 'vue2' },
     termino: "reactividad",
     alias: ["reactivo", "reactiva"],
     definicion: "Que la pantalla se actualice sola cuando cambian los datos, sin que tengas que repintar nada a mano. Es la idea central de Vue.",
   },
   {
     id: "estado",
-    lenguajes: ["js"],
+    desde: { era2: 'vue2' },
     termino: "estado",
     definicion: "Los datos que un componente guarda y que pueden cambiar mientras se usa. Cuando cambian, la pantalla cambia.",
   },
   {
     id: "computed",
-    lenguajes: ["js"],
+    desde: { era2: 'vue2' },
     termino: "computed",
     definicion: "Un valor calculado a partir de otros que se guarda y solo se rehace cuando cambia algo de lo que usa.",
   },
   {
     id: "watch",
-    lenguajes: ["js"],
+    desde: { era2: 'vue2' },
     termino: "watch",
     alias: ["watcher", "watchers"],
     definicion: "Un vigilante que reacciona cuando un dato concreto cambia, y que recibe el valor nuevo y el viejo.",
   },
   {
     id: "ciclo-de-vida",
-    lenguajes: ["js"],
+    desde: { era2: 'vue2' },
     termino: "ciclo de vida",
     definicion: "Los momentos por los que pasa un componente: se crea, se pinta, cambia y se destruye. Puedes engancharte a cada uno.",
     ejemplo: "mounted, beforeDestroy",
   },
   {
     id: "ref",
-    lenguajes: ["js"],
+    desde: { era2: 'vue3' },
     termino: "ref",
     alias: ["refs"],
     definicion: "En Vue 3, una caja que envuelve un valor para poder vigilarlo. Dentro del código se abre con `.value`; en la plantilla, no.",
@@ -361,13 +414,13 @@ export const GLOSARIO = [
   },
   {
     id: "setup",
-    lenguajes: ["js"],
+    desde: { era2: 'vue3' },
     termino: "setup",
     definicion: "En Vue 3, la función donde se declara todo lo del componente y se devuelve lo que la plantilla vaya a necesitar.",
   },
   {
     id: "composable",
-    lenguajes: ["js"],
+    desde: { era2: 'vue3' },
     termino: "composable",
     alias: ["composables"],
     definicion: "Una función normal que crea estado reactivo y lo devuelve, para reutilizarla en varios componentes. Cada llamada crea su propio estado.",
@@ -375,24 +428,26 @@ export const GLOSARIO = [
   },
   {
     id: "dom",
-    lenguajes: ["js"],
+    desde: { era2: 'vue2' },
     termino: "DOM",
     definicion: "El árbol de elementos de una página web, tal y como lo tiene el navegador en memoria. Es lo que Vue actualiza por ti.",
   },
   {
     id: "test",
+    desde: { era2: 'primer-dia', era1: 'ceniza' },
     termino: "test",
     alias: ["tests"],
     definicion: "Una comprobación automática: llama a tu código con unos datos y mira si el resultado es el que debía ser.",
   },
   {
     id: "sandbox",
+    desde: { era2: 'primer-dia', era1: 'ceniza' },
     termino: "sandbox",
     definicion: "El sitio aislado donde este juego ejecuta tu código, separado del juego en sí, para que nada de lo que escribas pueda romperlo.",
   },
   {
     id: "modulo",
-    lenguajes: ["js"],
+    desde: { era2: 'elendel' },
     termino: "módulo",
     alias: ["módulos"],
     definicion:
@@ -401,7 +456,7 @@ export const GLOSARIO = [
   },
   {
     id: "importar",
-    lenguajes: ["js"],
+    desde: { era2: 'elendel' },
     termino: "importar",
     alias: ["importa", "importación", "import"],
     definicion:
@@ -410,7 +465,7 @@ export const GLOSARIO = [
   },
   {
     id: "exportar",
-    lenguajes: ["js"],
+    desde: { era2: 'elendel' },
     termino: "exportar",
     alias: ["exporta", "exportación", "export"],
     definicion:
@@ -419,6 +474,7 @@ export const GLOSARIO = [
   },
   {
     id: "json",
+    desde: { era2: 'elendel' },
     termino: "JSON",
     definicion:
       "El formato en que viajan casi todos los datos entre programas. Es texto, con las claves siempre entre comillas dobles. `JSON.parse` lo convierte en datos y `JSON.stringify` hace el camino de vuelta.",
@@ -426,6 +482,7 @@ export const GLOSARIO = [
   },
   {
     id: "expresion-regular",
+    desde: { era2: 'elendel' },
     termino: "expresión regular",
     alias: ["expresiones regulares", "regex"],
     definicion:
@@ -434,7 +491,7 @@ export const GLOSARIO = [
   },
   {
     id: "microtarea",
-    lenguajes: ["js"],
+    desde: { era2: 'elendel' },
     termino: "microtarea",
     alias: ["microtareas"],
     definicion:
@@ -442,7 +499,7 @@ export const GLOSARIO = [
   },
   {
     id: "cola-de-tareas",
-    lenguajes: ["js"],
+    desde: { era2: 'elendel' },
     termino: "cola de tareas",
     alias: ["bucle de eventos"],
     definicion:
@@ -450,6 +507,7 @@ export const GLOSARIO = [
   },
   {
     id: "acumulador",
+    desde: { era2: 'comisaria', era1: 'ceniza' },
     termino: "acumulador",
     definicion:
       "La variable que va guardando el resultado parcial mientras se recorre algo. En un `reduce` es el primer parámetro, y lo que devuelve una vuelta es lo que recibe la siguiente.",
@@ -457,6 +515,7 @@ export const GLOSARIO = [
   },
   {
     id: "cierre",
+    desde: { era2: 'taller' },
     termino: "cierre",
     alias: ["cierres", "closure"],
     definicion:
@@ -464,14 +523,16 @@ export const GLOSARIO = [
   },
   {
     id: "instancia",
+    desde: { era2: 'taller' },
     termino: "instancia",
     alias: ["instancias"],
     definicion:
       "Un objeto concreto hecho con el molde de una clase. La clase es el molde; la instancia, la pieza. Se crea con `new`.",
-    ejemplo: { js: "const wax = new Agente('Wax')", php: "$wax = new Agente('Wax');" },
+    ejemplo: { js: "const wax = new Agente('Wax')", php: "$brisa = new Agente('Brisa');" },
   },
   {
     id: "referencia",
+    desde: { era2: 'taller' },
     termino: "referencia",
     alias: ["referencias", "por referencia"],
     definicion:
@@ -479,7 +540,7 @@ export const GLOSARIO = [
   },
   {
     id: "slot",
-    lenguajes: ["js"],
+    desde: { era2: 'vue3' },
     termino: "slot",
     alias: ["slots"],
     definicion:
@@ -487,6 +548,7 @@ export const GLOSARIO = [
   },
   {
     id: "falsy",
+    desde: { era2: 'comisaria', era1: 'tripulacion' },
     termino: "falsy",
     alias: ["truthy"],
     definicion:
@@ -495,6 +557,7 @@ export const GLOSARIO = [
   },
   {
     id: "expresion",
+    desde: { era2: 'primer-dia', era1: 'ceniza' },
     termino: "expresión",
     alias: ["expresiones"],
     definicion:
@@ -503,7 +566,7 @@ export const GLOSARIO = [
   },
   {
     id: "propagacion",
-    lenguajes: ["js"],
+    desde: { era2: 'vue2' },
     termino: "propagación",
     alias: ["spread"],
     definicion:
@@ -512,7 +575,7 @@ export const GLOSARIO = [
   },
   {
     id: "resto",
-    lenguajes: ["js"],
+    desde: { era2: 'es6' },
     termino: "resto",
     alias: ["rest"],
     definicion:
@@ -521,6 +584,7 @@ export const GLOSARIO = [
   },
   {
     id: "ternario",
+    desde: { era2: 'comisaria', era1: 'tripulacion' },
     termino: "ternario",
     definicion:
       "Un `if` que vale un valor, en una línea: condición, interrogación, lo de sí, dos puntos, lo de no. Para elegir entre dos valores, no para hacer dos cosas.",
@@ -528,6 +592,7 @@ export const GLOSARIO = [
   },
   {
     id: "guarda",
+    desde: { era2: 'comisaria', era1: 'tripulacion' },
     termino: "cláusula de guarda",
     alias: ["guarda"],
     definicion:
@@ -536,6 +601,7 @@ export const GLOSARIO = [
   },
   {
     id: "efecto",
+    desde: { era2: 'vue3' },
     termino: "efecto secundario",
     alias: ["efecto"],
     definicion:
@@ -543,12 +609,14 @@ export const GLOSARIO = [
   },
   {
     id: "cache",
+    desde: { era2: 'vue2' },
     termino: "caché",
     definicion:
       "Guardarse el resultado de un cálculo para no repetirlo mientras no cambie nada de lo que depende. Es lo que hace un `computed`.",
   },
   {
     id: "refactorizar",
+    desde: { era2: 'melaan' },
     termino: "refactorizar",
     alias: ["refactorización"],
     definicion:
@@ -556,6 +624,7 @@ export const GLOSARIO = [
   },
   {
     id: "depurar",
+    desde: { era2: 'comisaria', era1: 'ceniza' },
     termino: "depurar",
     alias: ["depuración"],
     definicion:
@@ -563,6 +632,7 @@ export const GLOSARIO = [
   },
   {
     id: "clase",
+    desde: { era2: 'taller' },
     termino: "clase",
     alias: ["clases"],
     definicion:
@@ -571,6 +641,7 @@ export const GLOSARIO = [
   },
   {
     id: "constructor",
+    desde: { era2: 'taller' },
     termino: "constructor",
     definicion:
       "La función que prepara un objeto recién creado. La llama `new` por ti, una sola vez, y es donde se le ponen sus datos.",
@@ -578,6 +649,7 @@ export const GLOSARIO = [
   },
   {
     id: "herencia",
+    desde: { era2: 'taller' },
     termino: "herencia",
     alias: ["heredar"],
     definicion:
@@ -585,7 +657,7 @@ export const GLOSARIO = [
   },
   {
     id: "getter",
-    lenguajes: ["js"],
+    desde: { era2: 'taller' },
     termino: "getter",
     alias: ["getters"],
     definicion:
@@ -594,7 +666,7 @@ export const GLOSARIO = [
   },
   {
     id: "conjunto",
-    lenguajes: ["js"],
+    desde: { era2: 'taller' },
     termino: "Set",
     definicion:
       "Una colección sin repetidos. Preguntarle si algo está es inmediato, por muchos elementos que tenga.",
@@ -602,7 +674,7 @@ export const GLOSARIO = [
   },
   {
     id: "diccionario",
-    lenguajes: ["js"],
+    desde: { era2: 'taller', era1: 'tripulacion' },
     termino: "diccionario",
     definicion:
       "Una colección de pares clave-valor. En JavaScript, un objeto normal si las claves son texto y las conoces, o un `Map` si admiten cualquier cosa y crecen. (No lleva alias `Map` a propósito: chocaría con el método `map` de las listas, que es otra cosa.)",
@@ -610,7 +682,7 @@ export const GLOSARIO = [
   },
   {
     id: "ruta",
-    lenguajes: ["js"],
+    desde: { era2: 'ferrocarril' },
     termino: "ruta",
     alias: ["rutas", "enrutador"],
     definicion:
@@ -619,7 +691,7 @@ export const GLOSARIO = [
   },
   {
     id: "almacen",
-    lenguajes: ["js"],
+    desde: { era2: 'vue3' },
     termino: "almacén",
     alias: ["almacenes"],
     definicion:
@@ -627,7 +699,7 @@ export const GLOSARIO = [
   },
   {
     id: "gancho",
-    lenguajes: ["js"],
+    desde: { era2: 'vue2' },
     termino: "gancho",
     alias: ["ganchos"],
     definicion:
@@ -636,6 +708,7 @@ export const GLOSARIO = [
   },
   {
     id: "funcion-de-vuelta",
+    desde: { era2: 'es6' },
     termino: "función de vuelta",
     alias: ["callback"],
     definicion:
@@ -644,6 +717,7 @@ export const GLOSARIO = [
   },
   {
     id: "inmutable",
+    desde: { era2: 'taller' },
     termino: "inmutable",
     alias: ["inmutabilidad"],
     definicion:
@@ -652,6 +726,7 @@ export const GLOSARIO = [
   },
   {
     id: "traza",
+    desde: { era2: 'taller', era1: 'tripulacion' },
     termino: "traza",
     alias: ["trazar"],
     definicion:
@@ -660,89 +735,102 @@ export const GLOSARIO = [
   // ---- De PHP -------------------------------------------------------------
   {
     id: "echo",
+    desde: { era1: 'ceniza' },
     termino: "echo",
-    lenguajes: ["php"],
     definicion: "La orden de PHP para escribir algo en la salida. No es una función: no necesita paréntesis, y acaba en punto y coma como todo.",
     ejemplo: "echo 'Los Pozos de Hathsin';",
   },
   {
     id: "concatenar",
+    desde: { era1: 'ceniza' },
     termino: "concatenar",
     alias: ["concatenación", "pegar textos"],
-    lenguajes: ["php"],
     definicion: "Juntar dos textos para formar uno. En PHP se hace con un punto, no con un `+`: el `+` es para sumar números y con textos que no son números da error.",
     ejemplo: "'Hola, ' . $nombre",
   },
   {
     id: "interpolacion",
+    desde: { era1: 'ceniza' },
     termino: "interpolación",
     alias: ["interpolar"],
-    lenguajes: ["php"],
     definicion: "Que PHP mire dentro de un texto y sustituya las variables que encuentre. Pasa solo con comillas dobles; con comillas simples el texto sale tal cual, con el dólar y todo.",
     ejemplo: '"Llevo $cuantos de $metal"',
   },
   {
     id: "foreach",
+    desde: { era1: 'ceniza' },
     termino: "foreach",
-    lenguajes: ["php"],
     definicion: "El bucle de PHP para recorrer una lista de principio a fin, sin llevar la cuenta a mano. Con `as` se le pone nombre a cada elemento, y con `=>` se saca también su clave.",
     ejemplo: "foreach ($inventario as $metal => $cuantos) { ... }",
   },
   {
     id: "array-asociativo",
+    desde: { era1: 'tripulacion' },
     termino: "array asociativo",
     alias: ["arrays asociativos", "array con clave"],
-    lenguajes: ["php"],
     definicion: "Una lista en la que cada elemento tiene un nombre en vez de una posición. Es la estructura con la que se trabaja de verdad en PHP: lo que en otros lenguajes serían un objeto y un diccionario, aquí son esto.",
     ejemplo: "['acero' => 4, 'peltre' => 2]",
   },
   {
     id: "clave",
+    desde: { era2: 'comisaria', era1: 'tripulacion' },
     termino: "clave",
     alias: ["claves"],
-    lenguajes: ["php"],
-    definicion: "El nombre con el que se guarda un valor dentro de un array asociativo. No se repite: asignar dos veces la misma clave sobrescribe lo que hubiera.",
-    ejemplo: "$inventario['acero']",
+    definicion: "El nombre con el que se guarda un valor dentro de un objeto o de un array asociativo. No se repite: asignar dos veces la misma clave sobrescribe lo que hubiera.",
+    ejemplo: { js: "inventario['acero']", php: "$inventario['acero']" },
   },
   {
     id: "isset",
+    desde: { era1: 'tripulacion' },
     termino: "isset",
-    lenguajes: ["php"],
     definicion: "Pregunta si una variable o una clave existe **y** no vale null. Es lo que hay que usar antes de leer algo que puede no estar, porque pedir una clave que no existe da un aviso.",
     ejemplo: "if (isset($inventario['oro'])) { ... }",
   },
   {
-    id: "coalescencia-php",
+    id: "coalescencia",
+    // Se llamaba `coalescencia-php` y solo existía en la primera era, así que
+    // en Los Áridos había un reto entero -«El azúcar que se usa de verdad»-
+    // enseñando `??` sin una sola palabra que poder pulsar. Es el mismo
+    // operador en los dos lenguajes y ahora es la misma entrada.
+    desde: { era2: 'es6', era1: 'tripulacion' },
     termino: "??",
-    alias: ["operador de coalescencia"],
-    lenguajes: ["php"],
-    definicion: "«Lo que haya a la izquierda, y si no hay nada, lo de la derecha.» Sirve para leer una clave que puede no existir sin avisos y sin un `if`.",
-    ejemplo: "$cuantos = $inventario[$metal] ?? 0;",
+    alias: ["operador de coalescencia", "coalescencia nula"],
+    definicion: "«Lo que haya a la izquierda, y si no hay nada, lo de la derecha.» Sirve para leer algo que puede no estar sin avisos y sin un `if`. Ojo: solo salta con `null`; un cero o un texto vacío **sí** son algo.",
+    ejemplo: { js: "const cuantos = inventario[metal] ?? 0", php: "$cuantos = $inventario[$metal] ?? 0;" },
+  },
+  {
+    id: "encadenamiento-opcional",
+    desde: { era2: 'es6' },
+    termino: "?.",
+    alias: ["encadenamiento opcional"],
+    definicion: "Pide algo de dentro de otra cosa **solo si esa cosa existe**. Si no existe, en vez de reventar, el resultado entero vale nulo. Ahorra el `if` de comprobar cada paso del camino.",
+    ejemplo: { js: "agente.sombrero?.color" },
   },
   {
     id: "var-dump",
+    desde: { era1: 'ceniza' },
     termino: "var_dump",
-    lenguajes: ["php"],
     definicion: "Imprime el tipo y el contenido de lo que le des, con detalle. Es la herramienta con la que se arregla la mitad de lo que se rompe: `echo` de un `true` y de un `'1'` se ven igual, y `var_dump` los distingue.",
     ejemplo: "var_dump($cuantos);   // int(3)",
   },
   {
     id: "comparacion-estricta",
+    desde: { era2: 'comisaria', era1: 'ceniza' },
     termino: "comparación estricta",
     alias: ["===", "!=="],
-    lenguajes: ["php"],
-    definicion: "Comparar exigiendo que el tipo también coincida. `1 == '1'` es cierto porque PHP convierte; `1 === '1'` es falso. La costumbre buena es usar `===` por defecto.",
-    ejemplo: "if ($cantidad === 0) { ... }",
+    definicion: "Comparar exigiendo que el tipo también coincida. `1 == '1'` es cierto, porque el lenguaje convierte uno de los dos para poder compararlos; `1 === '1'` es falso. La costumbre buena es usar `===` por defecto y `==` solo cuando sepas por qué.",
+    ejemplo: { js: "if (cantidad === 0) { ... }", php: "if ($cantidad === 0) { ... }" },
   },
   {
     id: "intdiv",
+    desde: { era1: 'tripulacion' },
     termino: "intdiv",
-    lenguajes: ["php"],
     definicion: "Divide dos enteros y se queda con la parte entera, sin decimales. Es lo que se usa para porcentajes y repartos cuando el resultado tiene que ser un número redondo.",
     ejemplo: "intdiv($importe * 10, 100)",
   },
   {
     id: "valor-por-defecto",
+    desde: { era2: 'es6', era1: 'tripulacion' },
     termino: "valor por defecto",
     alias: ["parámetro opcional"],
     definicion: "Un valor que un parámetro toma cuando quien llama a la función no lo pasa. Los parámetros que lo tienen van al final: los argumentos se pasan por posición y no hay forma de saltarse uno de en medio.",
@@ -761,61 +849,159 @@ export const TERMINOS_BUSCABLES = GLOSARIO.flatMap((entrada) =>
   [entrada.termino, ...(entrada.alias ?? [])].map((texto) => ({ texto, id: entrada.id })),
 ).sort((a, b) => b.texto.length - a.texto.length)
 
-/** Si esa entrada se enseña en ese lenguaje. Sin `lenguajes`, en todos. */
-const esDe = (entrada, lenguaje) => !entrada.lenguajes || entrada.lenguajes.includes(lenguaje)
-
 /** El ejemplo que le toca a ese lenguaje, ya como texto. */
 const ejemploDe = (entrada, lenguaje) =>
   typeof entrada.ejemplo === 'object' && entrada.ejemplo !== null
     ? entrada.ejemplo[lenguaje] ?? null
     : entrada.ejemplo ?? null
 
+/** Los itinerarios donde se ejecuta ese lenguaje. */
+const caminosDe = (lenguaje) =>
+  ITINERARIOS.filter((cada) => cada.lenguajes.includes(lenguaje)).map((cada) => cada.id)
+
+/** En qué caminos se enseña una entrada. */
+const caminosDeLaEntrada = (entrada) => Object.keys(entrada.desde ?? {})
+
+const preparar = (entrada, lenguaje) => ({ ...entrada, ejemplo: ejemploDe(entrada, lenguaje) })
+
+const ordenar = (entradas) => [...entradas]
+
+const buscablesDe = (entradas) =>
+  entradas
+    .flatMap((entrada) =>
+      [entrada.termino, ...(entrada.alias ?? [])].map((texto) => ({ texto, id: entrada.id })),
+    )
+    .sort((a, b) => b.texto.length - a.texto.length)
+
 /**
- * El glosario tal y como se lee desde un lenguaje: sin los términos que allí no
- * existen y con el ejemplo que le corresponde.
+ * El glosario entero de un lenguaje: lo que se enseña en alguno de los caminos
+ * que se juegan con él, con el ejemplo que le corresponde.
  *
- * Se guarda lo calculado porque lo piden el panel, la página del glosario y el
- * enlazado de cada enunciado, y son cien entradas cada vez.
+ * Es lo que enseña la **página** del glosario, que se abre desde la barra y
+ * fuera de todo mundo: ahí sí se ve el temario completo del camino, agrupado por
+ * mundos, que es media gracia de mirarlo. Dentro de un reto manda
+ * `glosarioHasta`, que es más estrecho.
+ *
+ * Se guarda lo calculado porque lo piden el panel, la página y el enlazado de
+ * cada enunciado, y son cien entradas cada vez.
  */
 const porLenguaje = new Map()
 
 export function glosarioDe(lenguaje = 'js') {
   if (!porLenguaje.has(lenguaje)) {
+    const caminos = caminosDe(lenguaje)
     porLenguaje.set(
       lenguaje,
-      GLOSARIO.filter((entrada) => esDe(entrada, lenguaje)).map((entrada) => ({
-        ...entrada,
-        ejemplo: ejemploDe(entrada, lenguaje),
-      })),
+      ordenar(
+        GLOSARIO.filter((entrada) =>
+          caminosDeLaEntrada(entrada).some((camino) => caminos.includes(camino)),
+        ),
+      ).map((entrada) => preparar(entrada, lenguaje)),
     )
   }
   return porLenguaje.get(lenguaje)
 }
 
-/** Una entrada vista desde un lenguaje, o null si allí no existe. */
-export function entradaDe(id, lenguaje = 'js') {
-  return glosarioDe(lenguaje).find((entrada) => entrada.id === id) ?? null
+/**
+ * El glosario tal y como está cuando llegas a un mundo: lo que ese mundo enseña
+ * y lo que enseñaron los anteriores de su camino. Nada de más adelante.
+ *
+ * Esto es lo que se ve **dentro** de un reto, y es lo que arregla el problema de
+ * verdad. Antes, en el tercer reto de La Ceniza, el glosario ofrecía «herencia»
+ * y «reduce»: términos de mundos que ese jugador no ha visto y, dos de ellos, de
+ * un camino que no está jugando.
+ */
+const porMundo = new Map()
+
+export function glosarioHasta(mundoId) {
+  if (!porMundo.has(mundoId)) {
+    const mundo = MUNDOS_POR_ID[mundoId]
+    const camino = mundo?.itinerario
+    const hermanos = mundosDelItinerario(camino ?? '').map((cada) => cada.id)
+    const hasta = hermanos.indexOf(mundoId)
+    const lenguaje = ENTORNOS[mundo?.entorno]?.lenguaje ?? 'js'
+    // Sin mundo -o un mundo que no existe- se responde el glosario del camino
+    // entero y no una lista vacía: quedarse sin glosario por una ruta rara es
+    // peor que enseñar de más.
+    if (!mundo || hasta < 0) {
+      porMundo.set(mundoId, glosarioDe(lenguaje))
+    } else {
+      porMundo.set(
+        mundoId,
+        ordenar(
+          GLOSARIO.filter((entrada) => {
+            const suyo = entrada.desde?.[camino]
+            if (!suyo) return false
+            const cuando = hermanos.indexOf(suyo)
+            return cuando >= 0 && cuando <= hasta
+          }),
+        ).map((entrada) => preparar(entrada, lenguaje)),
+      )
+    }
+  }
+  return porMundo.get(mundoId)
 }
 
 /**
- * Los términos que se marcan en un texto de ese lenguaje.
+ * Una entrada por su id, vista desde un lenguaje.
  *
- * Mismo orden que `TERMINOS_BUSCABLES` -del más largo al más corto, para que
- * «función flecha» se detecte entera antes que «función»- y sin los que no son
- * de ahí.
+ * A propósito **sin filtrar por mundo**: una definición puede citar un término
+ * de más adelante, y dejar ese enlace muerto sería peor que enseñarlo. Lo que
+ * `desde` decide es lo que se lista y lo que se detecta solo en un texto; por su
+ * nombre se alcanza siempre.
+ */
+export function entradaDe(id, lenguaje = 'js') {
+  const entrada = GLOSARIO_POR_ID[id]
+  if (!entrada) return null
+  const caminos = caminosDe(lenguaje)
+  if (!caminosDeLaEntrada(entrada).some((camino) => caminos.includes(camino))) return null
+  return preparar(entrada, lenguaje)
+}
+
+/**
+ * Los términos que se marcan en un texto, del más largo al más corto para que
+ * «función flecha» se detecte entera antes que «función».
  */
 const buscablesPorLenguaje = new Map()
 
 export function terminosBuscablesDe(lenguaje = 'js') {
   if (!buscablesPorLenguaje.has(lenguaje)) {
-    buscablesPorLenguaje.set(
-      lenguaje,
-      glosarioDe(lenguaje)
-        .flatMap((entrada) =>
-          [entrada.termino, ...(entrada.alias ?? [])].map((texto) => ({ texto, id: entrada.id })),
-        )
-        .sort((a, b) => b.texto.length - a.texto.length),
-    )
+    buscablesPorLenguaje.set(lenguaje, buscablesDe(glosarioDe(lenguaje)))
   }
   return buscablesPorLenguaje.get(lenguaje)
+}
+
+/**
+ * Y los que se marcan dentro de un mundo: solo lo que ya se ha enseñado ahí.
+ *
+ * Que un enunciado use una palabra no significa que el jugador pueda pulsarla:
+ * si el término se enseña tres mundos más adelante, marcarla es ofrecer una
+ * definición que no toca todavía.
+ */
+const buscablesPorMundo = new Map()
+
+export function terminosBuscablesHasta(mundoId) {
+  if (!buscablesPorMundo.has(mundoId)) {
+    buscablesPorMundo.set(mundoId, buscablesDe(glosarioHasta(mundoId)))
+  }
+  return buscablesPorMundo.get(mundoId)
+}
+
+/**
+ * El glosario de un camino, partido por mundos y en orden de juego.
+ *
+ * Para la página del glosario: ver «esto es de La Ceniza y esto de La
+ * tripulación» es la mitad de la información. Un mundo sin términos propios no
+ * sale.
+ */
+export function glosarioPorMundos(itinerarioId) {
+  const lenguaje = ITINERARIOS_POR_ID[itinerarioId]?.lenguajes[0] ?? 'js'
+  return mundosDelItinerario(itinerarioId)
+    .map((mundo) => ({
+      mundo,
+      entradas: GLOSARIO.filter((entrada) => entrada.desde?.[itinerarioId] === mundo.id).map(
+        (entrada) => preparar(entrada, lenguaje),
+      ),
+    }))
+    .filter((grupo) => grupo.entradas.length > 0)
 }

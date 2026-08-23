@@ -1072,6 +1072,41 @@ test('cerrar un mundo de la primera era manda al repaso de quien lo lleva', asyn
   await expect(cierre.getByRole('link', { name: /repaso de Marasi/ })).toHaveCount(0)
 })
 
+test('un término no se puede pulsar antes del mundo que lo enseña', async ({ page }) => {
+  // El glosario iba por lenguaje, así que dentro de un reto ofrecía las cien
+  // entradas desde el primero: en Los Áridos se podía pulsar «clase» -que se
+  // enseña en El taller, un mundo después- y leer una definición que no toca.
+  // La palabra sigue estando en el enunciado; lo que no está es el botón.
+  await irAlReto(page, 'es6-01-const-let')
+  await expect(page.locator('.enunciado')).toContainText('clase')
+  await expect(page.locator('[data-termino="clase"]')).toHaveCount(0)
+  // Y lo que su mundo sí ha enseñado, se pulsa.
+  await expect(page.locator('[data-termino]').first()).toBeVisible()
+
+  // Dos mundos más adelante, la misma palabra ya es suya.
+  await irAlReto(page, 'taller-02-herencia')
+  await expect(page.locator('[data-termino="clase"]').first()).toBeVisible()
+  await page.locator('[data-termino="clase"]').first().click()
+  await expect(page.locator('.ficha .definicion')).not.toBeEmpty()
+})
+
+test('la página del glosario va por mundos y en orden de juego', async ({ page }) => {
+  // Ver «esto es de La Ceniza y esto de La tripulación» es media información:
+  // antes eran cien tarjetas en un montón alfabético.
+  await page.goto('#/glosario')
+  const titulares = page.locator('.cabecera-mundo h2')
+  await expect(titulares.first()).toHaveText('El primer día')
+  const cuantos = await titulares.count()
+  expect(cuantos).toBeGreaterThan(4)
+
+  // En el camino de PHP, sus dos mundos y en su orden.
+  await page.locator('.caminos-glosario button', { hasText: 'PHP' }).click()
+  await expect(page.locator('.cabecera-mundo h2')).toHaveText(['La Ceniza', 'La tripulación'])
+  // `foreach` cae en La Ceniza, que es donde su apunte lo explica.
+  const laCeniza = page.locator('.mundo-glosario').first()
+  await expect(laCeniza.locator('.termino h3', { hasText: /^foreach$/ })).toHaveCount(1)
+})
+
 test('la pestaña tiene su icono, y no hay un 404 en cada carga', async ({ page }) => {
   // El sitio no declaraba ninguno, así que el navegador pedía /favicon.ico por
   // su cuenta -en la raíz del dominio, que no es nuestra- y se llevaba un 404
