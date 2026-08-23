@@ -257,6 +257,49 @@ export const POR_CAMINO = {
       ),
     },
   ],
+
+  sel: [
+    {
+      titulo: "Qué es programar mirando quién va a intentar romperlo",
+      texto: codigo(
+        "Este camino no enseña un lenguaje: enseña una manera de mirar el código que ya",
+        "sabes escribir. Se escribe en **JavaScript**, y en un mundo también en SQL, porque",
+        "una inyección no se entiende sin una base de datos recibiéndola.",
+        "",
+        "Y por eso hace falta avisar de una cosa antes de entrar: **aquí se da por sabido",
+        "programar**. No hace falta ser bueno, y sí hace falta haber escrito una función,",
+        "haber recorrido una lista y haber visto un error en pantalla. Si eso todavía no,",
+        "los otros tres caminos están ahí y no se van a mover.",
+        "",
+        "Lo que cambia es el punto de vista. En los demás caminos el código de partida está",
+        "**incompleto**: falta una función, hay un hueco, no compila. Aquí está **completo y",
+        "funciona**: hace lo que promete, pasa sus pruebas y lo firmaría cualquiera. Lo que",
+        "tiene es un agujero, y los tests son la entrada hostil que tiene que rebotar.",
+      ),
+    },
+    {
+      titulo: "Lo que aquí se practica, y lo que no",
+      texto: codigo(
+        "Lo que se practica es **defender**: escribir el validador, la comprobación de",
+        "permisos, la consulta parametrizada, la comparación que no se chiva. Todo dentro",
+        "del sandbox del propio juego, con la base de datos y el motor de JavaScript que ya",
+        "usan los otros caminos.",
+        "",
+        "Lo que no hay, y es a propósito: **ni herramientas ni blancos**. Aquí no se ataca",
+        "nada de nadie, no se enseña a usar ningún programa de intrusión y no hay una sola",
+        "dirección de internet a la que apuntar. Los ataques que verás son cadenas de texto",
+        "dentro de un test, y el trabajo es que reboten.",
+        "",
+        "Se ataca para entender, y eso sí: en varios retos hay que leer el ataque antes de",
+        "tapar el agujero, porque una defensa escrita sin saber de qué defiende no defiende",
+        "de nada. Pero el que ataca aquí es un test, y lo que está atacando es tu código.",
+        "",
+        "Y una cosa que conviene saber de antemano: **es un camino incómodo**. Cuando lo",
+        "acabes vas a ver estos agujeros en tu propio código de hace un año, y en el de",
+        "cualquier sitio donde entres. Eso no se quita.",
+      ),
+    },
+  ],
 }
 
 /** Los huecos que se rellenan con el camino donde estés. */

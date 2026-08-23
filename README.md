@@ -1,8 +1,21 @@
 # Gatos y Código
 
-Un juego para aprender **JavaScript ES6, Vue 2 y Vue 3** escribiendo código de verdad.
-Lo narra **Wayne**, de *Nacidos de la Bruma: era 2*, que comenta lo que haces, te vende
-pistas y te recuerda que le des de comer al gato.
+Un juego para aprender a programar escribiendo código de verdad, en **cuatro caminos** que
+se eligen al entrar y no compiten entre sí:
+
+| Camino | Qué se aprende | Quién narra | Mundos |
+|---|---|---|---|
+| **La segunda era** | JavaScript ES6, Vue 2 y Vue 3 | Wayne | 9 |
+| **La primera era** | PHP, del `echo` a las interfaces | Brisa, y le interrumpe Ham | 6 |
+| **Elantris** | SQL: preguntar bien a los datos | Raoden, y le interrumpe Galladon | 6 |
+| **El alma del emperador** | Ciberseguridad: encontrar el agujero y taparlo | Shai, y le interrumpe Gaotona | 6 |
+
+Veintisiete mundos y 306 retos. Cada camino tiene su materia, su reparto y su lenguaje
+**ejecutándose de verdad** —JavaScript con acorn y un worker, PHP 8.5 compilado a
+WebAssembly, SQLite en el navegador—, que es lo que distingue esto de un cuestionario.
+
+Lo que sí se comparte, a propósito: las croquetas, los gatos, sus bonos, los sombreros, los
+recortes y las insignias. Lo ganaste tú, no lo ganó un camino.
 
 No hay respuestas de opción múltiple: escribes código, se ejecuta en un sandbox aislado y
 se comprueba con tests. Lo que ganas se paga en **croquetas**, y con las croquetas se cuida
@@ -22,7 +35,7 @@ El progreso se guarda en el navegador (`localStorage`), sin cuentas ni servidore
 y el ordenador son partidas distintas; en **Ajustes** hay exportar e importar para pasarla
 de uno a otro.
 
-## Los nueve mundos
+## Los nueve mundos de la segunda era
 
 | Mundo | Qué se aprende | Retos |
 |---|---|---|
@@ -284,12 +297,17 @@ salen tengan de sobra y que no haya dos frases repetidas en todo el juego.
 Cada itinerario declara con qué se ejecuta lo que escribe el jugador, y el motor tiene un
 **frente por lenguaje** (`src/motor/lenguajes/`) que decide qué se mira antes de ejecutar:
 
-| | JavaScript | PHP |
-|---|---|---|
-| ¿Se entiende? | acorn, aquí mismo | el `ParseError` de PHP al incluir el fichero |
-| ¿Cumple las reglas del reto? | el árbol de acorn | `token_get_all()` dentro del sandbox |
-| Bucle sin salida | contador inyectado | se mata el worker, que ya se hacía |
-| Tests | `public/sandbox/aserciones.js` | `sandbox-php/aserciones.php`, mismas palabras |
+| | JavaScript | PHP | SQL |
+|---|---|---|---|
+| ¿Se entiende? | acorn, aquí mismo | el `ParseError` de PHP al incluir el fichero | el error de sintaxis de SQLite |
+| ¿Cumple las reglas del reto? | el árbol de acorn | `token_get_all()` dentro del sandbox | patrones sobre la consulta, con los literales y los comentarios en blanco |
+| Bucle sin salida | contador inyectado | se mata el worker, que ya se hacía | se mata el worker |
+| Tests | `public/sandbox/aserciones.js` | `sandbox-php/aserciones.php`, mismas palabras | las mismas aserciones, sobre las filas |
+
+Y los retos de SQL pueden traer **entradas**: valores que el reto le mete a la consulta y
+que SQLite ata **como parámetros**, igual que el motor de verdad. Eso es lo que permite
+enseñar la inyección con la base delante: con `WHERE nombre = :quien`, un `' OR 1=1 --` es
+el nombre de nadie; pegado dentro de la consulta, se lleva la tabla. Y el test lo distingue.
 
 Antes esto no existía y `evaluarEnvio` daba por hecho que todo era JavaScript: el primer reto
 de PHP contestaba «tu código no se puede ni leer» señalando la línea 1. Un entorno cuyo

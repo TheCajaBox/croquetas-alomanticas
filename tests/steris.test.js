@@ -6,7 +6,8 @@ import { beforeEach, describe, expect, it } from 'vitest'
 
 import { GLOSARIO, TERMINOS_BUSCABLES, entradaDe } from '../src/contenido/glosario.js'
 import { IMPREVISTOS, traducirImprevisto } from '../src/contenido/imprevistos.js'
-import { ANTESALA, antesalaDe, primerMundoDe } from '../src/contenido/antesala.js'
+import { ANTESALA, POR_CAMINO, antesalaDe, primerMundoDe } from '../src/contenido/antesala.js'
+import { ITINERARIOS } from '../src/contenido/itinerarios.js'
 import { mundosDelItinerario } from '../src/contenido/mundos.js'
 import { retosDelMundo } from '../src/contenido/retos/index.js'
 import { enlazarTerminos } from '../src/motor/enlazarTerminos.js'
@@ -191,12 +192,34 @@ describe('la lista de imprevistos traduce los errores', () => {
 
 describe('la antesala', () => {
   it('cubre lo que hace falta antes de empezar, en los dos caminos', () => {
-    for (const camino of ['era2', 'era1']) {
+    for (const camino of ITINERARIOS.map((cada) => cada.id)) {
       const antesala = antesalaDe(camino)
       expect(antesala.secciones.length, camino).toBeGreaterThanOrEqual(5)
       for (const seccion of antesala.secciones) {
         expect(seccion.titulo, camino).toBeTruthy()
         expect(seccion.texto.length, `${camino}/${seccion.titulo}`).toBeGreaterThan(150)
+      }
+    }
+  })
+
+  it('cada camino trae su propia sección de lenguaje, y no la hereda', () => {
+    // `antesalaDe` cae en la de la segunda era cuando un camino no declara la
+    // suya, y eso es lo que le pasaba a Sel: le explicaba Vue a quien había
+    // elegido seguridad. Con los cuatro declarados, dos caminos distintos no
+    // pueden traer la misma sección.
+    // Los títulos sí se pueden repetir -«Por qué empezar por aquí» vale para
+    // dos caminos- y el texto no: eso sería el mismo temario con otro nombre.
+    const textos = new Map()
+    for (const cada of ITINERARIOS) {
+      const suyas = POR_CAMINO[cada.id]
+      expect(suyas, `${cada.id} no declara su antesala`).toBeTruthy()
+      expect(suyas.length, `${cada.id}: pocas secciones propias`).toBeGreaterThanOrEqual(2)
+      for (const seccion of suyas) {
+        expect(
+          textos.get(seccion.texto) ?? cada.id,
+          `una sección de ${cada.id} está copiada de otro camino`,
+        ).toBe(cada.id)
+        textos.set(seccion.texto, cada.id)
       }
     }
   })
@@ -240,7 +263,7 @@ describe('la antesala', () => {
   it('las cuentas que da son las de verdad', () => {
     // Decía «siete mundos, cincuenta y seis retos» cuando ya eran nueve y
     // noventa, y en la primera era decía eso mismo teniendo dos mundos.
-    for (const camino of ['era2', 'era1']) {
+    for (const camino of ITINERARIOS.map((cada) => cada.id)) {
       const mundos = mundosDelItinerario(camino)
       const retos = mundos.reduce((suma, mundo) => suma + retosDelMundo(mundo.id).length, 0)
       const todo = antesalaDe(camino).secciones.map((s) => s.texto).join(' ')
