@@ -1291,6 +1291,136 @@ export const GLOSARIO = [
       "Pega los resultados de dos consultas uno debajo del otro. Tienen que traer el mismo número de columnas y en el mismo orden. `UNION` quita los duplicados -y por eso cuesta-; `UNION ALL` no los quita y es el que se quiere casi siempre.",
     ejemplo: "SELECT nombre FROM gremios UNION ALL SELECT nombre FROM puestos",
   },
+  // ---------------------------------------------------------------------------
+  // Sel · seguridad. Aquí las palabras importan más que en ningún otro camino:
+  // media discusión inútil de esta materia sale de que dos personas usan la
+  // misma palabra para dos cosas distintas -«cifrar» por «hashear»,
+  // «autenticar» por «autorizar»- y tardan media hora en darse cuenta.
+  // ---------------------------------------------------------------------------
+  {
+    id: "texto-claro",
+    desde: { sel: 'sello' },
+    termino: "texto claro",
+    alias: ["en claro", "plaintext"],
+    definicion:
+      "El dato tal cual se escribió, sin transformar. No es un formato: es la ausencia de formato. Se usa casi siempre en negativo -«esto no se guarda en texto claro»- y una contraseña guardada así está robada el día que alguien copie la tabla.",
+    ejemplo: "{ usuario: 'shai', clave: 'abeja14' }   // así no",
+  },
+  {
+    id: "hash",
+    desde: { sel: 'sello' },
+    termino: "hash",
+    alias: ["hashes", "huella", "resumen"],
+    definicion:
+      "Firma de un texto que va en un solo sentido: del texto sale la firma y de la firma no vuelve el texto. Mide siempre lo mismo, el mismo texto da siempre la misma firma, y cambiar una letra la cambia entera. Con eso se puede comprobar una contraseña sin haberla guardado.",
+    ejemplo: "hash('abeja14')   // '9f2c4a71…'",
+  },
+  {
+    id: "hashear",
+    desde: { sel: 'sello' },
+    termino: "hashear",
+    alias: ["hasheado", "hasheada"],
+    definicion:
+      "Calcular el hash de algo. No es cifrar, y la diferencia se decide con una sola pregunta: lo cifrado se descifra -para eso se cifra-, y el hash no vuelve.",
+  },
+  {
+    id: "cifrar",
+    desde: { sel: 'sello' },
+    termino: "cifrar",
+    alias: ["cifrado", "descifrar", "encriptar"],
+    definicion:
+      "Transformar algo con una llave para poder recuperarlo después con esa misma llave. Sirve para lo que hay que leer más adelante, no para las contraseñas: si el servidor puede descifrarlas, quien se lleve el servidor también.",
+  },
+  {
+    id: "hash-lento",
+    desde: { sel: 'sello' },
+    termino: "hash lento",
+    alias: ["bcrypt", "argon2", "scrypt"],
+    definicion:
+      "Un hash hecho a propósito para costar tiempo, repitiendo la cuenta miles de veces. Tú comprobarás una contraseña por sesión y no notarás un décimo de segundo; quien roba la tabla tiene que probar millones, y ahí un décimo de segundo es la diferencia entre una tarde y varios siglos.",
+    ejemplo: "hashLento(sal + ':' + clave, 100000)",
+  },
+  {
+    id: "factor-de-trabajo",
+    desde: { sel: 'sello' },
+    termino: "factor de trabajo",
+    alias: ["vueltas", "iteraciones"],
+    definicion:
+      "Cuántas veces repite la cuenta un hash lento. Es un dial que se sube con los años, a medida que los ordenadores se abaratan: el mismo número que hoy tarda un décimo de segundo, dentro de diez años tardará mucho menos y habrá que subirlo.",
+  },
+  {
+    id: "sal",
+    desde: { sel: 'sello' },
+    termino: "sal",
+    alias: ["sales", "salt"],
+    definicion:
+      "Texto distinto para cada cuenta que se mezcla con la contraseña antes de hashear. No es un secreto y se guarda al lado de la huella: su trabajo no es esconder nada, es que dos contraseñas iguales dejen de dar la misma firma y que no se puedan precalcular las más usadas.",
+    ejemplo: "hashLento(sal + ':' + clave, 1000)",
+  },
+  {
+    id: "fuerza-bruta",
+    desde: { sel: 'sello' },
+    termino: "fuerza bruta",
+    definicion:
+      "Probar candidatos uno a uno hasta acertar. Es lo único que le queda a quien roba una tabla bien guardada, y es contra lo que protege el hash lento: no hace imposible el ataque, lo hace caro.",
+  },
+  {
+    id: "tabla-precalculada",
+    desde: { sel: 'sello' },
+    termino: "tabla precalculada",
+    alias: ["rainbow table", "tabla arcoíris"],
+    definicion:
+      "Un diccionario de firma a contraseña calculado de antemano con las contraseñas más usadas. Se descarga hecho, y hace que la lentitud del hash no sirva de nada: lo lento se pagó una vez, no una vez por cuenta. Es exactamente lo que rompe la sal.",
+  },
+  {
+    id: "autenticar",
+    desde: { sel: 'sello' },
+    termino: "autenticar",
+    alias: ["autenticación", "identificarse"],
+    definicion:
+      "Comprobar que alguien es quien dice ser. Se hace una vez, al entrar. No confundir con autorizar, que es comprobar qué puede hacer y se hace cada vez: casi todos los agujeros graves están en la segunda.",
+  },
+  {
+    id: "credencial",
+    desde: { sel: 'sello' },
+    termino: "credencial",
+    alias: ["credenciales"],
+    definicion:
+      "Cualquier cosa que sirva para demostrar quién eres. Una contraseña lo es, y también el identificador de una sesión: robar una sesión es tan bueno como robar una contraseña, y más cómodo, porque no hay nada que adivinar.",
+  },
+  {
+    id: "sesion",
+    desde: { sel: 'sello' },
+    termino: "sesión",
+    alias: ["sesiones"],
+    definicion:
+      "El papel que demuestra que ya pasaste por la puerta, para no tener que enviar la contraseña en cada petición. Lo que viaja es un número largo y aleatorio; quién eres lo guarda el servidor en su tabla, no el papel.",
+    ejemplo: "{ id: azarLargo(32), usuario: 'shai', caducaEn: ahora + 900000 }",
+  },
+  {
+    id: "caducidad",
+    desde: { sel: 'sello' },
+    termino: "caducidad",
+    alias: ["caducar", "expiración"],
+    definicion:
+      "Cuándo deja de valer una sesión. Hacen falta dos y protegen de cosas distintas: la absoluta mata la sesión pase lo que pase -contra la sesión robada que el ladrón mantiene viva- y la de inactividad la cierra si nadie la usa -contra el ordenador que alguien deja abierto-.",
+  },
+  {
+    id: "tiempo-constante",
+    desde: { sel: 'sello' },
+    termino: "tiempo constante",
+    alias: ["canal lateral", "ataque por temporización"],
+    definicion:
+      "Comparar de forma que el trabajo no dependa del dato secreto: recorriendo el texto entero y contestando al final, en vez de salir en la primera diferencia. Salir pronto cuenta cuántas letras acertaste, y con eso una clave se adivina letra a letra en vez de entera.",
+    ejemplo: "crypto.timingSafeEqual(una, otra)",
+  },
+  {
+    id: "enumeracion-de-usuarios",
+    desde: { sel: 'sello' },
+    termino: "enumeración de usuarios",
+    definicion:
+      "Averiguar quién está dado de alta sin entrar en ninguna cuenta, porque el sistema contesta distinto -o tarda distinto- con un usuario que existe y con uno que no. No abre ninguna puerta y sigue siendo una filtración: dice quién es cliente de dónde.",
+  },
 ]
 
 export const GLOSARIO_POR_ID = Object.fromEntries(GLOSARIO.map((entrada) => [entrada.id, entrada]))

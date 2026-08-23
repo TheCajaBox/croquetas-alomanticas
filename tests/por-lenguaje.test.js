@@ -125,19 +125,23 @@ describe('el glosario, según el camino', () => {
     expect(terminosBuscablesDe('php')).toBe(terminosBuscablesDe('php'))
   })
 
-  it('un camino sin un solo mundo escrito no aporta ni un término', () => {
-    // Esta prueba decía «SQL tiene el glosario vacío» y era verdad mientras SQL
-    // no tenía mundos. Ahora tiene Kae, así que lo que se comprueba es lo que
-    // siempre quiso comprobar: que **un camino sin mundos no presta términos de
-    // otro**. Sel usa SQL igual que Elantris y todavía no tiene nada escrito, así
-    // que ninguna entrada puede declararse suya: prestarle las de Elantris sería
-    // prometer un temario que no existe.
-    const sinMundos = ITINERARIOS.filter((cada) => mundosDelItinerario(cada.id).length === 0)
-    expect(sinMundos.length, 'si ya están los cuatro caminos, esto se puede borrar').toBeGreaterThan(0)
-    for (const itinerario of sinMundos) {
-      const suyas = GLOSARIO.filter((cada) => cada.desde[itinerario.id]).map((cada) => cada.id)
-      expect(suyas, `${itinerario.id} no tiene mundos y ya declara términos`).toEqual([])
+  it('ningún término se declara de un mundo que no es de su camino', () => {
+    // Esta prueba nació como «SQL tiene el glosario vacío», luego pasó a ser «un
+    // camino sin mundos no presta términos de otro», y las dos versiones se han
+    // quedado sin caso: los cuatro caminos tienen mundos escritos. Lo que queda
+    // es la invariante que las dos querían proteger de verdad, y esta no caduca:
+    // que un `desde` apunte a un mundo **de ese camino**. Escribir
+    // `desde: { sel: 'kae' }` -copiando la entrada de al lado- no fallaría nada:
+    // el término simplemente no saldría nunca en ninguna de las dos páginas.
+    const colados = []
+    for (const itinerario of ITINERARIOS) {
+      const suyos = new Set(mundosDelItinerario(itinerario.id).map((mundo) => mundo.id))
+      for (const entrada of GLOSARIO) {
+        const donde = entrada.desde?.[itinerario.id]
+        if (donde && !suyos.has(donde)) colados.push(`${entrada.id}: ${itinerario.id} → ${donde}`)
+      }
     }
+    expect(colados).toEqual([])
 
     // Y un mundo que no existe no revienta el glosario: devuelve el del camino
     // entero, que es enseñar de más y nunca de menos.

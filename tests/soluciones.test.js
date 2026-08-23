@@ -116,7 +116,7 @@ describe('las tandas de práctica están bien montadas', () => {
 describe('todos los retos traen apunte, y pistas los que deben', () => {
   for (const reto of RETOS) {
     it(reto.id, () => {
-      expect(hayApunte(reto.id), 'sin apunte de Wax').toBe(true)
+      expect(hayApunte(reto.id), `${reto.id} no tiene apunte`).toBe(true)
 
       // Los jefes no llevan pistas: cierran un mundo y todo lo que hace falta
       // ya se ha visto en los retos de antes. Ahí solo queda Armonía, y poco.
