@@ -510,6 +510,8 @@ test('Ham interrumpe en la primera era, y no aparece en la segunda', async ({ pa
   // Y a los cinco segundos le corta Ham, que es lo que hace Ham.
   await expect(page.locator('.narrador .quien')).toHaveText('Ham', { timeout: 15_000 })
   await expect(page.locator('.narrador .dice')).toContainText(/pregunt/i)
+  // Y con su cara, que ya tiene: una imagen y no el disco con su inicial.
+  await expect(page.locator('.narrador img.avatar.retrato')).toBeVisible()
 
   // En la segunda era no hay nadie puesto para interrumpir, así que no
   // interrumpe nadie: el reparto lo decide, no el código.

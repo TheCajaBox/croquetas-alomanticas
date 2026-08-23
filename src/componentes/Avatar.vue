@@ -7,6 +7,7 @@ import armonia from '../recursos/armonia-avatar.webp'
 import brisa from '../recursos/brisa-avatar.webp'
 import elend from '../recursos/elend-avatar.webp'
 import fantasma from '../recursos/fantasma-avatar.webp'
+import ham from '../recursos/ham-avatar.webp'
 import kelsier from '../recursos/kelsier-avatar.webp'
 import sazed from '../recursos/sazed-avatar.webp'
 import tensoon from '../recursos/tensoon-avatar.webp'
@@ -62,12 +63,22 @@ import wax from '../recursos/wax-avatar.webp'
  * que sale en el bocadillo. Subirlas de más -se probó- lo convertía en un perro
  * gris, y el suyo es negro.
  *
+ * Ham es el cuarto, y el mismo caso que Vin: su ilustración es un amanecer sobre
+ * la ceniza, y el fondo justo al lado de su cabeza (217,161,138) y su frente
+ * (196,141,120) son el mismo color, así que no hay regla que los separe. Se
+ * queda la escena. Lo que costó fue que no se leyera como el agujero claro de la
+ * fila: apagarla entera la dejaba turbia, y apagar solo el aro del borde le
+ * ponía un foco de teatro. Lo que funciona es el encuadre: un busto, con la cara
+ * arriba y el chaleco llenando la mitad de abajo -como el de Wax-, y entonces la
+ * bruma clara solo queda en las esquinas de arriba, que el círculo ya recorta.
+ * Con eso, un apagado suave del borde basta.
+ *
  * Se importan como módulos para que Vite les ponga su hash y su ruta base;
  * escritas a mano, esas rutas se romperían al publicar en GitHub Pages.
  */
 const CARAS = {
   wayne, wax, steris, marasi, melaan, armonia,
-  brisa, kelsier, sazed, vin, elend, tensoon, fantasma,
+  brisa, kelsier, sazed, vin, elend, tensoon, fantasma, ham,
 }
 
 /**
