@@ -4,7 +4,6 @@ import { precioDePista } from '../contenido/retos/comun.js'
 import { FASES, evaluarEnvio } from '../motor/ejecutor.js'
 import { TIEMPO_LIMITE_MS } from '../motor/protocolo.js'
 import { lenguajeDelMundo } from '../contenido/dondeEstas.js'
-import { traducirImprevisto } from '../contenido/imprevistos.js'
 import { MUNDOS_POR_ID } from '../contenido/mundos.js'
 import { repartoDelMundo } from '../contenido/itinerarios.js'
 import { usarEconomia } from './economia.js'
@@ -322,10 +321,21 @@ export const usarJuego = defineStore('juego', {
 
       // Steris tiene el error previsto en su lista: si lo sabe traducir, lo
       // dice ella, que para eso es la anfitriona de los cimientos.
+      //
+      // La lista se pide con `import()` y no se importa arriba: son 21 kB de
+      // traducciones de errores, este almacén lo monta `main.js` al arrancar, y
+      // lo único que se hace aquí con ellas es decidir si Steris tiene una frase
+      // más. Se pide dentro del `if`, así que en los otros veintiséis mundos no
+      // se pide nunca. Y la frase sale un tic más tarde, que en un bocadillo no
+      // se nota.
       const mundo = MUNDOS_POR_ID[reto?.mundo]
       const suLenguaje = lenguajeDelMundo(reto?.mundo)
-      if (mundo?.anfitrion === 'steris' && traducirImprevisto(resultado.error?.mensaje, suLenguaje)) {
-        narrador.decirAnfitrion(mundo, 'previsto')
+      if (mundo?.anfitrion === 'steris') {
+        import('../contenido/imprevistos.js').then(({ traducirImprevisto }) => {
+          if (traducirImprevisto(resultado.error?.mensaje, suLenguaje)) {
+            narrador.decirAnfitrion(mundo, 'previsto')
+          }
+        })
       }
       const dicho = (() => {
         switch (resultado.fase) {

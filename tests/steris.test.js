@@ -156,6 +156,24 @@ describe('la lista de imprevistos traduce los errores', () => {
     })
   }
 
+  it('la lista no viaja en el arranque', () => {
+    // `almacen/juego.js` lo monta `main.js` al arrancar, y lo único que hacía
+    // con estas 21 kB de traducciones era decidir si Steris tiene una frase más
+    // en su mundo. Ahora se piden con `import()` dentro del `if`, así que en los
+    // otros veintiséis mundos no se piden nunca.
+    const fuente = readFileSync(
+      fileURLToPath(new URL('../src/almacen/juego.js', import.meta.url)),
+      'utf8',
+    )
+    const importa = fuente.split('\n').filter((linea) => /^\s*import\s/.test(linea))
+    expect(
+      importa.filter((linea) => /imprevistos\.js/.test(linea)),
+      'el almacén ha vuelto a importar la lista de imprevistos',
+    ).toEqual([])
+    // Y sigue pidiéndola donde hace falta.
+    expect(fuente).toMatch(/import\('\.\.\/contenido\/imprevistos\.js'\)/)
+  })
+
   it('no inventa una traducción para lo que no reconoce', () => {
     expect(traducirImprevisto('algo rarísimo que nadie ha visto')).toBeNull()
     expect(traducirImprevisto(null)).toBeNull()
