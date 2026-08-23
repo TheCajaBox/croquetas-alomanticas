@@ -1310,6 +1310,42 @@ test('el editor de un reto de SQL colorea SQL, y el wasm de SQLite no viaja en e
   expect(pedidos.filter((cada) => /php_8_5\.wasm/.test(cada))).toEqual([])
 })
 
+test('el final de Elantris son dos actos, y el segundo es el que más paga del juego', async ({ page }) => {
+  // La misma forma que el final de la primera era, medida en el camino nuevo: la
+  // etiqueta del acto se ve antes de entrar, ninguno de los dos vende pistas, y
+  // el acto II es el jefe. Se siembra con el ayudante, que sabe que el acto II
+  // pide además los cinco mundos anteriores.
+  const todos = await todosLosRetos()
+  await sembrarLoAnterior(page, todos.linea.at(-1))
+  await page.goto('#/')
+  await page.reload()
+
+  await page.goto('#/mundo/linea')
+  await expect(page.locator('.etiqueta.acto')).toHaveCount(2)
+  await expect(page.locator('.etiqueta.acto').first()).toHaveText('acto I')
+  await expect(page.locator('.etiqueta.acto').last()).toHaveText('acto II')
+
+  // Se recarga después de cada salto porque la vista sale con una transición:
+  // mientras la anterior se va, su DOM sigue ahí y los localizadores encuentran
+  // dos de cada cosa.
+  await page.goto(`#/reto/${todos.linea.at(-2)}`)
+  await page.reload()
+  await expect(page.locator('.etiqueta.acto')).toHaveText('acto I')
+  await expect(page.locator('.pistas .lista')).toHaveCount(0)
+  await expect(page.locator('.pistas .cerrado')).toBeVisible()
+
+  await page.goto(`#/reto/${todos.linea.at(-1)}`)
+  await page.reload()
+  await expect(page.locator('.etiqueta.acto')).toHaveText('acto II')
+  await expect(page.locator('.etiqueta.jefe')).toHaveText('jefe')
+  await expect(page.locator('.pistas .lista')).toHaveCount(0)
+  // Y quien no vende aquí es Karata, que es quien trae las pistas en Elantris.
+  await expect(page.locator('.pistas h3')).toHaveText('Pistas de Karata')
+
+  // Los apuntes de este camino los firma Raoden.
+  await expect(page.locator('.apunte .titulo')).toContainText('El apunte de Raoden')
+})
+
 test('la pestaña tiene su icono, y no hay un 404 en cada carga', async ({ page }) => {
   // El sitio no declaraba ninguno, así que el navegador pedía /favicon.ico por
   // su cuenta -en la raíz del dominio, que no es nuestra- y se llevaba un 404

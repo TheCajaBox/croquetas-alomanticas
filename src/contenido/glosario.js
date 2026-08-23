@@ -1259,6 +1259,32 @@ export const GLOSARIO = [
       "Lo que la base va a hacer para contestar, contado en un par de frases. `SCAN` es recorrer la tabla entera; `SEARCH … USING INDEX` es ir directo. Es la única manera de saber si un índice sirve de algo en vez de suponerlo.",
     ejemplo: "EXPLAIN QUERY PLAN SELECT * FROM ventas WHERE puesto_id = 1",
   },
+  // ---- SQL · La línea que falta -----------------------------------------
+  {
+    id: "case-when",
+    desde: { elantris: 'linea' },
+    termino: "CASE WHEN",
+    definicion:
+      "El `if` de SQL, y va donde iría una columna. Se prueban las condiciones en orden y gana la primera verdadera. Sin `ELSE`, lo que no encaje sale a nulo, que casi nunca es lo que se quiere.",
+    ejemplo: "CASE WHEN total > 200 THEN 'fuerte' ELSE 'flojo' END AS estado",
+  },
+  {
+    id: "coalesce",
+    desde: { elantris: 'linea' },
+    termino: "COALESCE",
+    definicion:
+      "Devuelve el primero de sus argumentos que no sea nulo. Es como se decide qué significa un hueco en un informe: `COALESCE(SUM(monedas), 0)` dice «si no hay nada que sumar, cero». Y decirlo es una decisión, porque un nulo y un cero no significan lo mismo.",
+    ejemplo: "COALESCE(g.nombre, 'sin gremio') AS gremio",
+  },
+  {
+    id: "union-sql",
+    desde: { elantris: 'linea' },
+    termino: "UNION",
+    alias: ["UNION ALL"],
+    definicion:
+      "Pega los resultados de dos consultas uno debajo del otro. Tienen que traer el mismo número de columnas y en el mismo orden. `UNION` quita los duplicados -y por eso cuesta-; `UNION ALL` no los quita y es el que se quiere casi siempre.",
+    ejemplo: "SELECT nombre FROM gremios UNION ALL SELECT nombre FROM puestos",
+  },
 ]
 
 export const GLOSARIO_POR_ID = Object.fromEntries(GLOSARIO.map((entrada) => [entrada.id, entrada]))

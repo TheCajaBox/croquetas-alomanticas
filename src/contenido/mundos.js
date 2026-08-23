@@ -350,6 +350,22 @@ export const MUNDOS = [
     despedida:
       'Ya sabes trazar. Y sabes las dos cosas que hay que saber antes de tocar una base de verdad: que un `WHERE` se prueba con un `SELECT` antes de ponerle un `DELETE` delante, y que las reglas van en el esquema porque ahí las cumple todo el mundo.',
   },
+  {
+    id: 'linea',
+    nombre: 'La línea que falta',
+    subtitulo: 'SQL · el final, en dos actos',
+    itinerario: 'elantris',
+    entorno: 'sql',
+    requiere: 'trazos',
+    color: '#8a5fa8',
+    anfitrion: 'raoden',
+    resumen:
+      'Todo lo de los cinco mundos anteriores junto, y al final dos actos: encontrar la línea que falta y trazarla. El segundo es el reto que más paga del camino y no tiene pistas.',
+    presentacion:
+      'Aquí no hay nada nuevo. Un aon al que le falta una línea no hace nada, y no avisa: no humea, no se rompe, no da error. Simplemente no hace nada, o hace otra cosa. Con las consultas pasa igual, y ese ha sido el hilo de los cinco mundos. Los dos últimos retos van juntos: en el primero hay que encontrar la línea que falta en un informe que casi funciona, y en el segundo trazarla y hacer que el informe entero salga bien. Ninguno tiene pistas. Si llegas al segundo y lo pasas, ya no te hace falta este juego para la parte de SQL.',
+    despedida:
+      'Ya está. Sabes preguntarle a una base de datos exactamente lo que necesitas, unir sin perder filas, resumir sin contar de más, escribir sin llevarte de paso lo que no era, y saber por qué tarda. Lo que queda por aprender se aprende trabajando, y eso no lo puede dar ningún juego.',
+  },
 ]
 
 export const MUNDOS_POR_ID = Object.fromEntries(MUNDOS.map((mundo) => [mundo.id, mundo]))
