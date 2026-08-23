@@ -3,14 +3,14 @@ import { computed } from 'vue'
 import SombreroEscondido from '../componentes/SombreroEscondido.vue'
 
 import { RECORTES } from '../contenido/recortes.js'
-import { TRASTOS, TRASTOS_POR_ID } from '../contenido/trastos.js'
+import { TRASTOS, TRASTOS_POR_ID, trastosDelCamino } from '../contenido/trastos.js'
 import { usarEconomia } from '../almacen/economia.js'
 
 import { porqueDe } from '../contenido/insignias.js'
 import { usarInsignias } from '../almacen/insignias.js'
 import { usarRecortes } from '../almacen/recortes.js'
 import { usarRumbo } from '../almacen/rumbo.js'
-import { ITINERARIOS_POR_ID } from '../contenido/itinerarios.js'
+import { ITINERARIOS, ITINERARIOS_POR_ID } from '../contenido/itinerarios.js'
 import { nombreDe } from '../contenido/personajes.js'
 
 const economia = usarEconomia()
@@ -47,6 +47,26 @@ const mios = computed(() =>
     veces: economia.trastos.filter((otro) => otro === id).length,
   })),
 )
+
+/**
+ * El cajón, ordenado por el camino de donde salió cada cosa.
+ *
+ * Cada camino tiene el suyo -Wayne intercambia, Fantasma guarda por si acaso,
+ * Karata vive donde nada se tira y Han ShuXen entrega material con su
+ * procedencia-, así que verlos revueltos perdía la mitad de la gracia: junta el
+ * mendrugo de Luthadel con el informe de tres líneas de un general de Sel y no
+ * se entiende ninguno de los dos.
+ *
+ * Solo salen los caminos de los que tengas algo. Un apartado vacío diría
+ * «aquí falta algo», y no falta: es que no has pedido pistas allí.
+ */
+const porCaminos = computed(() =>
+  ITINERARIOS.map((itinerario) => ({
+    itinerario,
+    suyos: mios.value.filter((trasto) => trasto.camino === itinerario.id),
+    cuantos: trastosDelCamino(itinerario.id).length,
+  })).filter((grupo) => grupo.suyos.length > 0),
+)
 </script>
 
 <template>
@@ -65,15 +85,24 @@ const mios = computed(() =>
       </p>
     </section>
 
-    <div v-if="mios.length" class="rejilla">
-      <article v-for="trasto in mios" :key="trasto.id" class="trasto panel">
-        <div class="fila cabecera">
-          <h3>{{ trasto.nombre }}</h3>
-          <span v-if="trasto.veces > 1" class="etiqueta">×{{ trasto.veces }}</span>
+    <template v-if="mios.length">
+      <section v-for="grupo in porCaminos" :key="grupo.itinerario.id" class="de-un-camino">
+        <h2 class="de-donde" :style="{ '--tono': grupo.itinerario.color }">
+          <span class="punto" aria-hidden="true" />
+          {{ grupo.itinerario.nombre }}
+          <span class="cuantos tenue">{{ grupo.suyos.length }} de {{ grupo.cuantos }}</span>
+        </h2>
+        <div class="rejilla">
+          <article v-for="trasto in grupo.suyos" :key="trasto.id" class="trasto panel">
+            <div class="fila cabecera">
+              <h3>{{ trasto.nombre }}</h3>
+              <span v-if="trasto.veces > 1" class="etiqueta">×{{ trasto.veces }}</span>
+            </div>
+            <p class="tenue nota">{{ trasto.nota }}</p>
+          </article>
         </div>
-        <p class="tenue nota">{{ trasto.nota }}</p>
-      </article>
-    </div>
+      </section>
+    </template>
 
     <section v-else class="panel centrado">
       <p class="tenue">De momento no hay trastos. Enhorabuena: no has pedido ni una pista de pago.</p>
@@ -130,6 +159,24 @@ const mios = computed(() =>
 </template>
 
 <style scoped>
+.de-un-camino + .de-un-camino { margin-top: 26px; }
+.de-donde {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  margin: 0 0 12px;
+  font-size: 0.95rem;
+  font-weight: 650;
+}
+.de-donde .punto {
+  width: 9px;
+  height: 9px;
+  border-radius: 50%;
+  background: var(--tono);
+  box-shadow: 0 0 9px color-mix(in srgb, var(--tono) 65%, transparent);
+}
+.de-donde .cuantos { font-weight: 400; font-size: 0.8rem; font-variant-numeric: tabular-nums; }
+
 .insignia h3 { margin: 0 0 6px; font-size: 0.98rem; color: var(--cobre-claro); }
 .insignia p { margin: 0; font-size: 0.86rem; }
 

@@ -80,7 +80,7 @@ export const usarJuego = defineStore('juego', {
 
     /**
      * Compra una pista. La primera es gratis; las otras se pagan, y a cambio
-     * Wayne deja un trasto sin ningún valor.
+     * Quien las vende deja un trasto sin ningún valor.
      */
     comprarPista(reto, nivel) {
       const progreso = usarProgreso()
@@ -121,7 +121,11 @@ export const usarJuego = defineStore('juego', {
         { nivel: nivel + 1, forzar: true, personaje: repartoDelMundo(MUNDOS_POR_ID[reto.mundo]).pistas },
       )
 
-      const trasto = precio > 0 && !cortesiaDeCobre ? economia.recibirTrasto() : null
+      // Del cajón del camino donde estés, que es de donde sale quien te la vende.
+      const trasto =
+        precio > 0 && !cortesiaDeCobre
+          ? economia.recibirTrasto(MUNDOS_POR_ID[reto.mundo]?.itinerario)
+          : null
       if (trasto) narrador.decir('trastoRecibido', { trasto: trasto.nombre })
       return { ok: true, pista, precio, trasto, cortesiaDeCobre }
     },

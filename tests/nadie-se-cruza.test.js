@@ -13,6 +13,7 @@ import { PERSONAJES } from '../src/contenido/personajes.js'
 import { RECORTES } from '../src/contenido/recortes.js'
 import { REPASOS } from '../src/contenido/repasos/index.js'
 import { cargarTodosLosRetos, retosDelMundo } from '../src/contenido/retos/index.js'
+import { TRASTOS, trastosDelCamino } from '../src/contenido/trastos.js'
 
 /**
  * Nadie sale en un camino que no es el suyo.
@@ -108,6 +109,14 @@ function loQueVe(itinerarioId) {
     trozos.push([`insignia/${insignia.id}`, `${insignia.nombre} ${porqueDe(insignia, itinerarioId)}`])
   }
 
+  // Los trastos, que es por donde se colaron dieciséis sin que nada fallara: los
+  // daba Wayne y hablaban de Wayne, de Elendel y de los Áridos, y en Elantris te
+  // los entregaba Karata de parte de un hombre que está a mil años de allí.
+  // Solo los de este camino: cada uno tiene su cajón.
+  for (const trasto of trastosDelCamino(itinerarioId)) {
+    trozos.push([`trasto/${trasto.id}`, `${trasto.nombre} ${trasto.nota}`])
+  }
+
   for (const mundo of mundosDelItinerario(itinerarioId)) {
     trozos.push([
       `mundo/${mundo.id}`,
@@ -175,5 +184,34 @@ describe('nadie sale en un camino que no es el suyo', () => {
     }
     const suma = ITINERARIOS.reduce((total, cada) => total + mundosDelItinerario(cada.id).length, 0)
     expect(suma).toBe(MUNDOS.length)
+  })
+})
+
+/**
+ * Y que ningún camino se quede sin cajón.
+ *
+ * `trastosDelCamino` cae en los de la segunda era cuando un camino no tiene
+ * propios -mejor entregar algo de otro sitio que dejar la pista sin su parte de
+ * comedia-, y esa red de seguridad es justo lo que haría desaparecer el fallo
+ * sin avisar: los cuatro caminos volverían a hablar de Wayne y la prueba de
+ * arriba lo cazaría, pero un camino nuevo entraría con el cajón prestado y en
+ * silencio.
+ */
+describe('cada camino tiene su propio cajón de trastos', () => {
+  it('ninguno vive del prestado, y ninguno baja de diez', () => {
+    for (const itinerario of ITINERARIOS) {
+      const suyos = TRASTOS.filter((trasto) => trasto.camino === itinerario.id)
+      expect(suyos.length, `${itinerario.id} no tiene trastos propios`).toBeGreaterThanOrEqual(10)
+    }
+  })
+
+  it('todo trasto es de un camino que existe, y no hay ids repetidos', () => {
+    const caminos = new Set(ITINERARIOS.map((cada) => cada.id))
+    for (const trasto of TRASTOS) {
+      expect(caminos.has(trasto.camino), `${trasto.id} dice ser de «${trasto.camino}»`).toBe(true)
+      expect(trasto.nota.length, `${trasto.id} sin nota`).toBeGreaterThan(20)
+    }
+    const ids = TRASTOS.map((cada) => cada.id)
+    expect(new Set(ids).size, 'ids de trasto repetidos').toBe(ids.length)
   })
 })
