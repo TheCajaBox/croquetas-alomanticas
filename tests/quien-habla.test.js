@@ -55,6 +55,34 @@ const A_PROPOSITO = {
   'PanelResultados.vue': 'armonia',
 }
 
+/**
+ * Y lo mismo para los nombres escritos **en la prosa**, que es por donde se
+ * colaron tres.
+ *
+ * El `quien="…"` estaba cazado y el texto no, así que los ajustes decían «cuánto
+ * habla Wayne» en los cuatro caminos -y Wayne no habla en tres-, y el cajón
+ * -que no pertenece a ningún camino- decía «Wayne no roba: intercambia» cuando
+ * los trastos los da Fantasma, Karata o Han ShuXen según dónde estés.
+ *
+ * Cada entrada dice **por qué** ese nombre puede ir a mano ahí. Si añades una y
+ * no sabes escribir el motivo, es que hay que preguntarle al reparto.
+ */
+const EN_LA_PROSA = {
+  // Pantallas de la segunda era y de nadie más: la sombrerera y la casa de los
+  // gatos solo existen en Elendel, así que allí Wayne es siempre Wayne.
+  'VistaSombrerera.vue': ['Wayne'],
+  // La antesala es de Steris y no es de ningún camino: la escribió ella.
+  'VistaAntesala.vue': ['Steris'],
+  // La entrada tampoco es de ningún camino, y la lista de la antesala la firma
+  // ella. La casa de los gatos, solo cuando la hay.
+  'VistaEntrada.vue': ['Steris'],
+  'VistaInicio.vue': ['Steris', 'Wayne'],
+  // Armonía habla en todos los caminos, que es lo que la hace Armonía.
+  'VistaAjustes.vue': ['Armonía'],
+  'PanelArmonia.vue': ['Armonía'],
+  'PanelResultados.vue': ['Armonía'],
+}
+
 describe('quién habla lo dice el reparto', () => {
   beforeEach(async () => {
     setActivePinia(createPinia())
@@ -76,6 +104,34 @@ describe('quién habla lo dice el reparto', () => {
     expect(
       colados,
       'un personaje escrito a mano donde tendría que preguntarlo al reparto; si es a propósito, apúntalo en A_PROPOSITO con su motivo',
+    ).toEqual([])
+  })
+
+  it('ninguna plantilla nombra a un personaje en su texto sin motivo apuntado', () => {
+    // El nombre en la prosa es más difícil de ver que un atributo y hace el
+    // mismo daño: anuncia a alguien que en tres de los cuatro caminos no está.
+    const NOMBRES = /\b(Wayne|Wax|Steris|Marasi|MeLaan|Brisa|Kelsier|Vin|Elend|Sazed|Fantasma|Ham|TenSoon|Raoden|Galladon|Sarene|Adien|Karata|Hrathen|Shai|Gaotona|Armonía)\b/g
+
+    const colados = []
+    for (const carpeta of CARPETAS) {
+      for (const fichero of readdirSync(carpeta)) {
+        if (!fichero.endsWith('.vue')) continue
+        const fuente = readFileSync(join(carpeta, fichero), 'utf8')
+        // Solo la plantilla, y sin sus comentarios: en el `<script>` un nombre
+        // es un identificador -`import wayneRetrato`- y en un comentario es
+        // precisamente la explicación de por qué ya no está escrito a mano.
+        const plantilla = (fuente.match(/<template>([\s\S]*)<\/template>/) ?? [, ''])[1]
+          .replace(/<!--[\s\S]*?-->/g, '')
+        const permitidos = EN_LA_PROSA[fichero] ?? []
+        for (const [nombre] of plantilla.matchAll(NOMBRES)) {
+          if (permitidos.includes(nombre)) continue
+          colados.push(`${fichero}: «${nombre}» en el texto`)
+        }
+      }
+    }
+    expect(
+      [...new Set(colados)],
+      'un nombre escrito a mano en la prosa; si es de una pantalla que solo existe en ese camino, apúntalo en EN_LA_PROSA con su motivo',
     ).toEqual([])
   })
 

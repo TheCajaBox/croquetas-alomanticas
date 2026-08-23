@@ -29,6 +29,18 @@ const quienLasReparte = computed(
   () => ITINERARIOS_POR_ID[rumbo.dondeEstoy]?.reparto.revisa ?? 'marasi',
 )
 
+/**
+ * Y quién vende las pistas, por lo mismo.
+ *
+ * La entradilla decía «Wayne no roba: intercambia», y los trastos los da quien
+ * te vende las pistas, que en la primera era es Fantasma, en Elantris Karata y
+ * en Sel Han ShuXen. Es la misma errata que la de las insignias, en el párrafo
+ * de al lado.
+ */
+const quienLosCambia = computed(
+  () => nombreDe(ITINERARIOS_POR_ID[rumbo.dondeEstoy]?.reparto.pistas ?? 'wayne'),
+)
+
 const mios = computed(() =>
   [...new Set(economia.trastos)].map((id) => ({
     ...TRASTOS_POR_ID[id],
@@ -43,8 +55,8 @@ const mios = computed(() =>
       <SombreroEscondido id="trastos" :posicion="{ bottom: '16px', right: '18px' }" />
       <h1>El cajón</h1>
       <p class="tenue">
-        Wayne no roba: intercambia. Cada pista que le compras se paga en croquetas y él, muy
-        serio, te deja algo a cambio. Nada de esto vale nada ni sirve para nada; es solo el
+        {{ quienLosCambia }} no roba: intercambia. Cada pista que le compras se paga en croquetas
+        y te deja algo a cambio, muy serio. Nada de esto vale nada ni sirve para nada; es solo el
         recordatorio de cuántas veces has pedido ayuda.
       </p>
       <p class="cuenta">

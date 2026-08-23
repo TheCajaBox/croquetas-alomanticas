@@ -10,9 +10,24 @@ import { usarSombreros } from '../almacen/sombreros.js'
 import { borrarPartida, exportarPartida, importarPartida } from '../almacen/persistencia.js'
 import { olvidarAjustesDeProveedor } from '../almacen/clave.js'
 import { usarArmonia } from '../almacen/armonia.js'
+import { usarRumbo } from '../almacen/rumbo.js'
+import { ITINERARIOS_POR_ID } from '../contenido/itinerarios.js'
+import { nombreDe } from '../contenido/personajes.js'
 import { PROVEEDORES, PROVEEDORES_POR_ID } from '../motor/armonia/proveedores.js'
 
 const narrador = usarNarrador()
+const rumbo = usarRumbo()
+
+/**
+ * Quién narra donde estés, para el rótulo de la verborrea.
+ *
+ * Decía «Cuánto habla Wayne» en los cuatro caminos, y Wayne no habla en tres de
+ * ellos. Los ajustes no pertenecen a ningún camino, así que se hereda el último
+ * por el que pasaste, que es exactamente lo que hace la barra de arriba.
+ */
+const quienNarraAqui = computed(() =>
+  nombreDe(ITINERARIOS_POR_ID[rumbo.dondeEstoy]?.reparto.narra ?? 'wayne'),
+)
 const progreso = usarProgreso()
 const economia = usarEconomia()
 const gatos = usarGatos()
@@ -97,7 +112,7 @@ function empezarDeCero() {
     </section>
 
     <section class="panel">
-      <h2>Cuánto habla Wayne</h2>
+      <h2>Cuánto habla {{ quienNarraAqui }}</h2>
       <div class="opciones">
         <label v-for="nivel in NIVELES_DE_VERBORREA" :key="nivel.id" class="opcion">
           <input

@@ -17,6 +17,7 @@ import { usarInsignias } from '../almacen/insignias.js'
 import { usarProgreso } from '../almacen/progreso.js'
 import { usarSombreros } from '../almacen/sombreros.js'
 import Avatar from '../componentes/Avatar.vue'
+import EmblemaDeCamino from '../componentes/EmblemaDeCamino.vue'
 import GatoSvg from '../componentes/GatoSvg.vue'
 import brisaRetrato from '../recursos/brisa-retrato.webp'
 import wayneRetrato from '../recursos/wayne-retrato.webp'
@@ -181,7 +182,14 @@ const marcadores = computed(() =>
           :height="retrato.alto"
           :alt="retrato.alt"
         />
-        <Avatar v-else :quien="itinerario.reparto.narra" :tamano="150" />
+        <!-- Y quien no tenga ilustración no sale con un disco y una inicial
+             suelta en medio del panel: sale con el emblema de su camino detrás y
+             su cara delante. Dos de los cuatro caminos están así, y con el disco
+             a pelo parecían provisionales cuando no lo son. -->
+        <span v-else class="sin-retrato">
+          <EmblemaDeCamino :camino="itinerario.id" :color="itinerario.color" :tamano="200" />
+          <Avatar :quien="itinerario.reparto.narra" :tamano="96" />
+        </span>
         <figcaption v-if="lema">«{{ lema }}»</figcaption>
       </figure>
     </section>
@@ -301,6 +309,15 @@ const marcadores = computed(() =>
 </template>
 
 <style scoped>
+/* El emblema detrás y la cara delante, las dos centradas en el mismo punto. Sin
+   `grid` con las dos en la misma celda, la cara empujaba al emblema hacia abajo
+   y el conjunto se leía como dos cosas apiladas y no como una. */
+.sin-retrato {
+  display: grid;
+  place-items: center;
+}
+.sin-retrato > * { grid-area: 1 / 1; }
+
 .portada {
   position: relative;
   display: flex;
