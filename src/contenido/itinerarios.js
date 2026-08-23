@@ -37,6 +37,8 @@ export const ITINERARIOS = [
     id: 'era2',
     nombre: 'La segunda era',
     materia: 'JavaScript y Vue',
+    paraQue:
+      'Lo que se usa todos los días. Si vas a escribir código para que alguien lo vea, empieza aquí.',
     etiquetaLenguaje: 'JavaScript · Vue',
     // El de la etiqueta lleva un punto medio y no se puede meter en una frase.
     lenguajeEnFrase: 'JavaScript y Vue',
@@ -63,39 +65,11 @@ export const ITINERARIOS = [
     },
   },
   {
-    id: 'era1',
-    nombre: 'La primera era',
-    materia: 'PHP',
-    etiquetaLenguaje: 'PHP',
-    lenguajeEnFrase: 'PHP',
-    lenguajes: ['php'],
-    retrato: 'brisa',
-    color: '#a8a2bd',
-    resumen:
-      'PHP desde cero: lo que mueve media web y casi nadie enseña con orden. Del primer echo a las clases.',
-    promesa: 'Al salir sabrás escribir PHP moderno y estructurar un programa en clases.',
-    ambiente: 'Ceniza, bruma y una tripulación que no se fía de nadie. Narra Brisa, y le interrumpen.',
-    presentacion:
-      'Brisa lo cuenta con bastantes más palabras de las necesarias y Ham le interrumpe para preguntar por qué. Kelsier explica la primera mitad; cuando ya no está, la segunda la explican Elend y Vin. Sazed lleva el glosario y contesta dudas —lo sabe todo y aun así no te da la solución— y las pistas las vende Fantasma.',
-    reparto: {
-      narra: 'brisa',
-      interrumpe: 'ham',
-      pistas: 'fantasma',
-      // Dos mitades y dos maestros: Kelsier empieza y no llega al final. Que el
-      // temario cambie de manos a mitad de camino no es un adorno, es la
-      // historia que se está contando por debajo.
-      apuntes: ['kelsier', 'elend', 'vin'],
-      apuntesPorParte: { primera: ['kelsier'], segunda: ['elend', 'vin'] },
-      glosario: 'sazed',
-      revisa: 'brisa',
-      ayuda: 'sazed',
-      refactor: 'tensoon',
-    },
-  },
-  {
     id: 'elantris',
     nombre: 'Elantris',
     materia: 'SQL',
+    paraQue:
+      'Lo que hay debajo de cualquier aplicación. Se aprende aparte, no caduca, y te lo vas a encontrar de todas formas.',
     etiquetaLenguaje: 'SQL',
     lenguajeEnFrase: 'SQL',
     lenguajes: ['sql'],
@@ -125,6 +99,8 @@ export const ITINERARIOS = [
     id: 'sel',
     nombre: 'El alma del emperador',
     materia: 'Ciberseguridad',
+    paraQue:
+      'Mirar tu propio código como lo miraría quien quiere entrar. Da por sabido programar.',
     etiquetaLenguaje: 'Seguridad',
     lenguajeEnFrase: 'código que hay que romper y luego arreglar',
     // Dos lenguajes porque una inyección no se entiende sin la base de datos
@@ -151,6 +127,38 @@ export const ITINERARIOS = [
       revisa: 'gaotona',
       ayuda: 'shai',
       jefes: 'sellador',
+    },
+  },
+  {
+    id: 'era1',
+    nombre: 'La primera era',
+    materia: 'PHP',
+    paraQue:
+      'Entender lo que pasa en el servidor: clases, objetos y un lenguaje que sigue moviendo media web. Es el camino de comprender, no el de la moda.',
+    etiquetaLenguaje: 'PHP',
+    lenguajeEnFrase: 'PHP',
+    lenguajes: ['php'],
+    retrato: 'brisa',
+    color: '#a8a2bd',
+    resumen:
+      'PHP desde cero y con orden, que es como casi nadie lo enseña. Del primer `echo` a las clases y las interfaces: aquí se entiende de una vez qué es un objeto.',
+    promesa: 'Al salir sabrás escribir PHP moderno, y sabrás explicar qué es una clase sin mirarlo.',
+    ambiente: 'Ceniza, bruma y una tripulación que no se fía de nadie. Narra Brisa, y le interrumpen.',
+    presentacion:
+      'Brisa lo cuenta con bastantes más palabras de las necesarias y Ham le interrumpe para preguntar por qué. Kelsier explica la primera mitad; cuando ya no está, la segunda la explican Elend y Vin. Sazed lleva el glosario y contesta dudas —lo sabe todo y aun así no te da la solución— y las pistas las vende Fantasma.',
+    reparto: {
+      narra: 'brisa',
+      interrumpe: 'ham',
+      pistas: 'fantasma',
+      // Dos mitades y dos maestros: Kelsier empieza y no llega al final. Que el
+      // temario cambie de manos a mitad de camino no es un adorno, es la
+      // historia que se está contando por debajo.
+      apuntes: ['kelsier', 'elend', 'vin'],
+      apuntesPorParte: { primera: ['kelsier'], segunda: ['elend', 'vin'] },
+      glosario: 'sazed',
+      revisa: 'brisa',
+      ayuda: 'sazed',
+      refactor: 'tensoon',
     },
   },
 ]

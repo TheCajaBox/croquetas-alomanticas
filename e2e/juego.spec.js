@@ -607,7 +607,7 @@ test('el cuerpo de un reto se pide al abrirlo, y solo el suyo', async ({ page })
   })
 
   await page.goto('')
-  await expect(page.getByRole('heading', { name: /Aprende a programar/ })).toBeVisible()
+  await expect(page.getByRole('heading', { name: /Escribes código/ })).toBeVisible()
   await page.goto('#/itinerario/era2')
   await page.goto('#/mundo/primer-dia')
   await expect(page.getByRole('heading', { name: 'El primer día' })).toBeVisible()
@@ -619,6 +619,46 @@ test('el cuerpo de un reto se pide al abrirlo, y solo el suyo', async ({ page })
   await expect(page.locator('.cm-content')).toBeVisible()
   expect(cuerpos.length, `pedidos: ${cuerpos.join(', ')}`).toBe(1)
   expect(cuerpos[0]).toContain('07-primera-funcion')
+})
+
+test('la tira de arriba dice en qué camino y en qué mundo estás', async ({ page }) => {
+  // El agujero que tapa: dentro de un reto no había forma de saber en cuál de
+  // los cuatro caminos estabas. Con cuatro lenguajes eso no es un detalle -lo
+  // que escribes tiene sentido o no según dónde estés-, y quien vuelve al día
+  // siguiente aterrizaba en una pantalla que no decía de dónde era.
+  const tira = page.locator('.tira-sitio')
+
+  // En la portada no hay tira, y es a propósito: ahí no estás en ningún mundo.
+  await page.goto('')
+  await expect(page.getByRole('heading', { name: /Escribes código/ })).toBeVisible()
+  await expect(tira).toBeHidden()
+
+  // En la portada de un camino, el camino y su materia. Todavía sin mundo.
+  await page.goto('#/itinerario/elantris')
+  await expect(tira).toContainText('Elantris')
+  await expect(tira).toContainText('SQL')
+
+  // En un mundo, el mundo y cuál de cuántos.
+  await page.goto('#/mundo/kae')
+  await expect(tira.locator('.mundo')).toHaveText('Kae')
+  await expect(tira.locator('.cuenta')).toHaveText(/mundo 1 de \d+/)
+
+  // Y dentro de un reto, que es donde de verdad hacía falta: el mundo sigue
+  // ahí, y además por qué reto vas.
+  await irAlReto(page, (await idsDelMundo('kae'))[1])
+  await expect(tira.locator('.mundo')).toHaveText('Kae')
+  await expect(tira.locator('.parte')).toHaveText('reto 2 de 12')
+
+  // Cambiar de camino cambia la tira entera, sin recargar nada.
+  await page.goto('#/mundo/ceniza')
+  await expect(tira.locator('.camino')).toHaveText('La primera era')
+  await expect(tira.locator('.mundo')).toHaveText('La Ceniza')
+
+  // Y en el glosario no hay tira: de ahí la respuesta honrada es que no estás
+  // en ningún mundo, aunque la barra siga siendo la del camino que jugabas.
+  await page.goto('#/glosario')
+  await expect(page.getByRole('heading', { level: 1 })).toBeVisible()
+  await expect(tira).toBeHidden()
 })
 
 test('el motor de PHP no se descarga jugando en la segunda era', async ({ page }) => {

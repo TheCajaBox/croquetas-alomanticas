@@ -29,7 +29,9 @@ import { usarRecortes } from './almacen/recortes.js'
 import { usarRumbo } from './almacen/rumbo.js'
 import { usarSombreros } from './almacen/sombreros.js'
 import { nombreDe } from './contenido/personajes.js'
-import { RETOS } from './contenido/retos/index.js'
+import { itinerarioDeLaRuta, mundoDeLaRuta } from './contenido/dondeEstas.js'
+import { mundosDelItinerario } from './contenido/mundos.js'
+import { RETOS, RETOS_POR_ID, retosDelMundo } from './contenido/retos/index.js'
 import { RECORTES_POR_ID } from './contenido/recortes.js'
 import { SOMBREROS_POR_ID } from './contenido/sombreros.js'
 
@@ -73,6 +75,51 @@ const { ultimoEncontrado: ultimoRecorte } = storeToRefs(recortes)
  */
 const ruta = useRoute()
 watch(() => ruta.params, (params) => rumbo.situar(params), { immediate: true, deep: true })
+
+/**
+ * Dónde estás, con nombres y con números: el camino, el mundo, cuál de cuántos
+ * y qué parte de él.
+ *
+ * Esto es lo que faltaba y se notaba. El juego tiene cuatro caminos de veinte
+ * mundos y doscientos cincuenta retos, y desde dentro de un reto **no había
+ * forma de saber en cuál estabas**: el título del reto, el editor y nada más.
+ * Quien vuelve al día siguiente aterriza en una pantalla que no dice de dónde
+ * es. Y con cuatro lenguajes distintos eso no es un detalle: la diferencia
+ * entre estar en SQL y estar en PHP es la diferencia entre que lo que escribas
+ * tenga sentido o no.
+ *
+ * Sale de la **ruta** y no del rumbo guardado, y esa es la decisión de diseño:
+ * el rumbo hereda el último camino para que la barra no se quede a medias en el
+ * glosario, y eso está bien para saber qué puertas ofrecer. Pero para decir
+ * «estás aquí» heredar es mentir. Así que la tira aparece donde la ruta sabe de
+ * verdad de qué sitio se trata -un camino, un mundo, un reto, un repaso- y en
+ * el glosario, los ajustes o el cajón no aparece, porque de esos sitios la
+ * respuesta honrada es que no estás en ningún mundo.
+ */
+const sitio = computed(() => {
+  const params = ruta.params
+  if (!params.itinerarioId && !params.mundoId && !params.retoId) return null
+
+  const itinerario = itinerarioDeLaRuta(params)
+  const mundo = mundoDeLaRuta(params)
+  if (!mundo) return { itinerario, mundo: null, parte: 'la portada del camino' }
+
+  const hermanos = mundosDelItinerario(itinerario.id)
+  const delMundo = retosDelMundo(mundo.id)
+  const reto = params.retoId ? RETOS_POR_ID[params.retoId] : null
+  const cualReto = reto ? delMundo.findIndex((cada) => cada.id === reto.id) + 1 : 0
+
+  return {
+    itinerario,
+    mundo,
+    // «mundo 3 de 6» contesta la otra mitad de la pregunta: no solo dónde
+    // estás, sino cuánto falta. Sin eso, un camino de seis mundos y uno de
+    // veinte se ven exactamente igual desde dentro.
+    cual: hermanos.findIndex((cada) => cada.id === mundo.id) + 1,
+    cuantos: hermanos.length,
+    parte: reto ? `reto ${cualReto} de ${delMundo.length}` : ruta.name === 'repaso' ? 'el repaso' : '',
+  }
+})
 
 const enElRefugio = computed(() => gatos.enElRefugio.length)
 const avance = computed(() => `${progreso.retosSuperados}/${RETOS.length}`)
@@ -185,6 +232,32 @@ watch(ultimoRecorte, (nuevo) => {
           </span>
         </div>
       </div>
+
+      <!-- La tira de sitio. Dentro de la cabecera y no debajo, para que se
+           quede pegada arriba con ella al bajar por un reto largo: es
+           precisamente ahí, a mitad de un enunciado de cuarenta líneas, donde
+           uno pierde de vista dónde está. -->
+      <Transition name="tira">
+        <nav v-if="sitio" class="tira-sitio" :style="{ '--tono': sitio.mundo?.color ?? sitio.itinerario.color }">
+          <div class="contenedor tira">
+            <span class="punto" aria-hidden="true" />
+            <RouterLink :to="`/itinerario/${sitio.itinerario.id}`" class="eslabon camino">
+              {{ sitio.itinerario.nombre }}
+            </RouterLink>
+            <span class="materia">{{ sitio.itinerario.etiquetaLenguaje }}</span>
+
+            <template v-if="sitio.mundo">
+              <span class="flecha" aria-hidden="true">›</span>
+              <RouterLink :to="`/mundo/${sitio.mundo.id}`" class="eslabon mundo">
+                {{ sitio.mundo.nombre }}
+              </RouterLink>
+              <span class="cuenta">mundo {{ sitio.cual }} de {{ sitio.cuantos }}</span>
+            </template>
+
+            <span v-if="sitio.parte" class="parte">{{ sitio.parte }}</span>
+          </div>
+        </nav>
+      </Transition>
     </header>
 
     <main class="contenedor principal">
@@ -413,6 +486,66 @@ watch(ultimoRecorte, (nuevo) => {
 
 .principal { padding-top: 28px; padding-bottom: 120px; flex: 1; }
 
+/* La tira de sitio.
+   El color lo pone `--tono`, que es el del mundo si estás en uno y el del
+   camino si estás en su portada. Es la única pieza del juego que cambia de
+   color según dónde estés, y por eso funciona: se reconoce sin leerla. */
+.tira-sitio {
+  border-top: 1px solid var(--borde-suave);
+  background: linear-gradient(90deg, color-mix(in srgb, var(--tono) 14%, transparent), transparent 62%);
+  box-shadow: inset 0 1px 0 color-mix(in srgb, var(--tono) 30%, transparent);
+}
+.tira {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  height: 32px;
+  font-size: 0.79rem;
+  /* Igual que la navegación: se desplaza cuando no cabe, no se dobla. Aquí
+     importa más todavía, porque la tira está pegada arriba y una segunda fila
+     taparía la primera línea del enunciado. */
+  overflow-x: auto;
+  scrollbar-width: none;
+  white-space: nowrap;
+}
+.tira::-webkit-scrollbar { display: none; }
+.tira > * { flex-shrink: 0; }
+
+.tira .punto {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: var(--tono);
+  box-shadow: 0 0 8px color-mix(in srgb, var(--tono) 70%, transparent);
+}
+.tira .eslabon {
+  color: var(--texto-tenue);
+  text-decoration: none;
+  border-radius: 6px;
+  padding: 2px 5px;
+  margin: 0 -5px;
+  transition: color 0.15s, background 0.15s;
+}
+.tira .eslabon:hover { color: var(--texto); background: var(--panel); }
+/* El mundo pesa más que el camino a propósito: dentro de un reto la pregunta
+   que uno se hace es «¿en qué mundo estoy?», no «¿en qué camino?». */
+.tira .mundo { color: var(--texto); font-weight: 600; }
+.tira .flecha { color: var(--texto-apagado); }
+.tira .materia,
+.tira .cuenta,
+.tira .parte {
+  font-size: 0.72rem;
+  color: var(--texto-apagado);
+  border: 1px solid var(--borde-suave);
+  border-radius: 999px;
+  padding: 1px 8px;
+}
+.tira .materia { color: color-mix(in srgb, var(--tono) 72%, var(--texto-tenue)); border-color: color-mix(in srgb, var(--tono) 32%, transparent); }
+.tira .parte { margin-left: auto; }
+
+.tira-enter-active, .tira-leave-active { transition: opacity 0.2s; }
+.tira-enter-from, .tira-leave-to { opacity: 0; }
+
 /* La barra dejó de caber en una línea cuando aparecieron el contador de racha y
    dos secciones más: a partir de aquí la navegación baja a su propia fila, en
    vez de doblarse dentro de una barra de altura fija y salirse por abajo. */
@@ -429,5 +562,9 @@ watch(ultimoRecorte, (nuevo) => {
 
 @media (max-width: 860px) {
   .hallazgo { right: 10px; left: 10px; }
+  /* Lo que sobra cuando falta sitio son las tres etiquetas de al lado. El
+     nombre del mundo no se va nunca: es lo único que la tira existe para
+     decir. */
+  .tira .materia, .tira .cuenta { display: none; }
 }
 </style>

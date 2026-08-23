@@ -4,7 +4,7 @@ import SombreroEscondido from '../componentes/SombreroEscondido.vue'
 import { useRouter } from 'vue-router'
 
 import { MUNDOS_POR_ID } from '../contenido/mundos.js'
-import { quienRepasa, repartoDelMundo } from '../contenido/itinerarios.js'
+import { ITINERARIOS_POR_ID, quienRepasa, repartoDelMundo } from '../contenido/itinerarios.js'
 import { retosDelMundo } from '../contenido/retos/index.js'
 import Avatar from '../componentes/Avatar.vue'
 import { nombreDe } from '../contenido/personajes.js'
@@ -26,6 +26,12 @@ const repaso = computed(() =>
 )
 
 const mundo = computed(() => MUNDOS_POR_ID[props.mundoId])
+/**
+ * El camino al que pertenece este mundo, para poder nombrarlo en el enlace de
+ * volver. Decía «← Mundos», que valía cuando había un solo camino y con cuatro
+ * ya no dice nada: los mundos de cuál.
+ */
+const camino = computed(() => ITINERARIOS_POR_ID[mundo.value?.itinerario] ?? null)
 /** Quién pregunta en este mundo: lo decide el repaso o el reparto, no la plantilla. */
 const examinador = computed(() => quienRepasa(repaso.value, mundo.value))
 // La voz del itinerario al que pertenece este mundo.
@@ -57,7 +63,7 @@ if (!mundo.value || !progreso.mundoDisponible(props.mundoId)) router.replace('/'
   <div v-if="mundo" class="pila">
     <section class="panel encabezado" :style="{ '--color-mundo': mundo.color }">
       <SombreroEscondido id="mundo" :posicion="{ bottom: '16px', right: '20px' }" />
-      <RouterLink :to="{ name: 'itinerario', params: { itinerarioId: mundo.itinerario } }" class="tenue volver">← Mundos</RouterLink>
+      <RouterLink :to="{ name: 'itinerario', params: { itinerarioId: mundo.itinerario } }" class="tenue volver">← {{ camino?.nombre ?? 'Caminos' }}</RouterLink>
       <span class="etiqueta" :style="{ color: mundo.color, borderColor: mundo.color }">{{ mundo.subtitulo }}</span>
       <h1>{{ mundo.nombre }}</h1>
       <p class="presentacion">{{ mundo.presentacion }}</p>

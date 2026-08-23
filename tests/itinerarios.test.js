@@ -239,3 +239,88 @@ describe('los itinerarios nuevos tienen más práctica y menos texto', () => {
     }
   }
 })
+
+/**
+ * Los cuatro caminos son independientes. Y no como intención: como invariante.
+ *
+ * Nadie tiene que terminar JavaScript para empezar SQL, ni al revés. Es lo que
+ * hace que esto sean cuatro temarios y no un temario largo, y es exactamente el
+ * tipo de cosa que se rompe sin querer: basta un `requiere` copiado de la
+ * sección de al lado -están todos en el mismo fichero, uno debajo de otro- para
+ * que un mundo de Elantris pida uno de la primera era y el camino entero se
+ * quede cerrado sin que nada falle.
+ */
+describe('los cuatro caminos no se bloquean entre sí', () => {
+  it('ningún `requiere` cruza de camino', () => {
+    const suCamino = Object.fromEntries(MUNDOS.map((mundo) => [mundo.id, mundo.itinerario]))
+    const cruces = []
+    for (const mundo of MUNDOS) {
+      const pide = Array.isArray(mundo.requiere) ? mundo.requiere : [mundo.requiere].filter(Boolean)
+      for (const cual of pide) {
+        if (suCamino[cual] !== mundo.itinerario) {
+          cruces.push(`${mundo.itinerario}/${mundo.id} pide ${suCamino[cual] ?? '???'}/${cual}`)
+        }
+      }
+    }
+    expect(cruces).toEqual([])
+  })
+
+  it('cada camino tiene su puerta abierta desde una partida en blanco', () => {
+    // Un camino cuyo primer mundo pida algo no se puede empezar nunca, y eso no
+    // se ve mirando el mundo: se ve mirando el camino entero.
+    for (const itinerario of ITINERARIOS) {
+      const mundos = mundosDelItinerario(itinerario.id)
+      if (mundos.length === 0) continue
+      const abiertos = mundos.filter((mundo) => !mundo.requiere)
+      expect(
+        abiertos.length,
+        `${itinerario.id} no tiene ni un mundo por el que empezar`,
+      ).toBeGreaterThan(0)
+    }
+  })
+
+  it('el candado de un camino se puede abrir entero sin salir de él', () => {
+    // Se recorre el grafo desde los mundos sin `requiere` y se comprueba que se
+    // llega a todos. Un mundo al que no se llega es contenido escrito y pagado
+    // que nadie va a ver.
+    for (const itinerario of ITINERARIOS) {
+      const mundos = mundosDelItinerario(itinerario.id)
+      if (mundos.length === 0) continue
+      const alcanzados = new Set(mundos.filter((mundo) => !mundo.requiere).map((mundo) => mundo.id))
+      let crecio = true
+      while (crecio) {
+        crecio = false
+        for (const mundo of mundos) {
+          if (alcanzados.has(mundo.id)) continue
+          const pide = Array.isArray(mundo.requiere) ? mundo.requiere : [mundo.requiere]
+          if (pide.every((cual) => alcanzados.has(cual))) {
+            alcanzados.add(mundo.id)
+            crecio = true
+          }
+        }
+      }
+      const sueltos = mundos.filter((mundo) => !alcanzados.has(mundo.id)).map((mundo) => mundo.id)
+      expect(sueltos, `${itinerario.id}: mundos a los que no se llega`).toEqual([])
+    }
+  })
+
+  it('el orden de los caminos es el del discurso, y el primero es el de siempre', () => {
+    // La entrada los pinta en el orden de este array, así que el orden es una
+    // decisión y conviene que esté escrita: primero los dos que más se usan,
+    // después el de mirar el código como quien quiere entrar, y al final el de
+    // entender lo que pasa por debajo.
+    expect(ITINERARIOS.map((cada) => cada.id)).toEqual(['era2', 'elantris', 'sel', 'era1'])
+    expect(ITINERARIO_POR_DEFECTO).toBe('era2')
+  })
+
+  it('cada camino dice para qué es, en una línea', () => {
+    // `paraQue` lo pinta la entrada debajo del nombre. Sin él, cuatro tarjetas
+    // con cuatro materias no dicen por dónde empezar.
+    for (const cada of ITINERARIOS) {
+      expect(cada.paraQue?.length, `${cada.id} no dice para qué es`).toBeGreaterThan(40)
+      expect(cada.paraQue, `${cada.id}: paraQue con hueco sin rellenar`).not.toMatch(/\{\w+\}/)
+    }
+    const todos = ITINERARIOS.map((cada) => cada.paraQue)
+    expect(new Set(todos).size, 'dos caminos dicen lo mismo').toBe(todos.length)
+  })
+})
