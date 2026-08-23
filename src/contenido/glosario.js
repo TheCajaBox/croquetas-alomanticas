@@ -53,34 +53,34 @@ import { MUNDOS_POR_ID, mundosDelItinerario } from './mundos.js'
 export const GLOSARIO = [
   {
     id: "programa",
-    desde: { era2: 'primer-dia', era1: 'ceniza' },
+    desde: { era2: 'primer-dia', era1: 'ceniza' , sel: 'sello'},
     termino: "programa",
     alias: ["programas"],
     definicion: "Una lista de órdenes que el ordenador ejecuta una detrás de otra, de arriba abajo. Eso es todo lo que es.",
   },
   {
     id: "codigo",
-    desde: { era2: 'primer-dia', era1: 'ceniza', elantris: 'kae' },
+    desde: { era2: 'primer-dia', era1: 'ceniza', elantris: 'kae' , sel: 'sello'},
     termino: "código",
     definicion: "El texto de un programa. Se escribe con unas reglas muy estrictas: si sobra o falta un símbolo, el ordenador no lo entiende y se para.",
   },
   {
     id: "ejecutar",
-    desde: { era2: 'primer-dia', era1: 'ceniza', elantris: 'kae' },
+    desde: { era2: 'primer-dia', era1: 'ceniza', elantris: 'kae' , sel: 'sello'},
     termino: "ejecutar",
     alias: ["ejecuta", "ejecutarlo", "ejecución"],
     definicion: "Decirle al ordenador que haga lo que pone en el código, línea a línea y desde arriba.",
   },
   {
     id: "consola",
-    desde: { era2: 'primer-dia', era1: 'ceniza' },
+    desde: { era2: 'primer-dia', era1: 'ceniza' , sel: 'sello'},
     termino: "consola",
     definicion: "El sitio donde el programa escribe mensajes para que tú los leas. No los ve el usuario del programa: son para quien lo está haciendo.",
     ejemplo: { js: "console.log('estoy aquí')", php: "echo 'estoy aquí';" },
   },
   {
     id: "variable",
-    desde: { era2: 'primer-dia', era1: 'ceniza' },
+    desde: { era2: 'primer-dia', era1: 'ceniza' , sel: 'sello'},
     termino: "variable",
     alias: ["variables"],
     definicion: "Un nombre puesto a un valor para poder usarlo después. Guardas algo, le pones nombre, y a partir de ahí lo llamas por su nombre.",
@@ -88,14 +88,14 @@ export const GLOSARIO = [
   },
   {
     id: "valor",
-    desde: { era2: 'primer-dia', era1: 'ceniza', elantris: 'kae' },
+    desde: { era2: 'primer-dia', era1: 'ceniza', elantris: 'kae' , sel: 'sello'},
     termino: "valor",
     alias: ["valores"],
     definicion: "Un dato concreto: un texto, un número, una lista. Lo que se guarda dentro de una variable.",
   },
   {
     id: "declarar",
-    desde: { era2: 'primer-dia', era1: 'ceniza' },
+    desde: { era2: 'primer-dia', era1: 'ceniza' , sel: 'sello'},
     termino: "declarar",
     alias: ["declara", "declaras", "declaración", "declarada", "declarado"],
     definicion: "Crear una variable por primera vez, diciendo cómo se llama. Se hace una sola vez; después ya solo se usa.",
@@ -103,7 +103,7 @@ export const GLOSARIO = [
   },
   {
     id: "asignar",
-    desde: { era2: 'primer-dia', era1: 'ceniza' },
+    desde: { era2: 'primer-dia', era1: 'ceniza' , sel: 'sello'},
     termino: "asignar",
     alias: ["asigna", "asignarle", "asignación"],
     definicion: "Meter un valor dentro de una variable con el signo `=`. Ojo: `=` no significa «es igual a», significa «guarda esto ahí».",
@@ -111,7 +111,7 @@ export const GLOSARIO = [
   },
   {
     id: "constante",
-    desde: { era2: 'primer-dia', era1: 'kandra' },
+    desde: { era2: 'primer-dia', era1: 'kandra' , sel: 'sello'},
     termino: "constante",
     alias: ["constantes"],
     definicion: "Una variable a la que no se le puede asignar otro valor después de creada. Se declara con `const` y es lo que se usa por defecto.",
@@ -119,14 +119,14 @@ export const GLOSARIO = [
   },
   {
     id: "tipo",
-    desde: { era2: 'primer-dia', era1: 'ceniza', elantris: 'kae' },
+    desde: { era2: 'primer-dia', era1: 'ceniza', elantris: 'kae' , sel: 'sello'},
     termino: "tipo",
     alias: ["tipos"],
     definicion: "La clase de dato que es un valor: texto, número, booleano, lista u objeto. Importa porque no todos se pueden operar igual.",
   },
   {
     id: "texto",
-    desde: { era2: 'primer-dia', era1: 'ceniza', elantris: 'kae' },
+    desde: { era2: 'primer-dia', era1: 'ceniza', elantris: 'kae' , sel: 'sello'},
     termino: "texto",
     alias: ["textos", "cadena", "cadenas", "string"],
     definicion: "Un valor formado por caracteres. Va siempre entre comillas. `42` es un número; `'42'` es un texto que parece un número.",
@@ -136,7 +136,7 @@ export const GLOSARIO = [
   },
   {
     id: "numero",
-    desde: { era2: 'primer-dia', era1: 'ceniza', elantris: 'kae' },
+    desde: { era2: 'primer-dia', era1: 'ceniza', elantris: 'kae' , sel: 'sello'},
     termino: "número",
     alias: ["números"],
     definicion: "Un valor con el que se puede hacer cuentas. Se escribe sin comillas y sin separadores de miles.",
@@ -144,7 +144,7 @@ export const GLOSARIO = [
   },
   {
     id: "booleano",
-    desde: { era2: 'comisaria', era1: 'ceniza' },
+    desde: { era2: 'comisaria', era1: 'ceniza' , sel: 'sello'},
     termino: "booleano",
     alias: ["booleanos"],
     definicion: "Un valor que solo puede ser `true` (verdadero) o `false` (falso). Es lo que devuelven las comparaciones.",
@@ -152,7 +152,7 @@ export const GLOSARIO = [
   },
   {
     id: "lista",
-    desde: { era2: 'primer-dia', era1: 'ceniza' },
+    desde: { era2: 'primer-dia', era1: 'ceniza' , sel: 'sello'},
     termino: "lista",
     alias: ["listas", "array", "arrays"],
     definicion: "Varios valores guardados en orden, entre corchetes. Cada uno ocupa una posición, y la primera posición es la 0, no la 1.",
@@ -160,7 +160,7 @@ export const GLOSARIO = [
   },
   {
     id: "objeto",
-    desde: { era2: 'comisaria', era1: 'fundacion' },
+    desde: { era2: 'comisaria', era1: 'fundacion' , sel: 'sello'},
     termino: "objeto",
     alias: ["objetos"],
     definicion: "Varios valores guardados con nombre, entre llaves. En vez de por posición, a cada uno se llega por su nombre.",
@@ -168,7 +168,7 @@ export const GLOSARIO = [
   },
   {
     id: "propiedad",
-    desde: { era2: 'comisaria', era1: 'fundacion' },
+    desde: { era2: 'comisaria', era1: 'fundacion' , sel: 'sello'},
     termino: "propiedad",
     alias: ["propiedades"],
     definicion: "Cada uno de los valores con nombre que tiene un objeto. Se lee poniendo un punto detrás del objeto.",
@@ -176,7 +176,7 @@ export const GLOSARIO = [
   },
   {
     id: "indice",
-    desde: { era2: 'comisaria', era1: 'ceniza' },
+    desde: { era2: 'comisaria', era1: 'ceniza' , sel: 'sello'},
     termino: "índice",
     alias: ["índices"],
     definicion: "La posición que ocupa algo dentro de una lista. Empiezan en 0: el primer elemento es el índice 0.",
@@ -187,19 +187,19 @@ export const GLOSARIO = [
     // En Elantris el primer nulo no se declara: **aparece**, la primera vez que
     // una unión no encuentra pareja. Por eso entra en el mundo de unir y no en
     // el primero.
-    desde: { era2: 'comisaria', era1: 'ceniza', elantris: 'muros' },
+    desde: { era2: 'comisaria', era1: 'ceniza', elantris: 'muros', sel: 'sello' },
     termino: "null",
     definicion: "Un valor que significa «aquí no hay nada, y consta que no lo hay». Es distinto de un cero o de un texto vacío.",
   },
   {
     id: "indefinido",
-    desde: { era2: 'primer-dia' },
+    desde: { era2: 'primer-dia' , sel: 'sello'},
     termino: "undefined",
     definicion: "Lo que hay dentro de algo que nunca se ha rellenado. Es la forma que tiene JavaScript de decir «esto no existe».",
   },
   {
     id: "plantilla-de-texto",
-    desde: { era2: 'primer-dia' },
+    desde: { era2: 'primer-dia' , sel: 'sello'},
     termino: "plantilla de texto",
     alias: ["plantillas de texto"],
     definicion: "Un texto entre comillas invertidas que permite meter valores dentro con `${...}`. Con comillas normales no funciona.",
@@ -207,7 +207,7 @@ export const GLOSARIO = [
   },
   {
     id: "funcion",
-    desde: { era2: 'primer-dia', era1: 'ceniza' },
+    desde: { era2: 'primer-dia', era1: 'ceniza' , sel: 'sello'},
     termino: "función",
     alias: ["funciones"],
     definicion: "Un trozo de programa con nombre, que se escribe una vez y se usa tantas veces como haga falta.",
@@ -215,7 +215,7 @@ export const GLOSARIO = [
   },
   {
     id: "parametro",
-    desde: { era2: 'primer-dia', era1: 'tripulacion' },
+    desde: { era2: 'primer-dia', era1: 'tripulacion' , sel: 'sello'},
     termino: "parámetro",
     alias: ["parámetros"],
     definicion: "El hueco que una función deja para recibir un dato. Se declara entre los paréntesis del nombre.",
@@ -223,7 +223,7 @@ export const GLOSARIO = [
   },
   {
     id: "argumento",
-    desde: { era2: 'primer-dia', era1: 'tripulacion' },
+    desde: { era2: 'primer-dia', era1: 'tripulacion' , sel: 'sello'},
     termino: "argumento",
     alias: ["argumentos"],
     definicion: "El valor concreto que le pasas a una función al usarla. El parámetro es el hueco; el argumento, lo que metes en él.",
@@ -231,7 +231,7 @@ export const GLOSARIO = [
   },
   {
     id: "llamar",
-    desde: { era2: 'primer-dia', era1: 'ceniza' },
+    desde: { era2: 'primer-dia', era1: 'ceniza' , sel: 'sello'},
     termino: "llamar",
     alias: ["llama", "llamada", "llamadas", "llamarla", "llamarlo"],
     definicion: "Usar una función, poniendo su nombre y unos paréntesis. Sin los paréntesis no la usas: solo la nombras.",
@@ -239,7 +239,7 @@ export const GLOSARIO = [
   },
   {
     id: "devolver",
-    desde: { era2: 'primer-dia', era1: 'ceniza' },
+    desde: { era2: 'primer-dia', era1: 'ceniza' , sel: 'sello'},
     termino: "devolver",
     alias: ["devuelve", "devuelva", "devuelven", "return"],
     definicion: "Entregar un valor al que llamó a la función, con `return`. No es lo mismo que escribirlo por consola: `console.log` enseña, `return` entrega.",
@@ -247,7 +247,7 @@ export const GLOSARIO = [
   },
   {
     id: "funcion-flecha",
-    desde: { era2: 'es6' , era1: 'pozo' },
+    desde: { era2: 'es6' , era1: 'pozo' , sel: 'sello'},
     termino: "función flecha",
     alias: ["funciones flecha", "flecha"],
     definicion: "Una forma corta de escribir una función. Además no tiene `this` propio: usa el del sitio donde está escrita, y por eso funciona dentro de un método.",
@@ -262,14 +262,14 @@ export const GLOSARIO = [
   },
   {
     id: "ambito",
-    desde: { era2: 'es6', era1: 'tripulacion' },
+    desde: { era2: 'es6', era1: 'tripulacion' , sel: 'sello'},
     termino: "ámbito",
     alias: ["alcance", "scope"],
     definicion: "La zona del programa donde una variable existe. Fuera de su ámbito es como si no estuviera declarada.",
   },
   {
     id: "metodo",
-    desde: { era2: 'es6', era1: 'fundacion' },
+    desde: { era2: 'es6', era1: 'fundacion' , sel: 'sello'},
     termino: "método",
     alias: ["métodos"],
     definicion: "Una función que vive dentro de un objeto. Se usa poniendo un punto: `objeto.metodo()`.",
@@ -277,7 +277,7 @@ export const GLOSARIO = [
   },
   {
     id: "bucle",
-    desde: { era2: 'comisaria', era1: 'ceniza' },
+    desde: { era2: 'comisaria', era1: 'ceniza' , sel: 'sello'},
     termino: "bucle",
     alias: ["bucles"],
     definicion: "Una instrucción que repite algo muchas veces. Necesita siempre una condición de salida y algo que la acabe cumpliendo.",
@@ -293,28 +293,28 @@ export const GLOSARIO = [
   },
   {
     id: "map",
-    desde: { era2: 'es6' , era1: 'pozo' },
+    desde: { era2: 'es6' , era1: 'pozo' , sel: 'sello'},
     termino: "map",
     definicion: "Recorre una lista y devuelve otra lista nueva con cada elemento transformado. No toca la original.",
     ejemplo: { js: "precios.map((p) => p * 2)", php: "array_map(fn($p) => $p * 2, $precios)" },
   },
   {
     id: "filter",
-    desde: { era2: 'es6' , era1: 'pozo' },
+    desde: { era2: 'es6' , era1: 'pozo' , sel: 'sello'},
     termino: "filter",
     definicion: "Recorre una lista y devuelve otra solo con los elementos que cumplen lo que le digas.",
     ejemplo: { js: "precios.filter((p) => p > 30)", php: "array_filter($precios, fn($p) => $p > 30)" },
   },
   {
     id: "reduce",
-    desde: { era2: 'es6' , era1: 'pozo' },
+    desde: { era2: 'es6' , era1: 'pozo' , sel: 'sello'},
     termino: "reduce",
     definicion: "Recorre una lista y la aplasta en un solo valor: una suma, un total, un texto. El segundo argumento es el valor de partida.",
     ejemplo: { js: "precios.reduce((s, p) => s + p, 0)", php: "array_reduce($precios, fn($s, $p) => $s + $p, 0)" },
   },
   {
     id: "desestructurar",
-    desde: { era2: 'es6' },
+    desde: { era2: 'es6' , sel: 'sello'},
     termino: "desestructurar",
     alias: ["desestructuración", "desestructurando"],
     definicion: "Sacar valores de un objeto o de una lista dándoles nombre en el mismo gesto, en vez de uno a uno.",
@@ -445,14 +445,14 @@ export const GLOSARIO = [
   },
   {
     id: "test",
-    desde: { era2: 'primer-dia', era1: 'ceniza', elantris: 'kae' },
+    desde: { era2: 'primer-dia', era1: 'ceniza', elantris: 'kae' , sel: 'sello'},
     termino: "test",
     alias: ["tests"],
     definicion: "Una comprobación automática: llama a tu código con unos datos y mira si el resultado es el que debía ser.",
   },
   {
     id: "sandbox",
-    desde: { era2: 'primer-dia', era1: 'ceniza', elantris: 'kae' },
+    desde: { era2: 'primer-dia', era1: 'ceniza', elantris: 'kae' , sel: 'sello'},
     termino: "sandbox",
     definicion: "El sitio aislado donde este juego ejecuta tu código, separado del juego en sí, para que nada de lo que escribas pueda romperlo.",
   },
@@ -485,7 +485,7 @@ export const GLOSARIO = [
   },
   {
     id: "json",
-    desde: { era2: 'elendel' },
+    desde: { era2: 'elendel' , sel: 'sello'},
     termino: "JSON",
     definicion:
       "El formato en que viajan casi todos los datos entre programas. Es texto, con las claves siempre entre comillas dobles. `JSON.parse` lo convierte en datos y `JSON.stringify` hace el camino de vuelta.",
@@ -493,7 +493,7 @@ export const GLOSARIO = [
   },
   {
     id: "expresion-regular",
-    desde: { era2: 'elendel' },
+    desde: { era2: 'elendel' , sel: 'sello'},
     termino: "expresión regular",
     alias: ["expresiones regulares", "regex"],
     definicion:
@@ -559,7 +559,7 @@ export const GLOSARIO = [
   },
   {
     id: "falsy",
-    desde: { era2: 'comisaria', era1: 'tripulacion' },
+    desde: { era2: 'comisaria', era1: 'tripulacion' , sel: 'sello'},
     termino: "falsy",
     alias: ["truthy"],
     definicion:
@@ -568,7 +568,7 @@ export const GLOSARIO = [
   },
   {
     id: "expresion",
-    desde: { era2: 'primer-dia', era1: 'ceniza', elantris: 'kae' },
+    desde: { era2: 'primer-dia', era1: 'ceniza', elantris: 'kae' , sel: 'sello'},
     termino: "expresión",
     alias: ["expresiones"],
     definicion:
@@ -586,7 +586,7 @@ export const GLOSARIO = [
   },
   {
     id: "resto",
-    desde: { era2: 'es6' },
+    desde: { era2: 'es6' , sel: 'sello'},
     termino: "resto",
     alias: ["rest"],
     definicion:
@@ -595,7 +595,7 @@ export const GLOSARIO = [
   },
   {
     id: "ternario",
-    desde: { era2: 'comisaria', era1: 'tripulacion' },
+    desde: { era2: 'comisaria', era1: 'tripulacion' , sel: 'sello'},
     termino: "ternario",
     definicion:
       "Un `if` que vale un valor, en una línea: condición, interrogación, lo de sí, dos puntos, lo de no. Para elegir entre dos valores, no para hacer dos cosas.",
@@ -603,7 +603,7 @@ export const GLOSARIO = [
   },
   {
     id: "guarda",
-    desde: { era2: 'comisaria', era1: 'tripulacion' },
+    desde: { era2: 'comisaria', era1: 'tripulacion' , sel: 'sello'},
     termino: "cláusula de guarda",
     alias: ["guarda"],
     definicion:
@@ -635,7 +635,7 @@ export const GLOSARIO = [
   },
   {
     id: "depurar",
-    desde: { era2: 'comisaria', era1: 'ceniza', elantris: 'kae' },
+    desde: { era2: 'comisaria', era1: 'ceniza', elantris: 'kae' , sel: 'sello'},
     termino: "depurar",
     alias: ["depuración"],
     definicion:
@@ -677,7 +677,7 @@ export const GLOSARIO = [
   },
   {
     id: "conjunto",
-    desde: { era2: 'taller' },
+    desde: { era2: 'taller' , sel: 'sello'},
     termino: "Set",
     definicion:
       "Una colección sin repetidos. Preguntarle si algo está es inmediato, por muchos elementos que tenga.",
@@ -808,7 +808,7 @@ export const GLOSARIO = [
     id: "excepcion",
     // No existía en el glosario y El taller tiene un reto entero -«Cuando algo
     // va mal a propósito»- que la enseña. Así que faltaba en los dos caminos.
-    desde: { era2: 'taller', era1: 'pozo' },
+    desde: { era2: 'taller', era1: 'pozo', sel: 'sello' },
     termino: "excepción",
     alias: ["excepciones", "lanzar", "lanza", "throw"],
     definicion: "Una manera de decir «esto no lo puedo hacer y no voy a fingir que sí». Para la función en el sitio, no devuelve nada, y sube hasta que alguien la recoge. Un error así no se puede confundir con un resultado, que es toda su ventaja sobre devolver un cero.",
@@ -816,7 +816,7 @@ export const GLOSARIO = [
   },
   {
     id: "capturar",
-    desde: { era2: 'taller', era1: 'pozo' },
+    desde: { era2: 'taller', era1: 'pozo' , sel: 'sello'},
     termino: "capturar",
     alias: ["captura", "try", "catch", "try/catch"],
     definicion: "Recoger una excepción para decidir qué hacer con ella. En el `try` va lo que se intenta y en el `catch` qué hacer si sale mal; en cuanto algo lanza, se abandona el resto del `try`. Capturada, la excepción no para el programa.",
@@ -881,7 +881,7 @@ export const GLOSARIO = [
     // en Los Áridos había un reto entero -«El azúcar que se usa de verdad»-
     // enseñando `??` sin una sola palabra que poder pulsar. Es el mismo
     // operador en los dos lenguajes y ahora es la misma entrada.
-    desde: { era2: 'es6', era1: 'tripulacion' },
+    desde: { era2: 'es6', era1: 'tripulacion', sel: 'sello' },
     termino: "??",
     alias: ["operador de coalescencia", "coalescencia nula"],
     definicion: "«Lo que haya a la izquierda, y si no hay nada, lo de la derecha.» Sirve para leer algo que puede no estar sin avisos y sin un `if`. Ojo: solo salta con `null`; un cero o un texto vacío **sí** son algo.",
@@ -904,7 +904,7 @@ export const GLOSARIO = [
   },
   {
     id: "comparacion-estricta",
-    desde: { era2: 'comisaria', era1: 'ceniza' },
+    desde: { era2: 'comisaria', era1: 'ceniza' , sel: 'sello'},
     termino: "comparación estricta",
     alias: ["===", "!=="],
     definicion: "Comparar exigiendo que el tipo también coincida. `1 == '1'` es cierto, porque el lenguaje convierte uno de los dos para poder compararlos; `1 === '1'` es falso. La costumbre buena es usar `===` por defecto y `==` solo cuando sepas por qué.",
@@ -1601,6 +1601,77 @@ export const GLOSARIO = [
     termino: "mínimo privilegio",
     definicion:
       "Que el usuario con el que tu programa se conecta a la base pueda hacer exactamente lo que el programa necesita y nada más. No evita la inyección: limita lo que se lleva. Es la defensa de segunda línea, para el día que la primera falle.",
+  },
+  {
+    id: "autorizar",
+    desde: { sel: 'cien-dias' },
+    termino: "autorizar",
+    alias: ["autorización", "permiso", "permisos"],
+    definicion:
+      "Comprobar qué puede hacer alguien. Se hace **cada vez que se toca algo**, y no una vez al entrar: eso es autenticar. Casi todos los agujeros graves de una aplicación están en esta comprobación y no en la otra, porque la mayoría de las filtraciones las hace alguien con cuenta pidiendo lo que no es suyo.",
+  },
+  {
+    id: "idor",
+    desde: { sel: 'cien-dias' },
+    termino: "IDOR",
+    alias: ["referencia directa a un objeto"],
+    definicion:
+      "El identificador del recurso llega en la petición, se usa para buscarlo, y nadie comprueba de quién es. Sumarle uno a un número de una dirección y ver qué sale es la prueba más rentable que existe. Se tapa comparando el dueño **que trae el propio recurso** con el usuario de la sesión.",
+    ejemplo: "GET /expediente/412   → ¿y es tuyo?",
+  },
+  {
+    id: "denegar-por-omision",
+    desde: { sel: 'cien-dias' },
+    termino: "denegar por omisión",
+    alias: ["denegado por defecto"],
+    definicion:
+      "Lo que no está declarado, no se puede. Es la lista de permitidos aplicada a los permisos: con la política contraria, cada acción nueva que alguien añada nace abierta para todos y nadie se entera hasta que se usa. Molesta -algo deja de funcionar cuando te olvidas de declararlo- y eso es lo que se quiere: un fallo que se ve se arregla.",
+  },
+  {
+    id: "limite-de-intentos",
+    desde: { sel: 'cien-dias' },
+    termino: "límite de intentos",
+    alias: ["rate limit", "limitar la frecuencia"],
+    definicion:
+      "Contar los fallos y dejar de atender al pasarse. Cuatro piezas: **por cuenta**, **por origen**, **en una ventana** de tiempo -los fallos de hace veinte minutos ya no cuentan- y **con espera** en vez de bloqueo permanente, porque bloquear para siempre es un ataque en sí mismo. Y acertar no borra los fallos.",
+  },
+  {
+    id: "relleno-de-credenciales",
+    desde: { sel: 'cien-dias' },
+    termino: "relleno de credenciales",
+    alias: ["credential stuffing"],
+    definicion:
+      "Coger una filtración de otro sitio y probar cada par de correo y contraseña **una sola vez** en el tuyo. Un intento por cuenta, cien mil cuentas, ningún límite tocado. Funciona en un tanto por ciento pequeño que es suficiente, y contra esto el límite por cuenta no hace nada: hace falta el de origen.",
+  },
+  {
+    id: "escalada-de-privilegios",
+    desde: { sel: 'cien-dias' },
+    termino: "escalada de privilegios",
+    definicion:
+      "Conseguir hacer más de lo que te corresponde. **Horizontal** es acceder a lo de otro usuario de tu mismo nivel -eso es un IDOR-; **vertical** es conseguir el nivel de encima. La segunda suele salir de un permiso que se guardó en la sesión o de una acción que nadie declaró.",
+  },
+  {
+    id: "fuga-por-el-error",
+    desde: { sel: 'cien-dias' },
+    termino: "fuga por el error",
+    alias: ["error que cuenta demasiado"],
+    definicion:
+      "La forma de decir «no» también es información. Un `403` confirma que el recurso existe y un `404` no, así que recorrer identificadores anotando cuál es cuál dibuja el sistema entero sin entrar en nada. La regla: **si no puedes verlo, para ti no existe**, y la misma respuesta para las tres razones de negarlo.",
+  },
+  {
+    id: "referencia-de-error",
+    desde: { sel: 'cien-dias' },
+    termino: "referencia de error",
+    definicion:
+      "Un identificador aleatorio que va en la respuesta y también en el registro del servidor. Es lo que permite dar un mensaje escueto sin dejar a nadie sin ayuda: el usuario dice «me sale el error a41f-93c2» y alguien puede buscar qué pasó de verdad. Aleatorio y no un contador, que un contador cuenta cuántos errores ha habido.",
+  },
+  {
+    id: "fuente-que-manda",
+    desde: { sel: 'cien-dias' },
+    termino: "fuente que manda",
+    alias: ["fuente de la verdad"],
+    definicion:
+      "El único sitio donde un dato es el bueno. Un dato copiado es un dato viejo desde el momento en que se copia, así que los permisos, el estado de una cuenta o el precio de algo se leen **cuando se usan** y no se guardan en la sesión: si no, quitarle un permiso a alguien no le quita nada hasta que vuelva a entrar.",
   },
 ]
 
