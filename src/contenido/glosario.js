@@ -57,12 +57,21 @@ export const GLOSARIO = [
     termino: "programa",
     alias: ["programas"],
     definicion: "Una lista de órdenes que el ordenador ejecuta una detrás de otra, de arriba abajo. Eso es todo lo que es.",
+    ejemplo: {
+      js: "const croquetas = 12\nconsole.log(croquetas)   // dos órdenes, y en ese orden",
+      php: "$croquetas = 12;\necho $croquetas;   // dos órdenes, y en ese orden",
+    },
   },
   {
     id: "codigo",
     desde: { era2: 'primer-dia', era1: 'ceniza', elantris: 'kae' , sel: 'sello'},
     termino: "código",
     definicion: "El texto de un programa. Se escribe con unas reglas muy estrictas: si sobra o falta un símbolo, el ordenador no lo entiende y se para.",
+    ejemplo: {
+      js: "console.log('hola')   // sin el paréntesis de cierre no arranca",
+      php: "echo 'hola';   // sin el punto y coma no arranca",
+      sql: "SELECT edad FROM habitantes   -- una orden con sus reglas: SELECT, y luego FROM",
+    },
   },
   {
     id: "ejecutar",
@@ -70,6 +79,11 @@ export const GLOSARIO = [
     termino: "ejecutar",
     alias: ["ejecuta", "ejecutarlo", "ejecución"],
     definicion: "Decirle al ordenador que haga lo que pone en el código, línea a línea y desde arriba.",
+    ejemplo: {
+      js: "console.log(2 + 3)   // al ejecutarlo escribe 5",
+      php: "echo 2 + 3;   // al ejecutarlo escribe 5",
+      sql: "SELECT 2 + 3   -- al ejecutarla, la base contesta una fila con un 5",
+    },
   },
   {
     id: "consola",
@@ -92,6 +106,11 @@ export const GLOSARIO = [
     termino: "valor",
     alias: ["valores"],
     definicion: "Un dato concreto: un texto, un número, una lista. Lo que se guarda dentro de una variable.",
+    ejemplo: {
+      js: "const raciones = 12   // 12 es el valor; raciones es solo el nombre",
+      php: "$raciones = 12;   // 12 es el valor; $raciones es solo el nombre",
+      sql: "SELECT edad FROM habitantes WHERE id = 1   -- un valor: 26",
+    },
   },
   {
     id: "declarar",
@@ -123,6 +142,11 @@ export const GLOSARIO = [
     termino: "tipo",
     alias: ["tipos"],
     definicion: "La clase de dato que es un valor: texto, número, booleano, lista u objeto. Importa porque no todos se pueden operar igual.",
+    ejemplo: {
+      js: "typeof 12   // 'number'",
+      php: "gettype(12);   // 'integer'",
+      sql: "SELECT typeof(nombre), typeof(edad) FROM habitantes   -- 'text', 'integer'",
+    },
   },
   {
     id: "texto",
@@ -190,12 +214,18 @@ export const GLOSARIO = [
     desde: { era2: 'comisaria', era1: 'ceniza', elantris: 'muros', sel: 'sello' },
     termino: "null",
     definicion: "Un valor que significa «aquí no hay nada, y consta que no lo hay». Es distinto de un cero o de un texto vacío.",
+    ejemplo: {
+      js: "const sombrero = null   // ni 0 ni '': consta que no hay ninguno",
+      php: "$sombrero = null;   // ni 0 ni '': consta que no hay ninguno",
+      sql: "INSERT INTO gremios (nombre, maestro) VALUES ('cocineros', NULL)",
+    },
   },
   {
     id: "indefinido",
     desde: { era2: 'primer-dia' , sel: 'sello'},
     termino: "undefined",
     definicion: "Lo que hay dentro de algo que nunca se ha rellenado. Es la forma que tiene JavaScript de decir «esto no existe».",
+    ejemplo: { js: "let sombrero   // undefined: declarada y nunca rellenada" },
   },
   {
     id: "plantilla-de-texto",
@@ -266,6 +296,10 @@ export const GLOSARIO = [
     termino: "ámbito",
     alias: ["alcance", "scope"],
     definicion: "La zona del programa donde una variable existe. Fuera de su ámbito es como si no estuviera declarada.",
+    ejemplo: {
+      js: "if (hambre) { const raciones = 2 }   // fuera de las llaves, raciones no existe",
+      php: "function servir() { $raciones = 2; }   // fuera de la función no existe",
+    },
   },
   {
     id: "metodo",
@@ -326,6 +360,7 @@ export const GLOSARIO = [
     termino: "promesa",
     alias: ["promesas"],
     definicion: "Un valor que todavía no ha llegado: llegará luego, o fallará. Es lo que devuelve todo lo que tarda.",
+    ejemplo: { js: "pedir().then((dato) => pintar(dato))   // el valor todavía no está aquí" },
   },
   {
     id: "asincrono",
@@ -341,6 +376,7 @@ export const GLOSARIO = [
     termino: "componente",
     alias: ["componentes"],
     definicion: "Una pieza de interfaz con sus datos y su aspecto, que se puede usar muchas veces en la misma página.",
+    ejemplo: { js: '<FichaDeGato v-for="gato in gatos" :gato="gato" />   // la misma pieza, muchas veces' },
   },
   {
     id: "plantilla",
@@ -388,18 +424,21 @@ export const GLOSARIO = [
     termino: "reactividad",
     alias: ["reactivo", "reactiva"],
     definicion: "Que la pantalla se actualice sola cuando cambian los datos, sin que tengas que repintar nada a mano. Es la idea central de Vue.",
+    ejemplo: { js: "gato.hambre = false   // la pantalla se repinta sola, sin tocar el HTML" },
   },
   {
     id: "estado",
     desde: { era2: 'vue2' },
     termino: "estado",
     definicion: "Los datos que un componente guarda y que pueden cambiar mientras se usa. Cuando cambian, la pantalla cambia.",
+    ejemplo: { js: "data() { return { croquetas: 12 } }   // lo que el componente guarda y puede cambiar" },
   },
   {
     id: "computed",
     desde: { era2: 'vue2' },
     termino: "computed",
     definicion: "Un valor calculado a partir de otros que se guarda y solo se rehace cuando cambia algo de lo que usa.",
+    ejemplo: { js: "computed: { total() { return this.croquetas * 3 } }" },
   },
   {
     id: "watch",
@@ -407,6 +446,7 @@ export const GLOSARIO = [
     termino: "watch",
     alias: ["watcher", "watchers"],
     definicion: "Un vigilante que reacciona cuando un dato concreto cambia, y que recibe el valor nuevo y el viejo.",
+    ejemplo: { js: "watch: { croquetas(nuevo, viejo) { ... } }" },
   },
   {
     id: "ciclo-de-vida",
@@ -428,6 +468,7 @@ export const GLOSARIO = [
     desde: { era2: 'vue3' },
     termino: "setup",
     definicion: "En Vue 3, la función donde se declara todo lo del componente y se devuelve lo que la plantilla vaya a necesitar.",
+    ejemplo: { js: "setup() { const croquetas = ref(12); return { croquetas } }" },
   },
   {
     id: "composable",
@@ -442,6 +483,7 @@ export const GLOSARIO = [
     desde: { era2: 'vue2' },
     termino: "DOM",
     definicion: "El árbol de elementos de una página web, tal y como lo tiene el navegador en memoria. Es lo que Vue actualiza por ti.",
+    ejemplo: { js: "document.querySelector('#croquetas').textContent = '12'   // esto lo hace Vue por ti" },
   },
   {
     id: "test",
@@ -449,6 +491,11 @@ export const GLOSARIO = [
     termino: "test",
     alias: ["tests"],
     definicion: "Una comprobación automática: llama a tu código con unos datos y mira si el resultado es el que debía ser.",
+    ejemplo: {
+      js: "esperar(doble(4)).igualA(8)   // llama a tu código y mira si sale lo que debía",
+      php: "esperar(doble(4))->igualA(8);   // llama a tu código y mira si sale lo que debía",
+      sql: "esperar(filas.length).igualA(3)   // en SQL se comprueban las filas que devuelves",
+    },
   },
   {
     id: "sandbox",
@@ -507,6 +554,7 @@ export const GLOSARIO = [
     alias: ["microtareas"],
     definicion:
       "Lo que queda pendiente por una promesa. Tiene su propia cola y es prioritaria: se vacía entera antes de atender un solo temporizador.",
+    ejemplo: { js: "Promise.resolve().then(() => 'antes que cualquier temporizador')" },
   },
   {
     id: "cola-de-tareas",
@@ -515,6 +563,7 @@ export const GLOSARIO = [
     alias: ["bucle de eventos"],
     definicion:
       "Lo que decide en qué orden ocurren las cosas apuntadas para después. JavaScript hace una cosa a la vez: primero termina lo que está haciendo, luego las microtareas, y solo entonces un temporizador.",
+    ejemplo: { js: "setTimeout(() => 'lo último', 0)   // aunque pongas 0, va después de las microtareas" },
   },
   {
     id: "acumulador",
@@ -531,6 +580,7 @@ export const GLOSARIO = [
     alias: ["cierres", "closure"],
     definicion:
       "Una función que sigue usando variables del sitio donde se creó, aunque ese sitio ya haya terminado. Es la forma de tener datos que nadie de fuera puede tocar.",
+    ejemplo: { js: "const sumar = (a) => (b) => a + b   // la de dentro sigue viendo la «a» de fuera" },
   },
   {
     id: "instancia",
@@ -548,6 +598,10 @@ export const GLOSARIO = [
     alias: ["referencias", "por referencia"],
     definicion:
       "Lo que de verdad guarda una variable cuando dentro hay un objeto o una lista: no la cosa, sino dónde está. Por eso dos nombres pueden apuntar a lo mismo y tocar uno toca el otro.",
+    ejemplo: {
+      js: "const otros = gatos\notros.push('nuevo')   // gatos también ha crecido: son la misma lista",
+      php: "$copia = $sombrero;   // el mismo objeto: tocar uno toca el otro",
+    },
   },
   {
     id: "slot",
@@ -556,6 +610,7 @@ export const GLOSARIO = [
     alias: ["slots"],
     definicion:
       "Un hueco que un componente deja para que quien lo use meta dentro lo que quiera. Es lo que convierte un componente en algo reutilizable de verdad.",
+    ejemplo: { js: '<slot name="pie" />   // el hueco lo rellena quien use el componente' },
   },
   {
     id: "falsy",
@@ -617,6 +672,7 @@ export const GLOSARIO = [
     alias: ["efecto"],
     definicion:
       "Todo lo que una función hace además de devolver un valor: guardar algo, pedir datos, cambiar una variable de fuera. Es lo que hace que llamarla dos veces no dé lo mismo.",
+    ejemplo: { js: "localStorage.setItem('croquetas', 12)   // no devuelve nada: cambia algo de fuera" },
   },
   {
     id: "cache",
@@ -624,6 +680,7 @@ export const GLOSARIO = [
     termino: "caché",
     definicion:
       "Guardarse el resultado de un cálculo para no repetirlo mientras no cambie nada de lo que depende. Es lo que hace un `computed`.",
+    ejemplo: { js: "if (!visto.has(id)) visto.set(id, calcular(id))   // la segunda vez ya no calcula" },
   },
   {
     id: "refactorizar",
@@ -632,6 +689,10 @@ export const GLOSARIO = [
     alias: ["refactorización"],
     definicion:
       "Cambiar cómo está escrito algo sin cambiar lo que hace. Si el comportamiento cambia, aunque sea a mejor, ya no es refactorizar.",
+    ejemplo: {
+      js: "const raciones = 4   // antes se llamaba «r»: mismo comportamiento, mejor nombre",
+      php: "$raciones = 4;   // antes se llamaba «$r»: mismo comportamiento, mejor nombre",
+    },
   },
   {
     id: "depurar",
@@ -665,6 +726,7 @@ export const GLOSARIO = [
     alias: ["heredar"],
     definicion:
       "Que una clase se quede con todo lo de otra y añada lo suyo. Solo encaja cuando una **es** un tipo de la otra, no cuando la tiene dentro.",
+    ejemplo: "class Gato extends Animal { }   // solo si un Gato es un Animal",
   },
   {
     id: "getter",
@@ -707,6 +769,9 @@ export const GLOSARIO = [
     alias: ["almacenes"],
     definicion:
       "Un sitio donde vive un dato que miran varios componentes que no son padre e hijo. Por debajo es un objeto reactivo declarado fuera de toda función.",
+    ejemplo: {
+      js: "export const colonia = reactive({ gatos: [] })   // fuera de toda función, y lo ven todos",
+    },
   },
   {
     id: "gancho",
@@ -742,6 +807,10 @@ export const GLOSARIO = [
     alias: ["trazar"],
     definicion:
       "Seguir la ejecución paso a paso anotando qué vale cada cosa. También, la lista de llamadas que trae un error, de la más reciente a la más antigua.",
+    ejemplo: {
+      js: "at servir (croquetas.js:12)   // la llamada más reciente va arriba",
+      php: "#0 croquetas.php(12): servir()   // la llamada más reciente va arriba",
+    },
   },
   // ---- De PHP -------------------------------------------------------------
   {
@@ -893,7 +962,7 @@ export const GLOSARIO = [
     termino: "?.",
     alias: ["encadenamiento opcional"],
     definicion: "Pide algo de dentro de otra cosa **solo si esa cosa existe**. Si no existe, en vez de reventar, el resultado entero vale nulo. Ahorra el `if` de comprobar cada paso del camino.",
-    ejemplo: { js: "agente.sombrero?.color" },
+    ejemplo: { js: "agente.sombrero?.color", php: "$agente?->sombrero?->color" },
   },
   {
     id: "var-dump",
@@ -937,6 +1006,7 @@ export const GLOSARIO = [
     alias: ["bases de datos"],
     definicion:
       "Un sitio donde los datos viven ordenados en **tablas** y al que se le pueden hacer preguntas. No es un fichero que se lee de arriba abajo: es algo a lo que se pregunta, y contesta.",
+    ejemplo: { sql: "SELECT COUNT(*) FROM habitantes   -- se le pregunta, y contesta" },
   },
   {
     id: "sql",
@@ -952,6 +1022,7 @@ export const GLOSARIO = [
     termino: "SQLite",
     definicion:
       "La base de datos que corre dentro de este juego, entera y sin servidor. Es la misma que llevan tu teléfono y tu navegador, así que lo que aprendas aquí lo has aprendido de verdad.",
+    ejemplo: { sql: "SELECT sqlite_version()   -- la misma que llevan tu teléfono y tu navegador" },
   },
   {
     id: "tabla",
@@ -960,6 +1031,7 @@ export const GLOSARIO = [
     alias: ["tablas"],
     definicion:
       "Una rejilla de datos, con nombre. Las **columnas** dicen qué se guarda de cada cosa y las **filas** son las cosas. Una tabla `habitantes` tiene una fila por habitante.",
+    ejemplo: { sql: "CREATE TABLE puestos (id INTEGER PRIMARY KEY, nombre TEXT, monedas INTEGER)" },
   },
   {
     id: "fila",
@@ -968,6 +1040,7 @@ export const GLOSARIO = [
     alias: ["filas", "registro", "registros"],
     definicion:
       "Una cosa de la tabla: un habitante, un puesto, una venta. Cada fila tiene un valor en cada columna, y ninguna fila sabe nada de las demás.",
+    ejemplo: { sql: "SELECT * FROM habitantes WHERE id = 1   -- una fila: Raoden, de Kae, escribiente, 26" },
   },
   {
     id: "columna",
@@ -976,6 +1049,7 @@ export const GLOSARIO = [
     alias: ["columnas", "campo", "campos"],
     definicion:
       "Uno de los datos que se guarda de cada fila, con su nombre y su tipo. `nombre` es una columna; `Raoden` es lo que vale esa columna en una fila concreta.",
+    ejemplo: { sql: "oficio TEXT NOT NULL   -- así se declara; 'cantero' es lo que vale en una fila" },
   },
   {
     id: "esquema",
@@ -992,6 +1066,7 @@ export const GLOSARIO = [
     alias: ["consultas"],
     definicion:
       "Una pregunta escrita en SQL. Se manda entera, se ejecuta entera y devuelve filas. Como un aon: bien trazada hace lo que tenía que hacer, y mal trazada no hace nada.",
+    ejemplo: { sql: "SELECT nombre, oficio FROM habitantes WHERE edad < 30 ORDER BY nombre" },
   },
   {
     id: "select",
@@ -1086,6 +1161,7 @@ export const GLOSARIO = [
     termino: "ON",
     definicion:
       "La condición que dice **qué fila de aquí va con qué fila de allí**. No es un filtro: es la costura. Un `ON` mal escrito no da error, da otras filas -o todas contra todas-.",
+    ejemplo: { sql: "ON puestos.gremio_id = gremios.id   -- qué fila de aquí va con qué fila de allí" },
   },
   {
     id: "left-join",
@@ -1102,6 +1178,7 @@ export const GLOSARIO = [
     termino: "producto cartesiano",
     definicion:
       "Lo que sale al unir dos tablas **sin decir por dónde**: cada fila de una contra cada fila de la otra. Nueve puestos y seis gremios dan cincuenta y cuatro filas, todas creíbles y casi todas falsas. Es el fallo más caro de este mundo, porque no da error.",
+    ejemplo: { sql: "FROM puestos, gremios   -- sin ON: nueve por seis, cincuenta y cuatro filas" },
   },
   {
     id: "distinct",
@@ -1187,6 +1264,7 @@ export const GLOSARIO = [
     termino: "ROW_NUMBER",
     definicion:
       "Numera las filas dentro de su ventana: 1, 2, 3, sin repetir nunca. Es la herramienta de «el mejor de cada grupo»: se numera y se pide el número 1. `RANK` hace lo mismo pero repite el número en los empates y luego salta; `DENSE_RANK` repite y no salta.",
+    ejemplo: { sql: "ROW_NUMBER() OVER (PARTITION BY puesto_id ORDER BY monedas DESC)   -- 1, 2, 3 sin repetir" },
   },
   {
     id: "is-null",
@@ -1203,6 +1281,7 @@ export const GLOSARIO = [
     termino: "lógica de tres valores",
     definicion:
       "En SQL una condición no vale verdadero o falso: vale verdadero, falso o **desconocido**, y lo tercero aparece en cuanto hay un nulo. Las condiciones solo dejan pasar lo verdadero, así que «desconocido» se comporta como falso al filtrar y **no** al negar: lo contrario de desconocido sigue siendo desconocido.",
+    ejemplo: { sql: "SELECT NULL = NULL   -- ni verdadero ni falso: desconocido" },
   },
   // ---- SQL · Los trazos -------------------------------------------------
   {
@@ -1322,6 +1401,7 @@ export const GLOSARIO = [
     alias: ["hasheado", "hasheada"],
     definicion:
       "Calcular el hash de algo. No es cifrar, y la diferencia se decide con una sola pregunta: lo cifrado se descifra -para eso se cifra-, y el hash no vuelve.",
+    ejemplo: { js: "hashear(clave)   // sale una firma, y no hay función que la deshaga" },
   },
   {
     id: "cifrar",
@@ -1330,6 +1410,7 @@ export const GLOSARIO = [
     alias: ["cifrado", "descifrar", "encriptar"],
     definicion:
       "Transformar algo con una llave para poder recuperarlo después con esa misma llave. Sirve para lo que hay que leer más adelante, no para las contraseñas: si el servidor puede descifrarlas, quien se lleve el servidor también.",
+    ejemplo: { js: "descifrar(cifrar(nota, llave), llave)   // vuelve: por eso no vale para claves" },
   },
   {
     id: "hash-lento",
@@ -1347,6 +1428,7 @@ export const GLOSARIO = [
     alias: ["vueltas", "iteraciones"],
     definicion:
       "Cuántas veces repite la cuenta un hash lento. Es un dial que se sube con los años, a medida que los ordenadores se abaratan: el mismo número que hoy tarda un décimo de segundo, dentro de diez años tardará mucho menos y habrá que subirlo.",
+    ejemplo: { js: "hashLento(sal + ':' + clave, 600000)   // el dial: más vueltas, más caro" },
   },
   {
     id: "sal",
@@ -1363,6 +1445,7 @@ export const GLOSARIO = [
     termino: "fuerza bruta",
     definicion:
       "Probar candidatos uno a uno hasta acertar. Es lo único que le queda a quien roba una tabla bien guardada, y es contra lo que protege el hash lento: no hace imposible el ataque, lo hace caro.",
+    ejemplo: { js: "if (hashLento(sal, candidata) === firma) return candidata   // y otra, y otra…" },
   },
   {
     id: "tabla-precalculada",
@@ -1371,6 +1454,7 @@ export const GLOSARIO = [
     alias: ["rainbow table", "tabla arcoíris"],
     definicion:
       "Un diccionario de firma a contraseña calculado de antemano con las contraseñas más usadas. Se descarga hecho, y hace que la lentitud del hash no sirva de nada: lo lento se pagó una vez, no una vez por cuenta. Es exactamente lo que rompe la sal.",
+    ejemplo: { js: "{ '5f4dcc3b…': '123456', 'e10adc39…': 'abc123' }   // ya calculado" },
   },
   {
     id: "autenticar",
@@ -1379,6 +1463,7 @@ export const GLOSARIO = [
     alias: ["autenticación", "identificarse"],
     definicion:
       "Comprobar que alguien es quien dice ser. Se hace una vez, al entrar. No confundir con autorizar, que es comprobar qué puede hacer y se hace cada vez: casi todos los agujeros graves están en la segunda.",
+    ejemplo: { js: "if (hashLento(sal, clave) !== firma) return 'no'   // una vez, al entrar" },
   },
   {
     id: "credencial",
@@ -1387,6 +1472,7 @@ export const GLOSARIO = [
     alias: ["credenciales"],
     definicion:
       "Cualquier cosa que sirva para demostrar quién eres. Una contraseña lo es, y también el identificador de una sesión: robar una sesión es tan bueno como robar una contraseña, y más cómodo, porque no hay nada que adivinar.",
+    ejemplo: { js: "Cookie: sesion=9f2c4a71…   // robar esto vale tanto como robar la clave" },
   },
   {
     id: "sesion",
@@ -1404,6 +1490,7 @@ export const GLOSARIO = [
     alias: ["caducar", "expiración"],
     definicion:
       "Cuándo deja de valer una sesión. Hacen falta dos y protegen de cosas distintas: la absoluta mata la sesión pase lo que pase -contra la sesión robada que el ladrón mantiene viva- y la de inactividad la cierra si nadie la usa -contra el ordenador que alguien deja abierto-.",
+    ejemplo: { js: "{ caducaEn: ahora + 900000, muereEn: ahora + 28800000 }   // las dos hacen falta" },
   },
   {
     id: "tiempo-constante",
@@ -1420,6 +1507,7 @@ export const GLOSARIO = [
     termino: "enumeración de usuarios",
     definicion:
       "Averiguar quién está dado de alta sin entrar en ninguna cuenta, porque el sistema contesta distinto -o tarda distinto- con un usuario que existe y con uno que no. No abre ninguna puerta y sigue siendo una filtración: dice quién es cliente de dónde.",
+    ejemplo: { js: "'Ese correo no está dado de alta'   // así no: contesta lo mismo siempre" },
   },
   {
     id: "validar",
@@ -1428,6 +1516,7 @@ export const GLOSARIO = [
     alias: ["validación", "validaciones"],
     definicion:
       "Decidir si un dato entra. Se hace una vez, al recibirlo, y la respuesta es sí o no. No es lo mismo que escapar, que se hace al escribir y devuelve un texto transformado: un dato válido hay que escaparlo igual.",
+    ejemplo: { js: "if (!esValido(bruto)) return rechazar()   // sí o no, una vez, al recibirlo" },
   },
   {
     id: "lista-de-permitidos",
@@ -1445,6 +1534,7 @@ export const GLOSARIO = [
     alias: ["denylist", "lista negra"],
     definicion:
       "Enumerar lo malo y dejar pasar el resto. No puede funcionar: tendría que incluir todo lo malo que existe y todo lo que se inventará. Y un filtro que **borra** lo prohibido es peor todavía, porque al borrar junta los trozos de los lados y puede construir el ataque él solo.",
+    ejemplo: { js: "bruto.replace('<script>', '')   // así no: '<scr<script>ipt>' pasa entero" },
   },
   {
     id: "escapar",
@@ -1470,6 +1560,7 @@ export const GLOSARIO = [
     termino: "doble escapado",
     definicion:
       "Escapar dos veces lo mismo, y en pantalla se ve: el usuario lee `a &lt; b` donde escribió `a < b`. No es un agujero, es un texto roto, y por eso dura años. Sale de escapar en dos capas que no saben la una de la otra, o de sustituir el ampersand al final.",
+    ejemplo: { js: "escapar(escapar('a < b'))   // en pantalla: 'a &amp;lt; b'" },
   },
   {
     id: "xss",
@@ -1478,6 +1569,7 @@ export const GLOSARIO = [
     alias: ["cross-site scripting", "inyección de scripts"],
     definicion:
       "Conseguir que el navegador de otra persona ejecute código tuyo, colándolo en una página. Hay tres clases: **reflejado** -va en la petición y vuelve en la respuesta-, **almacenado** -se guarda y se sirve a todo el que entre, que es el peor- y **en el DOM** -no llega nunca al servidor: lo monta el JavaScript de la página-.",
+    ejemplo: { js: "<img src=x onerror=robar()>   // guardado en un comentario, se sirve a todos" },
   },
   {
     id: "sanear",
@@ -1486,6 +1578,7 @@ export const GLOSARIO = [
     alias: ["saneado", "sanitizar"],
     definicion:
       "Cuando de verdad hace falta admitir HTML del usuario -un editor con negritas-, no se filtra: una biblioteca lo convierte en árbol y **reconstruye** un documento nuevo copiando solo las etiquetas y atributos de una lista de permitidos. Lo que no esté en la lista no aparece, aunque nadie hubiera pensado en él.",
+    ejemplo: { js: "sanearHtml(bruto, { permitidas: ['b', 'i', 'a'] })   // reconstruye, no filtra" },
   },
   {
     id: "canonicalizar",
@@ -1502,6 +1595,7 @@ export const GLOSARIO = [
     termino: "confusión de validación",
     definicion:
       "Validar un valor y usar otro. Sobrevive a las revisiones porque las dos variables se llaman parecido. La defensa es que la validación **devuelva el valor bueno** en vez de un sí o un no: así el original no vuelve a estar disponible por accidente.",
+    ejemplo: { js: "if (esValido(limpio)) guardar(bruto)   // valida uno y guarda el otro" },
   },
   {
     id: "atributo-sin-comillas",
@@ -1509,6 +1603,7 @@ export const GLOSARIO = [
     termino: "atributo sin comillas",
     definicion:
       "El caso donde escapar bien no basta: un atributo HTML sin comillas termina en el primer espacio, y el espacio no está entre los cinco caracteres que se escapan. Con `title=x onmouseover=robar()` el navegador lee dos atributos. Hacen falta las dos cosas: escapar y entrecomillar.",
+    ejemplo: { js: "<span title=x onmouseover=robar()>   // el espacio abre otro atributo" },
   },
   {
     id: "consulta-parametrizada",
@@ -1528,6 +1623,7 @@ export const GLOSARIO = [
     alias: ["mass assignment"],
     definicion:
       "Copiar de golpe todos los campos que llegan en una petición a un objeto del sistema. Pasa cualquier validación de los campos que sí esperabas, y de paso cuela los que no: un `esAdmin: true` que nadie pidió. La defensa es enumerar los campos que se copian.",
+    ejemplo: { js: "Object.assign(usuario, recibido)   // cuela el esAdmin que nadie pidió" },
   },
   {
     id: "redos",
@@ -1535,6 +1631,7 @@ export const GLOSARIO = [
     termino: "ReDoS",
     definicion:
       "Una expresión regular con repeticiones anidadas puede tardar tiempo exponencial con cierta entrada: una denegación de servicio con cuarenta caracteres de texto. Por eso el límite de longitud va **antes** de la expresión y no después.",
+    ejemplo: { js: "/^(a+)+$/.test('aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaX')   // anidada: se queda ahí" },
   },
   {
     id: "inyeccion",
@@ -1562,6 +1659,7 @@ export const GLOSARIO = [
     termino: "OR 1=1",
     definicion:
       "La carga más famosa que existe. Un `OR` a la derecha de un `WHERE` anula todo lo que había a la izquierda, porque `AND` se evalúa antes que `OR`: la condición entera se cumple para todas las filas. Y la variante fina es peor: `OR secreto = 1` devuelve solo lo prohibido, sin llamar la atención.",
+    ejemplo: "' OR es_secreto = 1 --   // la variante fina: solo lo prohibido, y sin ruido",
   },
   {
     id: "union-inyectado",
@@ -1578,6 +1676,7 @@ export const GLOSARIO = [
     alias: ["blind injection"],
     definicion:
       "Sacar el dato sin verlo, letra a letra: si la página contesta distinto -o tarda distinto- cuando la condición es verdadera, se pregunta «¿la primera letra es mayor que m?» y se va acotando. Nueve preguntas por letra. Lento para una persona, trivial para un programa.",
+    ejemplo: "' AND substr(clave, 1, 1) > 'm' --   // contesta distinto, y ya se sabe algo",
   },
   {
     id: "estructura-frente-a-valor",
@@ -1585,6 +1684,7 @@ export const GLOSARIO = [
     termino: "estructura frente a valor",
     definicion:
       "La línea que decide qué se puede parametrizar. Un **valor** -un nombre, un número, un límite- va en un parámetro. La **estructura** -qué columna ordena, de qué tabla se lee, el sentido del orden- no: se elige de una lista cerrada escrita por ti. `ORDER BY :columna` no da error: ordena por una constante, o sea por nada.",
+    ejemplo: "ORDER BY :columna   -- no da error: ordena por una constante, o sea por nada",
   },
   {
     id: "catalogo-del-motor",
@@ -1601,6 +1701,7 @@ export const GLOSARIO = [
     termino: "mínimo privilegio",
     definicion:
       "Que el usuario con el que tu programa se conecta a la base pueda hacer exactamente lo que el programa necesita y nada más. No evita la inyección: limita lo que se lleva. Es la defensa de segunda línea, para el día que la primera falle.",
+    ejemplo: "conectar({ usuario: 'informes', permisos: ['SELECT'] })   // no puede borrar nada",
   },
   {
     id: "autorizar",
@@ -1609,6 +1710,7 @@ export const GLOSARIO = [
     alias: ["autorización", "permiso", "permisos"],
     definicion:
       "Comprobar qué puede hacer alguien. Se hace **cada vez que se toca algo**, y no una vez al entrar: eso es autenticar. Casi todos los agujeros graves de una aplicación están en esta comprobación y no en la otra, porque la mayoría de las filtraciones las hace alguien con cuenta pidiendo lo que no es suyo.",
+    ejemplo: { js: "if (expediente.de !== usuario.id) return 403   // cada vez que se toca algo" },
   },
   {
     id: "idor",
@@ -1626,6 +1728,7 @@ export const GLOSARIO = [
     alias: ["denegado por defecto"],
     definicion:
       "Lo que no está declarado, no se puede. Es la lista de permitidos aplicada a los permisos: con la política contraria, cada acción nueva que alguien añada nace abierta para todos y nadie se entera hasta que se usa. Molesta -algo deja de funcionar cuando te olvidas de declararlo- y eso es lo que se quiere: un fallo que se ve se arregla.",
+    ejemplo: { js: "if (!PERMITIDAS[accion]?.includes(rol)) return 403   // lo que no está, no se puede" },
   },
   {
     id: "limite-de-intentos",
@@ -1634,6 +1737,7 @@ export const GLOSARIO = [
     alias: ["rate limit", "limitar la frecuencia"],
     definicion:
       "Contar los fallos y dejar de atender al pasarse. Cuatro piezas: **por cuenta**, **por origen**, **en una ventana** de tiempo -los fallos de hace veinte minutos ya no cuentan- y **con espera** en vez de bloqueo permanente, porque bloquear para siempre es un ataque en sí mismo. Y acertar no borra los fallos.",
+    ejemplo: { js: "if (fallos(cuenta, '15 min') >= 5) return espera(60)   // ventana, y espera" },
   },
   {
     id: "relleno-de-credenciales",
@@ -1642,6 +1746,9 @@ export const GLOSARIO = [
     alias: ["credential stuffing"],
     definicion:
       "Coger una filtración de otro sitio y probar cada par de correo y contraseña **una sola vez** en el tuyo. Un intento por cuenta, cien mil cuentas, ningún límite tocado. Funciona en un tanto por ciento pequeño que es suficiente, y contra esto el límite por cuenta no hace nada: hace falta el de origen.",
+    ejemplo: {
+      js: "POST /entrar { correo, clave de otra filtración }   // uno por cuenta, cien mil cuentas",
+    },
   },
   {
     id: "escalada-de-privilegios",
@@ -1649,6 +1756,7 @@ export const GLOSARIO = [
     termino: "escalada de privilegios",
     definicion:
       "Conseguir hacer más de lo que te corresponde. **Horizontal** es acceder a lo de otro usuario de tu mismo nivel -eso es un IDOR-; **vertical** es conseguir el nivel de encima. La segunda suele salir de un permiso que se guardó en la sesión o de una acción que nadie declaró.",
+    ejemplo: { js: "sesion.rol = 'admin'   // vertical; la horizontal es el expediente de al lado" },
   },
   {
     id: "fuga-por-el-error",
@@ -1657,6 +1765,7 @@ export const GLOSARIO = [
     alias: ["error que cuenta demasiado"],
     definicion:
       "La forma de decir «no» también es información. Un `403` confirma que el recurso existe y un `404` no, así que recorrer identificadores anotando cuál es cuál dibuja el sistema entero sin entrar en nada. La regla: **si no puedes verlo, para ti no existe**, y la misma respuesta para las tres razones de negarlo.",
+    ejemplo: { js: "res.status(404)   // lo mismo para «no existe», «no es tuyo» y «no puedes»" },
   },
   {
     id: "referencia-de-error",
@@ -1664,6 +1773,7 @@ export const GLOSARIO = [
     termino: "referencia de error",
     definicion:
       "Un identificador aleatorio que va en la respuesta y también en el registro del servidor. Es lo que permite dar un mensaje escueto sin dejar a nadie sin ayuda: el usuario dice «me sale el error a41f-93c2» y alguien puede buscar qué pasó de verdad. Aleatorio y no un contador, que un contador cuenta cuántos errores ha habido.",
+    ejemplo: { js: "{ error: 'No se ha podido guardar', ref: 'a41f-93c2' }   // el detalle, al registro" },
   },
   {
     id: "fuente-que-manda",
@@ -1672,6 +1782,7 @@ export const GLOSARIO = [
     alias: ["fuente de la verdad"],
     definicion:
       "El único sitio donde un dato es el bueno. Un dato copiado es un dato viejo desde el momento en que se copia, así que los permisos, el estado de una cuenta o el precio de algo se leen **cuando se usan** y no se guardan en la sesión: si no, quitarle un permiso a alguien no le quita nada hasta que vuelva a entrar.",
+    ejemplo: { js: "const rol = await base.rolDe(usuario.id)   // no sesion.rol, que es una copia" },
   },
   {
     id: "integridad",
@@ -1679,6 +1790,7 @@ export const GLOSARIO = [
     termino: "integridad",
     definicion:
       "Que el dato sea el que se escribió y no lo haya cambiado nadie. Es una de las tres protecciones y no es la misma que la confidencialidad -que no lo lean, y eso se hace cifrando- ni que la autenticidad -que sea de quien dice-. Firmar da integridad y autenticidad; no da confidencialidad.",
+    ejemplo: { js: "sello(contenido, secreto) === firmaRecibida   // no lo ha tocado nadie" },
   },
   {
     id: "firmar",
@@ -1696,6 +1808,7 @@ export const GLOSARIO = [
     alias: ["base64", "base64url", "descodificar"],
     definicion:
       "Escribir los mismos bytes de otra manera para que pasen por un canal que no admite cualquiera -una URL, una cabecera-. **No protege nada**: se deshace sin secreto. Cada vez que alguien dice «va en base64, así que está protegido» hay un dato en claro que cualquiera lee.",
+    ejemplo: { js: "atob('YWJlamExNA==')   // 'abeja14': se deshace sin secreto ninguno" },
   },
   {
     id: "papel-firmado",
@@ -1704,6 +1817,7 @@ export const GLOSARIO = [
     alias: ["testigo firmado", "token", "JWT"],
     definicion:
       "Un contenido a la vista con su firma detrás. No se puede **revocar** si el servidor no lo guarda -no hay dónde tacharlo-, así que lo único que lo mata es la caducidad, y por eso tiene que ser corta y llevar poca cosa dentro. Un rol dentro de un papel firmado es un permiso copiado.",
+    ejemplo: { js: "Authorization: Bearer eyJ1c3VhcmlvIjo3fQ.9f2c4a71…   // a la vista, y firmado" },
   },
   {
     id: "azar-criptografico",
@@ -1720,6 +1834,7 @@ export const GLOSARIO = [
     termino: "semilla",
     definicion:
       "El punto de partida de un generador. Dos generadores con la misma semilla dan **exactamente la misma serie**, y eso es lo que se quiere en una simulación y lo que arruina un secreto: se reconstruye la serie y se adelanta hasta donde vaya el otro. Una semilla escrita en el código es peor: mil máquinas reparten la misma serie.",
+    ejemplo: { js: "generador(1234)   // dos generadores con la misma semilla dan la misma serie" },
   },
   {
     id: "rotar-un-secreto",
@@ -1728,6 +1843,7 @@ export const GLOSARIO = [
     alias: ["rotación"],
     definicion:
       "Cambiarlo por otro. Es lo único que hay que hacer cuando un secreto se filtra: borrarlo del código no lo borra del historial ni de las copias que haya por ahí. Para poder rotar sin echar a todo el mundo se numera el secreto: el papel dice con cuál se firmó y el servidor conoce el actual y el anterior.",
+    ejemplo: { js: "{ n: 2, firma: sello(datos, SECRETOS[2]) }   // el papel dice con cuál se firmó" },
   },
   {
     id: "variable-de-entorno",
@@ -1736,6 +1852,7 @@ export const GLOSARIO = [
     alias: ["gestor de secretos"],
     definicion:
       "Dónde vive lo que no puede ir en el código. Es el mínimo razonable y no es perfecta -aparece en volcados y en algunos registros-; un gestor de secretos añade lo que de verdad hace falta: poder rotarlo sin tocar el código y saber quién lo ha leído. Y ojo: fuera del código va **todo lo que depende del entorno**, aunque no sea secreto.",
+    ejemplo: { js: "process.env.SECRETO_DE_FIRMA   // fuera del código, y rotable sin tocarlo" },
   },
   {
     id: "politica-de-contenidos",
@@ -1753,6 +1870,7 @@ export const GLOSARIO = [
     alias: ["lockfile", "cadena de suministro"],
     definicion:
       "El que dice qué versión exacta se instaló, de dónde, y con qué hash. El hash es la única línea que puede impedir una instalación: si el contenido del paquete cambia sin cambiar la versión, falla. Se sube al repositorio, y en la máquina de construcción se instala **solo desde él**.",
+    ejemplo: { js: "'gato': { version: '1.4.2', integrity: 'sha512-…' }   // versión exacta y hash" },
   },
   {
     id: "huella-del-servidor",
@@ -1760,6 +1878,7 @@ export const GLOSARIO = [
     termino: "huella del servidor",
     definicion:
       "Lo que tu sistema cuenta de sí mismo sin que se lo pregunten: cabeceras como `Server` o `X-Powered-By`, rastros de excepciones, mensajes de error con versiones. Con la versión exacta se busca su lista pública de agujeros conocidos. Quitarlo no protege por sí solo y le quita el atajo a quien prueba en masa.",
+    ejemplo: { js: "Server: nginx/1.18.0   // con la versión exacta se busca su lista de agujeros" },
   },
   {
     id: "costura",
@@ -1767,6 +1886,7 @@ export const GLOSARIO = [
     termino: "costura",
     definicion:
       "El sitio donde acaba una defensa y empieza otra, y donde están casi todos los agujeros que duran años. Todos los retos de este camino que **no tenían ningún error** son de este tipo: cada pieza bien y la unión mal. Cualquier sitio donde un dato exista dos veces -crudo y tratado- es una costura.",
+    ejemplo: { js: "const limpio = escapar(bruto)   // y tres líneas después alguien vuelve a usar bruto" },
   },
   {
     id: "flujo-del-dato",
@@ -1775,6 +1895,7 @@ export const GLOSARIO = [
     alias: ["seguir el dato"],
     definicion:
       "La manera de leer código buscando agujeros: se empieza por lo peligroso -una consulta, un `innerHTML`, una escritura- y se sigue el dato **hacia atrás** hasta ver de dónde sale. Si en algún punto viene de fuera y nadie lo ha aprobado, ahí está. Y si lo aprobó alguien pero aprobó otra variable, también.",
+    ejemplo: { js: "base.consultar(sql)  ←  sql = '…' + pedida  ←  pedida = lo que llegó   // hacia atrás" },
   },
   {
     id: "test-hostil",
@@ -1782,6 +1903,7 @@ export const GLOSARIO = [
     termino: "test hostil",
     definicion:
       "Un test que parte de un uso **hostil** y comprueba que rebota, en vez de partir de un uso correcto y comprobar el resultado. Es la diferencia que decide en esta materia: un test de resultado no distingue la versión buena de la mala en ninguno de los retos de este camino.",
+    ejemplo: { js: "esperar(entrar(\"' OR 1=1 --\")).igualA('no')   // parte del ataque, no del uso normal" },
   },
   {
     id: "defensa-en-profundidad",
@@ -1796,6 +1918,7 @@ export const GLOSARIO = [
     termino: "encarecer el ataque",
     definicion:
       "De lo que va todo esto. El hash lento, la ventana de intentos, la caducidad corta, el identificador de treinta y dos caracteres: ninguno hace imposible un ataque; todos lo hacen costar más de lo que vale. «Contra recursos ilimitados no hay nada que hacer» es la frase que justifica no hacer nada, y nadie tiene recursos ilimitados.",
+    ejemplo: { js: "azarLargo(32)   // no es imposible adivinarlo: es que no vale la pena" },
   },
   {
     id: "detectar",
@@ -1804,6 +1927,9 @@ export const GLOSARIO = [
     alias: ["registro de auditoría"],
     definicion:
       "La otra mitad del trabajo, que este camino no cubre: registros que se guarden, alertas que salten y la capacidad de reconstruir qué pasó. «No hemos tenido incidentes» y «no hemos detectado incidentes» son dos frases distintas, y casi siempre se dice la primera queriendo decir la segunda.",
+    ejemplo: {
+      js: "registrar({ que: 'entrada fallida', cuenta, origen, cuando })   // para poder reconstruirlo",
+    },
   },
 ]
 
