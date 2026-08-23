@@ -87,6 +87,16 @@
     base.run('PRAGMA foreign_keys = ON;')
     if (esquema) base.run(esquema)
     if (datos) base.run(datos)
+
+    // Y a cero el contador de filas cambiadas.
+    //
+    // SQLite guarda «cuántas filas cambió la última orden que cambió filas», y
+    // eso **no lo pone a cero un `SELECT`**. Después de montar los datos el
+    // contador vale lo que haya insertado el último `INSERT` del montaje, así
+    // que una consulta de solo leer salía con un «(4 filas cambiadas)» que era
+    // del montaje y no del jugador. Un `DELETE` que no borra nada sí lo pone a
+    // cero, y esta tabla temporal está para eso y para nada más.
+    base.run('CREATE TEMP TABLE gatos_contador (x); DELETE FROM gatos_contador;')
     return base
   }
 
@@ -217,8 +227,17 @@
         }
         // Lo que ha devuelto, a la consola, antes de comprobar nada: si un test
         // falla, lo primero que hay que poder mirar es qué ha salido de verdad.
-        // Una consulta que no devuelve filas -un `UPDATE`- no imprime nada.
         for (var i = 0; i < resultados.length; i++) console.log(comoTabla(resultados[i]))
+
+        // Y cuántas filas ha cambiado, que es lo único que devuelve un `INSERT`,
+        // un `UPDATE` o un `DELETE`. Sin esto, un mundo entero de escribir en la
+        // base no daría ni una señal de vida: la consola se quedaba vacía y el
+        // jugador solo veía tests en verde o en rojo, sin saber qué había pasado.
+        // Es lo que imprime cualquier consola de SQL de verdad.
+        var cambiadas = base.getRowsModified()
+        if (cambiadas > 0) {
+          console.log('(' + cambiadas + (cambiadas === 1 ? ' fila cambiada)' : ' filas cambiadas)'))
+        }
         return construirTests(envio.tests || [])(api, utilesDe(base, resultados, envio.codigo))
       })
       .then(

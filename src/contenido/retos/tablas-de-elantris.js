@@ -288,6 +288,71 @@ export const MERCADO = {
   datos: `${GREMIOS.datos}\n\n${PUESTOS_SIN_TOTAL.datos}\n\n${VENTAS.datos}`,
 }
 
+// ---- Los trazos: la base con sus reglas puestas ---------------------------
+//
+// El mismo mercado y un esquema **con guardias**. Hasta ahora las tablas solo
+// decían qué columnas hay; aquí dicen además qué no se puede guardar:
+//
+// - `nombre TEXT NOT NULL UNIQUE` — dos puestos no se pueden llamar igual.
+// - `gremio_id REFERENCES gremios(id)` — no se puede apuntar a un gremio que no
+//   existe, ni borrar un gremio que tenga puestos.
+// - `abierto CHECK (abierto IN (0, 1))` — esa columna solo admite dos valores.
+// - `UNIQUE (puesto_id, dia)` en las ventas — un puesto no puede tener dos
+//   apuntes del mismo día. Se llama clave única compuesta y es lo que evita el
+//   duplicado que se cuela al reintentar un formulario.
+//
+// Eso no es documentación: **la base lo hace cumplir**, y el mundo entero va de
+// eso. Una regla escrita en el esquema la cumplen todos los programas que
+// escriban en esa tabla, incluidos los que se escriban dentro de tres años y
+// los que se equivoquen. Una regla escrita en el programa la cumple ese
+// programa.
+export const TRAZOS = {
+  esquema: codigo(
+    'CREATE TABLE gremios (',
+    '  id INTEGER PRIMARY KEY,',
+    '  nombre TEXT NOT NULL UNIQUE',
+    ');',
+    '',
+    'CREATE TABLE puestos (',
+    '  id INTEGER PRIMARY KEY,',
+    '  nombre TEXT NOT NULL UNIQUE,',
+    '  gremio_id INTEGER REFERENCES gremios(id),',
+    '  abierto INTEGER NOT NULL DEFAULT 1 CHECK (abierto IN (0, 1))',
+    ');',
+    '',
+    'CREATE TABLE ventas (',
+    '  id INTEGER PRIMARY KEY,',
+    '  puesto_id INTEGER NOT NULL REFERENCES puestos(id),',
+    '  dia TEXT NOT NULL,',
+    '  monedas INTEGER NOT NULL CHECK (monedas >= 0),',
+    '  UNIQUE (puesto_id, dia)',
+    ');',
+  ),
+  datos: codigo(
+    'INSERT INTO gremios (id, nombre) VALUES',
+    "  (1, 'escribas'),",
+    "  (2, 'canteros'),",
+    "  (3, 'cocineros'),",
+    "  (4, 'aones');",
+    '',
+    'INSERT INTO puestos (id, nombre, gremio_id, abierto) VALUES',
+    "  (1, 'Aon Aon',      1, 1),",
+    "  (2, 'La piedra',    2, 1),",
+    "  (3, 'El caldero',   3, 1),",
+    "  (4, 'Aon Ien',      1, 0),",
+    "  (5, 'La muralla',   2, 1),",
+    "  (6, 'El tenderete', NULL, 1);",
+    '',
+    'INSERT INTO ventas (id, puesto_id, dia, monedas) VALUES',
+    "  (1, 1, 'lunes',   140),",
+    "  (2, 1, 'martes',   60),",
+    "  (3, 2, 'lunes',    95),",
+    "  (4, 3, 'lunes',   210),",
+    "  (5, 3, 'martes',   90),",
+    "  (6, 6, 'lunes',   165);",
+  ),
+}
+
 /** Las dos juntas, para los retos que hablan del mercado y del censo a la vez. */
 export const KAE = {
   esquema: `${HABITANTES.esquema}\n\n${PUESTOS.esquema}`,

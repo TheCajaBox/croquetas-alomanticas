@@ -1198,6 +1198,67 @@ export const GLOSARIO = [
     definicion:
       "En SQL una condición no vale verdadero o falso: vale verdadero, falso o **desconocido**, y lo tercero aparece en cuanto hay un nulo. Las condiciones solo dejan pasar lo verdadero, así que «desconocido» se comporta como falso al filtrar y **no** al negar: lo contrario de desconocido sigue siendo desconocido.",
   },
+  // ---- SQL · Los trazos -------------------------------------------------
+  {
+    id: "insert",
+    desde: { elantris: 'trazos' },
+    termino: "INSERT",
+    definicion:
+      "Mete filas nuevas en una tabla. Se nombran las columnas que se rellenan -las que no, se quedan con su valor por omisión o a nulo- y se dan los valores. Nombrarlas no es opcional en la práctica: sin nombres, el día que la tabla gane una columna, el `INSERT` deja de cuadrar.",
+    ejemplo: "INSERT INTO puestos (nombre, gremio_id) VALUES ('Aon Ashe', 1)",
+  },
+  {
+    id: "update",
+    desde: { elantris: 'trazos' },
+    termino: "UPDATE",
+    definicion:
+      "Cambia filas que ya están. **Sin `WHERE` cambia todas**, y eso no da ningún error. La costumbre que hay que coger hoy: escribir primero el `SELECT` con ese mismo `WHERE`, mirar qué filas salen, y solo entonces cambiarle el verbo.",
+    ejemplo: "UPDATE puestos SET abierto = 0 WHERE id = 4",
+  },
+  {
+    id: "delete",
+    desde: { elantris: 'trazos' },
+    termino: "DELETE",
+    definicion:
+      "Borra filas. Lo mismo que el `UPDATE` y peor: sin `WHERE` vacía la tabla y no hay nada que deshacer si no estabas dentro de una transacción.",
+    ejemplo: "DELETE FROM ventas WHERE monedas = 0",
+  },
+  {
+    id: "transaccion",
+    desde: { elantris: 'trazos' },
+    termino: "transacción",
+    alias: ["transacciones", "COMMIT", "ROLLBACK"],
+    definicion:
+      "Varias órdenes tratadas como una: entre `BEGIN` y `COMMIT`, **o pasan todas o no pasa ninguna**. Si algo falla en medio, un `ROLLBACK` deja la base como estaba. Es lo que evita que un traspaso deje el dinero quitado de un lado y no puesto en el otro.",
+    ejemplo: "BEGIN; UPDATE …; UPDATE …; COMMIT;",
+  },
+  {
+    id: "restriccion",
+    desde: { elantris: 'trazos' },
+    termino: "restricción",
+    alias: ["restricciones", "UNIQUE", "NOT NULL", "CHECK"],
+    definicion:
+      "Una regla escrita en el esquema que la base hace cumplir: `NOT NULL`, `UNIQUE`, `CHECK`, las claves ajenas. La diferencia con comprobarlo en el programa es quién la cumple: una regla en el esquema la cumplen **todos** los programas que escriban ahí, incluidos los que se escriban dentro de tres años.",
+    ejemplo: "nombre TEXT NOT NULL UNIQUE",
+  },
+  {
+    id: "indice-sql",
+    desde: { elantris: 'trazos' },
+    termino: "índice de base de datos",
+    alias: ["CREATE INDEX"],
+    definicion:
+      "Una copia ordenada de una columna que la base mantiene al día para poder buscar sin recorrer la tabla entera. Acelera las lecturas y **encarece las escrituras**, porque hay que mantenerlo. No es magia y no se ponen «por si acaso»: se ponen mirando qué consultas tardan.",
+    ejemplo: "CREATE INDEX idx_ventas_puesto ON ventas(puesto_id)",
+  },
+  {
+    id: "plan-de-consulta",
+    desde: { elantris: 'trazos' },
+    termino: "plan de consulta",
+    alias: ["EXPLAIN QUERY PLAN"],
+    definicion:
+      "Lo que la base va a hacer para contestar, contado en un par de frases. `SCAN` es recorrer la tabla entera; `SEARCH … USING INDEX` es ir directo. Es la única manera de saber si un índice sirve de algo en vez de suponerlo.",
+    ejemplo: "EXPLAIN QUERY PLAN SELECT * FROM ventas WHERE puesto_id = 1",
+  },
 ]
 
 export const GLOSARIO_POR_ID = Object.fromEntries(GLOSARIO.map((entrada) => [entrada.id, entrada]))

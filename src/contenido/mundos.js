@@ -334,6 +334,22 @@ export const MUNDOS = [
     despedida:
       'Ya sabes contestar preguntas que no caben en una consulta plana: el mejor de cada grupo, lo que va por encima de la media, un acumulado. Y sabes por qué una consulta con un `NOT IN` puede devolver cero filas teniendo razón.',
   },
+  {
+    id: 'trazos',
+    nombre: 'Los trazos',
+    subtitulo: 'SQL · escribir',
+    itinerario: 'elantris',
+    entorno: 'sql',
+    requiere: 'dor',
+    color: '#c9a05a',
+    anfitrion: 'raoden',
+    resumen:
+      'Dejar de mirar y empezar a trazar: meter filas, cambiarlas, borrarlas, hacer varias cosas como si fueran una, y las reglas que la base hace cumplir por ti.',
+    presentacion:
+      'Hasta ahora has estado leyendo aones ajenos. Ahora se trazan, y trazar tiene una diferencia que se nota en el estómago: un `SELECT` mal escrito devuelve otra cosa, y un `DELETE` mal escrito **borra otra cosa**. Aquí se aprende a escribir en la base, a hacer varias cosas de manera que o pasan todas o no pasa ninguna, a poner reglas en el esquema para que la base te sujete cuando el programa se equivoque, y a preguntarle por qué una consulta tarda.',
+    despedida:
+      'Ya sabes trazar. Y sabes las dos cosas que hay que saber antes de tocar una base de verdad: que un `WHERE` se prueba con un `SELECT` antes de ponerle un `DELETE` delante, y que las reglas van en el esquema porque ahí las cumple todo el mundo.',
+  },
 ]
 
 export const MUNDOS_POR_ID = Object.fromEntries(MUNDOS.map((mundo) => [mundo.id, mundo]))
