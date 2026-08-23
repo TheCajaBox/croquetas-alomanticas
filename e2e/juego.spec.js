@@ -204,6 +204,9 @@ test('en la primera era habla su gente, no la de la segunda', async ({ page }) =
 
   await expect(page.locator('.apunte .titulo')).toContainText('El apunte de Kelsier')
   await expect(page.getByRole('heading', { name: /Pistas de Fantasma/ })).toBeVisible()
+  // Y con su cara: Fantasma ya tiene ilustración, así que es una imagen y no la
+  // inicial dibujada. Sin esto, quedarse sin el fichero pasaría desapercibido.
+  await expect(page.locator('img.avatar.vendedor')).toBeVisible()
 
   // El glosario, al pulsar un término del enunciado o del apunte.
   await page.locator('button[data-termino]').first().click()

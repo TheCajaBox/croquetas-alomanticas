@@ -6,6 +6,7 @@ import { PERSONAJES } from '../contenido/personajes.js'
 import armonia from '../recursos/armonia-avatar.webp'
 import brisa from '../recursos/brisa-avatar.webp'
 import elend from '../recursos/elend-avatar.webp'
+import fantasma from '../recursos/fantasma-avatar.webp'
 import kelsier from '../recursos/kelsier-avatar.webp'
 import sazed from '../recursos/sazed-avatar.webp'
 import tensoon from '../recursos/tensoon-avatar.webp'
@@ -64,7 +65,10 @@ import wax from '../recursos/wax-avatar.webp'
  * Se importan como módulos para que Vite les ponga su hash y su ruta base;
  * escritas a mano, esas rutas se romperían al publicar en GitHub Pages.
  */
-const CARAS = { wayne, wax, steris, marasi, melaan, armonia, brisa, kelsier, sazed, vin, elend, tensoon }
+const CARAS = {
+  wayne, wax, steris, marasi, melaan, armonia,
+  brisa, kelsier, sazed, vin, elend, tensoon, fantasma,
+}
 
 /**
  * Los que tienen ilustración. El resto -los que aún no la tienen- salen con
