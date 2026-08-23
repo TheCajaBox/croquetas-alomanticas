@@ -1,0 +1,33 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32">
+  <!--
+    Un gato con el bombín ladeado: las dos cosas que son el juego.
+
+    Se dibuja para 16 píxeles y no para 512, así que no hay líneas finas ni
+    detalle que a ese tamaño se convierta en una mancha: ni boca, ni bigotes, ni
+    contornos. El bombín va de lado a propósito -así como lo lleva Wayne- porque
+    centrado tapaba las dos orejas y el gato dejaba de parecer un gato.
+
+    El fondo va pintado y no transparente: la pestaña puede ser clara u oscura y
+    el cobre sobre blanco no se ve.
+  -->
+  <rect width="32" height="32" rx="7" fill="#1b1826" />
+
+  <!-- Las orejas, por debajo de la cabeza para que se recorten limpias. -->
+  <path d="M6.2 17 L6.6 6.8 L13 11.5 Z" fill="#c98b4b" />
+  <path d="M25.8 17 L25.4 6.8 L19 11.5 Z" fill="#c98b4b" />
+
+  <!-- La cabeza. -->
+  <ellipse cx="16" cy="19.5" rx="9.5" ry="8.5" fill="#e3ab6b" />
+
+  <!-- El bombín: ala, copa y cinta. Ladeado a la derecha. -->
+  <ellipse cx="19.2" cy="8.2" rx="8.4" ry="2.1" fill="#221e30" />
+  <path d="M13.4 8.2 Q 13.4 1.6 19.2 1.6 Q 25 1.6 25 8.2 Z" fill="#221e30" />
+  <rect x="13.1" y="6.1" width="12.2" height="1.9" rx="0.9" fill="#c98b4b" />
+
+  <!-- Los ojos: dos rendijas verticales, que es lo que hace que sea un gato. -->
+  <ellipse cx="12.2" cy="19" rx="1.4" ry="2.6" fill="#1b1826" />
+  <ellipse cx="19.8" cy="19" rx="1.4" ry="2.6" fill="#1b1826" />
+
+  <!-- La nariz. -->
+  <path d="M14.5 23.6 L17.5 23.6 L16 25.4 Z" fill="#8a5a2b" />
+</svg>

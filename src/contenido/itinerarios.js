@@ -7,9 +7,17 @@
  * enseñan cosas distintas, y a nadie hay que obligarle a aprender JavaScript
  * para poder aprender SQL.
  *
- * Lo que **sí** comparten, y a propósito: las croquetas, la colonia de gatos,
- * los sombreros, los recortes y las insignias. Es un solo juego con varios
- * temarios, no cuatro juegos que se instalan aparte.
+ * Lo que **sí** comparten, y a propósito: las croquetas, los gatos que tengas,
+ * sus bonos, los sombreros, los recortes y las insignias. Lo ganaste tú, no lo
+ * ganó un camino. Es un solo juego con varios temarios, no cuatro juegos que se
+ * instalan aparte.
+ *
+ * Lo que **no** comparten son los **sitios**: la casa de los gatos, el refugio
+ * y la sombrerera son de Elendel, y en la Luthadel de la primera era no existen
+ * -ni existirán en Elantris ni en Sel-. Los declara cada itinerario en
+ * `sitios`, y los que no los tienen ni los enseñan en la barra ni dejan entrar
+ * escribiendo la dirección a mano. Los gatos siguen dándote sus bonos mientras
+ * juegas en cualquier camino: lo que no hay es una casa a la que ir a verlos.
  *
  * ## Los campos que deciden cosas
  *
@@ -17,6 +25,9 @@
  * - `lenguajes` es con qué se **ejecuta** el código del jugador (ver
  *   `motor/protocolo.js`). Casi siempre es uno; seguridad usa dos, porque una
  *   inyección de SQL no se entiende sin una base de datos delante.
+ * - `sitios` son las pantallas del itinerario que no son mundos: la casa de los
+ *   gatos, el refugio y la sombrerera. Vacío significa que ese camino no tiene
+ *   ninguna, y entonces no salen en la barra ni se puede entrar a mano.
  * - `reparto` es quién habla y para qué. No es adorno: de aquí sale quién
  *   narra, quién escribe los apuntes de cada parte, quién vende las pistas y
  *   quién contesta dudas. Un itinerario con el reparto mal puesto suena a otro.
@@ -30,6 +41,9 @@ export const ITINERARIOS = [
     // El de la etiqueta lleva un punto medio y no se puede meter en una frase.
     lenguajeEnFrase: 'JavaScript y Vue',
     lenguajes: ['js'],
+    // Elendel: la casa de la colonia, el refugio de donde salen los gatos y la
+    // sombrerera. Los sombreros escondidos también son de aquí.
+    sitios: ['colonia', 'refugio', 'sombrerera'],
     retrato: 'wayne',
     color: '#c98b4b',
     resumen:
@@ -176,6 +190,34 @@ export function quienEscribeElApunte(mundo) {
 export function quienRepasa(repaso, mundo) {
   return repaso?.quien ?? repartoDelMundo(mundo).revisa
 }
+
+/**
+ * Si un itinerario tiene ese sitio.
+ *
+ * Se pregunta desde la barra -para no ofrecer una puerta que no lleva a
+ * ninguna parte- y desde el enrutador, para que escribir la dirección a mano
+ * tampoco entre. Un itinerario sin `sitios` no tiene ninguno: se responde que
+ * no, no se cae al de por defecto. Caerse al de por defecto es justo lo que
+ * hacía que la casa de los gatos apareciera en la primera era.
+ */
+export function itinerarioTieneSitio(itinerarioId, sitio) {
+  return (ITINERARIOS_POR_ID[itinerarioId]?.sitios ?? []).includes(sitio)
+}
+
+/**
+ * El camino donde vive un sitio, para poder señalarlo desde fuera.
+ *
+ * La entrada -que es la puerta de los cuatro caminos y no está dentro de
+ * ninguno- enseña la colonia que tengas, porque los gatos son tuyos en todos.
+ * Lo que no puede hacer es enlazar a una casa a la que desde ahí no se entra,
+ * así que enlaza al camino donde la casa está. Un enlace que lleva a algo.
+ */
+export function itinerarioDelSitio(sitio) {
+  return ITINERARIOS.find((cada) => (cada.sitios ?? []).includes(sitio)) ?? null
+}
+
+/** Todos los sitios que existen en algún camino, para poder vigilarlos. */
+export const SITIOS = [...new Set(ITINERARIOS.flatMap((cada) => cada.sitios ?? []))]
 
 export function repartoDelMundo(mundo) {
   const itinerario = ITINERARIOS_POR_ID[mundo?.itinerario]

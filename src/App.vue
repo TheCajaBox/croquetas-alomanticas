@@ -1,5 +1,6 @@
 <script setup>
 import { computed, ref, watch } from 'vue'
+import { useRoute } from 'vue-router'
 import { storeToRefs } from 'pinia'
 
 import Narrador from './componentes/Narrador.vue'
@@ -12,6 +13,7 @@ import { usarGatos } from './almacen/gatos.js'
 import { usarNarrador } from './almacen/narrador.js'
 import { usarProgreso } from './almacen/progreso.js'
 import { usarRecortes } from './almacen/recortes.js'
+import { usarRumbo } from './almacen/rumbo.js'
 import { usarSombreros } from './almacen/sombreros.js'
 import { nombreDe } from './contenido/personajes.js'
 import { RETOS } from './contenido/retos/index.js'
@@ -25,9 +27,23 @@ const narrador = usarNarrador()
 const progreso = usarProgreso()
 const sombreros = usarSombreros()
 const recortes = usarRecortes()
+const rumbo = usarRumbo()
 const { croquetas } = storeToRefs(economia)
 const { ultimoEncontrado } = storeToRefs(sombreros)
 const { ultimoEncontrado: ultimoRecorte } = storeToRefs(recortes)
+
+/**
+ * La barra se pinta en todas las pantallas, así que es la que tiene que saber
+ * en qué camino estás: cada vez que la ruta nombra un itinerario, un mundo o un
+ * reto se lo apunta, y las pantallas de en medio -el glosario, los ajustes, la
+ * propia casa de los gatos- heredan el último.
+ *
+ * De aquí sale que la casa, el refugio y la sombrerera solo se ofrezcan donde
+ * existen. No es un permiso: es que en la Luthadel de la primera era no hay una
+ * casa con jardín en Elendel, y ofrecerla era prometer un sitio que no está.
+ */
+const ruta = useRoute()
+watch(() => ruta.params, (params) => rumbo.situar(params), { immediate: true, deep: true })
 
 const enElRefugio = computed(() => gatos.enElRefugio.length)
 const avance = computed(() => `${progreso.retosSuperados}/${RETOS.length}`)
@@ -80,23 +96,28 @@ watch(ultimoRecorte, (nuevo) => {
 
         <nav class="navegacion">
           <RouterLink to="/">Caminos</RouterLink>
-          <RouterLink to="/colonia">Colonia</RouterLink>
+          <RouterLink v-if="rumbo.hay('colonia')" to="/colonia">Colonia</RouterLink>
           <RouterLink to="/glosario">Glosario</RouterLink>
           <!-- Armonía no es una pantalla, es un cajón que se abre encima: va
                como botón, pero se viste igual que sus vecinos para que no
                parezca otra cosa. -->
           <button type="button" class="como-enlace" @click="armonia.abrir()">Armonía</button>
-          <RouterLink to="/refugio" class="con-aviso">
+          <RouterLink v-if="rumbo.hay('refugio')" to="/refugio" class="con-aviso">
             Refugio
             <span v-if="enElRefugio" class="aviso">{{ enElRefugio }}</span>
           </RouterLink>
-          <RouterLink to="/sombrerera">Sombrerera</RouterLink>
+          <RouterLink v-if="rumbo.hay('sombrerera')" to="/sombrerera">Sombrerera</RouterLink>
           <RouterLink to="/trastos">Cajón</RouterLink>
           <RouterLink to="/ajustes">Ajustes</RouterLink>
         </nav>
 
         <div class="contadores">
-          <RouterLink to="/sombrerera" class="contador sombreros" title="Sombreros encontrados">
+          <RouterLink
+            v-if="rumbo.hay('sombrerera')"
+            to="/sombrerera"
+            class="contador sombreros"
+            title="Sombreros encontrados"
+          >
             <svg viewBox="0 0 32 24" aria-hidden="true">
               <ellipse cx="16" cy="19" rx="15" ry="4" fill="currentColor" />
               <path d="M6 19 Q 6 4 16 4 Q 26 4 26 19 Z" fill="currentColor" />

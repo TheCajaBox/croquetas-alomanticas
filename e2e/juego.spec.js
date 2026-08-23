@@ -986,6 +986,111 @@ test('la página del glosario deja elegir el camino, y cambia con él', async ({
   await expect(page.locator('.termino h3', { hasText: 'array asociativo' })).toHaveCount(1)
 })
 
+test('la casa de los gatos y la sombrerera son de Elendel, y no salen en la primera era', async ({
+  page,
+}) => {
+  // La barra se pinta en todas las pantallas, así que llevaba la casa de los
+  // gatos, el refugio y la sombrerera a los cuatro caminos: jugando la primera
+  // era, con la ceniza cayendo sobre Luthadel, ofrecía ir a una casa con jardín
+  // en Elendel. Los gatos siguen siendo tuyos y sus bonos también; lo que se
+  // queda en su sitio es el sitio.
+  await page.goto('#/itinerario/era2')
+  await expect(page.getByRole('link', { name: 'Colonia' })).toBeVisible()
+  await expect(page.getByRole('link', { name: 'Sombrerera' })).toBeVisible()
+
+  await page.goto('#/itinerario/era1')
+  await expect(page.getByRole('link', { name: 'Colonia' })).toHaveCount(0)
+  await expect(page.getByRole('link', { name: 'Sombrerera' })).toHaveCount(0)
+  await expect(page.getByRole('link', { name: 'Glosario' })).toBeVisible()
+
+  // Y el rumbo se hereda: al abrir el glosario desde la primera era la barra
+  // sigue siendo la de la primera era, no la del primer camino de la lista.
+  await page.goto('#/glosario')
+  await expect(page.getByRole('link', { name: 'Colonia' })).toHaveCount(0)
+})
+
+test('a un sitio que no existe en tu camino no se entra ni escribiendo la dirección', async ({
+  page,
+}) => {
+  // La barra ya no ofrece la puerta, pero una dirección en favoritos sí que
+  // llevaba. Sale a la portada del camino donde estabas.
+  await page.goto('#/itinerario/era1')
+  await page.goto('#/colonia')
+
+  await expect(page).toHaveURL(/#\/itinerario\/era1$/)
+  await expect(page.getByRole('heading', { name: 'La primera era' })).toBeVisible()
+
+  // Desde la segunda era, la misma dirección entra.
+  await page.goto('#/itinerario/era2')
+  await page.goto('#/colonia')
+  await expect(page).toHaveURL(/#\/colonia$/)
+})
+
+test('en la primera era no hay sombreros escondidos, y en la segunda sí', async ({ page }) => {
+  // Encontrar un sombrero y no tener dónde ponerlo es peor que no encontrarlo:
+  // la sombrerera es de Elendel. Se decide en un sitio, no en las quince
+  // pantallas que llevan uno escondido.
+  await irAlReto(page, 'dia1-07-primera-funcion')
+  await expect(page.locator('.sombrero-escondido').first()).toBeAttached()
+
+  await irAlReto(page, 'ceniza-02-que-imprime')
+  await expect(page.locator('.sombrero-escondido')).toHaveCount(0)
+})
+
+test('cerrar un mundo de la primera era manda al repaso de quien lo lleva', async ({ page }) => {
+  // El botón del cierre ponía «El repaso de Marasi» a mano, y en la primera era
+  // el repaso lo lleva Brisa. Se siembra La Ceniza entera menos el jefe y se
+  // cierra el mundo de verdad, que es la única manera de que la tarjeta salga.
+  const todos = await todosLosRetos()
+  const ids = todos.ceniza
+  await page.addInitScript((sinJefe) => {
+    const retos = {}
+    for (const id of sinJefe) {
+      retos[id] = { superado: true, intentos: 1, pistasUsadas: [], superadoEn: Date.now() }
+    }
+    localStorage.setItem('gatosYCodigo', JSON.stringify({ version: 1, progreso: { retos } }))
+  }, ids.slice(0, -1))
+
+  await page.goto(`#/reto/${ids.at(-1)}`)
+  await page.reload()
+
+  await escribirCodigo(
+    page,
+    "<?php\n\nfunction informe(array $cuadrilla): string\n{\n$texto = '';\n$numero = 1;\nforeach ($cuadrilla as $persona) {\n$texto .= $numero . '. ' . $persona . PHP_EOL;\n$numero += 1;\n}\nreturn $texto;\n}",
+  )
+  await page.getByRole('button', { name: 'Ejecutar', exact: true }).click()
+  await expect(page.getByText('Reto superado.')).toBeVisible({ timeout: 20_000 })
+
+  const cierre = page.locator('.cierre')
+  await expect(cierre).toContainText('La Ceniza, terminado')
+  await expect(cierre.getByRole('link', { name: /repaso de Brisa/ })).toBeVisible()
+  await expect(cierre.getByRole('link', { name: /repaso de Marasi/ })).toHaveCount(0)
+})
+
+test('la pestaña tiene su icono, y no hay un 404 en cada carga', async ({ page }) => {
+  // El sitio no declaraba ninguno, así que el navegador pedía /favicon.ico por
+  // su cuenta -en la raíz del dominio, que no es nuestra- y se llevaba un 404
+  // en cada visita.
+  const fallidas = []
+  page.on('response', (respuesta) => {
+    if (respuesta.status() >= 400 && /favicon|apple-touch/.test(respuesta.url())) {
+      fallidas.push(`${respuesta.status()} ${respuesta.url()}`)
+    }
+  })
+
+  await page.goto('')
+  const icono = page.locator('link[rel="icon"]')
+  await expect(icono).toHaveCount(1)
+
+  // Y el fichero está de verdad donde el enlace dice, con la base del sitio
+  // delante: en Pages la raíz no es nuestra.
+  const donde = await icono.getAttribute('href')
+  const traido = await page.request.get(new URL(donde, page.url()).href)
+  expect(traido.status()).toBe(200)
+  expect(await traido.text()).toContain('<svg')
+  expect(fallidas).toEqual([])
+})
+
 test('la antesala explica de qué va todo esto', async ({ page }) => {
   await page.goto('')
   // Mientras no se haya leído, la entrada la ofrece.

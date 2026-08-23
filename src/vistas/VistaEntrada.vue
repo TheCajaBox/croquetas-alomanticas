@@ -4,9 +4,10 @@ import { computed } from 'vue'
 import Avatar from '../componentes/Avatar.vue'
 import GatoSvg from '../componentes/GatoSvg.vue'
 import SombreroEscondido from '../componentes/SombreroEscondido.vue'
-import { ITINERARIOS } from '../contenido/itinerarios.js'
+import { ITINERARIOS, itinerarioDelSitio } from '../contenido/itinerarios.js'
 import { usarGatos } from '../almacen/gatos.js'
 import { usarProgreso } from '../almacen/progreso.js'
+import { usarRumbo } from '../almacen/rumbo.js'
 
 /**
  * La puerta: qué se quiere aprender.
@@ -37,6 +38,27 @@ const caminos = computed(() =>
 )
 
 const colonia = computed(() => gatos.adoptados)
+
+const rumbo = usarRumbo()
+
+/**
+ * A dónde lleva pulsar un gato desde aquí.
+ *
+ * Los gatos son tuyos en los cuatro caminos y esta es la puerta de los cuatro,
+ * así que aquí se enseñan siempre. Su **casa**, en cambio, está en Elendel: si
+ * el camino donde estabas no la tiene, el enlace no puede ir a la casa —el
+ * guardián del enrutador te devolvería— y va al camino donde la casa está. Un
+ * enlace que lleva a algo, en vez de una puerta que rebota.
+ */
+const dondeVivenLosGatos = computed(() => {
+  if (rumbo.hay('colonia')) return { to: '/colonia', etiqueta: 'Ir a la casa →' }
+  const suyo = itinerarioDelSitio('colonia')
+  if (!suyo) return null
+  return {
+    to: { name: 'itinerario', params: { itinerarioId: suyo.id } },
+    etiqueta: `Su casa está en ${suyo.nombre} →`,
+  }
+})
 
 const NUMEROS = ['ningún', 'un', 'dos', 'tres', 'cuatro', 'cinco', 'seis', 'siete']
 /** Contarlos a mano en el texto se rompe solo en cuanto se añade otro. */
@@ -132,20 +154,30 @@ const materias = computed(() => {
     <section v-if="colonia.length" class="panel colonia">
       <div class="fila cabecera-colonia">
         <h2>Tu colonia</h2>
-        <RouterLink to="/colonia" class="tenue">Ir a la casa →</RouterLink>
+        <RouterLink v-if="dondeVivenLosGatos" :to="dondeVivenLosGatos.to" class="tenue">
+          {{ dondeVivenLosGatos.etiqueta }}
+        </RouterLink>
       </div>
       <p class="tenue vive-aqui">
-        Los mismos gatos para todos los caminos: lo que ganes en uno se lo comen igual.
+        Los mismos gatos para todos los caminos: lo que ganes en uno se lo comen igual, y sus
+        bonos te los dan donde estés.
       </p>
       <div class="miniaturas">
-        <RouterLink v-for="gato in colonia" :key="gato.id" to="/colonia" class="miniatura" :title="gato.nombre">
+        <component
+          :is="dondeVivenLosGatos ? 'RouterLink' : 'div'"
+          v-for="gato in colonia"
+          :key="gato.id"
+          :to="dondeVivenLosGatos?.to"
+          class="miniatura"
+          :title="gato.nombre"
+        >
           <GatoSvg
             :aspecto="gato.aspecto"
             :animo="gato.felicidad >= 60 ? 'contento' : gato.felicidad >= 30 ? 'normal' : 'triste'"
             :tamano="62"
           />
           <span class="nombre tenue">{{ gato.nombre }}</span>
-        </RouterLink>
+        </component>
       </div>
     </section>
   </div>

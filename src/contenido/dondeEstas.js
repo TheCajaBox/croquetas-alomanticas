@@ -36,8 +36,19 @@ export function mundoDeLaRuta(params = {}) {
   return null
 }
 
-/** El itinerario donde estás. Fuera de un mundo, el de por defecto. */
+/**
+ * El itinerario donde estás. Fuera de un camino, el de por defecto.
+ *
+ * El propio `itinerarioId` va primero y a propósito: la portada de un camino
+ * -`/itinerario/era1`- no nombra ningún mundo, así que mirando solo el mundo se
+ * respondía «el de por defecto» estando de pie en la primera era. Con eso, la
+ * barra seguía ofreciendo la casa de los gatos justo en la portada donde se
+ * anuncia que allí no la hay.
+ */
 export function itinerarioDeLaRuta(params = {}) {
+  if (params.itinerarioId && ITINERARIOS_POR_ID[params.itinerarioId]) {
+    return ITINERARIOS_POR_ID[params.itinerarioId]
+  }
   const mundo = mundoDeLaRuta(params)
   return ITINERARIOS_POR_ID[mundo?.itinerario] ?? ITINERARIOS_POR_ID[ITINERARIO_POR_DEFECTO]
 }

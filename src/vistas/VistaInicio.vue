@@ -3,8 +3,13 @@ import { computed } from 'vue'
 import SombreroEscondido from '../componentes/SombreroEscondido.vue'
 
 import { LEMAS_POR_NARRADOR } from '../contenido/narrador/lineas.js'
-import { ITINERARIOS_POR_ID, ITINERARIO_POR_DEFECTO } from '../contenido/itinerarios.js'
+import {
+  ITINERARIOS_POR_ID,
+  ITINERARIO_POR_DEFECTO,
+  itinerarioTieneSitio,
+} from '../contenido/itinerarios.js'
 import { MUNDOS_POR_ID, mundosDelItinerario } from '../contenido/mundos.js'
+import { nombreDe } from '../contenido/personajes.js'
 import { retosDelMundo } from '../contenido/retos/index.js'
 import { usarEconomia } from '../almacen/economia.js'
 import { usarGatos } from '../almacen/gatos.js'
@@ -114,12 +119,27 @@ const siguiente = computed(() => {
 
 const empezado = computed(() => progreso.retosSuperados > 0)
 
+/**
+ * Los sitios que tiene este camino.
+ *
+ * La casa de los gatos, el refugio y la sombrerera son de Elendel. En la
+ * primera era no existen, así que su portada no los enseña ni los promete: lo
+ * que se gana sigue siendo tuyo en todos los caminos -las croquetas, los gatos
+ * y sus bonos-, pero la casa a la que ir a verlos está donde está.
+ */
+const hay = computed(() => (sitio) => itinerarioTieneSitio(itinerario.value.id, sitio))
+
 const marcadores = computed(() =>
   [
     { id: 'retos', valor: `${progreso.retosSuperados}/${cuantosRetos.value}`, que: 'retos' },
     progreso.rachaSinPistas >= 2 && { id: 'racha', valor: progreso.rachaSinPistas, que: 'de racha' },
     insignias.cuantas > 0 && { id: 'insignias', valor: `${insignias.cuantas}/${insignias.total}`, que: 'insignias' },
-    sombreros.cuantos > 0 && { id: 'sombreros', valor: `${sombreros.cuantos}/${sombreros.total}`, que: 'sombreros' },
+    hay.value('sombrerera') &&
+      sombreros.cuantos > 0 && {
+        id: 'sombreros',
+        valor: `${sombreros.cuantos}/${sombreros.total}`,
+        que: 'sombreros',
+      },
     { id: 'croquetas', valor: economia.croquetas, que: 'croquetas' },
   ].filter(Boolean),
 )
@@ -139,8 +159,15 @@ const marcadores = computed(() =>
           lista. {{ itinerario.resumen }}
         </p>
         <p class="tenue entradilla">
-          {{ itinerario.presentacion }} Con lo que ganes das de comer a una colonia de gatos que
-          vive en su casa y que, cuando están contentos, te devuelven el favor.
+          {{ itinerario.presentacion }}
+          <template v-if="hay('colonia')">
+            Con lo que ganes das de comer a una colonia de gatos que vive en su casa y que,
+            cuando están contentos, te devuelven el favor.
+          </template>
+          <template v-else>
+            Lo que ganes se lo comen igual los gatos que tengas, aunque su casa esté a mil años
+            de aquí: cuando están contentos, te devuelven el favor en cualquier camino.
+          </template>
         </p>
       </div>
 
@@ -186,11 +213,15 @@ const marcadores = computed(() =>
         <p class="tenue etiqueta-seguir">Ya está</p>
         <h2>No queda un solo reto sin resolver</h2>
         <p class="tenue">
-          Quedan los repasos de Marasi, las insignias que falten y unos gatos a los que no les
-          vendría mal que les hicieras caso.
+          Quedan los repasos de {{ nombreDe(itinerario.reparto.revisa) }}, las insignias que
+          falten<template v-if="hay('colonia')"> y unos gatos a los que no les vendría mal que
+          les hicieras caso</template>.
         </p>
       </div>
-      <RouterLink class="principal seguir-boton" to="/colonia">A la casa →</RouterLink>
+      <RouterLink v-if="hay('colonia')" class="principal seguir-boton" to="/colonia">
+        A la casa →
+      </RouterLink>
+      <RouterLink v-else class="principal seguir-boton" to="/">Elegir otro camino →</RouterLink>
     </section>
 
     <RouterLink v-if="!progreso.vistoLaAntesala" to="/antesala" class="panel antesala-aviso">
@@ -238,7 +269,7 @@ const marcadores = computed(() =>
       </component>
     </div>
 
-    <section v-if="colonia.length" class="colonia panel">
+    <section v-if="hay('colonia') && colonia.length" class="colonia panel">
       <div class="fila cabecera-colonia">
         <h2>Tu colonia</h2>
         <RouterLink to="/colonia" class="tenue">Ir a la casa →</RouterLink>
@@ -259,7 +290,7 @@ const marcadores = computed(() =>
       </div>
     </section>
 
-    <section v-else class="panel centrado sin-gatos">
+    <section v-else-if="hay('colonia')" class="panel centrado sin-gatos">
       <p class="tenue">
         Todavía no tienes ningún gato. Supera un reto y Wayne te llevará al refugio; de ahí se
         vienen a la casa, donde se les cuida.

@@ -1,6 +1,7 @@
 <script setup>
 import { computed } from 'vue'
 
+import { usarRumbo } from '../almacen/rumbo.js'
 import { usarSombreros } from '../almacen/sombreros.js'
 
 /**
@@ -12,6 +13,17 @@ import { usarSombreros } from '../almacen/sombreros.js'
  *
  * Lleva su etiqueta accesible a propósito: quien navegue con lector de
  * pantalla también tiene derecho a encontrarlos.
+ *
+ * ## Solo donde hay sombrerera
+ *
+ * Los sombreros son de Elendel: se guardan en la sombrerera y la sombrerera es
+ * de la segunda era. En la primera no se esconden, porque encontrar uno y no
+ * tener dónde ponerlo es peor que no encontrarlo. Se decide aquí, en un sitio,
+ * y no en las quince pantallas que llevan uno escondido.
+ *
+ * Ninguno se pierde por esto: todos están puestos en pantallas compartidas
+ * -un reto, un mundo, el glosario, la cabecera-, así que todos siguen
+ * encontrándose jugando la segunda era.
  */
 const props = defineProps({
   id: { type: String, required: true },
@@ -20,12 +32,13 @@ const props = defineProps({
 })
 
 const sombreros = usarSombreros()
-const encontrado = computed(() => sombreros.tiene(props.id))
+const rumbo = usarRumbo()
+const seEsconde = computed(() => rumbo.hay('sombrerera') && !sombreros.tiene(props.id))
 </script>
 
 <template>
   <button
-    v-if="!encontrado"
+    v-if="seEsconde"
     class="sombrero-escondido"
     :style="{ ...posicion, width: `${tamano}px`, height: `${tamano}px` }"
     title="¿Eso de ahí es un sombrero?"

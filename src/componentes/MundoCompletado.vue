@@ -3,8 +3,14 @@ import { computed } from 'vue'
 
 import Avatar from './Avatar.vue'
 import Marcado from './Marcado.vue'
-import { repartoDelMundo } from '../contenido/itinerarios.js'
+import {
+  itinerarioDelSitio,
+  itinerarioTieneSitio,
+  quienRepasa,
+  repartoDelMundo,
+} from '../contenido/itinerarios.js'
 import { MUNDOS, MUNDOS_POR_ID } from '../contenido/mundos.js'
+import { nombreDe } from '../contenido/personajes.js'
 import { REPASOS_POR_MUNDO } from '../contenido/repasos.js'
 import { usarGatos } from '../almacen/gatos.js'
 import { usarInsignias } from '../almacen/insignias.js'
@@ -31,6 +37,22 @@ const insignias = usarInsignias()
 const mundo = computed(() => MUNDOS_POR_ID[props.mundoId])
 const narrador = computed(() => repartoDelMundo(mundo.value).narra)
 const repaso = computed(() => REPASOS_POR_MUNDO[props.mundoId])
+
+/**
+ * Quién pregunta en el repaso. Ponía «Marasi» a mano, así que al cerrar un
+ * mundo de la primera era el botón mandaba a un repaso que lleva Brisa.
+ */
+const quienPregunta = computed(() => quienRepasa(repaso.value, mundo.value))
+
+/**
+ * Dónde espera un gato recién ganado.
+ *
+ * El refugio es de Elendel. Cerrando un mundo de otro camino el gato se gana
+ * igual -es tuyo, no del camino- pero espera allí, y decirlo es mejor que
+ * mandar a alguien a buscar una puerta que en su barra no está.
+ */
+const refugioAqui = computed(() => itinerarioTieneSitio(mundo.value?.itinerario, 'refugio'))
+const dondeEstaElRefugio = computed(() => itinerarioDelSitio('refugio')?.nombre ?? 'el refugio')
 
 const retosDelMundo = computed(() => progreso.superadosDelMundo(props.mundoId))
 
@@ -82,7 +104,9 @@ const insigniasRecientes = computed(() => insignias.mias.slice(-2))
 
     <ul v-if="gatosNuevos.length || abiertos.length || insigniasRecientes.length" class="abierto">
       <li v-for="gato in gatosNuevos" :key="gato.id">
-        <strong>{{ gato.nombre }}</strong> te espera en el refugio.
+        <strong>{{ gato.nombre }}</strong>
+        <template v-if="refugioAqui"> te espera en el refugio.</template>
+        <template v-else> te espera en el refugio, en {{ dondeEstaElRefugio }}.</template>
       </li>
       <li v-for="insignia in insigniasRecientes" :key="insignia.id">
         Insignia: <strong>{{ insignia.nombre }}</strong>.
@@ -94,7 +118,7 @@ const insigniasRecientes = computed(() => insignias.mias.slice(-2))
 
     <div class="salidas">
       <RouterLink v-if="repaso" :to="{ name: 'repaso', params: { mundoId } }" class="boton-siguiente">
-        El repaso de Marasi →
+        El repaso de {{ nombreDe(quienPregunta) }} →
       </RouterLink>
       <RouterLink
         :to="{ name: 'itinerario', params: { itinerarioId: mundo.itinerario } }"
