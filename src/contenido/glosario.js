@@ -1421,6 +1421,121 @@ export const GLOSARIO = [
     definicion:
       "Averiguar quién está dado de alta sin entrar en ninguna cuenta, porque el sistema contesta distinto -o tarda distinto- con un usuario que existe y con uno que no. No abre ninguna puerta y sigue siendo una filtración: dice quién es cliente de dónde.",
   },
+  {
+    id: "validar",
+    desde: { sel: 'inspeccion' },
+    termino: "validar",
+    alias: ["validación", "validaciones"],
+    definicion:
+      "Decidir si un dato entra. Se hace una vez, al recibirlo, y la respuesta es sí o no. No es lo mismo que escapar, que se hace al escribir y devuelve un texto transformado: un dato válido hay que escaparlo igual.",
+  },
+  {
+    id: "lista-de-permitidos",
+    desde: { sel: 'inspeccion' },
+    termino: "lista de permitidos",
+    alias: ["allowlist", "lista blanca"],
+    definicion:
+      "Enumerar lo que se admite y rechazar todo lo demás. Es la regla de este mundo y no tiene excepciones: la lista de lo permitido cabe en una línea, y si se queda corta rechaza algo válido -molesta-, mientras que una lista de prohibidos incompleta deja pasar un ataque.",
+    ejemplo: "/^[a-z0-9._-]{1,40}$/",
+  },
+  {
+    id: "lista-de-prohibidos",
+    desde: { sel: 'inspeccion' },
+    termino: "lista de prohibidos",
+    alias: ["denylist", "lista negra"],
+    definicion:
+      "Enumerar lo malo y dejar pasar el resto. No puede funcionar: tendría que incluir todo lo malo que existe y todo lo que se inventará. Y un filtro que **borra** lo prohibido es peor todavía, porque al borrar junta los trozos de los lados y puede construir el ataque él solo.",
+  },
+  {
+    id: "escapar",
+    desde: { sel: 'inspeccion' },
+    termino: "escapar",
+    alias: ["escapado", "escapada"],
+    definicion:
+      "Escribir un dato de forma que su destino lo lea como dato y no como instrucción. Depende del destino: lo que vale dentro de un párrafo de HTML es un agujero dentro de un atributo sin comillas, y no sirve para una URL, ni para JavaScript, ni para SQL.",
+    ejemplo: "'<' → '&lt;'",
+  },
+  {
+    id: "entidad-html",
+    desde: { sel: 'inspeccion' },
+    termino: "entidad HTML",
+    alias: ["entidades"],
+    definicion:
+      "La forma de escribir en HTML un carácter que ahí significa algo. Son cinco los que importan: `&amp;` `&lt;` `&gt;` `&quot;` `&#39;`. El ampersand se sustituye primero, porque aparece en la salida de los otros cuatro y si va al final se escapa a sí mismo.",
+    ejemplo: "Muñoz &amp; Cía",
+  },
+  {
+    id: "doble-escapado",
+    desde: { sel: 'inspeccion' },
+    termino: "doble escapado",
+    definicion:
+      "Escapar dos veces lo mismo, y en pantalla se ve: el usuario lee `a &lt; b` donde escribió `a < b`. No es un agujero, es un texto roto, y por eso dura años. Sale de escapar en dos capas que no saben la una de la otra, o de sustituir el ampersand al final.",
+  },
+  {
+    id: "xss",
+    desde: { sel: 'inspeccion' },
+    termino: "XSS",
+    alias: ["cross-site scripting", "inyección de scripts"],
+    definicion:
+      "Conseguir que el navegador de otra persona ejecute código tuyo, colándolo en una página. Hay tres clases: **reflejado** -va en la petición y vuelve en la respuesta-, **almacenado** -se guarda y se sirve a todo el que entre, que es el peor- y **en el DOM** -no llega nunca al servidor: lo monta el JavaScript de la página-.",
+  },
+  {
+    id: "sanear",
+    desde: { sel: 'inspeccion' },
+    termino: "sanear",
+    alias: ["saneado", "sanitizar"],
+    definicion:
+      "Cuando de verdad hace falta admitir HTML del usuario -un editor con negritas-, no se filtra: una biblioteca lo convierte en árbol y **reconstruye** un documento nuevo copiando solo las etiquetas y atributos de una lista de permitidos. Lo que no esté en la lista no aparece, aunque nadie hubiera pensado en él.",
+  },
+  {
+    id: "canonicalizar",
+    desde: { sel: 'inspeccion' },
+    termino: "canonicalizar",
+    alias: ["normalizar", "forma canónica"],
+    definicion:
+      "Dejar una sola forma de escribir cada cosa antes de comparar: sin espacios alrededor, en minúsculas, con los acentos de Unicode compuestos igual, sin ceros delante en un número. Va **antes** de validar: cualquier transformación posterior deja la comprobación obsoleta.",
+    ejemplo: "bruto.trim().normalize('NFC')",
+  },
+  {
+    id: "confusion-de-validacion",
+    desde: { sel: 'inspeccion' },
+    termino: "confusión de validación",
+    definicion:
+      "Validar un valor y usar otro. Sobrevive a las revisiones porque las dos variables se llaman parecido. La defensa es que la validación **devuelva el valor bueno** en vez de un sí o un no: así el original no vuelve a estar disponible por accidente.",
+  },
+  {
+    id: "atributo-sin-comillas",
+    desde: { sel: 'inspeccion' },
+    termino: "atributo sin comillas",
+    definicion:
+      "El caso donde escapar bien no basta: un atributo HTML sin comillas termina en el primer espacio, y el espacio no está entre los cinco caracteres que se escapan. Con `title=x onmouseover=robar()` el navegador lee dos atributos. Hacen falta las dos cosas: escapar y entrecomillar.",
+  },
+  {
+    id: "consulta-parametrizada",
+    desde: { sel: 'inspeccion' },
+    termino: "consulta parametrizada",
+    // «parámetro» a secas ya es de la segunda era -el de una función-, y el
+    // enlazador compara en minúsculas: dos formas iguales se pisarían.
+    alias: ["sentencia preparada", "consulta preparada"],
+    definicion:
+      "Mandar el dato **aparte** de la orden, en vez de pegarlo dentro. Es lo que se hace en los tres destinos donde escapar es la respuesta equivocada: base de datos, órdenes del sistema y código. Cuando el dato viaja por otro canal, no existe la posibilidad de que se lea como instrucción.",
+    ejemplo: "base.consultar('… WHERE nombre = ?', [nombre])",
+  },
+  {
+    id: "asignacion-masiva",
+    desde: { sel: 'inspeccion' },
+    termino: "asignación masiva",
+    alias: ["mass assignment"],
+    definicion:
+      "Copiar de golpe todos los campos que llegan en una petición a un objeto del sistema. Pasa cualquier validación de los campos que sí esperabas, y de paso cuela los que no: un `esAdmin: true` que nadie pidió. La defensa es enumerar los campos que se copian.",
+  },
+  {
+    id: "redos",
+    desde: { sel: 'inspeccion' },
+    termino: "ReDoS",
+    definicion:
+      "Una expresión regular con repeticiones anidadas puede tardar tiempo exponencial con cierta entrada: una denegación de servicio con cuarenta caracteres de texto. Por eso el límite de longitud va **antes** de la expresión y no después.",
+  },
 ]
 
 export const GLOSARIO_POR_ID = Object.fromEntries(GLOSARIO.map((entrada) => [entrada.id, entrada]))
