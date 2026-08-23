@@ -270,6 +270,22 @@ export const MUNDOS = [
     despedida:
       'Ya está. Sabes escribir PHP moderno, estructurarlo en clases, decir lo que no puedes hacer en voz alta y dejarlo de manera que otro lo entienda. Lo que queda por aprender se aprende trabajando, y eso no lo puede dar ningún juego.',
   },
+  {
+    id: 'kae',
+    nombre: 'Kae',
+    subtitulo: 'SQL · leer',
+    itinerario: 'elantris',
+    entorno: 'sql',
+    requiere: null,
+    color: '#c9d8e4',
+    anfitrion: 'raoden',
+    resumen:
+      'Preguntar y que conteste: elegir columnas, filtrar filas, ordenar, contar de arriba, y por qué pedir «todo» es la peor costumbre que se puede coger el primer día.',
+    presentacion:
+      'Kae es la ciudad de fuera, la que se construyó pegada a la muralla para mirar a Elantris por encima del hombro. Aquí están sus registros: quién vive dónde, quién le compra a quién y cuánto. Una consulta es como un aon: la figura entera está bien o no hace nada, y la diferencia entre las dos cosas es una línea. Vamos a empezar por preguntar bien, que es lo que casi nadie enseña.',
+    despedida:
+      'Ya sabes pedirle a una tabla exactamente las columnas que quieres, quedarte con las filas que te interesan, ponerlas en el orden que hace falta y quedarte con las primeras. Suena a poco y es la mitad de todo lo que se escribe.',
+  },
 ]
 
 export const MUNDOS_POR_ID = Object.fromEntries(MUNDOS.map((mundo) => [mundo.id, mundo]))

@@ -99,17 +99,20 @@ export const ITINERARIOS = [
     etiquetaLenguaje: 'SQL',
     lenguajeEnFrase: 'SQL',
     lenguajes: ['sql'],
-    retrato: null,
+    retrato: 'raoden',
     color: '#c9d8e4',
     resumen:
       'Preguntar bien a los datos: consultas, uniones, agrupaciones e índices. Un aon mal trazado no hace nada; una consulta mal escrita, tampoco.',
     promesa:
       'Al salir sabrás sacar de una base de datos exactamente lo que necesitas, y saber por qué tarda.',
-    ambiente: 'La ciudad de los aones, donde una línea de más lo cambia todo. Narra Galladon.',
+    ambiente: 'La ciudad de los aones, donde una línea de más lo cambia todo. Narra Raoden, y le interrumpen.',
     presentacion:
-      'Un aon es una figura que, trazada bien, hace algo, y trazada mal no hace nada. Una consulta es exactamente eso. Raoden lo explica con paciencia, Galladon lo cuenta con bastante menos, Sarene te revisa lo que escribes, Adien lleva el glosario porque se acuerda de todo, y las pistas las trae Karata.',
+      'Un aon es una figura que, trazada bien, hace algo, y trazada mal no hace nada. Una consulta es exactamente eso. Raoden lo explica con paciencia y reparte trabajo en vez de consuelo; Galladon le interrumpe para preguntar qué pasará cuando la tabla tenga un millón de filas. Sarene te revisa lo que escribes, Adien lleva el glosario porque se acuerda de todo, y las pistas las trae Karata.',
     reparto: {
-      narra: 'galladon',
+      narra: 'raoden',
+      // Ham pregunta por qué funciona; Galladon pregunta qué pasa cuando no
+      // funcione. Son las dos preguntas que hacen falta y ninguna es la otra.
+      interrumpe: 'galladon',
       pistas: 'karata',
       apuntes: ['raoden'],
       glosario: 'adien',

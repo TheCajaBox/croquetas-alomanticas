@@ -61,6 +61,12 @@ export async function evaluarEnvio({ reto, codigo, puente, tiempoLimiteMs = TIEM
       codigo: revision.codigo,
       tests: reto.tests ?? [],
       requisitos: revision.requisitos === null ? (reto.requisitos ?? []) : [],
+      // Con qué tiene que hablar el código. Solo los retos de SQL traen esto:
+      // las `CREATE TABLE` y las `INSERT` que montan la base antes de que la
+      // consulta del jugador la toque. Viaja en la petición y no en el sandbox
+      // porque **es del reto**: cada uno tiene sus tablas y sus filas.
+      esquema: reto.esquema ?? null,
+      datos: reto.datos ?? null,
     },
     tiempoLimiteMs,
   )

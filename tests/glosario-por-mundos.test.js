@@ -92,6 +92,10 @@ describe('el mundo de cada término', () => {
   it('el primer mundo de cada camino enseña de menos, y el último todo lo suyo', () => {
     for (const itinerario of CON_MUNDOS) {
       const mundos = mundosDelItinerario(itinerario.id)
+      // Con un solo mundo escrito, el primero **es** el último y la frase no
+      // dice nada: el camino se mide en cuanto tenga dos. Sin este salto, un
+      // camino recién empezado suspende por existir.
+      if (mundos.length < 2) continue
       const primero = glosarioHasta(mundos[0].id)
       const ultimo = glosarioHasta(mundos.at(-1).id)
       const todo = GLOSARIO.filter((cada) => cada.desde[itinerario.id])

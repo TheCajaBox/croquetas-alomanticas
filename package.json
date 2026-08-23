@@ -17,6 +17,7 @@
     "@codemirror/commands": "^6.6.0",
     "@codemirror/lang-javascript": "^6.2.2",
     "@codemirror/lang-php": "^6.0.2",
+    "@codemirror/lang-sql": "^6.10.0",
     "@codemirror/language": "^6.10.2",
     "@codemirror/state": "^6.4.1",
     "@codemirror/view": "^6.28.0",
@@ -33,6 +34,7 @@
     "@playwright/test": "^1.45.0",
     "@vitejs/plugin-vue": "^5.1.0",
     "jsdom": "^24.1.0",
+    "sql.js": "^1.14.2",
     "vite": "^5.4.0",
     "vitest": "^2.0.0",
     "vue2": "npm:vue@2.7.16"

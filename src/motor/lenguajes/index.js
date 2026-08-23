@@ -1,6 +1,7 @@
 import { ENTORNOS } from '../protocolo.js'
 import js from './js.js'
 import php from './php.js'
+import sql from './sql.js'
 
 /**
  * Qué se hace con el código de cada lenguaje antes de ejecutarlo.
@@ -10,7 +11,7 @@ import php from './php.js'
  * y le inyectaba el contador de bucles. Con un reto de PHP delante, el primer
  * paso decía «tu código no se puede ni leer» señalando la línea 1.
  */
-const FRENTES = { js, php }
+const FRENTES = { js, php, sql }
 
 export function frenteDe(entornoId) {
   const lenguaje = ENTORNOS[entornoId]?.lenguaje

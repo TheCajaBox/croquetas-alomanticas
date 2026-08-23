@@ -80,6 +80,22 @@ describe('comprobaciones estáticas', () => {
     expect(cumple(fuente, [{ tipo: 'prohibeBucles' }])).toBe(true)
   })
 
+  it('la norma se explica con las palabras del reto, no con las del catálogo', () => {
+    // El campo se llama `texto` en los 350 requisitos escritos en
+    // `contenido/retos/`, y ni uno lo llama `mensaje`. Esto leía solo `mensaje`,
+    // así que **ninguna** de esas explicaciones llegaba a pantalla: salía la
+    // frase genérica del catálogo. No fallaba nada, salía otra cosa. Y el
+    // sandbox de PHP sí leía `texto`, así que los dos lenguajes decían cosas
+    // distintas ante el mismo requisito.
+    const [norma] = comprobar('var a = 1', [{ tipo: 'prohibeVar', texto: 'Aquí no se usa `var`' }])
+    expect(norma.cumplido).toBe(false)
+    expect(norma.mensaje).toBe('Aquí no se usa `var`')
+
+    // Y si el reto no la explica, la explica el catálogo.
+    const [sinTexto] = comprobar('var a = 1', [{ tipo: 'prohibeVar' }])
+    expect(sinTexto.mensaje).toContain('var')
+  })
+
   it('caza el bucle de verdad', () => {
     expect(cumple('for (const x of []) {}', [{ tipo: 'prohibeBucles' }])).toBe(false)
   })

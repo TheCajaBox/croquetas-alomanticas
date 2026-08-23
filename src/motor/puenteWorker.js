@@ -1,4 +1,4 @@
-import { ENTORNOS, MENSAJES, TIEMPO_LIMITE_ARRANQUE_MS, rutaDeSandbox } from './protocolo.js'
+import { ENTORNOS, MENSAJES, rutaDeSandbox } from './protocolo.js'
 import { crearWorkerDeModulo } from './workers.js'
 
 /**
@@ -70,8 +70,8 @@ export function crearPuenteWorker(nombreEntorno = 'worker') {
         actual.addEventListener('message', alRecibir)
 
         const margen =
-          entorno.arranqueLento && !yaHaContestado
-            ? Math.max(tiempoLimiteMs, TIEMPO_LIMITE_ARRANQUE_MS)
+          entorno.arranqueMs && !yaHaContestado
+            ? Math.max(tiempoLimiteMs, entorno.arranqueMs)
             : tiempoLimiteMs
 
         temporizador = setTimeout(() => {

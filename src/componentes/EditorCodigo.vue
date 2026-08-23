@@ -43,6 +43,13 @@ const GRAMATICAS = {
     // apertura saldría marcada como sobrante.
     return php({ plain: false })
   },
+  sql: async () => {
+    const { sql, SQLite } = await import('../motor/gramatica-sql.js')
+    // El dialecto importa: `upperCaseKeywords` deja escribir en minúsculas sin
+    // que el coloreado se pierda, y SQLite es el motor que hay detrás de
+    // verdad. Un `dialect` genérico marcaría por bueno lo que SQLite no acepta.
+    return sql({ dialect: SQLite, upperCaseKeywords: false })
+  },
 }
 
 /** Cambia la gramática de la vista ya montada, si el lenguaje tiene una. */

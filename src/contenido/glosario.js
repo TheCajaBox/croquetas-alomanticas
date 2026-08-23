@@ -54,13 +54,13 @@ export const GLOSARIO = [
   },
   {
     id: "codigo",
-    desde: { era2: 'primer-dia', era1: 'ceniza' },
+    desde: { era2: 'primer-dia', era1: 'ceniza', elantris: 'kae' },
     termino: "código",
     definicion: "El texto de un programa. Se escribe con unas reglas muy estrictas: si sobra o falta un símbolo, el ordenador no lo entiende y se para.",
   },
   {
     id: "ejecutar",
-    desde: { era2: 'primer-dia', era1: 'ceniza' },
+    desde: { era2: 'primer-dia', era1: 'ceniza', elantris: 'kae' },
     termino: "ejecutar",
     alias: ["ejecuta", "ejecutarlo", "ejecución"],
     definicion: "Decirle al ordenador que haga lo que pone en el código, línea a línea y desde arriba.",
@@ -82,7 +82,7 @@ export const GLOSARIO = [
   },
   {
     id: "valor",
-    desde: { era2: 'primer-dia', era1: 'ceniza' },
+    desde: { era2: 'primer-dia', era1: 'ceniza', elantris: 'kae' },
     termino: "valor",
     alias: ["valores"],
     definicion: "Un dato concreto: un texto, un número, una lista. Lo que se guarda dentro de una variable.",
@@ -113,22 +113,24 @@ export const GLOSARIO = [
   },
   {
     id: "tipo",
-    desde: { era2: 'primer-dia', era1: 'ceniza' },
+    desde: { era2: 'primer-dia', era1: 'ceniza', elantris: 'kae' },
     termino: "tipo",
     alias: ["tipos"],
     definicion: "La clase de dato que es un valor: texto, número, booleano, lista u objeto. Importa porque no todos se pueden operar igual.",
   },
   {
     id: "texto",
-    desde: { era2: 'primer-dia', era1: 'ceniza' },
+    desde: { era2: 'primer-dia', era1: 'ceniza', elantris: 'kae' },
     termino: "texto",
     alias: ["textos", "cadena", "cadenas", "string"],
     definicion: "Un valor formado por caracteres. Va siempre entre comillas. `42` es un número; `'42'` es un texto que parece un número.",
-    ejemplo: { js: "'Wayne'", php: "'Kelsier'" },
+    // En SQL las comillas simples son para los textos y las dobles para nombrar
+    // columnas: es la confusión que más veces se paga el primer día.
+    ejemplo: { js: "'Wayne'", php: "'Kelsier'", sql: "WHERE nombre = 'Raoden'" },
   },
   {
     id: "numero",
-    desde: { era2: 'primer-dia', era1: 'ceniza' },
+    desde: { era2: 'primer-dia', era1: 'ceniza', elantris: 'kae' },
     termino: "número",
     alias: ["números"],
     definicion: "Un valor con el que se puede hacer cuentas. Se escribe sin comillas y sin separadores de miles.",
@@ -434,14 +436,14 @@ export const GLOSARIO = [
   },
   {
     id: "test",
-    desde: { era2: 'primer-dia', era1: 'ceniza' },
+    desde: { era2: 'primer-dia', era1: 'ceniza', elantris: 'kae' },
     termino: "test",
     alias: ["tests"],
     definicion: "Una comprobación automática: llama a tu código con unos datos y mira si el resultado es el que debía ser.",
   },
   {
     id: "sandbox",
-    desde: { era2: 'primer-dia', era1: 'ceniza' },
+    desde: { era2: 'primer-dia', era1: 'ceniza', elantris: 'kae' },
     termino: "sandbox",
     definicion: "El sitio aislado donde este juego ejecuta tu código, separado del juego en sí, para que nada de lo que escribas pueda romperlo.",
   },
@@ -557,12 +559,12 @@ export const GLOSARIO = [
   },
   {
     id: "expresion",
-    desde: { era2: 'primer-dia', era1: 'ceniza' },
+    desde: { era2: 'primer-dia', era1: 'ceniza', elantris: 'kae' },
     termino: "expresión",
     alias: ["expresiones"],
     definicion:
       "Un trozo de código que **vale algo**: un número, una cuenta, una comparación, una llamada. Se puede poner donde se espera un valor.",
-    ejemplo: { js: "edad >= 18", php: "$edad >= 18" },
+    ejemplo: { js: "edad >= 18", php: "$edad >= 18", sql: "SELECT precio * 2 AS doble FROM puestos" },
   },
   {
     id: "propagacion",
@@ -624,7 +626,7 @@ export const GLOSARIO = [
   },
   {
     id: "depurar",
-    desde: { era2: 'comisaria', era1: 'ceniza' },
+    desde: { era2: 'comisaria', era1: 'ceniza', elantris: 'kae' },
     termino: "depurar",
     alias: ["depuración"],
     definicion:
@@ -913,6 +915,134 @@ export const GLOSARIO = [
     alias: ["parámetro opcional"],
     definicion: "Un valor que un parámetro toma cuando quien llama a la función no lo pasa. Los parámetros que lo tienen van al final: los argumentos se pasan por posición y no hay forma de saltarse uno de en medio.",
     ejemplo: { js: 'function comision(importe, porcentaje = 10)', php: 'function comision(int $importe, int $porcentaje = 10)' },
+  },
+  // ---- SQL · Kae ---------------------------------------------------------
+  //
+  // El vocabulario del primer mundo de Elantris. Va aquí abajo y en bloque
+  // porque es un temario entero y se lee mejor junto que repartido entre las
+  // entradas de JavaScript.
+  {
+    id: "base-de-datos",
+    desde: { elantris: 'kae' },
+    termino: "base de datos",
+    alias: ["bases de datos"],
+    definicion:
+      "Un sitio donde los datos viven ordenados en **tablas** y al que se le pueden hacer preguntas. No es un fichero que se lee de arriba abajo: es algo a lo que se pregunta, y contesta.",
+  },
+  {
+    id: "sql",
+    desde: { elantris: 'kae' },
+    termino: "SQL",
+    definicion:
+      "El lenguaje con el que se le pregunta a una base de datos. Se parece poco a los demás: en vez de decir **cómo** buscar, dices **qué** quieres, y la base se ocupa de cómo.",
+    ejemplo: "SELECT nombre FROM habitantes WHERE barrio = 'Kae'",
+  },
+  {
+    id: "sqlite",
+    desde: { elantris: 'kae' },
+    termino: "SQLite",
+    definicion:
+      "La base de datos que corre dentro de este juego, entera y sin servidor. Es la misma que llevan tu teléfono y tu navegador, así que lo que aprendas aquí lo has aprendido de verdad.",
+  },
+  {
+    id: "tabla",
+    desde: { elantris: 'kae' },
+    termino: "tabla",
+    alias: ["tablas"],
+    definicion:
+      "Una rejilla de datos, con nombre. Las **columnas** dicen qué se guarda de cada cosa y las **filas** son las cosas. Una tabla `habitantes` tiene una fila por habitante.",
+  },
+  {
+    id: "fila",
+    desde: { elantris: 'kae' },
+    termino: "fila",
+    alias: ["filas", "registro", "registros"],
+    definicion:
+      "Una cosa de la tabla: un habitante, un puesto, una venta. Cada fila tiene un valor en cada columna, y ninguna fila sabe nada de las demás.",
+  },
+  {
+    id: "columna",
+    desde: { elantris: 'kae' },
+    termino: "columna",
+    alias: ["columnas", "campo", "campos"],
+    definicion:
+      "Uno de los datos que se guarda de cada fila, con su nombre y su tipo. `nombre` es una columna; `Raoden` es lo que vale esa columna en una fila concreta.",
+  },
+  {
+    id: "esquema",
+    desde: { elantris: 'kae' },
+    termino: "esquema",
+    definicion:
+      "Cómo están hechas las tablas: qué columnas tiene cada una, de qué tipo son y cómo se relacionan. Es el plano, no los datos. Antes de preguntar nada, se mira el esquema.",
+    ejemplo: "CREATE TABLE habitantes (id INTEGER PRIMARY KEY, nombre TEXT, barrio TEXT)",
+  },
+  {
+    id: "consulta",
+    desde: { elantris: 'kae' },
+    termino: "consulta",
+    alias: ["consultas"],
+    definicion:
+      "Una pregunta escrita en SQL. Se manda entera, se ejecuta entera y devuelve filas. Como un aon: bien trazada hace lo que tenía que hacer, y mal trazada no hace nada.",
+  },
+  {
+    id: "select",
+    desde: { elantris: 'kae' },
+    termino: "SELECT",
+    definicion:
+      "Con qué empieza casi todo: dice **qué columnas** quieres. Detrás va `FROM`, que dice de qué tabla. Es lo primero que se escribe y lo último que se decide.",
+    ejemplo: "SELECT nombre, barrio FROM habitantes",
+  },
+  {
+    id: "select-estrella",
+    desde: { elantris: 'kae' },
+    termino: "SELECT *",
+    definicion:
+      "Pedir todas las columnas de golpe. Va bien para mirar por encima y mal para todo lo demás: pides lo que todavía no existe, así que el día que la tabla gane una columna tu consulta trae algo que nadie esperaba. Vale para curiosear; no vale para dejarlo escrito.",
+    ejemplo: "SELECT * FROM habitantes   -- para mirar, no para quedarse",
+  },
+  {
+    id: "where",
+    desde: { elantris: 'kae' },
+    termino: "WHERE",
+    definicion:
+      "Qué filas te quedas. Se le da una condición y la base la prueba **fila por fila**: las que la cumplen salen y las que no, no. Sin `WHERE` salen todas.",
+    ejemplo: "SELECT nombre FROM habitantes WHERE barrio = 'Kae'",
+  },
+  {
+    id: "like",
+    desde: { elantris: 'kae' },
+    termino: "LIKE",
+    definicion:
+      "Comparar textos por su forma en vez de por su valor exacto. `%` vale por cualquier trozo, incluso ninguno, y `_` por un carácter justo. Es la lupa de las consultas.",
+    ejemplo: "WHERE nombre LIKE 'Aon %'",
+  },
+  {
+    id: "order-by",
+    desde: { elantris: 'kae' },
+    termino: "ORDER BY",
+    // Sin alias: el enlazador compara en minúsculas, así que `order by` escrito
+    // a la ligera encuentra esta entrada igual. Un alias que solo cambia las
+    // mayúsculas es una forma de escribir repetida, y hay una prueba que las caza.
+    definicion:
+      "En qué orden quieres las filas: `ASC` de menor a mayor -que es el que se supone- y `DESC` al revés. Y hace falta decirlo: **sin `ORDER BY` no hay ningún orden prometido**, aunque hoy salgan ordenadas por casualidad.",
+    ejemplo: "SELECT nombre, edad FROM habitantes ORDER BY edad DESC",
+  },
+  {
+    id: "limit",
+    desde: { elantris: 'kae' },
+    termino: "LIMIT",
+    definicion:
+      "Cuántas filas quieres como mucho. Sirve para «los cinco primeros», y solo significa algo con un `ORDER BY` delante: sin orden, «los cinco primeros» son cinco cualquiera.",
+    ejemplo: "ORDER BY edad DESC LIMIT 5",
+  },
+  {
+    id: "alias-sql",
+    desde: { elantris: 'kae' },
+    termino: "alias",
+    alias: ["alias de columna"],
+    definicion:
+      "Otro nombre para una columna o para una tabla, puesto con `AS`. No cambia los datos: cambia cómo se llama lo que sale, que es lo que después lee quien use tu consulta.",
+    ejemplo: "SELECT nombre AS habitante, edad * 12 AS meses FROM habitantes",
   },
 ]
 

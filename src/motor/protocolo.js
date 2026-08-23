@@ -20,6 +20,11 @@ export const TIEMPO_LIMITE_MS = 3000
  * primer «Ejecutar» de cada sesión salía por «se ha colgado» aunque el código
  * estuviera perfecto. El worker se pone a descargar al nacer, así que este
  * margen solo se gasta de verdad la primera vez y con conexión mala.
+ *
+ * Cada entorno dice el suyo en `arranqueMs`, porque no cuestan lo mismo: SQLite
+ * son 658 kB y con 60 segundos de margen un `WITH RECURSIVE` que no termina
+ * tardaría un minuto en dar la cara justo en el primer intento, que es cuando
+ * más falta hace que lo dé.
  */
 export const TIEMPO_LIMITE_ARRANQUE_MS = 60_000
 
@@ -48,5 +53,10 @@ export const ENTORNOS = {
   worker: { etiqueta: 'JavaScript', lenguaje: 'js', canal: 'worker', archivo: 'entorno-es6.js' },
   vue2: { etiqueta: 'Vue 2', lenguaje: 'js', canal: 'iframe', archivo: 'runner-vue2.html' },
   vue3: { etiqueta: 'Vue 3', lenguaje: 'js', canal: 'iframe', archivo: 'runner-vue3.html' },
-  php: { etiqueta: 'PHP', lenguaje: 'php', canal: 'modulo', arranqueLento: true },
+  php: { etiqueta: 'PHP', lenguaje: 'php', canal: 'modulo', arranqueMs: TIEMPO_LIMITE_ARRANQUE_MS },
+  // SQLite entero en un worker clásico. Su cargador es un script de los de
+  // siempre, así que entra por `importScripts` como los de Vue: 658 kB de
+  // WebAssembly frente a los 20 MB de PHP, y por eso no hace falta tratarlo
+  // como un arranque lento.
+  sql: { etiqueta: 'SQL', lenguaje: 'sql', canal: 'worker', archivo: 'entorno-sql.js', arranqueMs: 15_000 },
 }

@@ -32,4 +32,20 @@ export default {
       codigo: inyectarGuardaDeBucles(codigo, ast),
     }
   },
+
+  /**
+   * El oído fino de Estaño: las reglas incumplidas **mientras se escribe**, sin
+   * ejecutar nada.
+   *
+   * Devuelve `null` cuando todavía no se puede decir nada -código a medio
+   * escribir que no se puede parsear-, que no es lo mismo que «no falta
+   * ninguna»: con una lista vacía el panel diría que todo está en orden.
+   */
+  enVivo(codigo, reto) {
+    try {
+      return comprobarRequisitos(analizar(codigo), reto.requisitos).filter((r) => !r.cumplido)
+    } catch {
+      return null
+    }
+  },
 }

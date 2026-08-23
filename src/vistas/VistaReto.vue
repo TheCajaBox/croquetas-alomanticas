@@ -15,6 +15,7 @@ import RetoTrazar from '../componentes/RetoTrazar.vue'
 import RetoVerdaderoFalso from '../componentes/RetoVerdaderoFalso.vue'
 import MundoCompletado from '../componentes/MundoCompletado.vue'
 import PanelApunte from '../componentes/PanelApunte.vue'
+import PanelEsquema from '../componentes/PanelEsquema.vue'
 import PanelPistas from '../componentes/PanelPistas.vue'
 import PanelResultados from '../componentes/PanelResultados.vue'
 import VistaPreviaSandbox from '../componentes/VistaPreviaSandbox.vue'
@@ -27,9 +28,8 @@ import {
   seEscribe as tipoSeEscribe,
   tieneVistaPrevia,
 } from '../contenido/retos/tipos.js'
-import { analizar } from '../motor/guardaBucles.js'
-import { comprobarRequisitos } from '../motor/chequeosEstaticos.js'
 import { crearPuente } from '../motor/ejecutor.js'
+import { frenteDe } from '../motor/lenguajes/index.js'
 import { quienEscribeElApunte, repartoDelMundo } from '../contenido/itinerarios.js'
 import { ENTORNOS } from '../motor/protocolo.js'
 import { usarArmonia } from '../almacen/armonia.js'
@@ -227,16 +227,13 @@ const avisosEnVivo = computed(() => {
   // De la ficha: los requisitos viajan con ella justamente para que el oído
   // fino funcione desde la primera tecla, sin esperar al cuerpo.
   if (!gatos.tieneBonus('avisoDeRequisitos') || !reto?.requisitos?.length) return []
-  // Solo en JavaScript: mirar los requisitos mientras escribes necesita un
-  // analizador aquí mismo, y el único que hay es de JavaScript. En PHP los
-  // comprueba el sandbox al ejecutar, así que aquí no hay nada que decir.
-  if (ENTORNOS[reto.entorno]?.lenguaje !== 'js') return []
   if (!codigo.value.trim()) return []
-  try {
-    return comprobarRequisitos(analizar(codigo.value), reto.requisitos).filter((r) => !r.cumplido)
-  } catch {
-    return []
-  }
+  // Se lo pregunta al frente del lenguaje, que es quien sabe si esto se puede
+  // mirar sin ejecutar: JavaScript sí -tiene analizador aquí mismo-, SQL
+  // también -sus reglas son sobre el texto- y PHP no, porque quien sabe de PHP
+  // es PHP. Estaba escrito «solo si es JavaScript», y el día que entró SQL el
+  // oído se quedó sordo en un camino donde podía oír perfectamente.
+  return frenteDe(reto.entorno).enVivo(codigo.value, reto) ?? []
 })
 
 async function ejecutar() {
@@ -313,6 +310,11 @@ function reiniciarCodigo() {
           <SombreroEscondido id="enunciado" :posicion="{ top: '10px', right: '12px' }" :tamano="17" />
           <Marcado :texto="enJuego.enunciado" />
         </section>
+
+        <!-- Solo los retos de SQL traen tablas, y quien las trae las necesita
+             delante: una consulta se escribe mirando el esquema, no el
+             enunciado. Ver `PanelEsquema`. -->
+        <PanelEsquema v-if="enJuego.esquema" :esquema="enJuego.esquema" :datos="enJuego.datos ?? ''" />
 
         <PanelPistas :reto="enJuego" />
 

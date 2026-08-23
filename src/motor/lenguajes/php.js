@@ -22,4 +22,14 @@ export default {
   revisar(codigo) {
     return { requisitos: null, codigo }
   },
+
+  /**
+   * Y por lo mismo, aquí no hay oído fino: comprobar las reglas mientras se
+   * escribe necesitaría un analizador de PHP en el propio juego, y quien sabe de
+   * PHP es PHP. Se dice `null` -«no puedo saberlo»- y no `[]`, que sería decir
+   * que no falta ninguna.
+   */
+  enVivo() {
+    return null
+  },
 }

@@ -193,7 +193,14 @@ export function comprobarRequisitos(ast, requisitos = []) {
     return {
       tipo: requisito.tipo,
       cumplido: comprobacion.cumple(resumen, requisito.valor),
-      mensaje: requisito.mensaje ?? comprobacion.mensaje(requisito.valor),
+      // `texto` primero, porque es el campo que **usan los retos**: los 350
+      // requisitos escritos en `contenido/retos/` lo llaman así y ni uno lo
+      // llama `mensaje`. Leyendo solo `mensaje`, cada norma que un reto se
+      // había tomado la molestia de explicar con sus palabras salía con la
+      // frase genérica del catálogo, y no fallaba nada: salía otra cosa. El
+      // sandbox de PHP ya lo leía bien, así que además los dos lenguajes
+      // decían cosas distintas ante el mismo requisito.
+      mensaje: requisito.texto ?? requisito.mensaje ?? comprobacion.mensaje(requisito.valor),
     }
   })
 }

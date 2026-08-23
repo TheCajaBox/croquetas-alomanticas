@@ -4,6 +4,7 @@ import {
   GLOSARIO,
   entradaDe,
   glosarioDe,
+  glosarioHasta,
   terminosBuscablesDe,
 } from '../src/contenido/glosario.js'
 import { IMPREVISTOS, traducirImprevisto } from '../src/contenido/imprevistos.js'
@@ -124,14 +125,23 @@ describe('el glosario, según el camino', () => {
     expect(terminosBuscablesDe('php')).toBe(terminosBuscablesDe('php'))
   })
 
-  it('un lenguaje sin un solo mundo escrito tiene el glosario vacío, y no revienta', () => {
-    // SQL llega después. Hasta que tenga mundos, ningún término declara que se
-    // enseñe ahí, así que la respuesta honrada es «nada»: prestarle los términos
-    // de JavaScript sería prometer un temario que no existe.
-    const deSql = glosarioDe('sql')
-    expect(Array.isArray(deSql)).toBe(true)
-    expect(deSql).toEqual([])
-    expect(terminosBuscablesDe('sql')).toEqual([])
+  it('un camino sin un solo mundo escrito no aporta ni un término', () => {
+    // Esta prueba decía «SQL tiene el glosario vacío» y era verdad mientras SQL
+    // no tenía mundos. Ahora tiene Kae, así que lo que se comprueba es lo que
+    // siempre quiso comprobar: que **un camino sin mundos no presta términos de
+    // otro**. Sel usa SQL igual que Elantris y todavía no tiene nada escrito, así
+    // que ninguna entrada puede declararse suya: prestarle las de Elantris sería
+    // prometer un temario que no existe.
+    const sinMundos = ITINERARIOS.filter((cada) => mundosDelItinerario(cada.id).length === 0)
+    expect(sinMundos.length, 'si ya están los cuatro caminos, esto se puede borrar').toBeGreaterThan(0)
+    for (const itinerario of sinMundos) {
+      const suyas = GLOSARIO.filter((cada) => cada.desde[itinerario.id]).map((cada) => cada.id)
+      expect(suyas, `${itinerario.id} no tiene mundos y ya declara términos`).toEqual([])
+    }
+
+    // Y un mundo que no existe no revienta el glosario: devuelve el del camino
+    // entero, que es enseñar de más y nunca de menos.
+    expect(glosarioHasta('un-mundo-que-no-existe').length).toBeGreaterThan(0)
   })
 })
 

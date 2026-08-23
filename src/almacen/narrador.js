@@ -6,6 +6,7 @@ import {
   LINEAS_DE_BRISA,
   LINEAS_DE_BRISA_NARRANDO,
   LINEAS_DE_FANTASMA,
+  LINEAS_DE_GALLADON,
   LINEAS_DE_HAM,
   LINEAS_DE_ELEND,
   LINEAS_DE_TENSOON,
@@ -14,6 +15,7 @@ import {
   LINEAS_DE_ARMONIA,
   LINEAS_DE_MARASI,
   LINEAS_DE_MELAAN,
+  LINEAS_DE_RAODEN,
   LINEAS_DE_STERIS,
   LINEAS_DE_WAX,
 } from '../contenido/narrador/lineas.js'
@@ -54,6 +56,11 @@ const SACOS = {
   tensoon: LINEAS_DE_TENSOON,
   // Vin abre el último. Es la que menos habla del juego, y es a propósito.
   vin: LINEAS_DE_VIN,
+  // Elantris: Raoden narra y Galladon interrumpe. Donde Ham pregunta por qué
+  // funciona, Galladon pregunta qué pasa cuando no funcione, que es la otra
+  // pregunta que hace falta y nadie quiere oír.
+  raoden: LINEAS_DE_RAODEN,
+  galladon: LINEAS_DE_GALLADON,
 }
 
 export const NIVELES_DE_VERBORREA = [

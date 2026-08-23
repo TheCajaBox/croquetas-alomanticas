@@ -1230,6 +1230,86 @@ test('al acto II no se entra sin haber pasado el acto I', async ({ page }) => {
   await expect(page.locator('.apunte .titulo')).toContainText('El apunte de Vin')
 })
 
+test('una consulta de Kae se escribe, se ejecuta contra SQLite de verdad y se cobra', async ({ page }) => {
+  // El recorrido completo del entorno nuevo: el panel de las tablas, el editor
+  // con la gramática de SQL, la consulta ejecutándose contra un SQLite de
+  // verdad dentro de un worker, el resultado en la consola y el pago.
+  await irAlReto(page, 'kae-05-quedarse-con-unas-filas')
+
+  // Lo primero que hay que poder mirar: a qué se está preguntando. El esquema
+  // se ve sin desplegar nada; las filas están dobladas.
+  const tablas = page.locator('.esquema')
+  await expect(tablas).toContainText('CREATE TABLE habitantes')
+  await expect(tablas).toContainText('1 tabla: habitantes')
+  await expect(tablas.locator('.filas')).toBeHidden()
+  await tablas.locator('.doblar').click()
+  await expect(tablas.locator('.filas')).toContainText("'Raoden'")
+
+  // Una consulta que devuelve filas de más: le falta la condición entera. Pasa
+  // el requisito de nombrar columnas y suspende por los tests, que es el orden
+  // en que el jugador tiene que leerlo.
+  await escribirCodigo(page, 'SELECT nombre, oficio FROM habitantes;')
+  await page.getByRole('button', { name: 'Ejecutar', exact: true }).click()
+  await expect(page.locator('.resultados')).toContainText('Filtra con WHERE')
+  await expect(page.locator('.resultados')).not.toContainText('Reto superado')
+
+  // Y ahora la buena. Se comprueba también que la consola trae **las filas**:
+  // en SQL el resultado es la respuesta, y un panel que solo diga «tres tests
+  // en verde» esconde justo lo que hay que mirar.
+  const croquetasAntes = await page.locator('.contador.croquetas').textContent()
+  await escribirCodigo(page, "SELECT nombre, oficio FROM habitantes WHERE barrio = 'Kae';")
+  await page.getByRole('button', { name: 'Ejecutar', exact: true }).click()
+  await expect(page.locator('.resultados')).toContainText('Reto superado')
+  await expect(page.locator('.consola')).toContainText('nombre | oficio')
+  await expect(page.locator('.consola')).toContainText('Raoden | escribiente')
+  await expect(page.locator('.consola')).not.toContainText('Galladon')
+  expect(await page.locator('.contador.croquetas').textContent()).not.toBe(croquetasAntes)
+})
+
+test('una consulta que no se entiende se dice en castellano, y no como un test en rojo', async ({ page }) => {
+  // SQLite habla inglés y a veces en clave. Y el orden importa: un error de
+  // sintaxis se enseña **antes** que cualquier test, porque los tests de una
+  // consulta que la base no entiende no dicen nada.
+  // En el reto dos, que no exige ninguna cláusula: en el cinco el `WHERE` que
+  // falta se caza **antes** de ejecutar, y entonces la consulta no llega nunca
+  // a la base. Ese orden es el bueno -las normas primero- y aquí lo que se
+  // quiere ver es lo que dice SQLite.
+  await irAlReto(page, 'kae-02-las-columnas-que-pides')
+
+  await escribirCodigo(page, 'SELECT nombre, oficio FROM habitantess;')
+  await page.getByRole('button', { name: 'Ejecutar', exact: true }).click()
+  await expect(page.locator('.resultados')).toContainText('No existe ninguna tabla')
+  await expect(page.locator('.resultados')).toContainText('habitantess')
+  // Y manda a mirar el esquema, que está en la misma pantalla.
+  await expect(page.locator('.resultados')).toContainText('esquema')
+})
+
+test('el editor de un reto de SQL colorea SQL, y el wasm de SQLite no viaja en el arranque', async ({ page }) => {
+  const pedidos = []
+  page.on('request', (peticion) => pedidos.push(peticion.url()))
+
+  // La portada de la primera era no pide nada de SQL: ni la gramática ni el
+  // motor. Es la comprobación que ya se hace con PHP, por el otro lado.
+  await page.goto('#/itinerario/era1')
+  await expect(page.getByRole('heading', { name: 'La primera era' })).toBeVisible()
+  expect(pedidos.filter((cada) => /sql-wasm|gramatica-sql/.test(cada))).toEqual([])
+
+  await irAlReto(page, 'kae-02-las-columnas-que-pides')
+  await escribirCodigo(page, "SELECT nombre, oficio FROM habitantes WHERE barrio = 'Kae';")
+
+  // La gramática se pide en diferido: se espera a que llegue el trozo.
+  await expect
+    .poll(() => pedidos.filter((url) => url.includes('gramatica-sql')).length, { timeout: 30_000 })
+    .toBeGreaterThan(0)
+
+  // Y coloreando de verdad: CodeMirror parte el código en trozos con estilo, y
+  // sin gramática no hay trozos, hay una línea de texto plano.
+  const conColor = await page.locator('.cm-content .cm-line span[class]').count()
+  expect(conColor, 'el editor no está coloreando nada').toBeGreaterThan(2)
+  // Y el wasm de PHP no se descarga jugando aquí.
+  expect(pedidos.filter((cada) => /php_8_5\.wasm/.test(cada))).toEqual([])
+})
+
 test('la pestaña tiene su icono, y no hay un 404 en cada carga', async ({ page }) => {
   // El sitio no declaraba ninguno, así que el navegador pedía /favicon.ico por
   // su cuenta -en la raíz del dominio, que no es nuestra- y se llevaba un 404
