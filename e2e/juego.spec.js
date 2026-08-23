@@ -268,10 +268,20 @@ test('cada camino presenta a quien lo narra, con su ilustración si la tiene', a
   // el hueco se vería igual de vacío que si no existiera el retrato.
   expect(await suyo.evaluate((img) => img.naturalWidth)).toBeGreaterThan(100)
 
-  // Sel todavía no tiene ilustración: sale su avatar y no un hueco.
-  await page.goto('#/itinerario/sel')
-  await expect(page.locator('.retrato-grande')).toHaveCount(0)
-  await expect(page.locator('.anfitrion .avatar, .anfitrion svg')).toBeVisible()
+  // Sel y Elantris todavía no tienen ilustración, y no salen con un hueco ni con
+  // un disco suelto en medio del panel: sale el emblema de su camino con la cara
+  // de quien narra delante. Con dos retratos ilustrados al lado, el disco a pelo
+  // hacía que esos dos caminos parecieran provisionales.
+  for (const camino of ['sel', 'elantris']) {
+    await page.goto(`#/itinerario/${camino}`)
+    await expect(page.locator('.retrato-grande')).toHaveCount(0)
+    const sinRetrato = page.locator('.anfitrion .sin-retrato')
+    await expect(sinRetrato.locator('.emblema')).toBeVisible()
+    await expect(sinRetrato.locator('.avatar')).toBeVisible()
+    // Y el emblema es el suyo, no el anillo de reserva: cada uno dice algo de su
+    // temario -el aon de Elantris, el sello agrietado de Sel-.
+    await expect(sinRetrato.locator(`.emblema.${camino}`)).toBeVisible()
+  }
 })
 
 test('la portada dice por dónde ibas y lleva a ese reto', async ({ page }) => {
