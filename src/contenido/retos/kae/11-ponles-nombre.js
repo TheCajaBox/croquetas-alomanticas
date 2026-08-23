@@ -1,5 +1,5 @@
 import { codigo, pista } from '../comun.js'
-import { PUESTOS } from '../tablas-de-kae.js'
+import { PUESTOS } from '../tablas-de-elantris.js'
 
 export default {
   id: "kae-11-ponles-nombre",

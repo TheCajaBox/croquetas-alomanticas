@@ -1,5 +1,5 @@
 import { codigo, pista } from '../comun.js'
-import { HABITANTES } from '../tablas-de-kae.js'
+import { HABITANTES } from '../tablas-de-elantris.js'
 
 export default {
   id: "kae-06-seis-frases-sobre-preguntar",

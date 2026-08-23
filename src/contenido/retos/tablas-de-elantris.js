@@ -1,8 +1,7 @@
 import { codigo } from './comun.js'
 
 /**
- * Los registros de Kae: las dos tablas con las que se juega el primer mundo de
- * Elantris.
+ * Los registros de Elantris: las tablas con las que se juega este itinerario.
  *
  * Están aquí y no copiadas en cada reto por dos motivos, y el segundo importa
  * más que el primero:
@@ -16,9 +15,22 @@ import { codigo } from './comun.js'
  *    releer el esquema. Es la misma razón por la que un curso de verdad usa una
  *    sola base de ejemplo de principio a fin.
  *
- * Vive en la raíz de `retos/` -al lado de `comun.js`- y no dentro de `kae/`
- * porque el plugin de las fichas trata **todo** fichero de una carpeta de mundo
- * como un reto. Uno que no lo fuera saldría en el catálogo sin título ni tipo.
+ * Vive en la raíz de `retos/` -al lado de `comun.js`- y no dentro de la carpeta
+ * de un mundo porque el plugin de las fichas trata **todo** fichero de una
+ * carpeta de mundo como un reto. Uno que no lo fuera saldría en el catálogo sin
+ * título ni tipo.
+ *
+ * ## La base crece con el temario, y eso se cuenta
+ *
+ * En Kae el gremio de un puesto es **un texto en la propia fila**, porque en Kae
+ * solo hay una tabla cada vez y todavía no hace falta más. Dentro de los muros,
+ * el gremio es **otra tabla** y el puesto guarda su número.
+ *
+ * No es un capricho de quien escribió los datos: es la lección del mundo. El
+ * texto repetido en cada fila se escribe de ocho maneras distintas y no puede
+ * guardar nada más -¿quién es el maestro del gremio?-; la tabla aparte se
+ * escribe una vez y se le pueden colgar datos. Lo que cuesta es que a partir de
+ * ahí hay que **unir**, y unir es lo que se aprende en ese mundo.
  *
  * Los datos son pocos a propósito: diez habitantes y ocho puestos se leen de un
  * vistazo en el panel de las tablas, y una consulta cuyo resultado se puede
@@ -115,6 +127,80 @@ export const OTROS_CENSOS = [
     "  (10, 'Tenrao',  'Puerta',  'herrero',     40);",
   ),
 ]
+
+// ---- Dentro de los muros: los mismos datos, bien puestos ------------------
+//
+// El gremio deja de ser un texto repetido en cada puesto y pasa a ser una tabla
+// con su número. A cambio hay que unir, y unir tiene tres casos que este mundo
+// entero se dedica a enseñar:
+//
+// - Un puesto **sin gremio** (`gremio_id` a nulo): el que desaparece en un
+//   `JOIN` normal y sobrevive en un `LEFT JOIN`.
+// - Un gremio **sin puestos**: el que desaparece si unes desde el otro lado.
+// - Un gremio **sin maestro** (`maestro` a nulo): el primer nulo que se ve, y
+//   no viene de ninguna unión: estaba en la tabla.
+//
+// Los tres están puestos a propósito. Con datos redondos -cada puesto con su
+// gremio y cada gremio con sus puestos- las cuatro clases de unión devuelven lo
+// mismo, y entonces no se puede enseñar ninguna.
+export const GREMIOS = {
+  esquema: codigo(
+    'CREATE TABLE gremios (',
+    '  id INTEGER PRIMARY KEY,',
+    '  nombre TEXT NOT NULL,',
+    '  maestro TEXT',
+    ');',
+  ),
+  datos: codigo(
+    'INSERT INTO gremios (id, nombre, maestro) VALUES',
+    "  (1, 'escribas',  'Adien'),",
+    "  (2, 'canteros',  'Karata'),",
+    "  (3, 'cocineros', NULL),",
+    "  (4, 'herreros',  'Saolin'),",
+    "  (5, 'comercio',  'Roial'),",
+    "  (6, 'aones',     'Raoden');",
+  ),
+}
+
+/** Los puestos con el gremio por su número, y uno que no tiene ninguno. */
+export const PUESTOS_CON_GREMIO = {
+  esquema: codigo(
+    'CREATE TABLE puestos (',
+    '  id INTEGER PRIMARY KEY,',
+    '  nombre TEXT NOT NULL,',
+    '  gremio_id INTEGER REFERENCES gremios(id),',
+    '  monedas INTEGER NOT NULL',
+    ');',
+  ),
+  datos: codigo(
+    'INSERT INTO puestos (id, nombre, gremio_id, monedas) VALUES',
+    "  (1, 'Aon Aon',      1,    140),",
+    "  (2, 'La piedra',    2,     95),",
+    "  (3, 'El caldero',   3,    210),",
+    "  (4, 'Aon Ien',      1,     60),",
+    "  (5, 'El yunque',    4,    180),",
+    "  (6, 'Los dos ríos', 5,    320),",
+    "  (7, 'Aon Ashe',     1,    105),",
+    "  (8, 'La muralla',   2,     45),",
+    // El tenderete recauda bien **a propósito**: es el puesto sin gremio, y si
+    // fuera el que menos recauda, cualquier filtro por monedas lo tiraría antes
+    // que a nadie. Entonces un `LEFT JOIN` y un `JOIN` normal devolverían lo
+    // mismo, y el mundo que enseña la diferencia no podría comprobarla.
+    "  (9, 'El tenderete', NULL, 165);",
+  ),
+}
+
+/**
+ * El mercado de dentro de los muros: gremios y puestos, para unir.
+ *
+ * El orden importa y no es estético: `gremios` se crea **antes** que `puestos`,
+ * porque `puestos` apunta a ella con una clave ajena y las claves ajenas van
+ * encendidas. Crear la hija primero da un error que no habla de orden.
+ */
+export const MUROS = {
+  esquema: `${GREMIOS.esquema}\n\n${PUESTOS_CON_GREMIO.esquema}`,
+  datos: `${GREMIOS.datos}\n\n${PUESTOS_CON_GREMIO.datos}`,
+}
 
 /** Las dos juntas, para los retos que hablan del mercado y del censo a la vez. */
 export const KAE = {

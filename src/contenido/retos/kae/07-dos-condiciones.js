@@ -1,5 +1,5 @@
 import { codigo, pista } from '../comun.js'
-import { HABITANTES, OTROS_CENSOS } from '../tablas-de-kae.js'
+import { HABITANTES, OTROS_CENSOS } from '../tablas-de-elantris.js'
 
 export default {
   id: "kae-07-dos-condiciones",

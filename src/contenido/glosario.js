@@ -178,7 +178,10 @@ export const GLOSARIO = [
   },
   {
     id: "nulo",
-    desde: { era2: 'comisaria', era1: 'ceniza' },
+    // En Elantris el primer nulo no se declara: **aparece**, la primera vez que
+    // una unión no encuentra pareja. Por eso entra en el mundo de unir y no en
+    // el primero.
+    desde: { era2: 'comisaria', era1: 'ceniza', elantris: 'muros' },
     termino: "null",
     definicion: "Un valor que significa «aquí no hay nada, y consta que no lo hay». Es distinto de un cero o de un texto vacío.",
   },
@@ -1043,6 +1046,64 @@ export const GLOSARIO = [
     definicion:
       "Otro nombre para una columna o para una tabla, puesto con `AS`. No cambia los datos: cambia cómo se llama lo que sale, que es lo que después lee quien use tu consulta.",
     ejemplo: "SELECT nombre AS habitante, edad * 12 AS meses FROM habitantes",
+  },
+  // ---- SQL · Dentro de los muros ----------------------------------------
+  {
+    id: "clave-primaria",
+    desde: { elantris: 'muros' },
+    termino: "clave primaria",
+    alias: ["claves primarias"],
+    definicion:
+      "La columna que identifica una fila **sin repetirse nunca**. Casi siempre es un `id` que la base va poniendo sola. No es el nombre: dos personas se pueden llamar igual, y entonces el nombre no identifica a nadie.",
+    ejemplo: "CREATE TABLE gremios (id INTEGER PRIMARY KEY, nombre TEXT)",
+  },
+  {
+    id: "clave-ajena",
+    desde: { elantris: 'muros' },
+    termino: "clave ajena",
+    alias: ["claves ajenas", "clave foránea", "foreign key"],
+    definicion:
+      "Una columna que guarda la clave primaria de **otra** tabla, y así dice a qué fila de allí pertenece esta. Es el hilo que se sigue al unir, y la base puede vigilarlo: apuntar a una fila que no existe no lo permite.",
+    ejemplo: "gremio_id INTEGER REFERENCES gremios(id)",
+  },
+  {
+    id: "join",
+    desde: { elantris: 'muros' },
+    termino: "JOIN",
+    definicion:
+      "Unir dos tablas en una consulta para poder pedir columnas de las dos. Se le dice **por dónde** con `ON`, y sin eso no une: multiplica.",
+    ejemplo: "FROM puestos JOIN gremios ON puestos.gremio_id = gremios.id",
+  },
+  {
+    id: "on-sql",
+    desde: { elantris: 'muros' },
+    termino: "ON",
+    definicion:
+      "La condición que dice **qué fila de aquí va con qué fila de allí**. No es un filtro: es la costura. Un `ON` mal escrito no da error, da otras filas -o todas contra todas-.",
+  },
+  {
+    id: "left-join",
+    desde: { elantris: 'muros' },
+    termino: "LEFT JOIN",
+    alias: ["unión externa", "outer join"],
+    definicion:
+      "Como un `JOIN`, pero **sin perder las filas de la izquierda que no encuentran pareja**: salen igual, con las columnas de la derecha a nulo. Es la diferencia entre «los puestos que tienen gremio» y «todos los puestos, con su gremio si lo tienen».",
+    ejemplo: "FROM puestos LEFT JOIN gremios ON puestos.gremio_id = gremios.id",
+  },
+  {
+    id: "producto-cartesiano",
+    desde: { elantris: 'muros' },
+    termino: "producto cartesiano",
+    definicion:
+      "Lo que sale al unir dos tablas **sin decir por dónde**: cada fila de una contra cada fila de la otra. Nueve puestos y seis gremios dan cincuenta y cuatro filas, todas creíbles y casi todas falsas. Es el fallo más caro de este mundo, porque no da error.",
+  },
+  {
+    id: "distinct",
+    desde: { elantris: 'muros' },
+    termino: "DISTINCT",
+    definicion:
+      "Quita las filas repetidas del resultado. Suele hacer falta después de unir, porque una fila de la izquierda con tres parejas sale tres veces. Y conviene desconfiar: casi siempre es mejor entender por qué se repite que taparlo.",
+    ejemplo: "SELECT DISTINCT gremios.nombre FROM ...",
   },
 ]
 

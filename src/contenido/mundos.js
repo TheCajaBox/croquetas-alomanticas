@@ -286,6 +286,22 @@ export const MUNDOS = [
     despedida:
       'Ya sabes pedirle a una tabla exactamente las columnas que quieres, quedarte con las filas que te interesan, ponerlas en el orden que hace falta y quedarte con las primeras. Suena a poco y es la mitad de todo lo que se escribe.',
   },
+  {
+    id: 'muros',
+    nombre: 'Dentro de los muros',
+    subtitulo: 'SQL · unir',
+    itinerario: 'elantris',
+    entorno: 'sql',
+    requiere: 'kae',
+    color: '#8fa8b8',
+    anfitrion: 'raoden',
+    resumen:
+      'Un dato en dos tablas: claves, uniones, y qué pasa de verdad cuando la unión no encuentra pareja. Aquí aparece el primer nulo.',
+    presentacion:
+      'Fuera de la muralla cada puesto llevaba escrito su gremio en su propia fila. Aquí dentro los datos están mejor puestos: el gremio es otra tabla y el puesto guarda su número. Se gana mucho -el nombre se escribe una vez, y se le pueden colgar más datos- y se paga una cosa: hay que unir. Unir es fácil cuando todo tiene pareja, y este mundo va de lo otro.',
+    despedida:
+      'Ya sabes juntar dos tablas y, lo que es más raro, sabes qué pasa con lo que se queda sin pareja. Eso último se lo salta casi todo el mundo, y es exactamente donde se pierden filas sin que nadie se entere.',
+  },
 ]
 
 export const MUNDOS_POR_ID = Object.fromEntries(MUNDOS.map((mundo) => [mundo.id, mundo]))
