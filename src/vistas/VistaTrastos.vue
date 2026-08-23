@@ -2,7 +2,7 @@
 import { computed } from 'vue'
 import SombreroEscondido from '../componentes/SombreroEscondido.vue'
 
-import { RECORTES } from '../contenido/recortes.js'
+import { RECORTES, recorteDe } from '../contenido/recortes.js'
 import { TRASTOS, TRASTOS_POR_ID, trastosDelCamino } from '../contenido/trastos.js'
 import { usarEconomia } from '../almacen/economia.js'
 
@@ -60,6 +60,21 @@ const mios = computed(() =>
  * Solo salen los caminos de los que tengas algo. Un apartado vacío diría
  * «aquí falta algo», y no falta: es que no has pedido pistas allí.
  */
+/**
+ * Los recortes que tienes, leídos como los lee el camino donde estés.
+ *
+ * Cada camino tiene su prensa -un periódico, una circular, un parte escrito con
+ * tiza, el acta de un consejo- y el consejo del pie es el mismo en los cuatro.
+ * Así que el cajón enseña la edición de tu camino y no la de Elendel: en
+ * Elantris te tocaba un tranvía de la línea 4 en una ciudad sin tranvías.
+ */
+const misRecortes = computed(() =>
+  recortes.mios.map((recorte) => recorteDe(recorte.id, rumbo.dondeEstoy)),
+)
+
+/** Cómo se llama la prensa de aquí, para la cabecera del apartado. */
+const laPrensa = computed(() => recorteDe(RECORTES[0].id, rumbo.dondeEstoy).cabecera)
+
 const porCaminos = computed(() =>
   ITINERARIOS.map((itinerario) => ({
     itinerario,
@@ -130,17 +145,18 @@ const porCaminos = computed(() =>
     </section>
 
     <section class="panel encabezado recortes-cabecera">
-      <h2>Recortes del Elendel Daily</h2>
+      <h2>Recortes · {{ laPrensa }}</h2>
       <p class="tenue">
         Aparecen solos, y no por buscarlos: se consiguen haciendo cosas. Cuáles, no se dice.
-        El titular es cosa del periódico; lo de abajo suele merecer la pena.
+        El titular es cosa de la prensa de cada camino -y cada camino tiene la suya-; lo de
+        abajo, que es el consejo, es el mismo en los cuatro y suele merecer la pena.
       </p>
       <p class="cuenta">{{ recortes.cuantos }} de {{ recortes.total }} recortes</p>
     </section>
 
-    <div v-if="recortes.mios.length" class="rejilla">
-      <article v-for="recorte in recortes.mios" :key="recorte.id" class="recorte panel">
-        <p class="cabecera-periodico">Elendel Daily</p>
+    <div v-if="misRecortes.length" class="rejilla">
+      <article v-for="recorte in misRecortes" :key="recorte.id" class="recorte panel">
+        <p class="cabecera-periodico">{{ recorte.cabecera }}</p>
         <h3>{{ recorte.titular }}</h3>
         <p class="entradilla">{{ recorte.entradilla }}</p>
         <p class="consejo">{{ recorte.consejo }}</p>

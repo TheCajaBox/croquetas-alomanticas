@@ -10,7 +10,7 @@ import { INSIGNIAS, porqueDe } from '../src/contenido/insignias.js'
 import { ITINERARIOS, ITINERARIOS_POR_ID } from '../src/contenido/itinerarios.js'
 import { MUNDOS, mundosDelItinerario } from '../src/contenido/mundos.js'
 import { PERSONAJES } from '../src/contenido/personajes.js'
-import { RECORTES } from '../src/contenido/recortes.js'
+import { RECORTES, recorteDe } from '../src/contenido/recortes.js'
 import { REPASOS } from '../src/contenido/repasos/index.js'
 import { cargarTodosLosRetos, retosDelMundo } from '../src/contenido/retos/index.js'
 import { TRASTOS, trastosDelCamino } from '../src/contenido/trastos.js'
@@ -101,8 +101,12 @@ function loQueVe(itinerarioId) {
 
   // Los recortes y las insignias se ganan en cualquier camino y se leen en el
   // cajón, que es una página global: no pueden nombrar a nadie.
+  // Los recortes, resueltos como los lee este camino: cada uno tiene su prensa y
+  // el consejo del pie es el mismo en los cuatro. Mirar el recorte en crudo
+  // diría que todos hablan de Elendel, porque todos traen esa edición dentro.
   for (const recorte of RECORTES) {
-    trozos.push([`recorte/${recorte.id}`, [recorte.titular, recorte.entradilla, recorte.consejo].join(' ')])
+    const suyo = recorteDe(recorte.id, itinerarioId)
+    trozos.push([`recorte/${recorte.id}`, [suyo.cabecera, suyo.titular, suyo.entradilla, suyo.consejo].join(' ')])
   }
   for (const insignia of INSIGNIAS) {
     // Resuelta como la ve este camino: los huecos los rellena su reparto.
@@ -213,5 +217,40 @@ describe('cada camino tiene su propio cajón de trastos', () => {
     }
     const ids = TRASTOS.map((cada) => cada.id)
     expect(new Set(ids).size, 'ids de trasto repetidos').toBe(ids.length)
+  })
+})
+
+/**
+ * Y que ningún camino se quede sin prensa propia.
+ *
+ * `recorteDe` cae en la edición de la segunda era cuando falta la del camino
+ * -mejor un chiste de otro sitio que ninguno-, y esa red es lo que haría
+ * desaparecer el fallo sin avisar: un camino nuevo entraría leyendo el Elendel
+ * Daily y en silencio.
+ */
+describe('cada camino tiene su propia prensa', () => {
+  it('los nueve recortes traen edición para los cuatro caminos', () => {
+    for (const recorte of RECORTES) {
+      for (const itinerario of ITINERARIOS) {
+        const edicion = recorte.ediciones[itinerario.id]
+        expect(edicion, `${recorte.id} no tiene edición de ${itinerario.id}`).toBeTruthy()
+        expect(edicion.titular.length, `${recorte.id}/${itinerario.id}: titular corto`).toBeGreaterThan(15)
+        expect(edicion.entradilla.length, `${recorte.id}/${itinerario.id}: entradilla corta`).toBeGreaterThan(40)
+      }
+    }
+  })
+
+  it('ninguna edición se repite entre caminos, que sería copiar y pegar', () => {
+    for (const recorte of RECORTES) {
+      const titulares = ITINERARIOS.map((cada) => recorte.ediciones[cada.id].titular)
+      expect(new Set(titulares).size, `${recorte.id} repite titular entre caminos`).toBe(titulares.length)
+    }
+  })
+
+  it('el consejo es el mismo en los cuatro: es la parte que sirve', () => {
+    for (const recorte of RECORTES) {
+      const consejos = ITINERARIOS.map((cada) => recorteDe(recorte.id, cada.id).consejo)
+      expect(new Set(consejos).size, `${recorte.id} cambia de consejo según el camino`).toBe(1)
+    }
   })
 })

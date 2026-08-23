@@ -32,7 +32,7 @@ import { nombreDe } from './contenido/personajes.js'
 import { itinerarioDeLaRuta, mundoDeLaRuta } from './contenido/dondeEstas.js'
 import { mundosDelItinerario } from './contenido/mundos.js'
 import { RETOS, RETOS_POR_ID, retosDelMundo } from './contenido/retos/index.js'
-import { RECORTES_POR_ID } from './contenido/recortes.js'
+import { recorteDe } from './contenido/recortes.js'
 import { SOMBREROS_POR_ID } from './contenido/sombreros.js'
 
 const armonia = usarArmonia()
@@ -147,8 +147,10 @@ watch(ultimoEncontrado, (nuevo) => {
 
 // Los recortes no se buscan: caen solos. Por eso se anuncian, o pasarían
 // desapercibidos y nadie llegaría a leerlos nunca.
+// Del camino donde estés: cada uno tiene su prensa, y el chiste de un recorte
+// es justo el sitio. Ver `contenido/recortes.js`.
 const recorteReciente = computed(() =>
-  ultimoRecorte.value ? RECORTES_POR_ID[ultimoRecorte.value.id] : null,
+  ultimoRecorte.value ? recorteDe(ultimoRecorte.value.id, rumbo.dondeEstoy) : null,
 )
 watch(ultimoRecorte, (nuevo) => {
   if (nuevo) setTimeout(() => recortes.olvidarUltimo(), 6500)
@@ -286,7 +288,7 @@ watch(ultimoRecorte, (nuevo) => {
     <!-- Aviso de recorte desbloqueado -->
     <Transition name="hallazgo">
       <RouterLink v-if="recorteReciente" to="/trastos" class="recorte-nuevo">
-        <p class="cabecera-periodico">Elendel Daily · edición especial</p>
+        <p class="cabecera-periodico">{{ recorteReciente.cabecera }} · edición especial</p>
         <p class="titular">{{ recorteReciente.titular }}</p>
         <p class="pie">Recorte nuevo en el cajón →</p>
       </RouterLink>
