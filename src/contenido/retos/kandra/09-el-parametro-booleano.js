@@ -1,0 +1,110 @@
+import { codigo, pista } from '../comun.js'
+
+export default {
+  id: "kandra-09-el-parametro-booleano",
+  mundo: "kandra",
+  entorno: "php",
+  tipo: "refactor",
+  titulo: "El parámetro que decide",
+  enunciado: codigo(
+    "`enviar($mensaje, true, false)`. ¿Qué hace? Nadie lo sabe leyendo la llamada, y para",
+    "saberlo hay que ir a la firma de la función y contar los parámetros.",
+    "",
+    "Un parámetro booleano suele ser **dos funciones metidas en una**: el `if` de dentro parte",
+    "el cuerpo en dos caminos que casi no comparten nada.",
+    "",
+    "Deja `avisar` con un solo camino y saca los dos casos a dos funciones con nombre:",
+    "`avisarUrgente($mensaje)` y `avisarNormal($mensaje)`. La de dentro puede quedarse, pero",
+    "**sin el booleano**.",
+  ),
+  inicial: codigo(
+    "<?php",
+    "",
+    "function avisar(string $mensaje, bool $urgente, bool $enMayusculas): string",
+    "{",
+    "    if ($urgente) {",
+    "        $texto = '¡' . $mensaje . '!';",
+    "    } else {",
+    "        $texto = $mensaje;",
+    "    }",
+    "",
+    "    if ($enMayusculas) {",
+    "        $texto = strtoupper($texto);",
+    "    }",
+    "",
+    "    if ($urgente) {",
+    "        return '[URGENTE] ' . $texto;",
+    "    }",
+    "",
+    "    return '[aviso] ' . $texto;",
+    "}",
+  ),
+  solucion: codigo(
+    "<?php",
+    "",
+    "function avisarUrgente(string $mensaje, bool $enMayusculas = false): string",
+    "{",
+    "    $texto = '¡' . $mensaje . '!';",
+    "    return '[URGENTE] ' . ($enMayusculas ? strtoupper($texto) : $texto);",
+    "}",
+    "",
+    "function avisarNormal(string $mensaje, bool $enMayusculas = false): string",
+    "{",
+    "    return '[aviso] ' . ($enMayusculas ? strtoupper($mensaje) : $mensaje);",
+    "}",
+  ),
+  requisitos: [
+    { tipo: "usaPalabra", valor: "avisarUrgente", texto: "Una función para el caso urgente" },
+    { tipo: "usaPalabra", valor: "avisarNormal", texto: "Y otra para el normal" },
+    { tipo: "prohibePalabra", valor: "urgente", texto: "Sin el booleano que decidía: el nombre lo dice ya" },
+  ],
+  tests: [
+    {
+      nombre: "el urgente sigue saliendo igual",
+      codigo: "esperar(avisarUrgente('bruma'), 'el aviso')->igualA('[URGENTE] ¡bruma!');",
+    },
+    {
+      nombre: "el normal también",
+      codigo: "esperar(avisarNormal('bruma'), 'el aviso')->igualA('[aviso] bruma');",
+    },
+    {
+      nombre: "y en mayúsculas los dos",
+      codigo: codigo(
+        "esperar(avisarUrgente('bruma', true), 'el aviso')->igualA('[URGENTE] ¡BRUMA!');",
+        "esperar(avisarNormal('bruma', true), 'el aviso')->igualA('[aviso] BRUMA');",
+      ),
+    },
+    {
+      nombre: "las mayúsculas no tocan la etiqueta",
+      codigo: "esperar(avisarNormal('x', true), 'el aviso')->contiene('[aviso]');",
+    },
+    {
+      nombre: "un mensaje vacío sigue llevando sus signos",
+      codigo: "esperar(avisarUrgente(''), 'el aviso')->igualA('[URGENTE] ¡!');",
+    },
+    {
+      nombre: "y ahora la llamada se lee sin ir a la firma",
+      codigo: codigo(
+        "// Esto es todo lo que se ha ganado, y es mucho: `avisar('x', true, false)`",
+        "// no se podía leer y esto sí.",
+        "esperar(avisarUrgente('cae ceniza'), 'el aviso')->contiene('URGENTE');",
+      ),
+    },
+  ],
+  variantes: [
+    {
+      titulo: "El parámetro que decide · otra tanda",
+      tests: [
+        { nombre: "un mensaje largo urgente", codigo: "esperar(avisarUrgente('todos al pozo'), 'el aviso')->igualA('[URGENTE] ¡todos al pozo!');" },
+        { nombre: "uno normal con tildes en mayúsculas", codigo: "esperar(avisarNormal('atención', true), 'el aviso')->contiene('ATENCI');" },
+        { nombre: "y el normal no lleva signos de exclamación", codigo: "esperar(avisarNormal('bruma'), 'el aviso')->noContiene('¡');" },
+      ],
+    },
+  ],
+  pistas: [
+    pista("Fíjate en que el `if ($urgente)` aparece dos veces en el cuerpo: eso es la señal de que hay dos funciones ahí dentro.", 0),
+    pista("El otro booleano, `$enMayusculas`, sí se queda: no parte el cuerpo en dos, solo cambia una línea. No todos los booleanos son un problema.", 1),
+    pista("Cada función nueva se queda con su camino del `if` y con la etiqueta que le toca. Lo que las dos comparten -las mayúsculas- cabe en un ternario.", 2),
+  ],
+  recompensa: { croquetas: 9 },
+}

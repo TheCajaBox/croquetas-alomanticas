@@ -8,6 +8,7 @@ import {
   LINEAS_DE_FANTASMA,
   LINEAS_DE_HAM,
   LINEAS_DE_ELEND,
+  LINEAS_DE_TENSOON,
   LINEAS_DE_KELSIER,
   LINEAS_DE_ARMONIA,
   LINEAS_DE_MARASI,
@@ -48,6 +49,8 @@ const SACOS = {
   kelsier: LINEAS_DE_KELSIER,
   // Elend recibe en los mundos de la segunda parte, cuando Kelsier ya no está.
   elend: LINEAS_DE_ELEND,
+  // Y TenSoon en el de refactor, que es el suyo.
+  tensoon: LINEAS_DE_TENSOON,
 }
 
 export const NIVELES_DE_VERBORREA = [

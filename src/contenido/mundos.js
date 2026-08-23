@@ -229,6 +229,25 @@ export const MUNDOS = [
     despedida:
       'Ya sabes leer y escribir el PHP con el que están hechos los programas de verdad. Lo que queda no es aprender más piezas: es aprender a colocar las que ya tienes.',
   },
+  {
+    id: 'kandra',
+    parte: 'segunda',
+    nombre: 'El kandra',
+    subtitulo: 'PHP · la misma cosa, otra forma',
+    itinerario: 'era1',
+    entorno: 'php',
+    requiere: 'fundacion',
+    color: '#6fb08a',
+    // Quien recibe al llegar. Este mundo lo lleva TenSoon, que de cambiar de
+    // forma sin dejar de ser uno mismo sabe más que nadie.
+    anfitrion: 'tensoon',
+    resumen:
+      'Doce trozos de código que funcionan y que no se pueden leer. No se añade nada: se cambia de forma. Es el mundo que lo lleva TenSoon, que de eso sabe.',
+    presentacion:
+      'Un kandra puede tomar la forma de cualquiera sin dejar de ser él. Este mundo va de eso: el mismo programa, con otra forma, haciendo exactamente lo mismo. No vas a aprender nada nuevo aquí -ya sabes todo lo que hace falta- y es el mundo que más te va a cambiar la manera de escribir. Cada reto trae código que funciona, pasa sus tests y no se puede leer. Tu trabajo es que se pueda leer, sin romper ni un test.',
+    despedida:
+      'Ahora ya sabes que un programa que funciona no está terminado. Lo que has hecho aquí es lo que se hace el ochenta por ciento del tiempo en un trabajo de verdad, y casi nadie lo enseña.',
+  },
 ]
 
 export const MUNDOS_POR_ID = Object.fromEntries(MUNDOS.map((mundo) => [mundo.id, mundo]))

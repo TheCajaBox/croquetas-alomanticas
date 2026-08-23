@@ -105,7 +105,7 @@ export const GLOSARIO = [
   },
   {
     id: "constante",
-    desde: { era2: 'primer-dia' },
+    desde: { era2: 'primer-dia', era1: 'kandra' },
     termino: "constante",
     alias: ["constantes"],
     definicion: "Una variable a la que no se le puede asignar otro valor después de creada. Se declara con `const` y es lo que se usa por defecto.",
@@ -616,7 +616,7 @@ export const GLOSARIO = [
   },
   {
     id: "refactorizar",
-    desde: { era2: 'melaan' },
+    desde: { era2: 'melaan', era1: 'kandra' },
     termino: "refactorizar",
     alias: ["refactorización"],
     definicion:
@@ -733,6 +733,16 @@ export const GLOSARIO = [
       "Seguir la ejecución paso a paso anotando qué vale cada cosa. También, la lista de llamadas que trae un error, de la más reciente a la más antigua.",
   },
   // ---- De PHP -------------------------------------------------------------
+  {
+    id: "match",
+    // No existía, y en la primera era tiene un reto propio -«Del if largo al
+    // match»- en el mundo de refactor. En la segunda no hay equivalente
+    // directo: lo que se enseña allí es la búsqueda en un objeto.
+    desde: { era1: 'kandra' },
+    termino: "match",
+    definicion: "Compara un valor con una lista de casos y devuelve el que encaje. Compara con `===` -sin convertir nada-, es una expresión -así que devuelve un valor y se puede devolver directamente- y exige que algún caso coincida: si no hay `default` y no encaja ninguno, se queja en vez de seguir con `null`.",
+    ejemplo: "match ($metal) { 'acero', 'hierro' => 'físico', default => 'otro' }",
+  },
   {
     id: "interfaz",
     desde: { era2: 'taller', era1: 'fundacion' },

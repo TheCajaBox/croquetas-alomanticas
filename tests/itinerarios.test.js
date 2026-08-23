@@ -116,16 +116,27 @@ describe('los itinerarios', () => {
 /**
  * El equilibrio de los itinerarios nuevos: más práctica y menos texto.
  *
- * Es una decisión de diseño, no una casualidad, y por eso se vigila. En la
- * segunda era los apuntes son largos y hay mundos de puro escribir -El kandra
- * es refactor de principio a fin-; aquí se cambia a propósito: **doce retos por
- * mundo, la mitad como mucho de escribir código, y apuntes de la mitad de
- * largo**. Sin esta prueba, el siguiente mundo se escribe con la costumbre
- * antigua y nadie se entera hasta que alguien se aburre jugando.
+ * Es una decisión de diseño, no una casualidad, y por eso se vigila: **doce
+ * retos por mundo, la mitad como mucho de escribir código, y apuntes de la
+ * mitad de largo** que los de la segunda era. Sin esta prueba, el siguiente
+ * mundo se escribe con la costumbre antigua y nadie se entera hasta que alguien
+ * se aburre jugando.
+ *
+ * ## El monotipo, que es la única excepción
+ *
+ * Un mundo de refactor es refactor de principio a fin: eso es lo que enseña. En
+ * la segunda era ese mundo es «Cambio de forma» y en la primera es «El kandra»,
+ * y los dos son doce retos de escribir sin remedio, porque cambiar de forma sin
+ * escribir no se puede.
+ *
+ * La excepción va nombrada uno a uno y con su motivo, no como un porcentaje
+ * relajado para todos: un mundo normal que llegue al 100% de escribir es un
+ * error, y este es el único sitio donde se distingue.
  */
 const ITINERARIOS_NUEVOS = ['era1', 'elantris', 'sel']
 const RETOS_POR_MUNDO = 12
 const TOPE_DE_APUNTE = 4500
+const MONOTIPOS = { kandra: 'refactor de principio a fin: es lo que enseña' }
 
 describe('quien recibe en un mundo tiene algo que decir', () => {
   it('todo anfitrión sabe presentarse', async () => {
@@ -201,6 +212,8 @@ describe('los itinerarios nuevos tienen más práctica y menos texto', () => {
     it(`${mundo.id}: doce retos y como mucho la mitad de escribir`, () => {
       const retos = retosDelMundo(mundo.id)
       expect(retos.length, 'menos de doce retos: falta práctica').toBeGreaterThanOrEqual(RETOS_POR_MUNDO)
+
+      if (MONOTIPOS[mundo.id]) return
 
       const deEscribir = retos.filter((reto) => seEscribe(reto.tipo))
       expect(

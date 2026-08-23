@@ -44,7 +44,11 @@ const APUNTES = {}
  * «Cambio de forma» es todo refactor, que es su asunto entero: el mismo problema
  * resuelto de otra manera.
  */
-const MONOTIPOS = { 'primer-dia': 'nadie escribe el primer día', melaan: 'un mundo de puro refactor' }
+const MONOTIPOS = {
+  'primer-dia': 'nadie escribe el primer día',
+  melaan: 'un mundo de puro refactor',
+  kandra: 'el de refactor de la primera era, por lo mismo',
+}
 
 describe('la forma de cada mundo', () => {
   it('ninguno se queda corto de retos', () => {

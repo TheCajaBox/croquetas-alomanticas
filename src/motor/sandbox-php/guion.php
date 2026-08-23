@@ -58,6 +58,22 @@ function gatos_usa_palabra(array $tokens, string $palabra): bool
     return false;
 }
 
+/**
+ * Cuántas veces aparece una palabra. Para los retos de refactor, que van justo
+ * de eso: cuatro `if` donde bastaba uno, tres `foreach` donde bastaba una
+ * llamada. Sin poder contar, «no te repitas» no se puede comprobar.
+ */
+function gatos_cuenta_palabra(array $tokens, string $palabra): int
+{
+    $veces = 0;
+    foreach ($tokens as $token) {
+        if (strcasecmp($token['texto'], $palabra) === 0 && $token['tipo'] !== 'T_CONSTANT_ENCAPSED_STRING') {
+            $veces += 1;
+        }
+    }
+    return $veces;
+}
+
 function gatos_llama_a(array $tokens, string $nombre): bool
 {
     foreach ($tokens as $indice => $token) {
@@ -81,6 +97,8 @@ function gatos_mensaje_de(string $tipo, string $valor): string
         'prohibePalabra' => "Aquí no se puede usar `$valor`.",
         'usaLlamada' => "Tiene que llamar a `$valor()`.",
         'prohibeLlamada' => "Aquí no se puede llamar a `$valor()`.",
+        'comoMucho' => "`$valor` no puede aparecer tantas veces.",
+        'alMenos' => "`$valor` tiene que aparecer más veces.",
         default => 'Este reto tiene una norma que no se está cumpliendo.',
     };
 }
@@ -96,11 +114,17 @@ foreach ($requisitos as $requisito) {
     $tipo = $requisito['tipo'] ?? '';
     $valor = (string) ($requisito['valor'] ?? '');
 
+    // `veces` solo lo usan `comoMucho` y `alMenos`. Por defecto 1, que es el
+    // caso de siempre: «esto aparece una vez y no cuatro».
+    $veces = (int) ($requisito['veces'] ?? 1);
+
     $cumplido = match ($tipo) {
         'usaPalabra' => gatos_usa_palabra($tokens, $valor),
         'prohibePalabra' => !gatos_usa_palabra($tokens, $valor),
         'usaLlamada' => gatos_llama_a($tokens, $valor),
         'prohibeLlamada' => !gatos_llama_a($tokens, $valor),
+        'comoMucho' => gatos_cuenta_palabra($tokens, $valor) <= $veces,
+        'alMenos' => gatos_cuenta_palabra($tokens, $valor) >= $veces,
         default => true,
     };
 
