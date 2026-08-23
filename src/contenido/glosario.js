@@ -1673,6 +1673,94 @@ export const GLOSARIO = [
     definicion:
       "El único sitio donde un dato es el bueno. Un dato copiado es un dato viejo desde el momento en que se copia, así que los permisos, el estado de una cuenta o el precio de algo se leen **cuando se usan** y no se guardan en la sesión: si no, quitarle un permiso a alguien no le quita nada hasta que vuelva a entrar.",
   },
+  {
+    id: "integridad",
+    desde: { sel: 'original' },
+    termino: "integridad",
+    definicion:
+      "Que el dato sea el que se escribió y no lo haya cambiado nadie. Es una de las tres protecciones y no es la misma que la confidencialidad -que no lo lean, y eso se hace cifrando- ni que la autenticidad -que sea de quien dice-. Firmar da integridad y autenticidad; no da confidencialidad.",
+  },
+  {
+    id: "firmar",
+    desde: { sel: 'original' },
+    termino: "firmar",
+    alias: ["firma", "MAC", "HMAC"],
+    definicion:
+      "Calcular un sello del contenido con un secreto, para que se pueda comprobar después que no lo han cambiado. El contenido va **a la vista**: firmar no esconde nada. Con un secreto compartido se llama MAC -en la práctica, HMAC-; con una clave privada, quien verifica no puede falsificar, y eso importa cuando el que verifica es otro.",
+    ejemplo: "contenido + '.' + sello(contenido, secreto)",
+  },
+  {
+    id: "codificar",
+    desde: { sel: 'original' },
+    termino: "codificar",
+    alias: ["base64", "base64url", "descodificar"],
+    definicion:
+      "Escribir los mismos bytes de otra manera para que pasen por un canal que no admite cualquiera -una URL, una cabecera-. **No protege nada**: se deshace sin secreto. Cada vez que alguien dice «va en base64, así que está protegido» hay un dato en claro que cualquiera lee.",
+  },
+  {
+    id: "papel-firmado",
+    desde: { sel: 'original' },
+    termino: "papel firmado",
+    alias: ["testigo firmado", "token", "JWT"],
+    definicion:
+      "Un contenido a la vista con su firma detrás. No se puede **revocar** si el servidor no lo guarda -no hay dónde tacharlo-, así que lo único que lo mata es la caducidad, y por eso tiene que ser corta y llevar poca cosa dentro. Un rol dentro de un papel firmado es un permiso copiado.",
+  },
+  {
+    id: "azar-criptografico",
+    desde: { sel: 'original' },
+    termino: "azar criptográfico",
+    alias: ["aleatorio seguro", "getRandomValues", "randomBytes"],
+    definicion:
+      "El generador que hace falta para un secreto. El de propósito general -`Math.random`- no está mal hecho: está hecho para repartir, y su serie se puede reconstruir con unos pocos valores observados. Si el número tiene que ser imposible de adivinar, el de propósito general no vale.",
+    ejemplo: "crypto.getRandomValues(new Uint8Array(32))",
+  },
+  {
+    id: "semilla",
+    desde: { sel: 'original' },
+    termino: "semilla",
+    definicion:
+      "El punto de partida de un generador. Dos generadores con la misma semilla dan **exactamente la misma serie**, y eso es lo que se quiere en una simulación y lo que arruina un secreto: se reconstruye la serie y se adelanta hasta donde vaya el otro. Una semilla escrita en el código es peor: mil máquinas reparten la misma serie.",
+  },
+  {
+    id: "rotar-un-secreto",
+    desde: { sel: 'original' },
+    termino: "rotar un secreto",
+    alias: ["rotación"],
+    definicion:
+      "Cambiarlo por otro. Es lo único que hay que hacer cuando un secreto se filtra: borrarlo del código no lo borra del historial ni de las copias que haya por ahí. Para poder rotar sin echar a todo el mundo se numera el secreto: el papel dice con cuál se firmó y el servidor conoce el actual y el anterior.",
+  },
+  {
+    id: "variable-de-entorno",
+    desde: { sel: 'original' },
+    termino: "variable de entorno",
+    alias: ["gestor de secretos"],
+    definicion:
+      "Dónde vive lo que no puede ir en el código. Es el mínimo razonable y no es perfecta -aparece en volcados y en algunos registros-; un gestor de secretos añade lo que de verdad hace falta: poder rotarlo sin tocar el código y saber quién lo ha leído. Y ojo: fuera del código va **todo lo que depende del entorno**, aunque no sea secreto.",
+  },
+  {
+    id: "politica-de-contenidos",
+    desde: { sel: 'original' },
+    termino: "política de contenidos",
+    alias: ["Content-Security-Policy", "CSP", "cabeceras de seguridad"],
+    definicion:
+      "Una cabecera que le dice al navegador de dónde puede cargar y ejecutar. Bien puesta, un script inyectado no se ejecuta **aunque llegue a la página**: es la red que salva un XSS que se te haya colado. No sustituye a escapar; va además.",
+    ejemplo: "Content-Security-Policy: default-src 'self'",
+  },
+  {
+    id: "fichero-de-bloqueo",
+    desde: { sel: 'original' },
+    termino: "fichero de bloqueo",
+    alias: ["lockfile", "cadena de suministro"],
+    definicion:
+      "El que dice qué versión exacta se instaló, de dónde, y con qué hash. El hash es la única línea que puede impedir una instalación: si el contenido del paquete cambia sin cambiar la versión, falla. Se sube al repositorio, y en la máquina de construcción se instala **solo desde él**.",
+  },
+  {
+    id: "huella-del-servidor",
+    desde: { sel: 'original' },
+    termino: "huella del servidor",
+    definicion:
+      "Lo que tu sistema cuenta de sí mismo sin que se lo pregunten: cabeceras como `Server` o `X-Powered-By`, rastros de excepciones, mensajes de error con versiones. Con la versión exacta se busca su lista pública de agujeros conocidos. Quitarlo no protege por sí solo y le quita el atajo a quien prueba en masa.",
+  },
 ]
 
 export const GLOSARIO_POR_ID = Object.fromEntries(GLOSARIO.map((entrada) => [entrada.id, entrada]))

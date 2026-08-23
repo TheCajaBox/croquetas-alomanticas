@@ -7,6 +7,13 @@
  *
  * El color se usa para el disco de quien todavía no tiene ilustración. Los que
  * sí la tienen la declaran en `Avatar.vue`, que es quien las importa.
+ *
+ * `de` es de qué camino es alguien, y solo lo llevan los que **no tienen un
+ * papel** en ningún reparto: gente que se nombra en el texto de un apunte o de
+ * un reto sin hablar nunca. Lo necesita la prueba de que nadie sale en un camino
+ * que no es el suyo, que hasta ahora deducía a quién pertenece cada uno de los
+ * repartos de `itinerarios.js` -o sea, de quién tiene un trabajo- y por eso
+ * trataba a Frava como forastera en su propia ciudad.
  */
 export const PERSONAJES = {
   wayne: { nombre: 'Wayne', color: '#c98b4b' },
@@ -35,7 +42,8 @@ export const PERSONAJES = {
   gaotona: { nombre: 'Gaotona', color: '#b9a678' },
   hanshuxen: { nombre: 'Han ShuXen', color: '#7f8a96' },
   sellador: { nombre: 'el Sellador de sangre', color: '#8f2f2f' },
-  frava: { nombre: 'Frava', color: '#7a6f92' },
+  // Arbitradora de Sel: sale nombrada en los retos y no habla nunca.
+  frava: { nombre: 'Frava', color: '#7a6f92', de: ['sel'] },
 }
 
 /** Cómo se llama, para escribirlo en pantalla. */

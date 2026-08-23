@@ -46,11 +46,21 @@ const APUNTES = {}
 
 /** Quién es de cada camino. Alguien puede estar en dos: Armonía contesta en dos. */
 const CAMINOS_DE = new Map()
+const apuntar = (quien, itinerarioId) =>
+  CAMINOS_DE.set(quien, [...(CAMINOS_DE.get(quien) ?? []), itinerarioId])
+
 for (const itinerario of ITINERARIOS) {
   for (const quien of Object.values(itinerario.reparto).flat()) {
     if (typeof quien !== 'string') continue
-    CAMINOS_DE.set(quien, [...(CAMINOS_DE.get(quien) ?? []), itinerario.id])
+    apuntar(quien, itinerario.id)
   }
+}
+// Y los que no tienen papel en ningún reparto pero son de un camino igualmente:
+// gente que se nombra en el texto y no habla nunca. Esto lo declara
+// `personajes.js` en `de`, porque «a quién pertenece» y «quién tiene un trabajo»
+// no son lo mismo, y sin ello Frava era forastera en su propia ciudad.
+for (const [quien, ficha] of Object.entries(PERSONAJES)) {
+  for (const itinerarioId of ficha.de ?? []) apuntar(quien, itinerarioId)
 }
 
 /** Los nombres que NO pueden salir en ese camino. */
