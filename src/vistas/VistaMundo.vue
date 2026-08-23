@@ -8,7 +8,7 @@ import { quienRepasa, repartoDelMundo } from '../contenido/itinerarios.js'
 import { retosDelMundo } from '../contenido/retos/index.js'
 import Avatar from '../componentes/Avatar.vue'
 import { nombreDe } from '../contenido/personajes.js'
-import { REPASOS_POR_MUNDO } from '../contenido/repasos.js'
+import { REPASOS_POR_MUNDO } from '../contenido/repasos/index.js'
 import { etiquetaDelTipo } from '../contenido/retos/tipos.js'
 import { usarNarrador } from '../almacen/narrador.js'
 import { usarProgreso } from '../almacen/progreso.js'
@@ -71,10 +71,12 @@ if (!mundo.value || !progreso.mundoDisponible(props.mundoId)) router.replace('/'
       <div>
         <p class="titulo-caso">{{ repaso.titulo }}</p>
         <p class="tenue">
+          <!-- De la ficha: las preguntas se descargan al entrar en el repaso, y
+               esta tarjeta se pinta antes de que nadie decida entrar. -->
           {{ nombreDe(examinador) }} repasa lo de este mundo con
-          {{ repaso.preguntas.length }} preguntas.
+          {{ repaso.cuantasPreguntas }} preguntas.
           <template v-if="repasos.hecho(repaso.id)">
-            Tu mejor marca: {{ repasos.mejor(repaso.id) }} de {{ repaso.preguntas.length }}.
+            Tu mejor marca: {{ repasos.mejor(repaso.id) }} de {{ repaso.cuantasPreguntas }}.
           </template>
         </p>
       </div>

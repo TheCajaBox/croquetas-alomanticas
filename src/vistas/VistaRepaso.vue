@@ -1,5 +1,5 @@
 <script setup>
-import { computed, ref } from 'vue'
+import { computed, ref, shallowRef, watch } from 'vue'
 import { useRouter } from 'vue-router'
 
 import Avatar from '../componentes/Avatar.vue'
@@ -7,7 +7,7 @@ import Marcado from '../componentes/Marcado.vue'
 import { MUNDOS_POR_ID } from '../contenido/mundos.js'
 import { quienRepasa } from '../contenido/itinerarios.js'
 import { nombreDe } from '../contenido/personajes.js'
-import { REPASOS_POR_MUNDO } from '../contenido/repasos.js'
+import { REPASOS_POR_MUNDO, cargarRepaso } from '../contenido/repasos/index.js'
 import { usarNarrador } from '../almacen/narrador.js'
 import { usarProgreso } from '../almacen/progreso.js'
 import { usarRepasos } from '../almacen/repasos.js'
@@ -19,12 +19,25 @@ const progreso = usarProgreso()
 const repasos = usarRepasos()
 const narrador = usarNarrador()
 
-const repaso = REPASOS_POR_MUNDO[props.mundoId]
+/**
+ * La ficha llega en el arranque; las preguntas se piden al entrar.
+ *
+ * La ficha es lo que hace falta para decidir si el repaso está abierto y quién
+ * lo lleva, y con eso se pinta la cabecera al instante. Las preguntas son lo
+ * gordo -y lo único que no cabía en el paquete principal-, así que llegan un
+ * momento después. Va en un `shallowRef` y no en un `ref` por lo mismo que el
+ * cuerpo de un reto: no hace falta que Vue vigile por dentro un objeto que solo
+ * se lee.
+ */
+const ficha = REPASOS_POR_MUNDO[props.mundoId]
 const mundo = MUNDOS_POR_ID[props.mundoId]
 
 // Se abre al terminar el mundo: repasar lo que aún no has visto no es repasar.
-const abierto = !!repaso && progreso.mundoCompletado(props.mundoId)
+const abierto = !!ficha && progreso.mundoCompletado(props.mundoId)
 if (!abierto) router.replace('/')
+
+const repaso = shallowRef(null)
+if (abierto) cargarRepaso(props.mundoId).then((suyo) => { repaso.value = suyo })
 
 const actual = ref(0)
 const elegida = ref(null)
@@ -32,9 +45,10 @@ const aciertos = ref(0)
 const terminado = ref(false)
 const cobro = ref(null)
 
-const pregunta = computed(() => repaso?.preguntas[actual.value])
+const preguntas = computed(() => repaso.value?.preguntas ?? [])
+const pregunta = computed(() => preguntas.value[actual.value])
 const contestada = computed(() => elegida.value !== null)
-const esLaUltima = computed(() => actual.value === repaso.preguntas.length - 1)
+const esLaUltima = computed(() => actual.value === preguntas.value.length - 1)
 
 /**
  * Quién lleva el repaso. El papel es el mismo y la voz no: en la segunda era
@@ -42,20 +56,21 @@ const esLaUltima = computed(() => actual.value === repaso.preguntas.length - 1)
  * la tarjeta del mundo necesita la misma, y el nombre sale del elenco: había
  * aquí una tabla de dos nombres que llamaba «Marasi» a cualquier tercero.
  */
-const quien = quienRepasa(repaso, mundo)
+const quien = quienRepasa(ficha, mundo)
 const comoSeLlama = nombreDe(quien)
 
 // Solo abre el caso si el caso se abre: si esto redirige, se calla.
 // Cuántas son se cuenta, no se escribe: un repaso de nueve preguntas anunciado
-// como «seis» es la misma errata que tenían los sombreros.
+// como «seis» es la misma errata que tenían los sombreros. Y sale de la ficha,
+// no del cuerpo, para que la frase no espere a la descarga.
 if (abierto) {
-  narrador.decir('abreCaso', { cuantas: repaso.preguntas.length }, { personaje: quien, forzar: true })
+  narrador.decir('abreCaso', { cuantas: ficha.cuantasPreguntas }, { personaje: quien, forzar: true })
 }
 
 function responder(indice) {
   if (contestada.value) return
   elegida.value = indice
-  if (repaso.preguntas[actual.value].opciones[indice].correcta) aciertos.value += 1
+  if (preguntas.value[actual.value].opciones[indice].correcta) aciertos.value += 1
 }
 
 function siguiente() {
@@ -66,9 +81,9 @@ function siguiente() {
   }
 
   terminado.value = true
-  cobro.value = repasos.registrar(repaso, aciertos.value)
+  cobro.value = repasos.registrar(repaso.value, aciertos.value)
 
-  const total = repaso.preguntas.length
+  const total = preguntas.value.length
   const evento = aciertos.value === total ? 'bordado' : aciertos.value >= total / 2 ? 'bien' : 'flojo'
   narrador.decir(evento, {}, { personaje: quien, forzar: true })
 }
@@ -89,9 +104,9 @@ function otraVez() {
         <Avatar :quien="quien" :tamano="60" />
         <div>
           <p class="quien">El caso de {{ comoSeLlama }}</p>
-          <h1>{{ repaso.titulo }}</h1>
+          <h1>{{ ficha.titulo }}</h1>
           <p class="tenue">
-            {{ repaso.preguntas.length }} preguntas sobre {{ mundo.nombre }}. No cuentan para nada salvo para saber qué
+            {{ preguntas.length }} preguntas sobre {{ mundo.nombre }}. No cuentan para nada salvo para saber qué
             se te ha quedado; se puede repetir, pero solo se cobra lo que se mejore.
           </p>
         </div>
@@ -99,9 +114,9 @@ function otraVez() {
 
       <div v-if="!terminado" class="avance">
         <div class="barra">
-          <i :style="{ width: `${(actual / repaso.preguntas.length) * 100}%`, background: '#c0697e' }" />
+          <i :style="{ width: `${(actual / preguntas.length) * 100}%`, background: '#c0697e' }" />
         </div>
-        <span class="tenue cuenta">{{ actual + 1 }} de {{ repaso.preguntas.length }}</span>
+        <span class="tenue cuenta">{{ actual + 1 }} de {{ preguntas.length }}</span>
       </div>
     </section>
 
@@ -143,7 +158,7 @@ function otraVez() {
 
     <!-- Resultado -->
     <section v-else class="panel resultado">
-      <p class="marcador">{{ aciertos }} de {{ repaso.preguntas.length }}</p>
+      <p class="marcador">{{ aciertos }} de {{ preguntas.length }}</p>
 
       <p v-if="cobro.pagado" class="pago">+{{ cobro.pagado }} croquetas</p>
       <p v-else-if="cobro.mejorAnterior" class="tenue pago">

@@ -13,7 +13,7 @@ import {
 } from '../src/contenido/itinerarios.js'
 import { MUNDOS, mundosDelItinerario } from '../src/contenido/mundos.js'
 import { existePersonaje } from '../src/contenido/personajes.js'
-import { REPASOS_POR_MUNDO } from '../src/contenido/repasos.js'
+import { REPASOS_POR_MUNDO } from '../src/contenido/repasos/index.js'
 import { usarNarrador } from '../src/almacen/narrador.js'
 
 /**

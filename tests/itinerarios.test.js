@@ -164,7 +164,7 @@ describe('quién pregunta en el repaso de cada mundo', () => {
   it('sale del repaso si lo dice, y del reparto si no', async () => {
     // Estaba resuelto en tres sitios y de dos maneras, así que la tarjeta del
     // mundo anunciaba a Marasi también donde pregunta otro. Ahora hay una regla.
-    const { REPASOS_POR_MUNDO } = await import('../src/contenido/repasos.js')
+    const { REPASOS_POR_MUNDO } = await import('../src/contenido/repasos/index.js')
 
     const mal = []
     for (const mundo of MUNDOS) {
@@ -179,7 +179,7 @@ describe('quién pregunta en el repaso de cada mundo', () => {
   })
 
   it('en la primera era pregunta Brisa y en la segunda Marasi', async () => {
-    const { REPASOS_POR_MUNDO } = await import('../src/contenido/repasos.js')
+    const { REPASOS_POR_MUNDO } = await import('../src/contenido/repasos/index.js')
     const de = (mundoId) => quienRepasa(REPASOS_POR_MUNDO[mundoId], MUNDOS.find((m) => m.id === mundoId))
 
     expect(de('ceniza')).toBe('brisa')

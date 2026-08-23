@@ -1112,6 +1112,46 @@ test('la página del glosario va por mundos y en orden de juego', async ({ page 
   await expect(laCeniza.locator('.termino h3', { hasText: /^foreach$/ })).toHaveCount(1)
 })
 
+test('las preguntas de un repaso se piden al abrirlo, y solo las suyas', async ({ page }) => {
+  // Los repasos iban enteros en el paquete principal -60 kB- porque los importan
+  // tres pantallas y Rollup los subía al arranque. Ahora la ficha va arriba y las
+  // preguntas se piden al entrar. Esto lo mira desde la red, que es el único
+  // sitio donde se ve.
+  const pedidos = []
+  page.on('request', (peticion) => {
+    const url = peticion.url()
+    if (/\/assets\/.*\.js$/.test(url)) pedidos.push(url.split('/').pop())
+  })
+
+  const todos = await todosLosRetos()
+  await page.addInitScript((ids) => {
+    const retos = {}
+    for (const id of ids) {
+      retos[id] = { superado: true, intentos: 1, pistasUsadas: [], superadoEn: Date.now() }
+    }
+    localStorage.setItem('gatosYCodigo', JSON.stringify({
+      version: 1,
+      progreso: { retos, vistoLaBienvenida: true, ultimaVisita: Date.now() },
+    }))
+  }, todos.ceniza)
+  await page.goto('#/')
+  await page.reload()
+
+  // La lista del mundo ofrece el repaso -«9 preguntas»- sin descargar ninguna.
+  await page.goto('#/mundo/ceniza')
+  await expect(page.locator('.caso')).toContainText('9 preguntas')
+  expect(pedidos.filter((cada) => /ceniza-.*\.js/.test(cada) && !/reto/.test(cada)).length).toBeLessThan(3)
+
+  pedidos.length = 0
+  await page.locator('.caso').click()
+  await expect(page.getByText('El caso de la ceniza')).toBeVisible()
+  await expect(page.locator('.pregunta').first()).toBeVisible()
+
+  // Y al entrar se ha pedido un trozo, no doce: el de este mundo.
+  const cuerpos = pedidos.filter((cada) => /^(ceniza|tripulacion|pozo|primer-dia|comisaria)-/.test(cada))
+  expect(cuerpos.length, `trozos de repaso pedidos: ${cuerpos.join(', ')}`).toBeLessThanOrEqual(1)
+})
+
 test('la pestaña tiene su icono, y no hay un 404 en cada carga', async ({ page }) => {
   // El sitio no declaraba ninguno, así que el navegador pedía /favicon.ico por
   // su cuenta -en la raíz del dominio, que no es nuestra- y se llevaba un 404

@@ -1,6 +1,6 @@
 import { defineStore } from 'pinia'
 
-import { CROQUETAS_POR_ACIERTO, REPASOS_POR_MUNDO } from '../contenido/repasos.js'
+import { CROQUETAS_POR_ACIERTO, REPASOS_POR_MUNDO } from '../contenido/repasos/index.js'
 import { usarEconomia } from './economia.js'
 import { usarInsignias } from './insignias.js'
 import { autoguardar } from './persistencia.js'
@@ -22,11 +22,19 @@ export const usarRepasos = defineStore('repasos', {
     mejor: (estado) => (repasoId) => estado.mejores[repasoId] ?? 0,
     hecho: (estado) => (repasoId) => repasoId in estado.mejores,
 
-    /** Cuántos repasos se han bordado del todo. */
+    /**
+     * Cuántos repasos se han bordado del todo.
+     *
+     * Cuenta contra `cuantasPreguntas` de la ficha y no contra las preguntas
+     * cargadas, que es justo por lo que la ficha lo lleva: aquí se cuentan
+     * repasos de mundos por los que a lo mejor no has pasado esta sesión, y
+     * pedir sus preguntas para contar sería descargar doce ficheros para
+     * decidir si se pinta una insignia.
+     */
     perfectos: (estado) =>
       Object.entries(estado.mejores).filter(([id, aciertos]) => {
-        const repaso = Object.values(REPASOS_POR_MUNDO).find((r) => r.id === id)
-        return repaso && aciertos === repaso.preguntas.length
+        const ficha = Object.values(REPASOS_POR_MUNDO).find((cada) => cada.id === id)
+        return ficha && aciertos === ficha.cuantasPreguntas
       }).length,
   },
 

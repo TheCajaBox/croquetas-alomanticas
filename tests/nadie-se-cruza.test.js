@@ -11,7 +11,7 @@ import { ITINERARIOS, ITINERARIOS_POR_ID } from '../src/contenido/itinerarios.js
 import { MUNDOS, mundosDelItinerario } from '../src/contenido/mundos.js'
 import { PERSONAJES } from '../src/contenido/personajes.js'
 import { RECORTES } from '../src/contenido/recortes.js'
-import { REPASOS } from '../src/contenido/repasos.js'
+import { REPASOS } from '../src/contenido/repasos/index.js'
 import { cargarTodosLosRetos, retosDelMundo } from '../src/contenido/retos/index.js'
 
 /**

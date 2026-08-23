@@ -1,7 +1,16 @@
+import { readFileSync, readdirSync } from 'node:fs'
+import { join } from 'node:path'
+import { fileURLToPath } from 'node:url'
+
 import { createPinia, setActivePinia } from 'pinia'
 import { beforeEach, describe, expect, it } from 'vitest'
 
-import { CROQUETAS_POR_ACIERTO, REPASOS } from '../src/contenido/repasos.js'
+import {
+  CROQUETAS_POR_ACIERTO,
+  REPASOS,
+  REPASOS_POR_MUNDO,
+  cargarTodosLosRepasos,
+} from '../src/contenido/repasos/index.js'
 import { MUNDOS, MUNDOS_POR_ID } from '../src/contenido/mundos.js'
 import { cargarTodosLosRetos, retosDelMundo } from '../src/contenido/retos/index.js'
 import { CROQUETAS_INICIALES, usarEconomia } from '../src/almacen/economia.js'
@@ -16,6 +25,13 @@ import { usarRepasos } from '../src/almacen/repasos.js'
  */
 const RETOS = await cargarTodosLosRetos()
 
+/**
+ * Y los repasos enteros, por lo mismo: `REPASOS` son las fichas -quién
+ * pregunta, cuántas son- y las preguntas se piden aparte para que no viajen en
+ * el arranque. Aquí hay que mirarlas.
+ */
+const ENTEROS = await cargarTodosLosRepasos()
+
 beforeEach(() => setActivePinia(createPinia()))
 
 describe('los repasos de Marasi', () => {
@@ -27,7 +43,7 @@ describe('los repasos de Marasi', () => {
   })
 
   it('cada pregunta tiene una sola respuesta correcta y todas explicadas', () => {
-    for (const repaso of REPASOS) {
+    for (const repaso of ENTEROS) {
       expect(repaso.preguntas.length, repaso.id).toBeGreaterThanOrEqual(5)
       for (const pregunta of repaso.preguntas) {
         const correctas = pregunta.opciones.filter((o) => o.correcta)
@@ -43,7 +59,7 @@ describe('los repasos de Marasi', () => {
   it('paga por acierto la primera vez', () => {
     const repasos = usarRepasos()
     const economia = usarEconomia()
-    const repaso = REPASOS[0]
+    const repaso = ENTEROS[0]
 
     const { pagado, mejorado } = repasos.registrar(repaso, 4)
 
@@ -56,7 +72,7 @@ describe('los repasos de Marasi', () => {
   it('repetirlo con la misma marca no paga nada', () => {
     const repasos = usarRepasos()
     const economia = usarEconomia()
-    const repaso = REPASOS[0]
+    const repaso = ENTEROS[0]
 
     repasos.registrar(repaso, 4)
     const saldo = economia.croquetas
@@ -70,7 +86,7 @@ describe('los repasos de Marasi', () => {
   it('mejorar la marca paga solo la diferencia', () => {
     const repasos = usarRepasos()
     const economia = usarEconomia()
-    const repaso = REPASOS[0]
+    const repaso = ENTEROS[0]
 
     repasos.registrar(repaso, 4)
     const saldo = economia.croquetas
@@ -83,7 +99,7 @@ describe('los repasos de Marasi', () => {
 
   it('empeorar no baja la mejor marca', () => {
     const repasos = usarRepasos()
-    const repaso = REPASOS[0]
+    const repaso = ENTEROS[0]
 
     repasos.registrar(repaso, 6)
     repasos.registrar(repaso, 2)
@@ -92,7 +108,7 @@ describe('los repasos de Marasi', () => {
 
   it('cuenta los que se han bordado', () => {
     const repasos = usarRepasos()
-    const repaso = REPASOS[0]
+    const repaso = ENTEROS[0]
 
     repasos.registrar(repaso, repaso.preguntas.length - 1)
     expect(repasos.perfectos).toBe(0)
@@ -171,5 +187,68 @@ describe('quién recibe al entrar en un mundo', () => {
     narrador.entrarAlMundo(MUNDOS_POR_ID.es6)
     expect(narrador.mensaje.personaje).toBe('wayne')
     expect(narrador.mensaje.evento).toBe('entrarAlMundo')
+  })
+})
+
+/**
+ * Los repasos se reparten como los retos: la ficha en el arranque y las
+ * preguntas al abrirlo.
+ *
+ * Los dos fallos que ese reparto puede tener son silenciosos, y son los mismos
+ * que ya cazamos con los retos: que la ficha diga algo distinto de lo que dice
+ * el fichero, y que alguien importe un repaso de forma estática y su trozo
+ * vuelva al paquete principal sin que nada avise.
+ */
+describe('el reparto de los repasos', () => {
+  it('la ficha dice exactamente lo que dice el fichero del repaso', () => {
+    const desajustes = []
+    for (const entero of ENTEROS) {
+      const ficha = REPASOS_POR_MUNDO[entero.mundo]
+      if (!ficha) {
+        desajustes.push(`${entero.mundo}: no está en el índice`)
+        continue
+      }
+      if (ficha.id !== entero.id) desajustes.push(`${entero.mundo}.id: ${ficha.id} ≠ ${entero.id}`)
+      if (ficha.titulo !== entero.titulo) desajustes.push(`${entero.mundo}.titulo`)
+      if ((ficha.quien ?? null) !== (entero.quien ?? null)) desajustes.push(`${entero.mundo}.quien`)
+      if (ficha.cuantasPreguntas !== entero.preguntas.length) {
+        desajustes.push(`${entero.mundo}.cuantasPreguntas: ${ficha.cuantasPreguntas} ≠ ${entero.preguntas.length}`)
+      }
+    }
+    expect(desajustes).toEqual([])
+  })
+
+  it('no falta ni sobra ningún repaso', () => {
+    expect(ENTEROS.length).toBe(REPASOS.length)
+    expect(new Set(REPASOS.map((cada) => cada.mundo)).size).toBe(REPASOS.length)
+  })
+
+  it('la ficha lleva lo justo: las preguntas no viajan en ella', () => {
+    for (const ficha of REPASOS) {
+      expect(ficha.preguntas, `${ficha.mundo} trae las preguntas en la ficha`).toBeUndefined()
+    }
+  })
+
+  it('nadie importa un repaso de forma estática', () => {
+    // `repasos/<mundo>.js` es un cuerpo; `repasos/index.js` es el índice y sí se
+    // importa. Un import directo de un cuerpo devolvería su trozo al paquete
+    // principal sin romper nada.
+    const sospechosos = []
+    const recorrer = (carpeta) => {
+      for (const entrada of readdirSync(carpeta, { withFileTypes: true })) {
+        const ruta = join(carpeta, entrada.name)
+        if (entrada.isDirectory()) {
+          recorrer(ruta)
+          continue
+        }
+        if (!/\.(js|vue)$/.test(entrada.name)) continue
+        for (const linea of readFileSync(ruta, 'utf8').split('\n')) {
+          if (!/^\s*import\s/.test(linea)) continue
+          if (/repasos\/(?!index)[\w-]+(\.js)?['"]/.test(linea)) sospechosos.push(`${ruta}: ${linea.trim()}`)
+        }
+      }
+    }
+    recorrer(fileURLToPath(new URL('../src/', import.meta.url)))
+    expect(sospechosos).toEqual([])
   })
 })

@@ -11,7 +11,7 @@ import {
 } from '../contenido/itinerarios.js'
 import { MUNDOS, MUNDOS_POR_ID } from '../contenido/mundos.js'
 import { nombreDe } from '../contenido/personajes.js'
-import { REPASOS_POR_MUNDO } from '../contenido/repasos.js'
+import { REPASOS_POR_MUNDO } from '../contenido/repasos/index.js'
 import { usarGatos } from '../almacen/gatos.js'
 import { usarInsignias } from '../almacen/insignias.js'
 import { usarProgreso } from '../almacen/progreso.js'
