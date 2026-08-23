@@ -4,6 +4,7 @@ import { ITINERARIOS } from '../src/contenido/itinerarios.js'
 import { MUNDOS, mundosDelItinerario } from '../src/contenido/mundos.js'
 import { RETOS, retosDelMundo } from '../src/contenido/retos/index.js'
 import { itinerarioDeLaRuta, mundoDeLaRuta } from '../src/contenido/dondeEstas.js'
+import { INSIGNIAS, porqueDe } from '../src/contenido/insignias.js'
 import { tituloDe } from '../src/router/index.js'
 
 /**
@@ -19,6 +20,10 @@ import { tituloDe } from '../src/router/index.js'
  * que se prueba aquí es lo que se puede probar sin navegador: **el título de la
  * pestaña**, que es además la única parte del «dónde estoy» que sobrevive a
  * cerrar el navegador -queda en el marcador y en el historial-.
+ *
+ * Y de paso lo que va con eso: **las cuentas que el juego dice de sí mismo**.
+ * Decir «estás en el mundo 3 de 6» solo sirve si el 6 es verdad, y aquí ya se
+ * había torcido en tres sitios a la vez.
  */
 describe('el título de la pestaña dice dónde estás', () => {
   it('en la entrada, solo el nombre del juego', () => {
@@ -104,6 +109,99 @@ describe('todo mundo sabe cuál es de cuántos', () => {
       const hermanos = retosDelMundo(reto.mundo)
       const cual = hermanos.findIndex((cada) => cada.id === reto.id) + 1
       expect(cual, `${reto.id} no está en su propio mundo`).toBeGreaterThan(0)
+    }
+  })
+})
+
+/**
+ * Los números escritos a mano se quedan viejos, y aquí ya pasó.
+ *
+ * Las insignias decían «los noventa retos» cuando había más de trescientos,
+ * «los nueve finales» con veintisiete mundos y «los catorce sombreros» con
+ * quince escondidos. Nadie mintió a propósito: el contenido creció y el texto
+ * se quedó donde estaba. Pero la insignia que se gana por terminarlo todo
+ * anunciaba una décima parte del juego, y eso es peor que no decir nada.
+ *
+ * Los números van ahora en huecos que rellenan los corpus. Lo que se prueba es
+ * que **no vuelva a haber una cifra a mano**, que es la única forma de que esto
+ * no se repita dentro de tres mundos.
+ */
+describe('las insignias no llevan números escritos a mano', () => {
+  // Los números que son del propio umbral y no de ningún corpus: «diez retos
+  // seguidos» es diez porque la insignia es de diez, y eso no caduca nunca.
+  const DEL_UMBRAL = /^(uno|una|dos|tres|cuatro|cinco|seis|siete|ocho|nueve|diez|veinte|treinta|cuarenta y cinco)$/i
+
+  // Las formas compuestas van delante: una alternativa se prueba en orden, y
+  // con «cuarenta» primero, «cuarenta y cinco» salía partido en dos y el
+  // «cuarenta» suelto no estaba en la lista del umbral.
+  const NUMEROS_EN_LETRA =
+    /\b((?:veinte|treinta|cuarenta|cincuenta|sesenta|setenta|ochenta|noventa) y (?:uno|dos|tres|cuatro|cinco|seis|siete|ocho|nueve)|uno|una|dos|tres|cuatro|cinco|seis|siete|ocho|nueve|diez|once|doce|trece|catorce|quince|dieciséis|diecisiete|dieciocho|diecinueve|veinte|treinta|cuarenta|cincuenta|sesenta|setenta|ochenta|noventa|cien|ciento|doscientos|trescientos)\b/gi
+
+  it('ni en el nombre ni en el porqué queda una cifra que no sea del umbral', () => {
+    for (const insignia of INSIGNIAS) {
+      // El `porque` **sin rellenar**: lo que se busca es la cifra escrita a
+      // mano, y los huecos ya rellenos traen cifras legítimas.
+      const crudo = `${insignia.nombre} · ${insignia.porque}`
+      for (const palabra of crudo.match(NUMEROS_EN_LETRA) ?? []) {
+        expect(
+          DEL_UMBRAL.test(palabra),
+          `${insignia.id} dice «${palabra}» a mano: si es una cuenta del juego, va en un hueco`,
+        ).toBe(true)
+      }
+      expect(crudo, `${insignia.id} lleva dígitos a mano`).not.toMatch(/\d/)
+    }
+  })
+
+  it('y los huecos de cuenta traen el número de verdad', () => {
+    const cuentas = {
+      retos: RETOS.length,
+      mundos: MUNDOS.length,
+    }
+    for (const insignia of INSIGNIAS) {
+      for (const [hueco, cuantos] of Object.entries(cuentas)) {
+        if (!insignia.porque.includes(`{${hueco}}`)) continue
+        for (const itinerario of ITINERARIOS) {
+          expect(porqueDe(insignia, itinerario.id)).toContain(String(cuantos))
+        }
+      }
+    }
+  })
+
+  it('no queda ningún hueco sin rellenar en ningún camino', () => {
+    for (const insignia of INSIGNIAS) {
+      for (const itinerario of ITINERARIOS) {
+        expect(porqueDe(insignia, itinerario.id), `${insignia.id} en ${itinerario.id}`).not.toMatch(
+          /[{}]/,
+        )
+      }
+    }
+  })
+})
+
+/**
+ * Cuando un mundo dice cuántos retos tiene, tiene que ser verdad.
+ *
+ * Es la misma clase de errata que tenían las insignias, y en la presentación de
+ * un mundo se lee **antes** de empezarlo: prometer doce y servir nueve es lo
+ * primero que hace desconfiar de todo lo demás.
+ */
+describe('lo que un mundo cuenta de sí mismo cuadra', () => {
+  const EN_LETRA = {
+    siete: 7, ocho: 8, nueve: 9, diez: 10, once: 11, doce: 12, trece: 13,
+    catorce: 14, quince: 15, dieciséis: 16, diecisiete: 17, dieciocho: 18,
+    diecinueve: 19, veinte: 20, veintiuno: 21, veintidós: 22, veintitrés: 23,
+    veinticuatro: 24,
+  }
+
+  it('cada «N retos» de una presentación es el número de retos que hay', () => {
+    for (const mundo of MUNDOS) {
+      const prosa = [mundo.resumen, mundo.presentacion, mundo.despedida].filter(Boolean).join(' ')
+      const cuantos = retosDelMundo(mundo.id).length
+      const patron = new RegExp(`(\\d+|${Object.keys(EN_LETRA).join('|')}) retos`, 'gi')
+      for (const [, dicho] of prosa.matchAll(patron)) {
+        const numero = EN_LETRA[dicho.toLowerCase()] ?? Number(dicho)
+        expect(numero, `${mundo.id} promete ${dicho} retos y tiene ${cuantos}`).toBe(cuantos)
+      }
     }
   })
 })
