@@ -152,7 +152,7 @@ export const GLOSARIO = [
   },
   {
     id: "objeto",
-    desde: { era2: 'comisaria' },
+    desde: { era2: 'comisaria', era1: 'fundacion' },
     termino: "objeto",
     alias: ["objetos"],
     definicion: "Varios valores guardados con nombre, entre llaves. En vez de por posición, a cada uno se llega por su nombre.",
@@ -160,7 +160,7 @@ export const GLOSARIO = [
   },
   {
     id: "propiedad",
-    desde: { era2: 'comisaria' },
+    desde: { era2: 'comisaria', era1: 'fundacion' },
     termino: "propiedad",
     alias: ["propiedades"],
     definicion: "Cada uno de los valores con nombre que tiene un objeto. Se lee poniendo un punto detrás del objeto.",
@@ -244,7 +244,7 @@ export const GLOSARIO = [
   },
   {
     id: "this",
-    desde: { era2: 'es6' },
+    desde: { era2: 'es6', era1: 'fundacion' },
     termino: "this",
     definicion: "Dentro de un método, el objeto sobre el que se está trabajando. Se pierde con facilidad si pasas una función normal a otro sitio.",
     ejemplo: { js: "this.nombres", php: "$this->nombres" },
@@ -258,7 +258,7 @@ export const GLOSARIO = [
   },
   {
     id: "metodo",
-    desde: { era2: 'es6' },
+    desde: { era2: 'es6', era1: 'fundacion' },
     termino: "método",
     alias: ["métodos"],
     definicion: "Una función que vive dentro de un objeto. Se usa poniendo un punto: `objeto.metodo()`.",
@@ -523,7 +523,7 @@ export const GLOSARIO = [
   },
   {
     id: "instancia",
-    desde: { era2: 'taller' },
+    desde: { era2: 'taller', era1: 'fundacion' },
     termino: "instancia",
     alias: ["instancias"],
     definicion:
@@ -532,7 +532,7 @@ export const GLOSARIO = [
   },
   {
     id: "referencia",
-    desde: { era2: 'taller' },
+    desde: { era2: 'taller', era1: 'fundacion' },
     termino: "referencia",
     alias: ["referencias", "por referencia"],
     definicion:
@@ -632,7 +632,7 @@ export const GLOSARIO = [
   },
   {
     id: "clase",
-    desde: { era2: 'taller' },
+    desde: { era2: 'taller', era1: 'fundacion' },
     termino: "clase",
     alias: ["clases"],
     definicion:
@@ -641,7 +641,7 @@ export const GLOSARIO = [
   },
   {
     id: "constructor",
-    desde: { era2: 'taller' },
+    desde: { era2: 'taller', era1: 'fundacion' },
     termino: "constructor",
     definicion:
       "La función que prepara un objeto recién creado. La llama `new` por ti, una sola vez, y es donde se le ponen sus datos.",
@@ -649,7 +649,7 @@ export const GLOSARIO = [
   },
   {
     id: "herencia",
-    desde: { era2: 'taller' },
+    desde: { era2: 'taller', era1: 'fundacion' },
     termino: "herencia",
     alias: ["heredar"],
     definicion:
@@ -657,7 +657,7 @@ export const GLOSARIO = [
   },
   {
     id: "getter",
-    desde: { era2: 'taller' },
+    desde: { era2: 'taller', era1: 'fundacion' },
     termino: "getter",
     alias: ["getters"],
     definicion:
@@ -733,6 +733,38 @@ export const GLOSARIO = [
       "Seguir la ejecución paso a paso anotando qué vale cada cosa. También, la lista de llamadas que trae un error, de la más reciente a la más antigua.",
   },
   // ---- De PHP -------------------------------------------------------------
+  {
+    id: "interfaz",
+    desde: { era2: 'taller', era1: 'fundacion' },
+    termino: "interfaz",
+    alias: ["interfaces", "implements", "contrato"],
+    definicion: "Una lista de métodos sin cuerpo: dice qué hay que saber hacer, no cómo. Quien la cumple promete tenerlos todos, y el lenguaje lo comprueba. Sirve para escribir código que funcione con cualquier cosa que cumpla el contrato, sin saber de qué clase es.",
+    ejemplo: { js: "class Saco { total() { ... } }", php: "class Saco implements Contable { ... }" },
+  },
+  {
+    id: "rasgo",
+    desde: { era1: 'fundacion' },
+    termino: "rasgo",
+    alias: ["rasgos", "trait", "traits"],
+    definicion: "Un trozo de clase con métodos de verdad que se pega dentro de otra clase con `use`. Para cuando dos clases que no tienen nada que ver necesitan el mismo código y heredar obligaría a inventarse un parentesco falso. No es un tipo: no se puede pedir en un parámetro.",
+    ejemplo: "trait Registra { public function anota(string $que): string { ... } }",
+  },
+  {
+    id: "estatico",
+    desde: { era2: 'taller', era1: 'fundacion' },
+    termino: "estático",
+    alias: ["estática", "static", "self"],
+    definicion: "Lo que pertenece a la clase y no a cada objeto: hay uno solo y lo comparten todos. Útil para constantes y para fábricas. Un estático público es una variable global con otro nombre, con sus mismos problemas: cualquiera lo cambia y nadie sabe quién.",
+    ejemplo: { js: "static KILOS = 5", php: "public const KILOS = 5;" },
+  },
+  {
+    id: "espacio-de-nombres",
+    desde: { era1: 'fundacion' },
+    termino: "espacio de nombres",
+    alias: ["namespace", "namespaces"],
+    definicion: "El apellido de una clase. Sin él, dos librerías que llamen igual a su clase no se pueden usar en el mismo programa. Por convención copia la estructura de carpetas, y eso es lo que permite que las clases se carguen solas sin escribir un `require`.",
+    ejemplo: "namespace Cuadrilla\\Metales;",
+  },
   {
     id: "excepcion",
     // No existía en el glosario y El taller tiene un reto entero -«Cuando algo

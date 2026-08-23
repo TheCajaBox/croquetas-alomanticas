@@ -211,6 +211,24 @@ export const MUNDOS = [
     despedida:
       'Ya sabes trabajar una lista sin decirle a la máquina cómo dar cada paso, y ya sabes qué hacer cuando falta algo o algo se rompe. Con esto se escriben programas que aguantan lo que les echen; lo que viene ahora es ordenarlos.',
   },
+  {
+    id: 'fundacion',
+    // Aquí Kelsier ya no está: la segunda parte la explican Elend y Vin.
+    parte: 'segunda',
+    nombre: 'La Fundación',
+    subtitulo: 'PHP · clases y contratos',
+    itinerario: 'era1',
+    entorno: 'php',
+    requiere: 'pozo',
+    color: '#b8a06a',
+    anfitrion: 'elend',
+    resumen:
+      'Juntar datos y comportamiento en una clase; decidir qué se ve desde fuera; heredar, prometer con una interfaz y compartir con un rasgo. Y por qué los nombres largos con barras invertidas existen.',
+    presentacion:
+      'Hasta ahora tenías funciones y datos por separado, y funcionaba mientras el programa fuera pequeño. Una clase es la idea de guardarlos juntos: los datos de una cosa y lo que esa cosa sabe hacer, en el mismo sitio y con una puerta que decides tú. No es una técnica avanzada; es la forma en que está escrito prácticamente todo el PHP que vas a leer en tu vida.',
+    despedida:
+      'Ya sabes leer y escribir el PHP con el que están hechos los programas de verdad. Lo que queda no es aprender más piezas: es aprender a colocar las que ya tienes.',
+  },
 ]
 
 export const MUNDOS_POR_ID = Object.fromEntries(MUNDOS.map((mundo) => [mundo.id, mundo]))

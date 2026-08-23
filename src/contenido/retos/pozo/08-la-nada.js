@@ -51,12 +51,6 @@ export default {
         "`==` convierte antes de comparar y para él la nada y lo falso son parecidos; `===` exige que el tipo coincida y `null` es su propio tipo. La costumbre buena es preguntar `=== null`, o mejor `is_null` cuando queda más legible, y no fiarse de `==`.",
     },
   ],
-  tests: [
-    {
-      nombre: "las seis se resuelven señalando",
-      codigo: "esperar(true, 'el reto')->esVerdadero();",
-    },
-  ],
   pistas: [
     pista("Piensa en la diferencia entre «no tengo el dato» y «el dato que tengo es cero». `??` la respeta; un `if` normal no.", 0),
     pista("Tres de las seis son ciertas y tres son falsas, y las falsas lo son por poco: cambian una palabra de lo que pasa de verdad.", 1),

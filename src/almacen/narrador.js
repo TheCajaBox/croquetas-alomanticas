@@ -7,6 +7,7 @@ import {
   LINEAS_DE_BRISA_NARRANDO,
   LINEAS_DE_FANTASMA,
   LINEAS_DE_HAM,
+  LINEAS_DE_ELEND,
   LINEAS_DE_KELSIER,
   LINEAS_DE_ARMONIA,
   LINEAS_DE_MARASI,
@@ -45,6 +46,8 @@ const SACOS = {
   fantasma: LINEAS_DE_FANTASMA,
   ham: LINEAS_DE_HAM,
   kelsier: LINEAS_DE_KELSIER,
+  // Elend recibe en los mundos de la segunda parte, cuando Kelsier ya no está.
+  elend: LINEAS_DE_ELEND,
 }
 
 export const NIVELES_DE_VERBORREA = [
