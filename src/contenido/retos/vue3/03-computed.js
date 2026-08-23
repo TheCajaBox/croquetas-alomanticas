@@ -126,6 +126,105 @@ export default {
       ),
     },
   ],
+  // El corte del filtro es «más de 50», y ahí es donde se cuela un `>=`. Las dos
+  // tandas ponen gatos justo en el borde y añaden gatos con el filtro puesto.
+  variantes: [
+    {
+      titulo: "El censo de la colonia · otra tanda",
+      tests: [
+        {
+          nombre: "el de hambre cincuenta justo no entra: es «más de 50», no «cincuenta o más»",
+          codigo: codigo(
+            "const censo = montar(componente)",
+            "censo.vm.colonia = [{ id: 1, nombre: 'justo', hambre: 50 }]",
+            "censo.vm.soloHambrientos = true",
+            "await siguienteTick()",
+            "esperar(censo.contar('li')).igualA(0)",
+            "esperar(censo.texto('.resumen')).igualA('0 de 1')",
+          ),
+        },
+        {
+          nombre: "y el de cincuenta y uno sí entra",
+          codigo: codigo(
+            "const censo = montar(componente)",
+            "censo.vm.colonia = [{ id: 1, nombre: 'casi', hambre: 51 }]",
+            "censo.vm.soloHambrientos = true",
+            "await siguienteTick()",
+            "esperar(censo.contar('li')).igualA(1)",
+            "esperar(censo.texto('.resumen')).igualA('1 de 1')",
+          ),
+        },
+        {
+          nombre: "con la colonia vacía el resumen es cero de cero y no revienta",
+          codigo: codigo(
+            "const censo = montar(componente)",
+            "censo.vm.colonia = []",
+            "await siguienteTick()",
+            "esperar(censo.contar('li')).igualA(0)",
+            "esperar(censo.texto('.resumen')).igualA('0 de 0')",
+          ),
+        },
+        {
+          nombre: "alternar tres veces deja el filtro puesto: son tres cambios, no uno",
+          codigo: codigo(
+            "const censo = montar(componente)",
+            "await censo.click('.alternar')",
+            "await censo.click('.alternar')",
+            "await censo.click('.alternar')",
+            "esperar(censo.texto('.resumen')).igualA('2 de 3')",
+          ),
+        },
+      ],
+    },
+    {
+      titulo: "El censo de la colonia · y otra",
+      tests: [
+        {
+          nombre: "el botón alterna el interruptor, y el interruptor manda en la lista",
+          codigo: codigo(
+            "const censo = montar(componente)",
+            "await censo.click('.alternar')",
+            "esperar(censo.vm.soloHambrientos, 'el interruptor').esVerdadero()",
+            "esperar(censo.contar('li')).igualA(2)",
+          ),
+        },
+        {
+          nombre: "un gato nuevo hambriento entra en el filtro sin tocar nada más",
+          codigo: codigo(
+            "const censo = montar(componente)",
+            "await censo.click('.alternar')",
+            "censo.vm.colonia.push({ id: 4, nombre: 'Estaño', hambre: 99 })",
+            "await siguienteTick()",
+            "esperar(censo.contar('li')).igualA(3)",
+            "esperar(censo.texto('.resumen')).igualA('3 de 4')",
+          ),
+        },
+        {
+          nombre: "y un gato nuevo saciado no entra, pero sí cuenta en el total",
+          codigo: codigo(
+            "const censo = montar(componente)",
+            "await censo.click('.alternar')",
+            "censo.vm.colonia.push({ id: 5, nombre: 'Zinc', hambre: 10 })",
+            "await siguienteTick()",
+            "esperar(censo.contar('li')).igualA(2)",
+            "esperar(censo.texto('.resumen')).igualA('2 de 4')",
+          ),
+        },
+        {
+          nombre: "los gatos se pintan por su nombre y no por su id",
+          codigo: codigo(
+            "const censo = montar(componente)",
+            "esperar(censo.textos('li')).noContiene('1')",
+            "esperar(censo.textos('li')).contiene('Bronce')",
+          ),
+        },
+        {
+          nombre: "y el botón del filtro está donde lo buscan",
+          codigo: "esperar(montar(componente).existe('.alternar'), 'el botón de alternar').esVerdadero()",
+        },
+      ],
+    },
+  ],
   pistas: [
     pista("`computed(() => ...)` recibe una función que devuelve el valor. Dentro hay que usar `.value` en los refs.", 0),
     pista("Un computed puede apoyarse en otro: `resumen` puede leer `visibles.value.length` sin recalcular nada dos veces.", 1),

@@ -46,6 +46,30 @@ export default {
       codigo: "esperar(puedeEntrar(20, false)).esDeTipo('boolean')",
     },
   ],
+  // Las dos tandas mueven el límite de sitio: la primera cambia la edad que
+  // manda, la segunda mira lo que pasa justo al lado del corte.
+  variantes: [
+    {
+      titulo: "Quién entra y quién no · otra tanda",
+      tests: [
+        { nombre: "un chaval de doce con cita pasa igual", codigo: "esperar(puedeEntrar(12, true)).esVerdadero()" },
+        { nombre: "y sin cita se queda en el pasillo", codigo: "esperar(puedeEntrar(12, false)).esFalso()" },
+        { nombre: "un recién nacido con cita también: la cita no pregunta la edad", codigo: "esperar(puedeEntrar(0, true)).esVerdadero()" },
+        { nombre: "cero años y sin cita, fuera", codigo: "esperar(puedeEntrar(0, false)).esFalso()" },
+        { nombre: "los setenta y dos de Ranette entran solos", codigo: "esperar(puedeEntrar(72, false)).esVerdadero()" },
+      ],
+    },
+    {
+      titulo: "Quién entra y quién no · y otra",
+      tests: [
+        { nombre: "19 sin cita pasa, que es uno más que el corte", codigo: "esperar(puedeEntrar(19, false)).esVerdadero()" },
+        { nombre: "16 sin cita no, que es dos menos", codigo: "esperar(puedeEntrar(16, false)).esFalso()" },
+        { nombre: "16 con cita sí: la cita se salta el corte", codigo: "esperar(puedeEntrar(16, true)).esVerdadero()" },
+        { nombre: "también devuelve booleano cuando dice que no", codigo: "esperar(puedeEntrar(10, false)).esDeTipo('boolean')" },
+        { nombre: "y cuando dice que sí por la cita, tampoco cuela una cadena", codigo: "esperar(puedeEntrar(10, true)).esDeTipo('boolean')" },
+      ],
+    },
+  ],
   pistas: [
     pista("Son dos caminos distintos que llevan a poder entrar: tener cita, o tener 18 o más. Con que se cumpla uno, basta.", 0),
     pista("No hace falta ningún `if`. `tieneCita` ya es verdadero o falso, y `edad >= 18` también.", 1),

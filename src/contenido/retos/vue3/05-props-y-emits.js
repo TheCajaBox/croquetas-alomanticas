@@ -134,6 +134,116 @@ export default {
     },
     { nombre: "la tarjeta declara el evento que emite", codigo: "esperar(tarjetaDeGato.emits, 'los emits de la tarjeta').contiene('adoptar')" },
   ],
+  // Mismo refugio, otros gatos y otro padre. Montar la tarjeta con un padre que
+  // no es el suyo es la prueba de que el aviso sube de verdad por el evento.
+  variantes: [
+    {
+      titulo: "El refugio, otra vez · otra tanda",
+      tests: [
+        {
+          nombre: "al abrir el refugio todavía no hay ningún adoptado",
+          codigo: codigo(
+            "const refugio = montar(componente)",
+            "esperar(refugio.texto('.adoptados')).igualA('')",
+          ),
+        },
+        {
+          nombre: "adoptar el segundo apunta a Bronce y no a Acero",
+          codigo: codigo(
+            "const refugio = montar(componente)",
+            "const botones = refugio.elemento.querySelectorAll('.adoptar')",
+            "botones[1].dispatchEvent(new MouseEvent('click', { bubbles: true }))",
+            "await siguienteTick()",
+            "esperar(refugio.texto('.adoptados')).igualA('Bronce')",
+          ),
+        },
+        {
+          nombre: "adoptar al mismo gato dos veces lo apunta dos veces",
+          codigo: codigo(
+            "const refugio = montar(componente)",
+            "await refugio.click('.adoptar')",
+            "await refugio.click('.adoptar')",
+            "esperar(refugio.texto('.adoptados')).igualA('Acero, Acero')",
+          ),
+        },
+        {
+          nombre: "cada tarjeta trae su nombre y su botón, y no los comparte",
+          codigo: codigo(
+            "const refugio = montar(componente)",
+            "esperar(refugio.contar('.nombre')).igualA(2)",
+            "esperar(refugio.contar('.adoptar')).igualA(2)",
+          ),
+        },
+        {
+          nombre: "y la tarjeta suelta pinta el gato que le bajen, sin saber de refugios",
+          codigo: codigo(
+            "const suelta = montar({",
+            "  components: { 'tarjeta-de-gato': tarjetaDeGato },",
+            "  template: `<ul><tarjeta-de-gato :gato=\"{ id: 7, nombre: 'Duraluminio' }\" /></ul>`,",
+            "})",
+            "esperar(suelta.texto('.nombre')).igualA('Duraluminio')",
+          ),
+        },
+      ],
+    },
+    {
+      titulo: "El refugio, otra vez · y otra",
+      tests: [
+        {
+          nombre: "adoptar del último al primero los apunta en ese orden",
+          codigo: codigo(
+            "const refugio = montar(componente)",
+            "const botones = refugio.elemento.querySelectorAll('.adoptar')",
+            "botones[1].dispatchEvent(new MouseEvent('click', { bubbles: true }))",
+            "botones[0].dispatchEvent(new MouseEvent('click', { bubbles: true }))",
+            "await siguienteTick()",
+            "esperar(refugio.texto('.adoptados')).igualA('Bronce, Acero')",
+          ),
+        },
+        {
+          nombre: "el aviso lleva el gato entero: otro padre puede sacar de ahí lo que quiera",
+          codigo: codigo(
+            "const espia = montar({",
+            "  components: { 'tarjeta-de-gato': tarjetaDeGato },",
+            "  setup() {",
+            "    const oidos = Vue.ref([])",
+            "    return { oidos, apuntar: (gato) => oidos.value.push(gato.nombre) }",
+            "  },",
+            "  template: `",
+            "    <ul>",
+            "      <tarjeta-de-gato :gato=\"{ id: 3, nombre: 'Estaño' }\" @adoptar=\"apuntar\" />",
+            "      <li class=\"oidos\">{{ oidos.join(', ') }}</li>",
+            "    </ul>",
+            "  `,",
+            "})",
+            "await espia.click('.adoptar')",
+            "esperar(espia.texto('.oidos')).igualA('Estaño')",
+          ),
+        },
+        {
+          nombre: "adoptar no toca la colonia: los dos gatos siguen en la lista",
+          codigo: codigo(
+            "const refugio = montar(componente)",
+            "await refugio.click('.adoptar')",
+            "esperar(refugio.vm.colonia, 'la colonia').tieneLongitud(2)",
+            "esperar(refugio.contar('.gato')).igualA(2)",
+          ),
+        },
+        {
+          nombre: "la tarjeta declara qué recibe, qué avisa y cómo se pinta",
+          codigo: codigo(
+            "esperar(tarjetaDeGato.props, 'las props de la tarjeta').existe()",
+            "esperar(tarjetaDeGato.emits, 'los emits de la tarjeta').contiene('adoptar')",
+            "esperar(tarjetaDeGato.template, 'la plantilla de la tarjeta').existe()",
+          ),
+        },
+        {
+          nombre: "y el padre la registra con el nombre de etiqueta que usa su plantilla",
+          codigo: "esperar(Object.keys(componente.components), 'los componentes registrados').contiene('tarjeta-de-gato')",
+        },
+      ],
+    },
+  ],
   pistas: [
     pista("`emits: ['adoptar']` documenta qué eventos salen de este componente. No es obligatorio, pero sin ello Vue trata el evento como un atributo suelto.", 0),
     pista("`setup(props, { emit })`: el segundo argumento es el contexto, y `emit` viene dentro. Las props se leen por `props.gato`, nunca por `this`.", 1),

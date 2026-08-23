@@ -68,5 +68,71 @@ export default {
     { nombre: "devuelve una promesa, no el valor directamente", codigo: "esperar(reunirEquipo([]) instanceof Promise).esVerdadero()" },
     { nombre: "el primero en llegar es el de nombre más corto", codigo: "esperar(await primeroEnLlegar(['Marasi', 'Wax', 'Steris'])).igualA('Wax llega')" },
   ],
+  // El jefe se practica con equipos nuevos. Lo que se vuelve a mirar es lo
+  // mismo -que `all` respeta el orden de entrada y `race` no espera a nadie-
+  // pero con nombres que tardan otras cosas, incluidos dos que tardan igual.
+  variantes: [
+    {
+      titulo: "Jefe: el golpe de los Desvanecedores · otra tanda",
+      tests: [
+        {
+          nombre: "reúne a tres y los devuelve en el orden en que los llamaste",
+          codigo: codigo(
+            "// Steris tarda el doble que Wax y aun así sale primera.",
+            "esperar(await reunirEquipo(['Steris', 'Wax', 'Marasi'])).igualA([",
+            "  'Steris llega',",
+            "  'Wax llega',",
+            "  'Marasi llega',",
+            "])",
+          ),
+        },
+        {
+          nombre: "un equipo de uno también es un equipo",
+          codigo: "esperar(await reunirEquipo(['Wayne'])).igualA(['Wayne llega'])",
+        },
+        {
+          nombre: "entre Wayne y Wax gana Wax, que tiene menos letras",
+          codigo: "esperar(await primeroEnLlegar(['Wayne', 'Wax'])).igualA('Wax llega')",
+        },
+        {
+          nombre: "y llamar al más rápido devuelve su aviso, un texto y no una lista",
+          codigo: "esperar(await primeroEnLlegar(['Ranette', 'Vin']), 'el primer aviso').esDeTipo('string')",
+        },
+      ],
+    },
+    {
+      titulo: "Jefe: el golpe de los Desvanecedores · y otra",
+      tests: [
+        {
+          nombre: "dos nombres del mismo largo salen en el orden que pediste, no a suertes",
+          codigo: "esperar(await reunirEquipo(['Wax', 'Vin'])).igualA(['Wax llega', 'Vin llega'])",
+        },
+        {
+          nombre: "el más largo primero tampoco cuela: el orden es el tuyo",
+          codigo: "esperar(await reunirEquipo(['Waxillium', 'Wax'])).igualA(['Waxillium llega', 'Wax llega'])",
+        },
+        {
+          nombre: "cinco avisos, cinco llegadas, y ninguna fuera de sitio",
+          codigo: codigo(
+            "esperar(await reunirEquipo(['Wax', 'Wayne', 'Marasi', 'Steris', 'Ranette'])).igualA([",
+            "  'Wax llega',",
+            "  'Wayne llega',",
+            "  'Marasi llega',",
+            "  'Steris llega',",
+            "  'Ranette llega',",
+            "])",
+          ),
+        },
+        {
+          nombre: "con un solo aviso, el primero en llegar es ese",
+          codigo: "esperar(await primeroEnLlegar(['MeLaan'])).igualA('MeLaan llega')",
+        },
+        {
+          nombre: "y el más rápido también devuelve una promesa antes de resolverse",
+          codigo: "esperar(primeroEnLlegar(['Wax']) instanceof Promise).esVerdadero()",
+        },
+      ],
+    },
+  ],
   recompensa: { croquetas: 18 },
 }

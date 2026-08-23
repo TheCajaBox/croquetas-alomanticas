@@ -149,5 +149,114 @@ export default {
       ),
     },
   ],
+  // El jefe se practica llamando al composable con otras listas y soltando gatos,
+  // que es la parte que la primera vez se escribe con prisa. Y otra vez lo de
+  // siempre: dos colonias creadas aparte no pueden tocarse.
+  variantes: [
+    {
+      titulo: "Jefe: la colonia portátil · otra tanda",
+      tests: [
+        {
+          nombre: "soltar a un gato que no estaba no rompe nada ni quita a nadie",
+          codigo: codigo(
+            "const refugio = usarColoniaDeGatos(['Acero'])",
+            "refugio.soltar('Bronce')",
+            "esperar(refugio.gatos.value).igualA(['Acero'])",
+            "esperar(refugio.cuantos.value).igualA(1)",
+          ),
+        },
+        {
+          nombre: "soltar al último deja la colonia vacía, no en null",
+          codigo: codigo(
+            "const refugio = usarColoniaDeGatos(['Acero'])",
+            "refugio.soltar('Acero')",
+            "esperar(refugio.gatos.value).igualA([])",
+            "esperar(refugio.cuantos.value).igualA(0)",
+          ),
+        },
+        {
+          nombre: "cuantos se entera solo: es un computed y no un número copiado",
+          codigo: codigo(
+            "const refugio = usarColoniaDeGatos()",
+            "refugio.adoptar('Peltre')",
+            "refugio.adoptar('Estaño')",
+            "esperar(refugio.cuantos.value).igualA(2)",
+            "refugio.soltar('Peltre')",
+            "esperar(refugio.cuantos.value).igualA(1)",
+          ),
+        },
+        {
+          nombre: "adoptar al mismo gato tres veces sigue siendo un gato",
+          codigo: codigo(
+            "const refugio = usarColoniaDeGatos()",
+            "refugio.adoptar('Acero')",
+            "refugio.adoptar('Acero')",
+            "refugio.adoptar('Acero')",
+            "esperar(refugio.cuantos.value).igualA(1)",
+          ),
+        },
+        {
+          nombre: "el composable devuelve cuatro cosas y ninguna de propina",
+          codigo: "esperar(Object.keys(usarColoniaDeGatos()), 'lo que devuelve el composable').tieneLongitud(4)",
+        },
+        {
+          nombre: "y en el componente se ve el gato con el que se arrancó",
+          codigo: codigo(
+            "const vista = montar(componente)",
+            "esperar(vista.textos('li')).igualA(['Acero'])",
+          ),
+        },
+      ],
+    },
+    {
+      titulo: "Jefe: la colonia portátil · y otra",
+      tests: [
+        {
+          nombre: "pulsar dos veces el botón no adopta a Bronce dos veces",
+          codigo: codigo(
+            "const vista = montar(componente)",
+            "await vista.click('.adoptar')",
+            "await vista.click('.adoptar')",
+            "esperar(vista.texto('.cuantos')).igualA('2')",
+            "esperar(vista.textos('li')).igualA(['Acero', 'Bronce'])",
+          ),
+        },
+        {
+          nombre: "tres colonias creadas aparte son tres estados que no se tocan",
+          codigo: codigo(
+            "const una = usarColoniaDeGatos(['Acero'])",
+            "const otra = usarColoniaDeGatos()",
+            "const tercera = usarColoniaDeGatos(['Peltre', 'Estaño'])",
+            "una.adoptar('Bronce')",
+            "esperar(una.cuantos.value, 'la primera').igualA(2)",
+            "esperar(otra.cuantos.value, 'la segunda').igualA(0)",
+            "esperar(tercera.cuantos.value, 'la tercera').igualA(2)",
+          ),
+        },
+        {
+          nombre: "la lista que le pasas se copia: adoptar no la toca por detrás",
+          codigo: codigo(
+            "const originales = ['Acero', 'Bronce']",
+            "const refugio = usarColoniaDeGatos(originales)",
+            "refugio.adoptar('Peltre')",
+            "refugio.soltar('Acero')",
+            "esperar(originales, 'la lista original').igualA(['Acero', 'Bronce'])",
+          ),
+        },
+        {
+          nombre: "soltar a uno de en medio deja a los demás en su orden",
+          codigo: codigo(
+            "const refugio = usarColoniaDeGatos(['Acero', 'Bronce', 'Peltre'])",
+            "refugio.soltar('Bronce')",
+            "esperar(refugio.gatos.value).igualA(['Acero', 'Peltre'])",
+          ),
+        },
+        {
+          nombre: "y gatos es una caja: por dentro del composable se abre con .value",
+          codigo: "esperar(usarColoniaDeGatos(['Zinc']).gatos.value).igualA(['Zinc'])",
+        },
+      ],
+    },
+  ],
   recompensa: { croquetas: 22 },
 }

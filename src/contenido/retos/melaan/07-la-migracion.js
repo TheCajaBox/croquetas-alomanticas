@@ -135,5 +135,95 @@ export default {
       ),
     },
   ],
+  // El jefe se practica montando y desmontando el reloj otra vez. Lo que se
+  // vuelve a comprobar es lo que de verdad se rompe al migrar: que el cuerpo de
+  // `setup` haga lo que hacía `created`, y que el intervalo se pare al salir.
+  variantes: [
+    {
+      titulo: "Jefe: la migración · otra tanda",
+      tests: [
+        {
+          nombre: "el registro arranca con setup, y de momento solo tiene dos apuntes",
+          codigo: codigo(
+            "const reloj = montar(componente)",
+            "esperar(reloj.vm.registro[0], 'el primer apunte').igualA('setup')",
+            "esperar(reloj.vm.registro[1], 'el segundo apunte').igualA('mounted')",
+            "esperar(reloj.vm.registro).tieneLongitud(2)",
+          ),
+        },
+        {
+          nombre: "recién montado marca cero y todavía no ha avisado de nada",
+          codigo: codigo(
+            "const reloj = montar(componente)",
+            "esperar(reloj.texto('.reloj')).igualA('0')",
+            "esperar(reloj.vm.avisos).tieneLongitud(0)",
+          ),
+        },
+        {
+          nombre: "al rato ya ha avisado, y el aviso lleva su flecha de antes a después",
+          codigo: codigo(
+            "const reloj = montar(componente)",
+            "await new Promise((sigue) => setTimeout(sigue, 90))",
+            "esperar(reloj.vm.avisos.length > 0, 'que haya avisado alguna vez').esVerdadero()",
+            "esperar(reloj.vm.avisos[0]).contiene('->')",
+          ),
+        },
+        {
+          nombre: "lo que se pinta es solo el número, sin adornos",
+          codigo: codigo(
+            "const reloj = montar(componente)",
+            "await new Promise((sigue) => setTimeout(sigue, 60))",
+            "await siguienteTick()",
+            "esperar(/^\\d+$/.test(reloj.texto('.reloj')), 'que el reloj pinte solo cifras').esVerdadero()",
+          ),
+        },
+      ],
+    },
+    {
+      titulo: "Jefe: la migración · y otra",
+      tests: [
+        {
+          nombre: "un reloj recién montado no hereda el registro del anterior",
+          codigo: codigo(
+            "const primero = montar(componente)",
+            "const segundo = montar(componente)",
+            "esperar(segundo.vm.registro).igualA(['setup', 'mounted'])",
+          ),
+        },
+        {
+          nombre: "mientras el reloj vive, el registro no crece solo: ahí no hay nada apuntándose",
+          codigo: codigo(
+            "const reloj = montar(componente)",
+            "await new Promise((sigue) => setTimeout(sigue, 60))",
+            "esperar(reloj.vm.registro).tieneLongitud(2)",
+          ),
+        },
+        {
+          nombre: "al desmontarlo el tercer apunte es beforeUnmount",
+          codigo: codigo(
+            "const reloj = montar(componente)",
+            "const registro = reloj.vm.registro",
+            "reloj.app.unmount()",
+            "esperar(registro).tieneLongitud(3)",
+            "esperar(registro[2]).igualA('beforeUnmount')",
+          ),
+        },
+        {
+          nombre: "y después de desmontarlo deja de avisar: el intervalo se paró de verdad",
+          codigo: codigo(
+            "const reloj = montar(componente)",
+            "// Las referencias se guardan ANTES: después de desmontar ya no hay componente.",
+            "const avisos = reloj.vm.avisos",
+            "await new Promise((sigue) => setTimeout(sigue, 90))",
+            "reloj.app.unmount()",
+            "const cuantos = avisos.length",
+            "esperar(cuantos > 0, 'que hubiera avisado antes de apagarlo').esVerdadero()",
+            "await new Promise((sigue) => setTimeout(sigue, 90))",
+            "esperar(avisos.length, 'los avisos después de apagarlo').igualA(cuantos)",
+          ),
+        },
+      ],
+    },
+  ],
   recompensa: { croquetas: 28 },
 }

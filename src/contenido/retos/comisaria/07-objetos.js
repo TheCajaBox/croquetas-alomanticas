@@ -73,6 +73,66 @@ export default {
       ),
     },
   ],
+  // La trampa de este reto es escribir los datos a mano dentro de `describir`.
+  // Las dos tandas le pasan fichas que Miles no ha visto en su vida, y la
+  // segunda le pasa además un objeto que no salió de `crearFicha`.
+  variantes: [
+    {
+      titulo: "La ficha de un sospechoso · otra tanda",
+      tests: [
+        {
+          nombre: "la ficha de Ranette guarda sus tres datos",
+          codigo: codigo(
+            "const f = crearFicha('Ranette', 'La Armera', 300)",
+            "esperar(f.nombre).igualA('Ranette')",
+            "esperar(f.alias).igualA('La Armera')",
+            "esperar(f.recompensa).igualA(300)",
+          ),
+        },
+        {
+          nombre: "y describir la cuenta igual de bien",
+          codigo: "esperar(describir(crearFicha('Ranette', 'La Armera', 300))).igualA('Ranette, alias La Armera: 300')",
+        },
+        {
+          nombre: "una recompensa de cero se escribe, no se esconde",
+          codigo: "esperar(describir(crearFicha('Wayne', 'El del sombrero', 0))).igualA('Wayne, alias El del sombrero: 0')",
+        },
+        {
+          nombre: "la ficha trae cuatro propiedades y ni una de propina",
+          codigo: "esperar(Object.keys(crearFicha('a', 'b', 1)), 'las propiedades').tieneLongitud(4)",
+        },
+      ],
+    },
+    {
+      titulo: "La ficha de un sospechoso · y otra",
+      tests: [
+        {
+          nombre: "describir sirve con un objeto escrito a mano: solo mira las propiedades",
+          codigo: codigo(
+            "const suelta = { nombre: 'MeLaan', alias: 'la kandra', recompensa: 9000, capturado: true }",
+            "esperar(describir(suelta)).igualA('MeLaan, alias la kandra: 9000')",
+          ),
+        },
+        {
+          nombre: "un alias vacío deja el hueco vacío, sin inventarse nada",
+          codigo: "esperar(describir(crearFicha('Suit', '', 500))).igualA('Suit, alias : 500')",
+        },
+        {
+          nombre: "dos fichas son dos objetos distintos y no comparten nada",
+          codigo: codigo(
+            "const a = crearFicha('a', 'x', 1)",
+            "const b = crearFicha('b', 'y', 2)",
+            "a.capturado = true",
+            "esperar(b.capturado).esFalso()",
+          ),
+        },
+        {
+          nombre: "capturado nace en false y no en undefined: son cosas distintas",
+          codigo: "esperar(crearFicha('a', 'b', 3).capturado, 'capturado').esDeTipo('boolean')",
+        },
+      ],
+    },
+  ],
   pistas: [
     pista("`crearFicha` tiene que **devolver** el objeto. Si empiezas la línea con `return {`, ya lo tienes casi.", 0),
     pista("En `describir` no puedes escribir 'Miles' a mano: el segundo test le pasa otra ficha distinta. Saca los datos de `ficha.nombre`, `ficha.alias` y `ficha.recompensa`.", 1),

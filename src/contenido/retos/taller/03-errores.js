@@ -98,6 +98,74 @@ export default {
       codigo: "esperar(retirarSinRiesgo(100, -1).error).igualA('La cantidad tiene que ser positiva')",
     },
   ],
+  // Otros saldos, y con los dos errores compitiendo: cuando la cantidad no vale
+  // Y el saldo tampoco, el que se lanza es el primero que se comprueba.
+  variantes: [
+    {
+      titulo: "Cuando algo va mal a propósito · otra tanda",
+      tests: [
+        {
+          nombre: "de un saldo a cero no se puede sacar ni uno",
+          codigo: "esperar(() => retirar(0, 1)).lanzaError()",
+        },
+        {
+          nombre: "pedir cero de una cuenta vacía se queja de la cantidad, que se mira antes",
+          codigo: "esperar(retirarSinRiesgo(0, 0).error).igualA('La cantidad tiene que ser positiva')",
+        },
+        {
+          nombre: "una unidad de más ya es saldo insuficiente",
+          codigo: "esperar(retirarSinRiesgo(100, 101).error).igualA('Saldo insuficiente')",
+        },
+        {
+          nombre: "cuando sale bien no viene ningún error de propina",
+          codigo: codigo(
+            "const r = retirarSinRiesgo(50, 20)",
+            "esperar(r.ok).esVerdadero()",
+            "esperar(r.saldo).igualA(30)",
+            "esperar(r.error, 'el error').igualA(undefined)",
+          ),
+        },
+        {
+          nombre: "y cuando sale mal no viene ningún saldo inventado",
+          codigo: codigo(
+            "const r = retirarSinRiesgo(50, 900)",
+            "esperar(r.ok).esFalso()",
+            "esperar(r.saldo, 'el saldo').igualA(undefined)",
+          ),
+        },
+      ],
+    },
+    {
+      titulo: "Cuando algo va mal a propósito · y otra",
+      tests: [
+        { nombre: "de mil, uno: quedan novecientos noventa y nueve", codigo: "esperar(retirar(1000, 1)).igualA(999)" },
+        {
+          nombre: "vaciar la cuenta al céntimo no es un error",
+          codigo: codigo(
+            "const r = retirarSinRiesgo(80, 80)",
+            "esperar(r.ok).esVerdadero()",
+            "esperar(r.saldo).igualA(0)",
+          ),
+        },
+        {
+          nombre: "un negativo enorme sigue siendo una cantidad que no es positiva",
+          codigo: "esperar(() => retirar(1000, -1000)).lanzaError()",
+        },
+        {
+          nombre: "la versión sin riesgo no revienta ni con los dos problemas juntos",
+          codigo: codigo(
+            "const r = retirarSinRiesgo(0, -5)",
+            "esperar(r.ok).esFalso()",
+            "esperar(r.error).igualA('La cantidad tiene que ser positiva')",
+          ),
+        },
+        {
+          nombre: "y lo que se recoge es el mensaje, no el objeto Error entero",
+          codigo: "esperar(retirarSinRiesgo(10, 99).error, 'el error recogido').esDeTipo('string')",
+        },
+      ],
+    },
+  ],
   pistas: [
     pista("Las dos comprobaciones van al principio de `retirar`, antes de hacer ninguna cuenta. Es el patrón de «salir pronto».", 0),
     pista("`throw new Error('...')` no se devuelve con `return`: se lanza, y ya corta la función él solo.", 1),

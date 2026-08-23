@@ -133,5 +133,116 @@ export default {
       ),
     },
   ],
+  // El jefe se practica con meses distintos: uno en el que todo salió bien,
+  // otro en el que no se cerró nada, y un caso de un solo expediente.
+  variantes: [
+    {
+      titulo: "Jefe: el parte del mes · otra tanda",
+      tests: [
+        {
+          nombre: "un mes redondo: los dos casos cerrados y las dos recompensas cobradas",
+          codigo: codigo(
+            "const p = parteDelMes([",
+            "  { titulo: 'Bleeder', recompensa: 300, cerrado: true },",
+            "  { titulo: 'Suit', recompensa: 700, cerrado: true },",
+            "])",
+            "esperar(p.total).igualA(2)",
+            "esperar(p.cerrados).igualA(2)",
+            "esperar(p.cobrado).igualA(1000)",
+          ),
+        },
+        {
+          nombre: "y el resumen lo cuenta con los tres números en su sitio",
+          codigo: codigo(
+            "const p = parteDelMes([",
+            "  { titulo: 'Bleeder', recompensa: 300, cerrado: true },",
+            "  { titulo: 'Suit', recompensa: 700, cerrado: true },",
+            "])",
+            "esperar(p.resumen).igualA('2 de 2 casos cerrados, 1000 cobrados')",
+          ),
+        },
+        {
+          nombre: "un expediente solo y abierto: uno de total, cero de todo lo demás",
+          codigo: codigo(
+            "const p = parteDelMes([{ titulo: 'El tranvía', recompensa: 80, cerrado: false }])",
+            "esperar(p.total).igualA(1)",
+            "esperar(p.cerrados).igualA(0)",
+            "esperar(p.cobrado).igualA(0)",
+            "esperar(p.resumen).igualA('0 de 1 casos cerrados, 0 cobrados')",
+          ),
+        },
+        {
+          nombre: "un caso cerrado que no pagaba nada se cuenta igual",
+          codigo: codigo(
+            "const p = parteDelMes([{ titulo: 'favor a Marasi', recompensa: 0, cerrado: true }])",
+            "esperar(p.cerrados).igualA(1)",
+            "esperar(p.cobrado).igualA(0)",
+            "esperar(p.resumen).igualA('1 de 1 casos cerrados, 0 cobrados')",
+          ),
+        },
+        {
+          nombre: "devuelve un objeto con las cuatro propiedades y ninguna más",
+          codigo: "esperar(Object.keys(parteDelMes([])), 'las propiedades del parte').tieneLongitud(4)",
+        },
+      ],
+    },
+    {
+      titulo: "Jefe: el parte del mes · y otra",
+      tests: [
+        {
+          nombre: "seis casos y solo uno cerrado: el bucle tiene que llegar al final",
+          codigo: codigo(
+            "const r = [",
+            "  { titulo: 'a', recompensa: 10, cerrado: false },",
+            "  { titulo: 'b', recompensa: 20, cerrado: false },",
+            "  { titulo: 'c', recompensa: 30, cerrado: false },",
+            "  { titulo: 'd', recompensa: 40, cerrado: false },",
+            "  { titulo: 'e', recompensa: 50, cerrado: false },",
+            "  { titulo: 'f', recompensa: 60, cerrado: true },",
+            "]",
+            "const p = parteDelMes(r)",
+            "esperar(p.total).igualA(6)",
+            "esperar(p.cerrados).igualA(1)",
+            "esperar(p.cobrado).igualA(60)",
+            "esperar(p.resumen).igualA('1 de 6 casos cerrados, 60 cobrados')",
+          ),
+        },
+        {
+          nombre: "y con el cerrado en primer lugar sale exactamente lo mismo",
+          codigo: codigo(
+            "const r = [",
+            "  { titulo: 'f', recompensa: 60, cerrado: true },",
+            "  { titulo: 'a', recompensa: 10, cerrado: false },",
+            "  { titulo: 'b', recompensa: 20, cerrado: false },",
+            "]",
+            "const p = parteDelMes(r)",
+            "esperar(p.cerrados).igualA(1)",
+            "esperar(p.cobrado).igualA(60)",
+          ),
+        },
+        {
+          nombre: "el parte no toca el registro que le dieron",
+          codigo: codigo(
+            "const r = [{ titulo: 'a', recompensa: 10, cerrado: true }]",
+            "parteDelMes(r)",
+            "esperar(r).tieneLongitud(1)",
+            "esperar(r[0].recompensa).igualA(10)",
+          ),
+        },
+        {
+          nombre: "pedirle el parte dos veces no acumula: no hay contador escondido fuera",
+          codigo: codigo(
+            "const r = [{ titulo: 'a', recompensa: 90, cerrado: true }]",
+            "parteDelMes(r)",
+            "esperar(parteDelMes(r).cobrado).igualA(90)",
+          ),
+        },
+        {
+          nombre: "el mes vacío sigue devolviendo su frase, con los ceros y todo",
+          codigo: "esperar(parteDelMes([]).resumen).igualA('0 de 0 casos cerrados, 0 cobrados')",
+        },
+      ],
+    },
+  ],
   recompensa: { croquetas: 14 },
 }

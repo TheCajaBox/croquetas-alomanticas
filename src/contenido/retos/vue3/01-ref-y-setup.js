@@ -104,6 +104,106 @@ export default {
     },
     { nombre: "en la plantilla no hace falta .value", codigo: "esperar(componente.template, 'la plantilla').noContiene('balas.value')" },
   ],
+  // Lo que se practica es el `.value` dentro y el sin-`.value` fuera. Las tandas
+  // pulsan los botones en otras cantidades y montan dos armas a la vez.
+  variantes: [
+    {
+      titulo: "Llegar a la ciudad nueva · otra tanda",
+      tests: [
+        {
+          nombre: "seis disparos y el tambor queda seco",
+          codigo: codigo(
+            "const arma = montar(componente)",
+            "for (let i = 0; i < 6; i += 1) await arma.click('.disparar')",
+            "esperar(arma.texto('.balas')).igualA('0')",
+          ),
+        },
+        {
+          nombre: "recargar con el tambor lleno no lo pasa de seis",
+          codigo: codigo(
+            "const arma = montar(componente)",
+            "await arma.click('.recargar')",
+            "esperar(arma.texto('.balas')).igualA('6')",
+          ),
+        },
+        {
+          nombre: "recargar después de vaciarlo lo vuelve a dejar en seis",
+          codigo: codigo(
+            "const arma = montar(componente)",
+            "for (let i = 0; i < 6; i += 1) await arma.click('.disparar')",
+            "await arma.click('.recargar')",
+            "esperar(arma.texto('.balas')).igualA('6')",
+          ),
+        },
+        {
+          nombre: "el dato de dentro es el que se pinta, y en la plantilla sale sin abrir la caja",
+          codigo: codigo(
+            "const arma = montar(componente)",
+            "esperar(arma.vm.balas, 'las balas del componente').igualA(6)",
+            "esperar(arma.texto('.balas')).igualA('6')",
+          ),
+        },
+        {
+          nombre: "y los dos botones están donde los buscan los tests",
+          codigo: codigo(
+            "const arma = montar(componente)",
+            "esperar(arma.existe('.disparar'), 'el botón de disparar').esVerdadero()",
+            "esperar(arma.existe('.recargar'), 'el botón de recargar').esVerdadero()",
+          ),
+        },
+      ],
+    },
+    {
+      titulo: "Llegar a la ciudad nueva · y otra",
+      tests: [
+        {
+          nombre: "cada disparo baja de uno en uno, y se ve al momento",
+          codigo: codigo(
+            "const arma = montar(componente)",
+            "await arma.click('.disparar')",
+            "esperar(arma.texto('.balas')).igualA('5')",
+            "await arma.click('.disparar')",
+            "esperar(arma.texto('.balas')).igualA('4')",
+            "await arma.click('.disparar')",
+            "esperar(arma.texto('.balas')).igualA('3')",
+          ),
+        },
+        {
+          nombre: "insistir doce veces con el tambor seco no lo pone en negativo",
+          codigo: codigo(
+            "const arma = montar(componente)",
+            "for (let i = 0; i < 12; i += 1) await arma.click('.disparar')",
+            "esperar(arma.texto('.balas')).igualA('0')",
+          ),
+        },
+        {
+          nombre: "recargar a media tanda deja seguir disparando desde seis",
+          codigo: codigo(
+            "const arma = montar(componente)",
+            "await arma.click('.disparar')",
+            "await arma.click('.disparar')",
+            "await arma.click('.disparar')",
+            "await arma.click('.recargar')",
+            "await arma.click('.disparar')",
+            "esperar(arma.texto('.balas')).igualA('5')",
+          ),
+        },
+        {
+          nombre: "dos armas montadas aparte no comparten balas",
+          codigo: codigo(
+            "const una = montar(componente)",
+            "const otra = montar(componente)",
+            "await una.click('.disparar')",
+            "esperar(otra.texto('.balas')).igualA('6')",
+          ),
+        },
+        {
+          nombre: "y en la plantilla no aparece ni un .value: eso es cosa de dentro de setup",
+          codigo: "esperar(componente.template, 'la plantilla').noContiene('.value')",
+        },
+      ],
+    },
+  ],
   pistas: [
     pista("`setup()` devuelve un objeto, y todo lo que devuelva se puede usar en la plantilla directamente.", 0),
     pista("Dentro de `setup`, `balas` no es un número: es una caja. El número está en `balas.value`. En la plantilla Vue abre la caja por ti.", 1),

@@ -67,6 +67,32 @@ export default {
     },
     { nombre: "con la lista vacía no se inventa un máximo", codigo: "esperar(laMayor([])).igualA(null)" },
   ],
+  // Lo que se practica es el valor de partida del acumulador. Cada tanda ataca
+  // ese punto por un lado distinto: la lista de uno, los empates y el cero.
+  variantes: [
+    {
+      titulo: "La caja de la comisaría · otra tanda",
+      tests: [
+        { nombre: "un solo número es su propia suma", codigo: "esperar(sumar([42])).igualA(42)" },
+        { nombre: "y su propio máximo", codigo: "esperar(laMayor([42])).igualA(42)" },
+        { nombre: "cinco veces lo mismo suma cinco veces", codigo: "esperar(sumar([5, 5, 5, 5, 5])).igualA(25)" },
+        { nombre: "y con todos iguales el mayor sigue siendo ese", codigo: "esperar(laMayor([5, 5, 5, 5, 5])).igualA(5)" },
+        { nombre: "los números rojos también se suman", codigo: "esperar(sumar([-3, -4, -5])).igualA(-12)" },
+        { nombre: "y el mayor de tres deudas es la más pequeña", codigo: "esperar(laMayor([-3, -4, -5])).igualA(-3)" },
+      ],
+    },
+    {
+      titulo: "La caja de la comisaría · y otra",
+      tests: [
+        { nombre: "una lista de ceros suma cero", codigo: "esperar(sumar([0, 0, 0])).igualA(0)" },
+        { nombre: "y su mayor es cero, no null", codigo: "esperar(laMayor([0, 0, 0])).igualA(0)" },
+        { nombre: "entre negativos y un cero, gana el cero", codigo: "esperar(laMayor([-7, -2, 0])).igualA(0)" },
+        { nombre: "lo que entra y lo que sale se anula", codigo: "esperar(sumar([1200, -1200])).igualA(0)" },
+        { nombre: "con empate arriba devuelve el número, no la posición", codigo: "esperar(laMayor([2, 9, 9, 4])).igualA(9)" },
+        { nombre: "y una recompensa suelta y gorda no se pierde", codigo: "esperar(sumar([317])).igualA(317)" },
+      ],
+    },
+  ],
   pistas: [
     pista("Las dos siguen el mismo esqueleto: declarar algo antes del bucle, tocarlo dentro, devolverlo después.", 0),
     pista("El test de los negativos está puesto a propósito. Si empiezas `laMayor` en 0, ese test te va a cazar.", 1),

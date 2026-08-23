@@ -57,6 +57,70 @@ export default {
       ),
     },
   ],
+  // Si el refactor se ha hecho a medias -una plantilla por oficio- estas tandas
+  // no lo notan; lo que notan es que `describir` sirva para cualquier cosa, que
+  // es para lo que se sacó.
+  variantes: [
+    {
+      titulo: "Tres veces lo mismo · otra tanda",
+      tests: [
+        {
+          nombre: "el mismo nombre con los tres oficios da tres frases distintas",
+          codigo: codigo(
+            "esperar(presentarAgente('MeLaan')).igualA('MeLaan, agente de Elendel')",
+            "esperar(presentarLadron('MeLaan')).igualA('MeLaan, ladrón de Elendel')",
+            "esperar(presentarSenador('MeLaan')).igualA('MeLaan, senador de Elendel')",
+          ),
+        },
+        {
+          nombre: "describir vale para oficios que no existían en la comisaría",
+          codigo: "esperar(describir('Steris', 'contable', 'Bilming')).igualA('Steris, contable de Bilming')",
+        },
+        {
+          nombre: "un nombre con espacios pasa entero",
+          codigo: "esperar(presentarAgente('Waxillium Ladrian')).igualA('Waxillium Ladrian, agente de Elendel')",
+        },
+        {
+          nombre: "y las tres siguen devolviendo textos, no objetos",
+          codigo: codigo(
+            "esperar(presentarAgente('a'), 'lo que devuelve presentarAgente').esDeTipo('string')",
+            "esperar(presentarLadron('a'), 'lo que devuelve presentarLadron').esDeTipo('string')",
+            "esperar(presentarSenador('a'), 'lo que devuelve presentarSenador').esDeTipo('string')",
+          ),
+        },
+      ],
+    },
+    {
+      titulo: "Tres veces lo mismo · y otra",
+      tests: [
+        {
+          nombre: "un nombre vacío deja el hueco vacío y no se inventa nada",
+          codigo: "esperar(presentarLadron('')).igualA(', ladrón de Elendel')",
+        },
+        {
+          nombre: "describir con los tres huecos vacíos deja la puntuación en pie, y el hueco del oficio a la vista",
+          codigo: "esperar(describir('', '', '')).igualA(',  de ')",
+        },
+        {
+          nombre: "las tildes del oficio se conservan: ladrón se escribe con tilde",
+          codigo: "esperar(presentarLadron('Wayne').includes('ladrón')).esVerdadero()",
+        },
+        {
+          nombre: "describir acepta la ciudad que le pongas, aunque lleve artículo",
+          codigo: "esperar(describir('MeLaan', 'kandra', 'la Cuenca Basin')).igualA('MeLaan, kandra de la Cuenca Basin')",
+        },
+        {
+          nombre: "y las cuatro funciones existen y son funciones",
+          codigo: codigo(
+            "esperar(typeof describir).igualA('function')",
+            "esperar(typeof presentarAgente).igualA('function')",
+            "esperar(typeof presentarLadron).igualA('function')",
+            "esperar(typeof presentarSenador).igualA('function')",
+          ),
+        },
+      ],
+    },
+  ],
   pistas: [
     pista("Pon las tres una debajo de otra. Solo cambia una palabra en medio.", 0),
     pista("Esa palabra que cambia es un parámetro. Y ya que estás, saca también la ciudad.", 1),

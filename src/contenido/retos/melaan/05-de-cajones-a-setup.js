@@ -125,6 +125,106 @@ export default {
       ),
     },
   ],
+  // Lo que se olvida al pasar a `setup` es devolver algo -y entonces la plantilla
+  // se queda a oscuras- o dejarse un `.value`. Estas tandas pulsan los botones en
+  // otro orden y en otras cantidades, que es donde eso se ve.
+  variantes: [
+    {
+      titulo: "De los cajones a la mesa · otra tanda",
+      tests: [
+        {
+          nombre: "recargar sin haber disparado no mueve el parte",
+          codigo: codigo(
+            "const arma = montar(componente)",
+            "await arma.click('.recargar')",
+            "esperar(arma.texto('.parte')).igualA('6 balas · 0 disparos')",
+          ),
+        },
+        {
+          nombre: "tres disparos, tres cuentas",
+          codigo: codigo(
+            "const arma = montar(componente)",
+            "await arma.click('.disparar')",
+            "await arma.click('.disparar')",
+            "await arma.click('.disparar')",
+            "esperar(arma.texto('.parte')).igualA('3 balas · 3 disparos')",
+          ),
+        },
+        {
+          nombre: "el aviso de tambor vacío aparece al sexto disparo, no al quinto",
+          codigo: codigo(
+            "const arma = montar(componente)",
+            "for (let i = 0; i < 5; i += 1) await arma.click('.disparar')",
+            "esperar(arma.existe('.vacia'), 'el aviso con una bala dentro').esFalso()",
+            "await arma.click('.disparar')",
+            "esperar(arma.existe('.vacia'), 'el aviso con el tambor seco').esVerdadero()",
+          ),
+        },
+        {
+          nombre: "recargar quita el aviso pero no borra la cuenta de disparos",
+          codigo: codigo(
+            "const arma = montar(componente)",
+            "for (let i = 0; i < 6; i += 1) await arma.click('.disparar')",
+            "await arma.click('.recargar')",
+            "esperar(arma.existe('.vacia')).esFalso()",
+            "esperar(arma.texto('.parte')).igualA('6 balas · 6 disparos')",
+          ),
+        },
+        {
+          nombre: "y los dos botones siguen ahí, con sus clases de siempre",
+          codigo: codigo(
+            "const arma = montar(componente)",
+            "esperar(arma.existe('.disparar'), 'el botón de disparar').esVerdadero()",
+            "esperar(arma.existe('.recargar'), 'el botón de recargar').esVerdadero()",
+          ),
+        },
+      ],
+    },
+    {
+      titulo: "De los cajones a la mesa · y otra",
+      tests: [
+        {
+          nombre: "por mucho que insistas, el tambor no baja de cero",
+          codigo: codigo(
+            "const arma = montar(componente)",
+            "for (let i = 0; i < 12; i += 1) await arma.click('.disparar')",
+            "esperar(arma.texto('.parte')).igualA('0 balas · 6 disparos')",
+          ),
+        },
+        {
+          nombre: "recargar dos veces seguidas deja seis, no doce",
+          codigo: codigo(
+            "const arma = montar(componente)",
+            "await arma.click('.disparar')",
+            "await arma.click('.disparar')",
+            "await arma.click('.recargar')",
+            "await arma.click('.recargar')",
+            "esperar(arma.texto('.parte')).igualA('6 balas · 2 disparos')",
+          ),
+        },
+        {
+          nombre: "dos armas montadas aparte no comparten balas",
+          codigo: codigo(
+            "const una = montar(componente)",
+            "const otra = montar(componente)",
+            "await una.click('.disparar')",
+            "esperar(otra.texto('.parte')).igualA('6 balas · 0 disparos')",
+          ),
+        },
+        {
+          nombre: "el parte junta las dos cifras con el punto de en medio",
+          codigo: codigo(
+            "const arma = montar(componente)",
+            "esperar(arma.texto('.parte')).contiene('·')",
+          ),
+        },
+        {
+          nombre: "y recién montada no hay ningún aviso de vacío que estorbe",
+          codigo: "esperar(montar(componente).existe('.vacia')).esFalso()",
+        },
+      ],
+    },
+  ],
   pistas: [
     pista("Ve por orden: primero los dos datos a `ref`, luego los dos `computed`, luego los dos métodos. Y borrando cada `this.` que te encuentres.", 0),
     pista("Dentro de `setup` todo ref quiere `.value`. En la plantilla no se toca nada: se queda igual que estaba.", 1),

@@ -113,6 +113,101 @@ export default {
       ),
     },
   ],
+  // El estado es uno para todos, así que dentro de una tanda lo que hace un test
+  // lo ve el siguiente: eso es justo la lección, y las tandas lo aprovechan en
+  // vez de esconderlo.
+  variantes: [
+    {
+      titulo: "Un sitio donde miran todos · otra tanda",
+      tests: [
+        {
+          nombre: "el panel nace con el botón y el marcador, y el marcador a cero",
+          codigo: codigo(
+            "const vista = montar(componente)",
+            "esperar(vista.existe('.sumar'), 'el botón').esVerdadero()",
+            "esperar(vista.texto('.total')).diceLoMismoQue('0')",
+          ),
+        },
+        {
+          nombre: "tres pulsaciones y el marcador va detrás sin que nadie le pase nada",
+          codigo: codigo(
+            "const vista = montar(componente)",
+            "await vista.click('.sumar')",
+            "await vista.click('.sumar')",
+            "await vista.click('.sumar')",
+            "esperar(vista.texto('.total')).diceLoMismoQue('3')",
+          ),
+        },
+        {
+          nombre: "gastar desde fuera también se nota: es el mismo estado",
+          codigo: codigo(
+            "const colonia = usarColonia()",
+            "colonia.gastar()",
+            "esperar(colonia.estado.croquetas).igualA(2)",
+          ),
+        },
+        {
+          nombre: "un panel montado después ya nace con lo que hay",
+          codigo: codigo(
+            "const vista = montar(componente)",
+            "esperar(vista.texto('.total')).diceLoMismoQue('2')",
+          ),
+        },
+        {
+          nombre: "y gastar veinte veces desde dos deja cero, no menos dieciocho",
+          codigo: codigo(
+            "const colonia = usarColonia()",
+            "for (let vez = 0; vez < 20; vez += 1) colonia.gastar()",
+            "esperar(colonia.estado.croquetas).igualA(0)",
+          ),
+        },
+      ],
+    },
+    {
+      titulo: "Un sitio donde miran todos · y otra",
+      tests: [
+        {
+          nombre: "dos llamadas a usarColonia devuelven el mismísimo objeto de estado",
+          codigo: "esperar(usarColonia().estado === usarColonia().estado, 'que el estado sea uno solo').esVerdadero()",
+        },
+        {
+          nombre: "gastar con la despensa vacía la deja vacía, no en negativo",
+          codigo: codigo(
+            "const colonia = usarColonia()",
+            "colonia.gastar()",
+            "esperar(colonia.estado.croquetas).igualA(0)",
+          ),
+        },
+        {
+          nombre: "cinco croquetas sumadas desde fuera son cinco croquetas",
+          codigo: codigo(
+            "const colonia = usarColonia()",
+            "colonia.sumar()",
+            "colonia.sumar()",
+            "colonia.sumar()",
+            "colonia.sumar()",
+            "colonia.sumar()",
+            "esperar(colonia.estado.croquetas).igualA(5)",
+          ),
+        },
+        {
+          nombre: "y el marcador se enteró aunque el panel se monte ahora",
+          codigo: codigo(
+            "const vista = montar(componente)",
+            "esperar(vista.texto('.total')).diceLoMismoQue('5')",
+          ),
+        },
+        {
+          nombre: "pulsar el botón suma una más encima de lo que ya había",
+          codigo: codigo(
+            "const vista = montar(componente)",
+            "await vista.click('.sumar')",
+            "esperar(vista.texto('.total')).diceLoMismoQue('6')",
+          ),
+        },
+      ],
+    },
+  ],
   pistas: [
     pista("La diferencia con un composable normal está en **dónde** se declara el estado: dentro de la función, cada llamada crea el suyo; fuera, todas comparten uno.", 0),
     pista("Un `reactive({ croquetas: 0 })` en el nivel de arriba del archivo se crea una sola vez, porque un módulo se ejecuta una vez por muchas veces que lo importen.", 1),

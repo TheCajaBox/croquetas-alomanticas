@@ -68,6 +68,88 @@ export default {
       ),
     },
   ],
+  // Carteles nuevos, y de los que llegan mal: sin nombre, con `senas` vacío y
+  // con un `null` donde tocaba un número. El valor por defecto solo tapa lo que
+  // falta, y esa distinción es la mitad de la lección.
+  variantes: [
+    {
+      titulo: "La ficha del buscado · otra tanda",
+      tests: [
+        {
+          nombre: "un cartel con señas pero sin sombrero: las demás señas se quedan fuera del resumen",
+          codigo: codigo(
+            "esperar(resumirCartel({",
+            "  nombre: 'Miles',",
+            "  senas: { altura: 'alto' },",
+            "  arma: 'aluminio',",
+            "})).igualA({",
+            "  nombre: 'Miles',",
+            "  recompensa: 0,",
+            "  sombrero: 'ninguno',",
+            "  otros: { arma: 'aluminio' },",
+            "})",
+          ),
+        },
+        {
+          nombre: "una recompensa de cero escrita a mano sigue siendo cero",
+          codigo: "esperar(resumirCartel({ nombre: 'Wayne', recompensa: 0 }).recompensa).igualA(0)",
+        },
+        {
+          nombre: "y un null se queda null: el valor por defecto solo tapa lo que falta",
+          codigo: "esperar(resumirCartel({ nombre: 'Wayne', recompensa: null }).recompensa).igualA(null)",
+        },
+        {
+          nombre: "todo lo que sobra acaba en otros, aunque sean cuatro cosas",
+          codigo: codigo(
+            "const ficha = resumirCartel({",
+            "  nombre: 'Paalm',",
+            "  vivo: false,",
+            "  zona: 'Elendel',",
+            "  alias: 'Bleeder',",
+            "  peligro: 10,",
+            "})",
+            "esperar(ficha.otros).igualA({ vivo: false, zona: 'Elendel', alias: 'Bleeder', peligro: 10 })",
+          ),
+        },
+      ],
+    },
+    {
+      titulo: "La ficha del buscado · y otra",
+      tests: [
+        {
+          nombre: "un senas vacío también deja el sombrero en ninguno",
+          codigo: "esperar(resumirCartel({ nombre: 'Wax', senas: {} }).sombrero).igualA('ninguno')",
+        },
+        {
+          nombre: "el resumen tiene siempre esas cuatro claves, venga lo que venga",
+          codigo: "esperar(Object.keys(resumirCartel({ nombre: 'Wax' })), 'las claves del resumen').tieneLongitud(4)",
+        },
+        {
+          nombre: "un cartel pelado, con solo el nombre, se rellena entero",
+          codigo: codigo(
+            "esperar(resumirCartel({ nombre: 'Steris' })).igualA({",
+            "  nombre: 'Steris',",
+            "  recompensa: 0,",
+            "  sombrero: 'ninguno',",
+            "  otros: {},",
+            "})",
+          ),
+        },
+        {
+          nombre: "y el nombre que no viene sale undefined: nadie prometió taparlo",
+          codigo: "esperar(resumirCartel({ recompensa: 3 }).nombre, 'el nombre').igualA(undefined)",
+        },
+        {
+          nombre: "el cartel original no se toca: desestructurar copia, no vacía",
+          codigo: codigo(
+            "const cartel = { nombre: 'Wax', senas: { sombrero: 'de copa' }, zona: 'Áridos' }",
+            "resumirCartel(cartel)",
+            "esperar(Object.keys(cartel), 'las claves del cartel').tieneLongitud(3)",
+          ),
+        },
+      ],
+    },
+  ],
   pistas: [
     pista("Todo se hace en el paréntesis de la función. Ahí dentro puedes desestructurar, poner valores por defecto y recoger el resto.", 0),
     pista("Para lo de dentro de `senas` se anida: `senas: { sombrero = 'ninguno' }`. Y ojo, que `senas` puede no venir: dale también un valor por defecto, `= {}`.", 1),

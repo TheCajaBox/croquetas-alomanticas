@@ -54,6 +54,57 @@ export default {
       ),
     },
   ],
+  // El fallo original -no recoger lo que devuelve `trim`- se cuela en cuanto
+  // el nombre viene limpio. Estas tandas traen suciedad de otras formas: el
+  // nombre que ya estaba en mayúsculas, el que solo tiene espacios y las tildes.
+  variantes: [
+    {
+      titulo: "El cartel que sale torcido · otra tanda",
+      tests: [
+        {
+          nombre: "un nombre que ya venía gritado se queda igual, pero sin los espacios",
+          codigo: "esperar(hacerCartel('   MELAAN   ', 900)).igualA('SE BUSCA: MELAAN (900)')",
+        },
+        {
+          nombre: "una recompensa de cero sale escrita",
+          codigo: "esperar(hacerCartel('wayne', 0)).igualA('SE BUSCA: WAYNE (0)')",
+        },
+        {
+          nombre: "los espacios de dentro se respetan, aunque sean tres",
+          codigo: "esperar(hacerCartel(' la   dama   de   hierro ', 400)).igualA('SE BUSCA: LA   DAMA   DE   HIERRO (400)')",
+        },
+        {
+          nombre: "y una recompensa larga no se recorta",
+          codigo: "esperar(hacerCartel('Paalm', 999999)).igualA('SE BUSCA: PAALM (999999)')",
+        },
+      ],
+    },
+    {
+      titulo: "El cartel que sale torcido · y otra",
+      tests: [
+        {
+          nombre: "las tildes también saben ponerse en mayúscula",
+          codigo: "esperar(hacerCartel('  aradán  ', 12)).igualA('SE BUSCA: ARADÁN (12)')",
+        },
+        {
+          nombre: "un nombre que solo son espacios deja el hueco vacío",
+          codigo: "esperar(hacerCartel('    ', 5)).igualA('SE BUSCA:  (5)')",
+        },
+        {
+          nombre: "una sola letra basta para un cartel",
+          codigo: "esperar(hacerCartel(' v ', 1)).igualA('SE BUSCA: V (1)')",
+        },
+        {
+          nombre: "el nombre que te dieron sigue como estaba: los textos no se cambian, se copian",
+          codigo: codigo(
+            "const original = ' Steris  '",
+            "hacerCartel(original, 77)",
+            "esperar(original).igualA(' Steris  ')",
+          ),
+        },
+      ],
+    },
+  ],
   pistas: [
     pista("Las dos primeras líneas hacen el trabajo bien. El problema es lo que pasa con el resultado.", 0),
     pista("`nombre.trim()` no cambia `nombre`: devuelve un texto nuevo. Si nadie lo recoge, se pierde.", 1),

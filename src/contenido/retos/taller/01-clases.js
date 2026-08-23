@@ -117,6 +117,105 @@ export default {
       ),
     },
   ],
+  // Tambores de otro tamaño, incluido el de capacidad cero, que nace vacío. Lo
+  // que se vuelve a practicar es guardar la capacidad para poder recargar.
+  variantes: [
+    {
+      titulo: "Objetos que saben hacer cosas · otra tanda",
+      tests: [
+        { nombre: "un tambor de tres nace con tres", codigo: "esperar(new Revolver(3).balas).igualA(3)" },
+        {
+          nombre: "tres disparos lo dejan seco",
+          codigo: codigo(
+            "const a = new Revolver(3)",
+            "a.disparar()",
+            "a.disparar()",
+            "a.disparar()",
+            "esperar(a.balas).igualA(0)",
+            "esperar(a.vacio).esVerdadero()",
+          ),
+        },
+        {
+          nombre: "el cuarto disparo dice que no y no toca nada",
+          codigo: codigo(
+            "const a = new Revolver(3)",
+            "a.disparar()",
+            "a.disparar()",
+            "a.disparar()",
+            "esperar(a.disparar()).esFalso()",
+            "esperar(a.balas).igualA(0)",
+          ),
+        },
+        {
+          nombre: "recargarlo después de vaciarlo lo devuelve a tres",
+          codigo: codigo(
+            "const a = new Revolver(3)",
+            "a.disparar()",
+            "a.disparar()",
+            "a.disparar()",
+            "a.recargar()",
+            "esperar(a.balas).igualA(3)",
+            "esperar(a.vacio).esFalso()",
+          ),
+        },
+        {
+          nombre: "y un revólver de capacidad cero nace vacío y no dispara jamás",
+          codigo: codigo(
+            "const z = new Revolver(0)",
+            "esperar(z.vacio).esVerdadero()",
+            "esperar(z.disparar()).esFalso()",
+            "esperar(z.balas).igualA(0)",
+          ),
+        },
+      ],
+    },
+    {
+      titulo: "Objetos que saben hacer cosas · y otra",
+      tests: [
+        {
+          nombre: "recargar sin haber disparado no añade balas de la nada",
+          codigo: codigo(
+            "const a = new Revolver(6)",
+            "a.recargar()",
+            "esperar(a.balas).igualA(6)",
+          ),
+        },
+        {
+          nombre: "recargar dos veces rellena, no suma",
+          codigo: codigo(
+            "const a = new Revolver(6)",
+            "a.disparar()",
+            "a.disparar()",
+            "a.disparar()",
+            "a.recargar()",
+            "a.recargar()",
+            "esperar(a.balas).igualA(6)",
+          ),
+        },
+        {
+          nombre: "cada disparo que sale dice que sí, y el que no sale dice que no",
+          codigo: codigo(
+            "const a = new Revolver(2)",
+            "esperar(a.disparar()).esVerdadero()",
+            "esperar(a.disparar()).esVerdadero()",
+            "esperar(a.disparar()).esFalso()",
+          ),
+        },
+        { nombre: "vacio es un booleano y no un texto que lo parezca", codigo: "esperar(new Revolver(1).vacio, 'vacio').esDeTipo('boolean')" },
+        {
+          nombre: "y un tambor de doce aguanta tres tiros sin pestañear",
+          codigo: codigo(
+            "const a = new Revolver(12)",
+            "a.disparar()",
+            "a.disparar()",
+            "a.disparar()",
+            "esperar(a.balas).igualA(9)",
+            "esperar(a.vacio).esFalso()",
+          ),
+        },
+      ],
+    },
+  ],
   pistas: [
     pista("Dentro de la clase, todo lo que quieras recordar entre llamadas se guarda en `this.algo`.", 0),
     pista("`recargar` necesita saber a cuánto volver, así que la capacidad hay que guardarla en el constructor, no solo usarla.", 1),

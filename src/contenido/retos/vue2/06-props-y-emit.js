@@ -138,6 +138,120 @@ export default {
       ),
     },
   ],
+  // «Los datos bajan, los avisos suben». Las tandas montan la tarjeta con otros
+  // gatos y con otro padre, que es la prueba de que el aviso sube de verdad y no
+  // es el hijo el que toca la lista.
+  variantes: [
+    {
+      titulo: "Hablar entre habitaciones · otra tanda",
+      tests: [
+        {
+          nombre: "al abrir el refugio todavía no hay ningún adoptado",
+          codigo: codigo(
+            "const refugio = montar(componente)",
+            "esperar(refugio.texto('.adoptados')).igualA('')",
+          ),
+        },
+        {
+          nombre: "adoptar el segundo apunta a Bronce y no a Acero",
+          codigo: codigo(
+            "const refugio = montar(componente)",
+            "const botones = refugio.elemento.querySelectorAll('.adoptar')",
+            "botones[1].dispatchEvent(new MouseEvent('click', { bubbles: true }))",
+            "await siguienteTick()",
+            "esperar(refugio.texto('.adoptados')).igualA('Bronce')",
+          ),
+        },
+        {
+          nombre: "adoptar al mismo gato dos veces lo apunta dos veces",
+          codigo: codigo(
+            "const refugio = montar(componente)",
+            "await refugio.click('.adoptar')",
+            "await refugio.click('.adoptar')",
+            "esperar(refugio.texto('.adoptados')).igualA('Acero, Acero')",
+          ),
+        },
+        {
+          nombre: "cada tarjeta trae su nombre y su botón, y no los comparte",
+          codigo: codigo(
+            "const refugio = montar(componente)",
+            "esperar(refugio.contar('.nombre')).igualA(2)",
+            "esperar(refugio.contar('.adoptar')).igualA(2)",
+          ),
+        },
+        {
+          nombre: "y la tarjeta suelta pinta el gato que le bajen, sin saber de refugios",
+          codigo: codigo(
+            "const suelta = montar({",
+            "  components: { 'tarjeta-de-gato': tarjetaDeGato },",
+            "  template: `<ul><tarjeta-de-gato :gato=\"{ id: 7, nombre: 'Duraluminio' }\" /></ul>`,",
+            "})",
+            "esperar(suelta.texto('.nombre')).igualA('Duraluminio')",
+          ),
+        },
+      ],
+    },
+    {
+      titulo: "Hablar entre habitaciones · y otra",
+      tests: [
+        {
+          nombre: "adoptar del último al primero los apunta en ese orden, separados por coma",
+          codigo: codigo(
+            "const refugio = montar(componente)",
+            "const botones = refugio.elemento.querySelectorAll('.adoptar')",
+            "botones[1].dispatchEvent(new MouseEvent('click', { bubbles: true }))",
+            "botones[0].dispatchEvent(new MouseEvent('click', { bubbles: true }))",
+            "await siguienteTick()",
+            "esperar(refugio.texto('.adoptados')).igualA('Bronce, Acero')",
+          ),
+        },
+        {
+          nombre: "el aviso lleva el gato entero: otro padre puede sacar de ahí lo que quiera",
+          codigo: codigo(
+            "const espia = montar({",
+            "  components: { 'tarjeta-de-gato': tarjetaDeGato },",
+            "  data() {",
+            "    return { oidos: [] }",
+            "  },",
+            "  methods: {",
+            "    apuntar(gato) {",
+            "      this.oidos.push(gato.nombre)",
+            "    },",
+            "  },",
+            "  template: `",
+            "    <ul>",
+            "      <tarjeta-de-gato :gato=\"{ id: 3, nombre: 'Estaño' }\" @adoptar=\"apuntar\" />",
+            "      <li class=\"oidos\">{{ oidos.join(', ') }}</li>",
+            "    </ul>",
+            "  `,",
+            "})",
+            "await espia.click('.adoptar')",
+            "esperar(espia.texto('.oidos')).igualA('Estaño')",
+          ),
+        },
+        {
+          nombre: "adoptar no toca la colonia del padre: los gatos siguen los dos ahí",
+          codigo: codigo(
+            "const refugio = montar(componente)",
+            "await refugio.click('.adoptar')",
+            "esperar(refugio.vm.colonia, 'la colonia').tieneLongitud(2)",
+            "esperar(refugio.contar('.gato')).igualA(2)",
+          ),
+        },
+        {
+          nombre: "la tarjeta declara su prop y trae su propia plantilla",
+          codigo: codigo(
+            "esperar(tarjetaDeGato.props, 'las props de la tarjeta').existe()",
+            "esperar(tarjetaDeGato.template, 'la plantilla de la tarjeta').existe()",
+          ),
+        },
+        {
+          nombre: "y el padre la registra con el nombre de etiqueta que usa la plantilla",
+          codigo: "esperar(Object.keys(componente.components), 'los componentes registrados').contiene('tarjeta-de-gato')",
+        },
+      ],
+    },
+  ],
   pistas: [
     pista("La prop se declara en el hijo: `props: { gato: { type: Object, required: true } }`. A partir de ahí `gato` se usa en su plantilla como cualquier dato.", 0),
     pista("Para avisar, en el botón del hijo: `@click=\"$emit('adoptar', gato)\"`. El padre lo escucha poniendo `@adoptar=\"adoptar\"` en la tarjeta.", 1),
