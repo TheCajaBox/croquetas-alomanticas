@@ -193,6 +193,24 @@ export const MUNDOS = [
     despedida:
       'Ya no escribes órdenes: escribes decisiones. Con condiciones, bucles, funciones y arrays con clave se puede hacer prácticamente cualquier cosa; lo que viene después es hacerla bien.',
   },
+  {
+    id: 'pozo',
+    // Todavía la primera mitad: Kelsier explica hasta que deja de estar.
+    parte: 'primera',
+    nombre: 'El Pozo de la Ascensión',
+    subtitulo: 'PHP · listas, nada y accidentes',
+    itinerario: 'era1',
+    entorno: 'php',
+    requiere: 'tripulacion',
+    color: '#7d8a9a',
+    anfitrion: 'kelsier',
+    resumen:
+      'Trabajar una lista entera de una vez con `array_map`, `array_filter` y `array_reduce`; ordenar con tus propias reglas; y las dos cosas que rompen los programas de verdad: que falte un dato y que algo salga mal.',
+    presentacion:
+      'Hasta ahora recorrías las listas a mano, con un bucle y un acumulador, y eso funciona siempre. Aquí se aprende a decir lo que quieres en vez de cómo conseguirlo: «de cada uno, esto», «solo los que cumplan aquello», «todos juntos, en un número». Y se aprenden las dos cosas que más programas tiran abajo, que no son difíciles sino olvidadas: que un dato puede no estar, y que una operación puede salir mal y hay que decirlo en voz alta.',
+    despedida:
+      'Ya sabes trabajar una lista sin decirle a la máquina cómo dar cada paso, y ya sabes qué hacer cuando falta algo o algo se rompe. Con esto se escriben programas que aguantan lo que les echen; lo que viene ahora es ordenarlos.',
+  },
 ]
 
 export const MUNDOS_POR_ID = Object.fromEntries(MUNDOS.map((mundo) => [mundo.id, mundo]))

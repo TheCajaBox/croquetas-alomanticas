@@ -179,6 +179,32 @@ final class Comprobador
         gatos_fallar('Esperaba que ' . $this->nombre . ' lanzara un error, y no ha lanzado ninguno.');
     }
 
+    /**
+     * El valor tiene que reventar **y decir algo concreto**.
+     *
+     * Sin esto, un reto de excepciones se aprueba lanzando cualquier cosa: un
+     * `TypeError` por sumar mal cuenta igual que la excepción que había que
+     * lanzar a propósito, y entonces el reto no comprueba lo que enseña.
+     */
+    public function lanzaErrorQueDice(string $parte): void
+    {
+        if (!is_callable($this->valor)) {
+            gatos_fallar('Para comprobar que algo falla hay que pasar una función, no ' . gatos_describir($this->valor) . '.');
+        }
+        try {
+            ($this->valor)();
+        } catch (Throwable $error) {
+            if (!str_contains(gatos_normalizar($error->getMessage()), gatos_normalizar($parte))) {
+                gatos_fallar(
+                    'Esperaba que ' . $this->nombre . ' se quejara diciendo ' . gatos_describir($parte)
+                    . ', y ha dicho ' . gatos_describir($error->getMessage()) . '.'
+                );
+            }
+            return;
+        }
+        gatos_fallar('Esperaba que ' . $this->nombre . ' lanzara un error, y no ha lanzado ninguno.');
+    }
+
     private function tieneDentro(mixed $parte): bool
     {
         if (is_array($this->valor)) {

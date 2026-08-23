@@ -1,0 +1,110 @@
+import { codigo, pista } from '../comun.js'
+
+export default {
+  id: "pozo-03-solo-los-que",
+  mundo: "pozo",
+  entorno: "php",
+  tipo: "codigo",
+  titulo: "Solo los que cumplan",
+  enunciado: codigo(
+    "`array_filter` se queda con los elementos que cumplen una condición y descarta los",
+    "demás. La función que le das devuelve `true` o `false`: **true se queda**.",
+    "",
+    "Hay una trampa y este reto va de ella: `array_filter` **conserva las claves**. Si",
+    "descarta el elemento del medio, el resultado tiene las posiciones 0 y 2, sin 1. Para",
+    "volver a tener una lista de 0 en adelante se envuelve en `array_values`.",
+    "",
+    "Escribe:",
+    "",
+    "- `soloLosLlenos(array $sacos): array` — los mayores que cero, renumerados desde 0.",
+    "- `losQueEmpiezanPor(array $nombres, string $letra): array` — los que empiezan por esa",
+    "  letra, también renumerados. `str_starts_with($texto, $letra)` te lo dice.",
+  ),
+  inicial: codigo(
+    "<?php",
+    "",
+    "function soloLosLlenos(array $sacos): array",
+    "{",
+    "    // array_filter deja huecos en las claves. Piensa cómo cerrarlos.",
+    "}",
+    "",
+    "function losQueEmpiezanPor(array $nombres, string $letra): array",
+    "{",
+    "}",
+  ),
+  solucion: codigo(
+    "<?php",
+    "",
+    "function soloLosLlenos(array $sacos): array",
+    "{",
+    "    return array_values(array_filter($sacos, fn($saco) => $saco > 0));",
+    "}",
+    "",
+    "function losQueEmpiezanPor(array $nombres, string $letra): array",
+    "{",
+    "    return array_values(",
+    "        array_filter($nombres, fn($nombre) => str_starts_with($nombre, $letra))",
+    "    );",
+    "}",
+  ),
+  requisitos: [
+    { tipo: "usaPalabra", valor: "array_filter", texto: "Filtra con `array_filter`" },
+    { tipo: "usaPalabra", valor: "array_values", texto: "Renumera con `array_values`" },
+    { tipo: "prohibePalabra", valor: "foreach", texto: "Sin `foreach`" },
+  ],
+  tests: [
+    { nombre: "quita los ceros", codigo: "esperar(soloLosLlenos([3, 0, 5]), 'los llenos')->igualA([3, 5]);" },
+    {
+      nombre: "y las claves quedan seguidas, que es lo del reto",
+      codigo: codigo(
+        "$llenos = soloLosLlenos([3, 0, 5]);",
+        "esperar(array_keys($llenos), 'las claves')->igualA([0, 1]);",
+      ),
+    },
+    { nombre: "los negativos tampoco cuentan", codigo: "esperar(soloLosLlenos([-2, 4]), 'los llenos')->igualA([4]);" },
+    { nombre: "si están todos vacíos no queda nada", codigo: "esperar(soloLosLlenos([0, 0]), 'los llenos')->igualA([]);" },
+    { nombre: "y una lista vacía sigue vacía", codigo: "esperar(soloLosLlenos([]), 'los llenos')->igualA([]);" },
+    {
+      nombre: "elige por la primera letra",
+      codigo: "esperar(losQueEmpiezanPor(['Vin', 'Elend', 'Vhin'], 'V'), 'los elegidos')->igualA(['Vin', 'Vhin']);",
+    },
+    {
+      nombre: "también con las claves seguidas",
+      codigo: codigo(
+        "$suyos = losQueEmpiezanPor(['Vin', 'Elend', 'Vhin'], 'V');",
+        "esperar(array_keys($suyos), 'las claves')->igualA([0, 1]);",
+      ),
+    },
+    {
+      nombre: "distingue mayúsculas de minúsculas",
+      codigo: "esperar(losQueEmpiezanPor(['vin', 'Vin'], 'V'), 'los elegidos')->igualA(['Vin']);",
+    },
+    { nombre: "si no encaja ninguno, lista vacía", codigo: "esperar(losQueEmpiezanPor(['Ham'], 'Z'), 'los elegidos')->igualA([]);" },
+  ],
+  variantes: [
+    {
+      titulo: "Solo los que cumplan · otra tanda",
+      tests: [
+        { nombre: "cinco sacos, dos vacíos", codigo: "esperar(soloLosLlenos([1, 0, 2, 0, 3]), 'los llenos')->igualA([1, 2, 3]);" },
+        { nombre: "uno solo y lleno", codigo: "esperar(soloLosLlenos([9]), 'los llenos')->igualA([9]);" },
+        { nombre: "por la letra B", codigo: "esperar(losQueEmpiezanPor(['Brisa', 'Ham', 'Breeze'], 'B'), 'los elegidos')->igualA(['Brisa', 'Breeze']);" },
+        { nombre: "por una letra que no está", codigo: "esperar(losQueEmpiezanPor(['Brisa'], 'Q'), 'los elegidos')->tieneLongitud(0);" },
+      ],
+    },
+    {
+      titulo: "Solo los que cumplan · tercera",
+      tests: [
+        { nombre: "todos llenos, no se cae ninguno", codigo: "esperar(soloLosLlenos([4, 4, 4]), 'los llenos')->tieneLongitud(3);" },
+        { nombre: "el primero vacío", codigo: "esperar(soloLosLlenos([0, 7]), 'los llenos')->igualA([7]);" },
+        { nombre: "el último vacío", codigo: "esperar(soloLosLlenos([7, 0]), 'los llenos')->igualA([7]);" },
+        { nombre: "una letra que los coge todos", codigo: "esperar(losQueEmpiezanPor(['Sazed', 'Spook'], 'S'), 'los elegidos')->tieneLongitud(2);" },
+      ],
+    },
+  ],
+  pistas: [
+    pista("`array_filter($lista, fn($x) => $x > 0)` se queda con los que devuelven `true`.", 0),
+    pista("Prueba a imprimir con `var_dump` el resultado de un `array_filter` que descarte el elemento del medio: verás las claves 0 y 2. Eso es lo que hay que cerrar.", 1),
+    pista("`array_values(array_filter(...))`: primero se filtra, y lo que sale se renumera. `array_values` tira las claves y pone 0, 1, 2…", 2),
+  ],
+  recompensa: { croquetas: 8 },
+}

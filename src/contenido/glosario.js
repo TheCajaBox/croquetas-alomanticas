@@ -236,7 +236,7 @@ export const GLOSARIO = [
   },
   {
     id: "funcion-flecha",
-    desde: { era2: 'es6' },
+    desde: { era2: 'es6' , era1: 'pozo' },
     termino: "función flecha",
     alias: ["funciones flecha", "flecha"],
     definicion: "Una forma corta de escribir una función. Además no tiene `this` propio: usa el del sitio donde está escrita, y por eso funciona dentro de un método.",
@@ -282,21 +282,21 @@ export const GLOSARIO = [
   },
   {
     id: "map",
-    desde: { era2: 'es6' },
+    desde: { era2: 'es6' , era1: 'pozo' },
     termino: "map",
     definicion: "Recorre una lista y devuelve otra lista nueva con cada elemento transformado. No toca la original.",
     ejemplo: { js: "precios.map((p) => p * 2)", php: "array_map(fn($p) => $p * 2, $precios)" },
   },
   {
     id: "filter",
-    desde: { era2: 'es6' },
+    desde: { era2: 'es6' , era1: 'pozo' },
     termino: "filter",
     definicion: "Recorre una lista y devuelve otra solo con los elementos que cumplen lo que le digas.",
     ejemplo: { js: "precios.filter((p) => p > 30)", php: "array_filter($precios, fn($p) => $p > 30)" },
   },
   {
     id: "reduce",
-    desde: { era2: 'es6' },
+    desde: { era2: 'es6' , era1: 'pozo' },
     termino: "reduce",
     definicion: "Recorre una lista y la aplasta en un solo valor: una suma, un total, un texto. El segundo argumento es el valor de partida.",
     ejemplo: { js: "precios.reduce((s, p) => s + p, 0)", php: "array_reduce($precios, fn($s, $p) => $s + $p, 0)" },
@@ -708,7 +708,7 @@ export const GLOSARIO = [
   },
   {
     id: "funcion-de-vuelta",
-    desde: { era2: 'es6' },
+    desde: { era2: 'es6' , era1: 'pozo' },
     termino: "función de vuelta",
     alias: ["callback"],
     definicion:
@@ -717,7 +717,7 @@ export const GLOSARIO = [
   },
   {
     id: "inmutable",
-    desde: { era2: 'taller' },
+    desde: { era2: 'taller' , era1: 'pozo' },
     termino: "inmutable",
     alias: ["inmutabilidad"],
     definicion:
@@ -733,6 +733,24 @@ export const GLOSARIO = [
       "Seguir la ejecución paso a paso anotando qué vale cada cosa. También, la lista de llamadas que trae un error, de la más reciente a la más antigua.",
   },
   // ---- De PHP -------------------------------------------------------------
+  {
+    id: "excepcion",
+    // No existía en el glosario y El taller tiene un reto entero -«Cuando algo
+    // va mal a propósito»- que la enseña. Así que faltaba en los dos caminos.
+    desde: { era2: 'taller', era1: 'pozo' },
+    termino: "excepción",
+    alias: ["excepciones", "lanzar", "lanza", "throw"],
+    definicion: "Una manera de decir «esto no lo puedo hacer y no voy a fingir que sí». Para la función en el sitio, no devuelve nada, y sube hasta que alguien la recoge. Un error así no se puede confundir con un resultado, que es toda su ventaja sobre devolver un cero.",
+    ejemplo: { js: "throw new Error('no se puede repartir entre cero')", php: "throw new InvalidArgumentException('no se puede repartir entre cero');" },
+  },
+  {
+    id: "capturar",
+    desde: { era2: 'taller', era1: 'pozo' },
+    termino: "capturar",
+    alias: ["captura", "try", "catch", "try/catch"],
+    definicion: "Recoger una excepción para decidir qué hacer con ella. En el `try` va lo que se intenta y en el `catch` qué hacer si sale mal; en cuanto algo lanza, se abandona el resto del `try`. Capturada, la excepción no para el programa.",
+    ejemplo: { js: "try { cobrar() } catch (error) { avisar(error.message) }", php: "try { cobrar(); } catch (Throwable $error) { echo $error->getMessage(); }" },
+  },
   {
     id: "echo",
     desde: { era1: 'ceniza' },
@@ -800,7 +818,7 @@ export const GLOSARIO = [
   },
   {
     id: "encadenamiento-opcional",
-    desde: { era2: 'es6' },
+    desde: { era2: 'es6' , era1: 'pozo' },
     termino: "?.",
     alias: ["encadenamiento opcional"],
     definicion: "Pide algo de dentro de otra cosa **solo si esa cosa existe**. Si no existe, en vez de reventar, el resultado entero vale nulo. Ahorra el `if` de comprobar cada paso del camino.",

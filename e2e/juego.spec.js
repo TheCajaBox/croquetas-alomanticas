@@ -1099,9 +1099,14 @@ test('la página del glosario va por mundos y en orden de juego', async ({ page 
   const cuantos = await titulares.count()
   expect(cuantos).toBeGreaterThan(4)
 
-  // En el camino de PHP, sus dos mundos y en su orden.
+  // En el camino de PHP, sus mundos y en su orden. Deducidos del contenido y no
+  // escritos a mano: la versión escrita a mano decía «La Ceniza, La tripulación»
+  // y se rompió el día que entró el tercer mundo, que es justo lo que no tiene
+  // que pasar por añadir contenido.
   await page.locator('.caminos-glosario button', { hasText: 'PHP' }).click()
-  await expect(page.locator('.cabecera-mundo h2')).toHaveText(['La Ceniza', 'La tripulación'])
+  await expect(page.locator('.cabecera-mundo h2')).toHaveText(
+    mundosDelItinerario('era1').map((mundo) => mundo.nombre),
+  )
   // `foreach` cae en La Ceniza, que es donde su apunte lo explica.
   const laCeniza = page.locator('.mundo-glosario').first()
   await expect(laCeniza.locator('.termino h3', { hasText: /^foreach$/ })).toHaveCount(1)
