@@ -43,7 +43,6 @@ const CARPETAS = ['componentes', 'vistas'].map((c) =>
 const A_PROPOSITO = {
   'VistaAntesala.vue': 'steris',
   'VistaEntrada.vue': 'steris',
-  'VistaGlosario.vue': 'steris',
   'VistaInicio.vue': 'steris',
   'PanelArmonia.vue': 'armonia',
   'PanelResultados.vue': 'armonia',

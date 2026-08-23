@@ -12,6 +12,7 @@
  * Cuando se niega no está citando un reglamento, está siendo quien es —podría
  * intervenir, y intervenir de más estropea justo lo que intenta sostener.
  */
+import { lenguajeDelMundo } from '../../contenido/dondeEstas.js'
 import { traducirImprevisto } from '../../contenido/imprevistos.js'
 import { LINEAS_DE_ARMONIA } from '../../contenido/narrador/lineas.js'
 import { citar, corpusYaConstruido } from '../../contenido/armonia/corpus.js'
@@ -115,6 +116,9 @@ function porElError(imprevisto, reto) {
  * pregunta que había que hacerse**. Se devuelve tal cual, sin adornarlo.
  */
 function diagnosticar(reto, codigo, resultado) {
+  // El lenguaje sale del reto que tiene delante: los errores de JavaScript y los
+  // de PHP se traducen con listas distintas.
+  const lenguaje = lenguajeDelMundo(reto?.mundo)
   // 1. ¿Se entiende siquiera lo que has escrito?
   if (codigo?.trim()) {
     try {
@@ -144,7 +148,7 @@ function diagnosticar(reto, codigo, resultado) {
         )
       }
     } catch (error) {
-      const traducido = traducirImprevisto(error.message)
+      const traducido = traducirImprevisto(error.message, lenguaje)
       const donde = error.linea ? ` Empieza por la línea ${error.linea}.` : ''
       return respuesta(
         'diagnostico',
@@ -179,7 +183,7 @@ function diagnosticar(reto, codigo, resultado) {
   }
 
   if (resultado?.error) {
-    const traducido = traducirImprevisto(resultado.error.mensaje)
+    const traducido = traducirImprevisto(resultado.error.mensaje, lenguaje)
     if (traducido) return porElError(traducido, reto)
     return respuesta('diagnostico', `Lo que devolvió tu última ejecución fue esto:\n\n${resultado.error.mensaje}`)
   }
@@ -294,7 +298,10 @@ export function responder(pregunta, contexto = {}) {
   const reto = contexto.reto ?? (contexto.retoId ? RETOS_POR_ID[contexto.retoId] : null)
   const { codigo = '', resultado = null, vecesQuePidioSolucion = 0 } = contexto
 
-  const intencion = clasificar(pregunta, { resultado })
+  // Los errores se traducen con la lista del lenguaje donde estás: los mensajes
+  // de JavaScript y los de PHP no comparten una palabra.
+  const lenguaje = lenguajeDelMundo(reto?.mundo)
+  const intencion = clasificar(pregunta, { resultado, lenguaje })
 
   if (intencion.tipo === 'peticion') return seNiega(vecesQuePidioSolucion + 1)
   if (intencion.tipo === 'error') return porElError(intencion.errorDetectado, reto)

@@ -59,20 +59,20 @@ const casaAlguno = (patrones, texto) => patrones.some((patron) => patron.test(te
  * @param {{resultado?: object}} contexto para saber si hay un error a la vista
  * @returns {{tipo: string, terminos: Array, errorDetectado: object|null}}
  */
-export function clasificar(pregunta, { resultado = null } = {}) {
+export function clasificar(pregunta, { resultado = null, lenguaje = 'js' } = {}) {
   const plano = normalizar(pregunta).replace(/[¿?¡!.,;:]/g, ' ').replace(/\s+/g, ' ').trim()
   const terminos = terminosMencionados(pregunta)
 
   // Un error pegado en la caja de texto se reconoce venga como venga, y manda
   // sobre todo lo demás: es lo más concreto que puede traer nadie.
-  const errorPegado = traducirImprevisto(pregunta)
+  const errorPegado = traducirImprevisto(pregunta, lenguaje)
 
   if (casaAlguno(PETICION, plano)) return { tipo: 'peticion', terminos, errorDetectado: null }
   if (errorPegado) return { tipo: 'error', terminos, errorDetectado: errorPegado }
 
   if (casaAlguno(DIAGNOSTICO, plano)) {
     // «No funciona» con un error en pantalla es una pregunta sobre ese error.
-    const delResultado = traducirImprevisto(resultado?.error?.mensaje ?? resultado?.error)
+    const delResultado = traducirImprevisto(resultado?.error?.mensaje ?? resultado?.error, lenguaje)
     if (delResultado) return { tipo: 'error', terminos, errorDetectado: delResultado }
     return { tipo: 'diagnostico', terminos, errorDetectado: null }
   }

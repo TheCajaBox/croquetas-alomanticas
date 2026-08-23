@@ -3,10 +3,10 @@ import { computed, onBeforeUnmount, onMounted, watch } from 'vue'
 import { useRoute } from 'vue-router'
 
 import Avatar from './Avatar.vue'
+import { lenguajeDeLaRuta, mundoDeLaRuta } from '../contenido/dondeEstas.js'
+import { entradaDe } from '../contenido/glosario.js'
 import { repartoDelMundo } from '../contenido/itinerarios.js'
-import { MUNDOS_POR_ID } from '../contenido/mundos.js'
 import { nombreDe } from '../contenido/personajes.js'
-import { RETOS_POR_ID } from '../contenido/retos/index.js'
 import { usarGlosario } from '../almacen/glosario.js'
 
 /**
@@ -16,9 +16,16 @@ import { usarGlosario } from '../almacen/glosario.js'
  * pulsado a propósito: quiere leer esto ahora, no enterarse de refilón.
  */
 const glosario = usarGlosario()
-const entrada = computed(() => glosario.entrada)
-
 const ruta = useRoute()
+
+/**
+ * La entrada, **en el lenguaje de donde estás**: en un mundo de PHP, «variable»
+ * se explica con `$sombrero` y no con `const sombrero`. El almacén solo guarda
+ * qué término se ha pulsado; el ejemplo lo resuelve aquí.
+ */
+const entrada = computed(() =>
+  glosario.abierto ? entradaDe(glosario.abierto, lenguajeDeLaRuta(ruta.params)) : null,
+)
 
 /**
  * De quién es el glosario depende de dónde estés.
@@ -28,13 +35,7 @@ const ruta = useRoute()
  * pertenece, y fuera de un mundo manda el reparto del itinerario por defecto,
  * que es el de Steris.
  */
-const suMundo = computed(() => {
-  const { mundoId, retoId } = ruta.params
-  if (mundoId) return MUNDOS_POR_ID[mundoId]
-  if (retoId) return MUNDOS_POR_ID[RETOS_POR_ID[retoId]?.mundo]
-  return null
-})
-const quien = computed(() => repartoDelMundo(suMundo.value).glosario)
+const quien = computed(() => repartoDelMundo(mundoDeLaRuta(ruta.params)).glosario)
 
 // Al cambiar de pantalla se cierra solo. Si no, el diálogo sobrevive a la
 // navegación y su fondo se queda tapando la página siguiente.

@@ -1,7 +1,10 @@
 <script setup>
 import { computed } from 'vue'
 
-import { TERMINOS_BUSCABLES } from '../contenido/glosario.js'
+import { terminosBuscablesDe } from '../contenido/glosario.js'
+import { useRoute } from 'vue-router'
+
+import { lenguajeDeLaRuta } from '../contenido/dondeEstas.js'
 import { enlazarTerminos } from '../motor/enlazarTerminos.js'
 import { usarGlosario } from '../almacen/glosario.js'
 
@@ -20,6 +23,8 @@ const props = defineProps({
 })
 
 const glosario = usarGlosario()
+const ruta = useRoute()
+const lenguaje = computed(() => lenguajeDeLaRuta(ruta.params))
 
 /**
  * Los términos se pulsan por delegación en la raíz y no con un @click por
@@ -119,7 +124,9 @@ const html = computed(() => {
   if (bloqueDeCodigo !== null) salida.push(`<pre><code>${escapar(bloqueDeCodigo.join('\n'))}</code></pre>`)
 
   const montado = salida.join('\n')
-  return props.enlazar ? enlazarTerminos(montado, TERMINOS_BUSCABLES) : montado
+  // Los términos que se marcan son los del lenguaje de donde estás: enlazar
+  // «ref» o «computed» en un enunciado de PHP llevaría a una explicación de Vue.
+  return props.enlazar ? enlazarTerminos(montado, terminosBuscablesDe(lenguaje.value)) : montado
 })
 </script>
 

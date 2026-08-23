@@ -946,6 +946,46 @@ test('los términos del glosario se pueden pulsar sin salir del reto', async ({ 
   await expect(page.getByRole('heading', { name: 'El glosario de Steris' })).toBeVisible()
 })
 
+test('en un reto de PHP el glosario explica con PHP, no con JavaScript', async ({ page }) => {
+  // El glosario es el mismo texto en los dos caminos, pero no el mismo ejemplo:
+  // una variable es `const sombrero` en JavaScript y `$sombrero` en PHP. Antes
+  // esto enseñaba la sintaxis del otro lenguaje dentro de un reto de PHP, que es
+  // exactamente lo que más confunde cuando estás aprendiendo el primero.
+  await irAlReto(page, 'ceniza-02-que-imprime')
+  await page.locator('button[data-termino="variable"]').first().click()
+
+  const ficha = page.locator('.ficha')
+  await expect(ficha.locator('.quien')).toContainText('Sazed')
+  await expect(ficha.locator('pre')).toContainText('$sombrero')
+  await expect(ficha.locator('pre')).not.toContainText('const')
+
+  // Y en la segunda era, la de siempre.
+  await irAlReto(page, 'dia1-07-primera-funcion')
+  await page.locator('button[data-termino="variable"]').first().click()
+  await expect(page.locator('.ficha pre')).toContainText('const sombrero')
+})
+
+test('la página del glosario deja elegir el camino, y cambia con él', async ({ page }) => {
+  // Esta página se abre desde la barra, fuera de todo mundo, así que el lenguaje
+  // no se puede deducir: se elige. Sin el selector enseñaba las cien entradas
+  // con los ejemplos de JavaScript, incluidos los términos que en PHP no
+  // existen.
+  await page.goto('#/glosario')
+  await expect(page.getByRole('heading', { name: 'El glosario de Steris' })).toBeVisible()
+  await expect(page.locator('.termino h3', { hasText: /^ref$/ })).toHaveCount(1)
+
+  await page.locator('.caminos-glosario button', { hasText: 'PHP' }).click()
+
+  await expect(page.getByRole('heading', { name: 'El glosario de Sazed' })).toBeVisible()
+  // `ref` es de Vue y allí no existe; `foreach` es de PHP y aquí sí.
+  await expect(page.locator('.termino h3', { hasText: /^ref$/ })).toHaveCount(0)
+  await expect(page.locator('.termino h3', { hasText: /^foreach$/ })).toHaveCount(1)
+
+  // Y el buscador sigue buscando dentro del camino elegido.
+  await page.getByPlaceholder('Buscar un término…').fill('array')
+  await expect(page.locator('.termino h3', { hasText: 'array asociativo' })).toHaveCount(1)
+})
+
 test('la antesala explica de qué va todo esto', async ({ page }) => {
   await page.goto('')
   // Mientras no se haya leído, la entrada la ofrece.

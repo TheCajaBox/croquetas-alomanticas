@@ -4,18 +4,43 @@ import { computed, ref } from 'vue'
 import Avatar from '../componentes/Avatar.vue'
 import Marcado from '../componentes/Marcado.vue'
 import SombreroEscondido from '../componentes/SombreroEscondido.vue'
-import { GLOSARIO } from '../contenido/glosario.js'
+import { glosarioDe } from '../contenido/glosario.js'
+import { ITINERARIOS } from '../contenido/itinerarios.js'
+import { mundosDelItinerario } from '../contenido/mundos.js'
+import { nombreDe } from '../contenido/personajes.js'
 import { usarGlosario } from '../almacen/glosario.js'
 
 const glosario = usarGlosario()
 const filtro = ref('')
+
+/**
+ * Esta página se abre desde la barra, fuera de cualquier mundo, así que aquí no
+ * hay lenguaje que deducir: se elige.
+ *
+ * Y hace falta elegirlo, porque el glosario no es el mismo en los dos caminos:
+ * `ref` y `computed` son de Vue, `foreach` y la interpolación son de PHP, y
+ * «variable» se explica con `const sombrero` o con `$sombrero` según dónde
+ * estés. Antes esta página enseñaba las cien entradas con los ejemplos de
+ * JavaScript, incluidos los términos que en PHP no existen.
+ *
+ * Solo salen los caminos que ya tienen mundos: anunciar un glosario de SQL sin
+ * un solo reto de SQL sería prometer algo que no está.
+ */
+const CAMINOS = ITINERARIOS.filter((cada) => mundosDelItinerario(cada.id).length > 0).map((cada) => ({
+  lenguaje: cada.lenguajes[0],
+  etiqueta: cada.etiquetaLenguaje,
+  quien: cada.reparto.glosario,
+}))
+const lenguaje = ref(CAMINOS[0].lenguaje)
+const camino = computed(() => CAMINOS.find((cada) => cada.lenguaje === lenguaje.value) ?? CAMINOS[0])
+const todas = computed(() => glosarioDe(lenguaje.value))
 
 const sinTildes = (texto) =>
   texto.normalize('NFD').replace(/[̀-ͯ]/g, '').toLowerCase()
 
 const entradas = computed(() => {
   const buscado = sinTildes(filtro.value.trim())
-  const ordenadas = [...GLOSARIO].sort((a, b) => a.termino.localeCompare(b.termino, 'es'))
+  const ordenadas = [...todas.value].sort((a, b) => a.termino.localeCompare(b.termino, 'es'))
   if (!buscado) return ordenadas
   return ordenadas.filter((entrada) =>
     sinTildes(`${entrada.termino} ${(entrada.alias ?? []).join(' ')} ${entrada.definicion}`).includes(buscado),
@@ -29,9 +54,9 @@ const entradas = computed(() => {
       <SombreroEscondido id="glosario" :posicion="{ bottom: '16px', right: '18px' }" />
 
       <div class="cabecera">
-        <Avatar quien="steris" :tamano="64" />
+        <Avatar :quien="camino.quien" :tamano="64" />
         <div>
-          <h1>El glosario de Steris</h1>
+          <h1>El glosario de {{ nombreDe(camino.quien) }}</h1>
           <p class="tenue">
             Toda palabra técnica que sale en el juego, explicada sin usar otras palabras
             técnicas sin explicar. No hace falta leerlo entero: está entero por si acaso.
@@ -41,8 +66,21 @@ const entradas = computed(() => {
 
       <div class="fila herramientas">
         <input v-model="filtro" type="search" placeholder="Buscar un término…" class="buscador" />
+        <!-- Un camino por lenguaje: los términos y los ejemplos cambian. -->
+        <div v-if="CAMINOS.length > 1" class="fila caminos-glosario">
+          <button
+            v-for="cada in CAMINOS"
+            :key="cada.lenguaje"
+            type="button"
+            class="menudo"
+            :class="{ elegido: cada.lenguaje === lenguaje }"
+            @click="lenguaje = cada.lenguaje"
+          >
+            {{ cada.etiqueta }}
+          </button>
+        </div>
         <span class="tenue cuenta">
-          {{ entradas.length }} de {{ GLOSARIO.length }} · {{ glosario.cuantosConsultados }} consultados
+          {{ entradas.length }} de {{ todas.length }} · {{ glosario.cuantosConsultados }} consultados
         </span>
       </div>
     </section>
@@ -65,7 +103,7 @@ const entradas = computed(() => {
     </div>
 
     <p v-if="!entradas.length" class="panel centrado tenue">
-      Nada con ese nombre. Steris pide disculpas y toma nota.
+      Nada con ese nombre. {{ nombreDe(camino.quien) }} pide disculpas y toma nota.
     </p>
   </div>
 </template>
@@ -77,6 +115,9 @@ const entradas = computed(() => {
 .cabecera p { max-width: 70ch; margin: 0; }
 
 .herramientas { justify-content: space-between; }
+.caminos-glosario { gap: 6px; }
+.caminos-glosario .elegido { color: var(--cobre-claro); border-color: var(--cobre); }
+
 .buscador { flex: 1; max-width: 320px; }
 .cuenta { font-size: 0.85rem; }
 

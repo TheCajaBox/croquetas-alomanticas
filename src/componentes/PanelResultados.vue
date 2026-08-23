@@ -6,6 +6,7 @@ import Avatar from './Avatar.vue'
 import Marcado from './Marcado.vue'
 import { traducirImprevisto } from '../contenido/imprevistos.js'
 import { repartoDelMundo } from '../contenido/itinerarios.js'
+import { lenguajeDelMundo } from '../contenido/dondeEstas.js'
 import { MUNDOS_POR_ID } from '../contenido/mundos.js'
 import { nombreDe } from '../contenido/personajes.js'
 import { FASES } from '../motor/ejecutor.js'
@@ -32,6 +33,8 @@ const props = defineProps({
 const suReparto = computed(() => repartoDelMundo(MUNDOS_POR_ID[props.mundoId]))
 const quienTraduce = computed(() => suReparto.value.glosario)
 const quienRevisa = computed(() => suReparto.value.revisa)
+/** Con qué se ejecuta aquí: decide qué lista de imprevistos se consulta. */
+const lenguaje = computed(() => lenguajeDelMundo(props.mundoId))
 
 const armonia = usarArmonia()
 const gatos = usarGatos()
@@ -67,8 +70,8 @@ const requisitosIncumplidos = computed(
 const imprevisto = computed(() => {
   if (!props.resultado) return null
   return (
-    traducirImprevisto(props.resultado.error?.mensaje) ??
-    traducirImprevisto(primerFallo.value?.mensaje)
+    traducirImprevisto(props.resultado.error?.mensaje, lenguaje.value) ??
+    traducirImprevisto(primerFallo.value?.mensaje, lenguaje.value)
   )
 })
 </script>

@@ -3,6 +3,7 @@ import { defineStore } from 'pinia'
 import { precioDePista } from '../contenido/retos/comun.js'
 import { FASES, evaluarEnvio } from '../motor/ejecutor.js'
 import { TIEMPO_LIMITE_MS } from '../motor/protocolo.js'
+import { lenguajeDelMundo } from '../contenido/dondeEstas.js'
 import { traducirImprevisto } from '../contenido/imprevistos.js'
 import { MUNDOS_POR_ID } from '../contenido/mundos.js'
 import { repartoDelMundo } from '../contenido/itinerarios.js'
@@ -322,7 +323,8 @@ export const usarJuego = defineStore('juego', {
       // Steris tiene el error previsto en su lista: si lo sabe traducir, lo
       // dice ella, que para eso es la anfitriona de los cimientos.
       const mundo = MUNDOS_POR_ID[reto?.mundo]
-      if (mundo?.anfitrion === 'steris' && traducirImprevisto(resultado.error?.mensaje)) {
+      const suLenguaje = lenguajeDelMundo(reto?.mundo)
+      if (mundo?.anfitrion === 'steris' && traducirImprevisto(resultado.error?.mensaje, suLenguaje)) {
         narrador.decirAnfitrion(mundo, 'previsto')
       }
       const dicho = (() => {
