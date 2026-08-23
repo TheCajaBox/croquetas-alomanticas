@@ -67,6 +67,11 @@ export async function evaluarEnvio({ reto, codigo, puente, tiempoLimiteMs = TIEM
       // porque **es del reto**: cada uno tiene sus tablas y sus filas.
       esquema: reto.esquema ?? null,
       datos: reto.datos ?? null,
+      // Y lo que le entra a la consulta desde fuera, por nombre. Es del mundo
+      // de la inyección: SQLite los ata como parámetros, así que el valor llega
+      // como dato y no como trozo de la orden. Quien pegue el valor dentro de la
+      // consulta en vez de usar `:nombre` verá el ataque funcionando.
+      entradas: reto.entradas ?? null,
     },
     tiempoLimiteMs,
   )

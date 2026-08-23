@@ -143,8 +143,11 @@
    * - `cuantas(tabla)`: el contar de toda la vida, que se escribe cien veces.
    * - `consultaEscrita`: el texto tal cual, para los tests que hablan de la
    *   forma de la consulta y no de lo que devuelve.
+   * - `entradas`: lo que el reto le ha metido a la consulta desde fuera, por
+   *   nombre. Es del mundo de la inyección: el test necesita poder decir «con
+   *   **esto** dentro, la consulta tenía que devolver esto otro».
    */
-  function utilesDe(base, resultados, escrita) {
+  function utilesDe(base, resultados, escrita, entradas) {
     var ultimo = resultados.length > 0 ? resultados[resultados.length - 1] : null
 
     function consulta(sql) {
@@ -167,6 +170,7 @@
         return consulta('SELECT COUNT(*) AS n FROM ' + tabla)[0].n
       },
       consultaEscrita: String(escrita == null ? '' : escrita),
+      entradas: entradas || {},
     }
   }
 
@@ -193,7 +197,7 @@
       'const esperar = __api.esperar, consola = __api.consola;\n' +
       'const filas = __sql.filas, columnas = __sql.columnas, resultados = __sql.resultados;\n' +
       'const consulta = __sql.consulta, plan = __sql.plan, cuantas = __sql.cuantas;\n' +
-      'const consultaEscrita = __sql.consultaEscrita;\n' +
+      'const consultaEscrita = __sql.consultaEscrita, entradas = __sql.entradas;\n' +
       llamadas + '\n' +
       '});'
 
@@ -207,18 +211,45 @@
    * `UPDATE` que se ejecuta dos veces sumaría dos veces, y el segundo intento
    * fallaría por lo que hizo el primero.
    *
+   * ## Las entradas, que son el mundo de la inyección
+   *
+   * Si el reto trae `entradas`, se le pasan a SQLite **como parámetros**, que es
+   * lo que hace el motor de verdad: el valor viaja por su propio canal y llega
+   * como dato, no como trozo de la orden. Así el mundo de la inyección se puede
+   * enseñar con la base delante en vez de con un dibujo:
+   *
+   * - si el jugador escribe `WHERE nombre = :quien`, el valor se ata y
+   *   `' OR 1=1 --` es un nombre que no existe: cero filas;
+   * - si lo pega dentro de la consulta con comillas, la orden cambia de forma y
+   *   salen todas las filas. Y eso es lo que caza el test.
+   *
+   * Los nombres se declaran sin los dos puntos -`{ quien: … }`- y aquí se les
+   * ponen, que es como los escribe SQLite. Pasar parámetros a una consulta que
+   * no los usa no es un error para SQLite: simplemente los ignora, y por eso la
+   * versión mala del reto también se puede ejecutar.
+   *
    * @param {object} SQL el módulo que devuelve `initSqlJs`
-   * @param {{codigo: string, esquema?: string, datos?: string, tests?: Array}} envio
+   * @param {{codigo: string, esquema?: string, datos?: string, tests?: Array, entradas?: object}} envio
    * @param {object} api lo que devuelve `crearAserciones`
    */
   function corregir(SQL, envio, api) {
     var base = montarBase(SQL, envio.esquema, envio.datos)
+    var entradas = envio.entradas || null
+    var atadas = null
+    if (entradas) {
+      atadas = {}
+      for (var nombre in entradas) {
+        if (Object.prototype.hasOwnProperty.call(entradas, nombre)) {
+          atadas[':' + nombre] = entradas[nombre]
+        }
+      }
+    }
 
     return Promise.resolve()
       .then(function () {
         var resultados
         try {
-          resultados = base.exec(envio.codigo)
+          resultados = atadas ? base.exec(envio.codigo, atadas) : base.exec(envio.codigo)
         } catch (error) {
           var mensaje = (error && error.message) || String(error)
           var fallo = new Error(enCastellano(mensaje))
@@ -238,7 +269,10 @@
         if (cambiadas > 0) {
           console.log('(' + cambiadas + (cambiadas === 1 ? ' fila cambiada)' : ' filas cambiadas)'))
         }
-        return construirTests(envio.tests || [])(api, utilesDe(base, resultados, envio.codigo))
+        return construirTests(envio.tests || [])(
+          api,
+          utilesDe(base, resultados, envio.codigo, entradas),
+        )
       })
       .then(
         function () {

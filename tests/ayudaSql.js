@@ -43,11 +43,11 @@ export async function sandboxSql() {
      * Corrige un envío como lo haría el worker y devuelve el mismo informe que
      * el juego recibe: `{ ok, tests, consola, error }`.
      */
-    async corregir({ codigo, esquema, datos, tests }) {
+    async corregir({ codigo, esquema, datos, tests, entradas }) {
       const api = global.crearAserciones({})
       let error = null
       try {
-        await global.nucleoSql.corregir(SQL, { codigo, esquema, datos, tests }, api)
+        await global.nucleoSql.corregir(SQL, { codigo, esquema, datos, tests, entradas }, api)
       } catch (fallo) {
         error = { mensaje: fallo?.message ?? String(fallo), sintaxis: !!fallo?.sintaxis }
       }

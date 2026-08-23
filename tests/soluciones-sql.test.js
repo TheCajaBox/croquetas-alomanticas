@@ -44,6 +44,7 @@ describe('las consultas de referencia de los retos de SQL resuelven sus retos', 
       esquema: reto.esquema,
       datos: reto.datos,
       tests: reto.tests ?? [],
+      entradas: reto.entradas,
     })
 
     expect(informe.error, 'la consulta de referencia revienta').toBe(null)
@@ -249,3 +250,93 @@ describe('el sandbox de SQL distingue lo que tiene que distinguir', () => {
 })
 
 const codigoSql = (...lineas) => lineas.join('\n')
+
+/**
+ * Las entradas: el mundo de la inyección, con la base delante.
+ *
+ * Un reto de inyección solo enseña algo si el ataque **distingue**: la consulta
+ * parametrizada tiene que rebotarlo y la pegada con comillas tiene que caer. Si
+ * las dos hacen lo mismo, el reto es un dibujo de un ataque y no un ataque.
+ *
+ * Esto se comprueba aquí y no en `tests/seguridad.test.js` porque ese ejecuta
+ * JavaScript en un `vm` de node y estos retos son SQL: hace falta SQLite.
+ */
+describe('las entradas se atan como parámetros de verdad', () => {
+  const ESQUEMA = 'CREATE TABLE cuentas (usuario TEXT, secreto TEXT);'
+  const DATOS =
+    "INSERT INTO cuentas VALUES ('shai', 'el sello'), ('gaotona', 'el original'), ('hanshuxen', 'la muralla');"
+  const HOSTIL = "' OR 1=1 --"
+
+  const contar = (informe) => informe.tests.filter((t) => t.ok).length
+
+  it('con `:nombre`, la entrada hostil es un nombre que no existe', async () => {
+    const informe = await (await sandboxSql()).corregir({
+      codigo: 'SELECT usuario, secreto FROM cuentas WHERE usuario = :quien;',
+      esquema: ESQUEMA,
+      datos: DATOS,
+      entradas: { quien: HOSTIL },
+      tests: [{ nombre: 'cero filas', codigo: "esperar(filas, 'las filas').tieneLongitud(0)" }],
+    })
+    expect(informe.error).toBe(null)
+    expect(contar(informe)).toBe(1)
+  })
+
+  it('pegada con comillas, el ataque entra y se lleva la tabla', async () => {
+    const informe = await (await sandboxSql()).corregir({
+      codigo: "SELECT usuario, secreto FROM cuentas WHERE usuario = '" + HOSTIL + "';",
+      esquema: ESQUEMA,
+      datos: DATOS,
+      entradas: { quien: HOSTIL },
+      tests: [{ nombre: 'las tres filas', codigo: "esperar(filas, 'las filas').tieneLongitud(3)" }],
+    })
+    expect(informe.error).toBe(null)
+    expect(contar(informe)).toBe(1)
+  })
+
+  it('con el nombre de alguien de verdad, la parametrizada devuelve su fila', async () => {
+    const informe = await (await sandboxSql()).corregir({
+      codigo: 'SELECT usuario, secreto FROM cuentas WHERE usuario = :quien;',
+      esquema: ESQUEMA,
+      datos: DATOS,
+      entradas: { quien: 'gaotona' },
+      tests: [
+        { nombre: 'una fila', codigo: "esperar(filas, 'las filas').tieneLongitud(1)" },
+        { nombre: 'la suya', codigo: "esperar(filas[0].secreto, 'el secreto').igualA('el original')" },
+      ],
+    })
+    expect(informe.error).toBe(null)
+    expect(contar(informe)).toBe(2)
+  })
+
+  it('los tests pueden leer lo que se ha metido, por nombre', async () => {
+    const informe = await (await sandboxSql()).corregir({
+      codigo: 'SELECT usuario FROM cuentas WHERE usuario = :quien;',
+      esquema: ESQUEMA,
+      datos: DATOS,
+      entradas: { quien: HOSTIL },
+      tests: [
+        {
+          nombre: 'la entrada está en el ámbito',
+          codigo: "esperar(entradas.quien, 'lo que se ha colado').igualA(\"' OR 1=1 --\")",
+        },
+      ],
+    })
+    expect(informe.error).toBe(null)
+    expect(contar(informe)).toBe(1)
+  })
+
+  it('pasar entradas a una consulta que no las usa no es un error', async () => {
+    // Y hace falta que no lo sea: si lo fuera, la versión mala del reto no se
+    // podría ni ejecutar y el jugador vería un error del motor en vez del
+    // ataque funcionando, que es lo que tiene que ver.
+    const informe = await (await sandboxSql()).corregir({
+      codigo: 'SELECT usuario FROM cuentas;',
+      esquema: ESQUEMA,
+      datos: DATOS,
+      entradas: { quien: HOSTIL },
+      tests: [{ nombre: 'las tres', codigo: "esperar(filas, 'las filas').tieneLongitud(3)" }],
+    })
+    expect(informe.error).toBe(null)
+    expect(contar(informe)).toBe(1)
+  })
+})

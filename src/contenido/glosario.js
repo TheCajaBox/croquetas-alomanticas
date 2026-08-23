@@ -1536,6 +1536,72 @@ export const GLOSARIO = [
     definicion:
       "Una expresión regular con repeticiones anidadas puede tardar tiempo exponencial con cierta entrada: una denegación de servicio con cuarenta caracteres de texto. Por eso el límite de longitud va **antes** de la expresión y no después.",
   },
+  {
+    id: "inyeccion",
+    desde: { sel: 'grieta' },
+    termino: "inyección",
+    alias: ["inyección de SQL", "SQL injection", "inyectar"],
+    definicion:
+      "Conseguir que un dato se lea como parte de una orden. Pasa siempre por el mismo motivo -el dato se pega dentro del texto de la orden- y se arregla siempre igual: no pegándolo. No es un problema de gente con mala intención: un apellido con apóstrofo rompe la misma consulta.",
+    ejemplo: "WHERE nombre = '' OR 1=1 --'",
+  },
+  {
+    id: "parametro-sql",
+    desde: { sel: 'grieta' },
+    termino: "parámetro de consulta",
+    // «consulta parametrizada» ya es de La inspección, donde se nombra al hablar
+    // de los destinos donde no se escapa. Aquí se explica por dentro.
+    alias: ["vincular", "bind", "marcador de posición"],
+    definicion:
+      "Un hueco en la consulta -`:nombre`, `?`, `$1`- que se rellena con un valor que viaja aparte. La base entiende la frase **antes** de recibir el valor, así que cuando llega no hay nada que reinterpretar. Sin comillas alrededor: con comillas es un texto que empieza por dos puntos.",
+    ejemplo: "WHERE nombre = :buscado",
+  },
+  {
+    id: "or-uno-igual-uno",
+    desde: { sel: 'grieta' },
+    termino: "OR 1=1",
+    definicion:
+      "La carga más famosa que existe. Un `OR` a la derecha de un `WHERE` anula todo lo que había a la izquierda, porque `AND` se evalúa antes que `OR`: la condición entera se cumple para todas las filas. Y la variante fina es peor: `OR secreto = 1` devuelve solo lo prohibido, sin llamar la atención.",
+  },
+  {
+    id: "union-inyectado",
+    desde: { sel: 'grieta' },
+    termino: "UNION inyectado",
+    definicion:
+      "Pegar una segunda consulta a la primera para que devuelva filas de **otra tabla**. Con eso la inyección deja de ser un problema de una consulta y pasa a ser una filtración: el alcance no es la consulta, es la base entera con los permisos del usuario con el que se conecta el programa.",
+    ejemplo: "' UNION SELECT nombre, clave FROM usuarios --",
+  },
+  {
+    id: "inyeccion-a-ciegas",
+    desde: { sel: 'grieta' },
+    termino: "inyección a ciegas",
+    alias: ["blind injection"],
+    definicion:
+      "Sacar el dato sin verlo, letra a letra: si la página contesta distinto -o tarda distinto- cuando la condición es verdadera, se pregunta «¿la primera letra es mayor que m?» y se va acotando. Nueve preguntas por letra. Lento para una persona, trivial para un programa.",
+  },
+  {
+    id: "estructura-frente-a-valor",
+    desde: { sel: 'grieta' },
+    termino: "estructura frente a valor",
+    definicion:
+      "La línea que decide qué se puede parametrizar. Un **valor** -un nombre, un número, un límite- va en un parámetro. La **estructura** -qué columna ordena, de qué tabla se lee, el sentido del orden- no: se elige de una lista cerrada escrita por ti. `ORDER BY :columna` no da error: ordena por una constante, o sea por nada.",
+  },
+  {
+    id: "catalogo-del-motor",
+    desde: { sel: 'grieta' },
+    termino: "catálogo del motor",
+    alias: ["sqlite_master", "information_schema"],
+    definicion:
+      "Las tablas donde la base guarda cómo es ella misma: qué tablas hay y qué columnas tienen. Son tablas normales y se pueden consultar, así que quien consigue inyectar no necesita adivinar nombres: los pregunta.",
+    ejemplo: "SELECT name FROM sqlite_master WHERE type = 'table'",
+  },
+  {
+    id: "minimo-privilegio",
+    desde: { sel: 'grieta' },
+    termino: "mínimo privilegio",
+    definicion:
+      "Que el usuario con el que tu programa se conecta a la base pueda hacer exactamente lo que el programa necesita y nada más. No evita la inyección: limita lo que se lleva. Es la defensa de segunda línea, para el día que la primera falle.",
+  },
 ]
 
 export const GLOSARIO_POR_ID = Object.fromEntries(GLOSARIO.map((entrada) => [entrada.id, entrada]))
