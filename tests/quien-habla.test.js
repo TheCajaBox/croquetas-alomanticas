@@ -215,6 +215,28 @@ describe('el reparto de las voces del narrador', () => {
     expect(sacoDe('sellador')).toBeNull()
   })
 
+  it('quien vende las pistas de un camino sabe venderlas', async () => {
+    // Faltaba Karata: el reparto de Elantris la nombraba desde el primer día y
+    // no tenía una línea escrita, así que el aviso de la pista salía en
+    // silencio. No fallaba nada -`decir` no encuentra el saco y devuelve null-,
+    // simplemente no hablaba nadie, que es el fallo más difícil de ver.
+    await cargarTodasLasVoces()
+    for (const cada of ITINERARIOS) {
+      const quien = cada.reparto.pistas
+      expect(quien, `${cada.id} no dice quién vende las pistas`).toBeTruthy()
+      const saco = sacoDe(quien)
+      expect(saco, `${quien} vende las pistas de ${cada.id} y no tiene voz`).toBeTruthy()
+      for (const nivel of [1, 2, 3]) {
+        expect(
+          saco.pistaPedida?.[nivel]?.length,
+          `${quien} no sabe qué decir al vender la pista ${nivel}`,
+        ).toBeGreaterThan(0)
+      }
+      // Y a cambio del pago te deja un trasto, que también lo dice quien cobra.
+      expect(saco.trastoRecibido?.length, `${quien} no dice qué te deja a cambio`).toBeGreaterThan(0)
+    }
+  })
+
   it('el almacén del narrador no importa ninguna voz', () => {
     // Es el que arrastraba las quince: `main.js` lo monta al arrancar.
     const fuente = readFileSync(

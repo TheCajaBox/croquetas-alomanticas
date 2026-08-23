@@ -41,8 +41,14 @@ import { MUNDOS_POR_ID, mundosDelItinerario } from './mundos.js'
  * Los `alias` son las otras formas de escribir lo mismo: plurales, sinónimos y
  * el nombre en inglés, que es como se va a encontrar el término por ahí fuera.
  * Y el **ejemplo** cambia con el lenguaje: `ejemplo` puede ser un texto -vale
- * para todos- o `{ js, php }`. Sin eso, Sazed explicaba «lista» con
+ * para todos- o `{ js, php, sql }`. Sin eso, Sazed explicaba «lista» con
  * `['Wax', 'Marasi']` -sintaxis de JavaScript- en un mundo de PHP.
+ *
+ * Ojo con **quién sale nombrado** en un ejemplo: el de `php` solo lo lee la
+ * primera era y el de `sql` solo Elantris, pero el de `js` lo leen dos caminos
+ * -la segunda era y Sel-, así que ahí no puede salir nadie de ningún reparto.
+ * Los gatos sí, que son de todo el mundo: las croquetas y los gatos existen en
+ * los cuatro caminos y son lo único que se comparte.
  */
 export const GLOSARIO = [
   {
@@ -126,7 +132,7 @@ export const GLOSARIO = [
     definicion: "Un valor formado por caracteres. Va siempre entre comillas. `42` es un número; `'42'` es un texto que parece un número.",
     // En SQL las comillas simples son para los textos y las dobles para nombrar
     // columnas: es la confusión que más veces se paga el primer día.
-    ejemplo: { js: "'Wayne'", php: "'Kelsier'", sql: "WHERE nombre = 'Raoden'" },
+    ejemplo: { js: "'Estaño'", php: "'Kelsier'", sql: "WHERE nombre = 'Raoden'" },
   },
   {
     id: "numero",
@@ -150,7 +156,7 @@ export const GLOSARIO = [
     termino: "lista",
     alias: ["listas", "array", "arrays"],
     definicion: "Varios valores guardados en orden, entre corchetes. Cada uno ocupa una posición, y la primera posición es la 0, no la 1.",
-    ejemplo: { js: "['Wax', 'Marasi']", php: "['Kelsier', 'Brisa']" },
+    ejemplo: { js: "['Estaño', 'Bronce']", php: "['Kelsier', 'Brisa']" },
   },
   {
     id: "objeto",
@@ -158,7 +164,7 @@ export const GLOSARIO = [
     termino: "objeto",
     alias: ["objetos"],
     definicion: "Varios valores guardados con nombre, entre llaves. En vez de por posición, a cada uno se llega por su nombre.",
-    ejemplo: { js: "{ nombre: 'Wayne', edad: 37 }", php: "new Agente('Kelsier')" },
+    ejemplo: { js: "{ nombre: 'Estaño', patas: 4 }", php: "new Agente('Kelsier')" },
   },
   {
     id: "propiedad",
@@ -229,7 +235,7 @@ export const GLOSARIO = [
     termino: "llamar",
     alias: ["llama", "llamada", "llamadas", "llamarla", "llamarlo"],
     definicion: "Usar una función, poniendo su nombre y unos paréntesis. Sin los paréntesis no la usas: solo la nombras.",
-    ejemplo: { js: "saludar('Wayne')", php: "saludar('Kelsier');" },
+    ejemplo: { js: "saludar('Estaño')", php: "saludar('Kelsier');" },
   },
   {
     id: "devolver",
@@ -533,7 +539,7 @@ export const GLOSARIO = [
     alias: ["instancias"],
     definicion:
       "Un objeto concreto hecho con el molde de una clase. La clase es el molde; la instancia, la pieza. Se crea con `new`.",
-    ejemplo: { js: "const wax = new Agente('Wax')", php: "$brisa = new Agente('Brisa');" },
+    ejemplo: { js: "const gato = new Gato('Estaño')", php: "$brisa = new Agente('Brisa');" },
   },
   {
     id: "referencia",

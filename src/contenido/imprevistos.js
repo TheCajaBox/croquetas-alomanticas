@@ -182,7 +182,7 @@ export const IMPREVISTOS = [
     titulo: 'Estás asignando a algo que no es un sitio',
     significa: () => 'A la izquierda del `=` tiene que haber algo donde se pueda guardar un valor.',
     causas: [
-      'Has escrito `?.` en el lado izquierdo: `ficha?.nombre = "Wax"` no existe. El encadenamiento opcional sirve para leer, no para asignar.',
+      'Has escrito `?.` en el lado izquierdo: `ficha?.nombre = "Estaño"` no existe. El encadenamiento opcional sirve para leer, no para asignar.',
       'Estás asignando al resultado de una llamada, como `obtener() = 3`.',
     ],
   },

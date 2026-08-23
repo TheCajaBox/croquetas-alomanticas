@@ -366,6 +366,111 @@ export const MUNDOS = [
     despedida:
       'Ya está. Sabes preguntarle a una base de datos exactamente lo que necesitas, unir sin perder filas, resumir sin contar de más, escribir sin llevarte de paso lo que no era, y saber por qué tarda. Lo que queda por aprender se aprende trabajando, y eso no lo puede dar ningún juego.',
   },
+  // ---------------------------------------------------------------------------
+  // Sel · ciberseguridad. Seis mundos, y todos con la misma forma: se te da
+  // código que **funciona** -pasa sus pruebas, hace lo que promete- y tiene un
+  // agujero. Encontrarlo y taparlo sin romper lo que ya iba.
+  //
+  // Cinco corren en el worker de JavaScript que ya existe; La grieta corre en el
+  // de SQL, porque una inyección no se entiende sin una base de datos
+  // recibiéndola de verdad.
+  // ---------------------------------------------------------------------------
+  {
+    id: 'sello',
+    nombre: 'El sello',
+    subtitulo: 'Seguridad · quién eres',
+    itinerario: 'sel',
+    entorno: 'js',
+    requiere: null,
+    color: '#c46a5a',
+    anfitrion: 'shai',
+    resumen:
+      'Autenticación: por qué una contraseña no se guarda, qué es un hash lento y para qué sirve la sal, cómo se compara sin chivarse por el tiempo, y qué caduca en una sesión.',
+    presentacion:
+      'Un sello es una firma: dice quién eres y cualquiera puede comprobarlo. Falsificar uno es mi oficio, así que sé exactamente qué lo hace fácil, y casi siempre es lo mismo: que quien lo comprueba se fía de algo que no ha mirado. Aquí empezamos por lo más falsificable que existe, que es una contraseña guardada tal cual. Cuando salgas de este mundo la guardarás de otra manera, y sabrás explicar por qué.',
+    despedida:
+      'Ya no guardas contraseñas: guardas la prueba de que alguien sabía una. Y sabes que la comparación también habla, que la sal no es un secreto sino un antídoto contra las tablas hechas, y que una sesión que no caduca es una llave que se queda en la cerradura.',
+  },
+  {
+    id: 'inspeccion',
+    nombre: 'La inspección',
+    subtitulo: 'Seguridad · lo que llega de fuera',
+    itinerario: 'sel',
+    entorno: 'js',
+    requiere: 'sello',
+    color: '#b98a4a',
+    anfitrion: 'gaotona',
+    resumen:
+      'La entrada no se confía nunca: validar donde manda, permitir en vez de prohibir, escapar según a dónde vaya el texto, y XSS de verdad.',
+    presentacion:
+      'Soy arbitrador: mi oficio es inspeccionar, y llevo cuarenta años firmando que algo estaba en orden. He aprendido dos cosas. La primera es que el inspector comprueba lo que espera encontrar, no lo que le han traído, y ahí vive todo el oficio de ella. La segunda la vas a oír en los doce retos de este mundo hasta que te aburra: **una lista de lo que se permite, nunca una lista de lo que se prohíbe**. La lista de prohibiciones siempre está incompleta, y siempre le falta justo lo que va a usar quien venga a entrar.',
+    despedida:
+      'Ya no preguntas si una entrada es peligrosa: preguntas si está en la lista de las que valen. Y sabes que escapar no es una operación, son varias: lo que es seguro dentro de un texto es un agujero dentro de un atributo, y lo que vale para HTML no vale para una URL.',
+  },
+  {
+    id: 'grieta',
+    nombre: 'La grieta',
+    subtitulo: 'Seguridad · inyección',
+    itinerario: 'sel',
+    entorno: 'sql',
+    requiere: 'inspeccion',
+    color: '#8f2f2f',
+    anfitrion: 'shai',
+    resumen:
+      'Inyección con una base de datos delante: la consulta pegada con cadenas, la parametrizada, y los tests intentando colarse por la primera. También inyección de comandos y de plantillas.',
+    presentacion:
+      'Una grieta en la muralla no se abre: se encuentra. Ya estaba, y llevaba años ahí mientras todo el mundo pasaba por la puerta. Este mundo tiene una base de datos de verdad detrás, y los tests van a intentar entrar por donde tú dejes. Vas a ver la misma consulta escrita de dos maneras que hacen exactamente lo mismo con datos normales, y lo distinto que hacen cuando el dato no es normal. Esa diferencia es el mundo entero.',
+    despedida:
+      'Ya sabes lo único que hay que saber de la inyección, y es que no se arregla filtrando: se arregla no construyendo la orden con el dato dentro. El dato va por otro sitio y llega como dato, y entonces lo que escriba quien te ataque es texto y no una orden.',
+  },
+  {
+    id: 'cien-dias',
+    nombre: 'Los cien días',
+    subtitulo: 'Seguridad · quién puede',
+    itinerario: 'sel',
+    entorno: 'js',
+    requiere: 'grieta',
+    color: '#7f8a96',
+    anfitrion: 'hanshuxen',
+    resumen:
+      'Autorización y lógica: pedir un identificador que no es tuyo, comprobar el permiso donde hay que comprobarlo, límites de intentos, y errores que cuentan más de lo que deben.',
+    presentacion:
+      'General Han ShuXen. He visto caer tres murallas y ninguna se rompió: en las tres había alguien dentro con permiso para estar dentro, haciendo lo que no le correspondía. Comprobar quién eres y comprobar qué puedes hacer son dos guardias distintos, y en casi todas las plazas solo hay el primero. Este mundo va del segundo. Ella tardó cien días en falsificar un alma y noventa se los pasó leyendo cosas que no eran suyas, porque se las dieron.',
+    despedida:
+      'Ya no confundes autenticar con autorizar. Sabes que el identificador que llega en la petición no prueba nada, que un permiso comprobado en la pantalla no está comprobado, y que un mensaje de error demasiado sincero es un mapa.',
+  },
+  {
+    id: 'original',
+    nombre: 'El original',
+    subtitulo: 'Seguridad · que no lo toquen',
+    itinerario: 'sel',
+    entorno: 'js',
+    requiere: 'cien-dias',
+    color: '#5f7f6a',
+    anfitrion: 'gaotona',
+    resumen:
+      'Integridad: firmar y verificar, secretos que no van en el repositorio, azar de verdad y no el fácil, cabeceras que ayudan y dependencias en las que se confía a ciegas.',
+    presentacion:
+      'Ella dice que casi nadie compara con el original, y tiene razón: yo he firmado copias. Una copia buena pasa cualquier inspección; lo que no pasa nunca es la comparación. Así que lo que se aprende aquí es a poder comparar: firmar lo que sale para reconocerlo cuando vuelva, no dejar la llave dentro de la caja que cierra, y no pedirle secretos a algo que no sabe guardarlos. Y hay una parte incómoda que nadie quiere mirar: la mitad del código que ejecutas no lo has escrito tú.',
+    despedida:
+      'Ya sabes firmar lo que tiene que volver entero, y sabes que una firma sin verificar es un adorno. Sabes que un secreto en el repositorio es público el día que el repositorio lo sea, que hay dos clases de azar y solo una vale para esto, y que confiar en una dependencia es confiar en quien la escriba mañana.',
+  },
+  {
+    id: 'alma',
+    nombre: 'El alma del emperador',
+    subtitulo: 'Seguridad · el final, en dos actos',
+    itinerario: 'sel',
+    entorno: 'js',
+    requiere: 'original',
+    color: '#8f2f6a',
+    anfitrion: 'shai',
+    resumen:
+      'Todo lo de los cinco mundos juntos, y al final dos actos: encontrar el agujero en un sistema entero y taparlo sin romper nada de lo que ya funcionaba. El segundo es el reto que más paga del camino y no tiene pistas.',
+    presentacion:
+      'Un alma entera. No un sello, no una pieza: el sistema completo, con su autenticación, su validación, sus permisos y sus firmas, escrito por alguien que sabía lo que hacía. Y con un agujero, porque siempre hay uno. Los dos últimos retos van juntos: en el primero hay que encontrarlo -y solo encontrarlo, que ya es bastante- y en el segundo taparlo sin romper una sola de las cosas que ya iban bien, que es la parte que de verdad cuesta. Ninguno tiene pistas.',
+    despedida:
+      'Ya está. Sabes mirar un sistema y preguntarte qué se está dando por bueno sin comprobarlo, encontrar quién lo comprueba y qué pasa si no lo hace. Eso no se olvida, y es incómodo: vas a ver estos agujeros en todas partes. Bienvenida al oficio.',
+  },
 ]
 
 export const MUNDOS_POR_ID = Object.fromEntries(MUNDOS.map((mundo) => [mundo.id, mundo]))

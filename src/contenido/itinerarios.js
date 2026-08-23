@@ -130,7 +130,7 @@ export const ITINERARIOS = [
     // Dos lenguajes porque una inyección no se entiende sin la base de datos
     // recibiéndola de verdad.
     lenguajes: ['js', 'sql'],
-    retrato: null,
+    retrato: 'shai',
     color: '#c46a5a',
     resumen:
       'Falsificar es entender. Sellos que no deberían pasar la inspección, inyecciones, contraseñas mal guardadas y sesiones que se roban.',
@@ -140,6 +140,11 @@ export const ITINERARIOS = [
       'Shai falsifica almas, así que sabe una cosa que aquí importa mucho: todo lo que hay que verificar se puede falsificar si nadie lo mira bien. Ella lo cuenta, Gaotona escribe los apuntes y te revisa el trabajo —quiere aprender de verdad—, el Sellador de sangre pone los jefes y las pistas las suelta Han ShuXen, que ha visto caer murallas por menos.',
     reparto: {
       narra: 'shai',
+      // La tercera pregunta del juego. Ham pregunta por qué funciona; Galladon,
+      // qué pasará cuando no funcione; Gaotona pregunta **quién** se beneficia
+      // de que esté mal, que es la pregunta con la que se mira el código
+      // pensando en seguridad y la única que nadie hace por su cuenta.
+      interrumpe: 'gaotona',
       pistas: 'hanshuxen',
       apuntes: ['gaotona'],
       glosario: 'gaotona',
