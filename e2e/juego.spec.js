@@ -631,6 +631,28 @@ test('el cuerpo de un reto se pide al abrirlo, y solo el suyo', async ({ page })
   expect(cuerpos[0]).toContain('07-primera-funcion')
 })
 
+test('la portada enseña un reto resolviéndose, no solo lo cuenta', async ({ page }) => {
+  // «Escribes, se ejecuta y unos tests dicen si va» es la promesa entera del
+  // juego, y estaba solo escrita: quien llega de nuevas no sabe si eso significa
+  // un editor de verdad o un formulario con tres opciones, que es justo la
+  // diferencia que separa esto de un cuestionario.
+  await page.goto('')
+  const muestra = page.locator('.muestra')
+  await expect(muestra).toBeVisible()
+
+  // Código de verdad, con la salida temprana del caso raro a la vista.
+  await expect(muestra.locator('.editorcillo')).toContainText('function raciones')
+  await expect(muestra.locator('.editorcillo .clave').first()).toContainText('return 0')
+
+  // Y los tests en verde, que es la otra mitad de la promesa.
+  await expect(muestra.locator('.tests-muestra li')).toHaveCount(4)
+  await expect(muestra.locator('.cobrado')).toContainText('croquetas')
+
+  // Nada de comillas invertidas a la vista: este texto se pinta tal cual y no
+  // como marcado, y con ellas se leía «la función `raciones`».
+  await expect(muestra).not.toContainText('`')
+})
+
 test('la tira de arriba dice en qué camino y en qué mundo estás', async ({ page }) => {
   // El agujero que tapa: dentro de un reto no había forma de saber en cuál de
   // los cuatro caminos estabas. Con cuatro lenguajes eso no es un detalle -lo
