@@ -39,6 +39,14 @@ describe('los itinerarios', () => {
       expect(cada.materia, cada.id).toBeTruthy()
       expect(cada.etiquetaLenguaje, cada.id).toBeTruthy()
       expect(cada.lenguajeEnFrase, cada.id).toBeTruthy()
+      // Va dentro de «código {lenguajeEnFrase} que se ejecuta de verdad», así
+      // que tiene que ser el nombre de un lenguaje y no una frase entera: uno
+      // decía «código que hay que romper y luego arreglar» y la portada
+      // anunciaba «código código que hay que romper y luego arreglar».
+      expect(cada.lenguajeEnFrase.toLowerCase(), `${cada.id}: no es un nombre de lenguaje`).not.toMatch(
+        /\bc[oó]digo\b|\bque\b/,
+      )
+      expect(cada.lenguajeEnFrase.length, `${cada.id}: demasiado largo para la frase`).toBeLessThan(30)
       expect(cada.lenguajes?.length, cada.id).toBeGreaterThan(0)
       expect(cada.resumen, cada.id).toBeTruthy()
       expect(cada.promesa, cada.id).toBeTruthy()

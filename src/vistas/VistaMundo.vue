@@ -120,7 +120,11 @@ if (!mundo.value || !progreso.mundoDisponible(props.mundoId)) router.replace('/'
 
 <style scoped>
 .encabezado { position: relative; border-top: 3px solid var(--color-mundo); }
-.volver { display: inline-block; text-decoration: none; font-size: 0.85rem; margin-bottom: 10px; }
+/* `block` y no `inline-block`: la etiqueta del mundo viene justo detrás en la
+   plantilla, y Vue borra los saltos de línea entre elementos -whitespace
+   condense-, así que no había ni un espacio entre las dos cosas y se leía
+   «← ElantrisSQL · LEER». Con «← Mundos» también pasaba y se veía menos. */
+.volver { display: block; text-decoration: none; font-size: 0.85rem; margin-bottom: 10px; }
 .encabezado h1 { margin: 8px 0 10px; }
 .presentacion { max-width: 70ch; margin: 0; font-style: italic; color: var(--texto-tenue); }
 .despedida {

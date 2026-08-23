@@ -365,8 +365,20 @@ watch(ultimoRecorte, (nuevo) => {
 .navegacion .como-enlace:hover { color: var(--texto); background: var(--panel); }
 
 /* El botón de Armonía tiene que pesar lo mismo que sus vecinos: sin borde, sin
-   fondo y con la misma tipografía, o se lee como un botón perdido en un menú. */
-.navegacion .como-enlace { background: none; border: none; font: inherit; cursor: pointer; }
+   fondo y con la misma tipografía, o se lee como un botón perdido en un menú.
+   Y hacía justo lo contrario de lo que dice este comentario: `font: inherit` es
+   una abreviatura, así que reponía el `font-size` a 1rem y pisaba los 0,88 de la
+   regla de arriba. Armonía salía un diez por ciento más grande que sus siete
+   vecinos, que es de esas cosas que se ven sin saber qué se está viendo. Se
+   heredan las tres piezas que hacen falta y el tamaño se deja en paz. */
+.navegacion .como-enlace {
+  background: none;
+  border: none;
+  font-family: inherit;
+  font-weight: inherit;
+  line-height: inherit;
+  cursor: pointer;
+}
 .navegacion a.router-link-active { color: var(--cobre-claro); background: rgba(201, 139, 75, 0.12); }
 
 .con-aviso { display: inline-flex; align-items: center; gap: 6px; }
