@@ -54,6 +54,10 @@ async function enviar() {
 }
 
 // Se presenta la primera vez que se abre, y solo la primera en toda la partida.
+//
+// `immediate` porque este panel se pide en diferido: la primera vez se monta
+// cuando el cajón **ya** está abierto, así que el vigilante no ve ningún cambio
+// y sin esto la presentación no salía nunca en la primera apertura.
 watch(
   () => armonia.abierto,
   (abierto) => {
@@ -62,6 +66,7 @@ watch(
     alFondo()
     nextTick(() => campo.value?.focus())
   },
+  { immediate: true },
 )
 
 // Al cambiar de pantalla se cierra solo. Si no, el fondo del cajón sobrevive a

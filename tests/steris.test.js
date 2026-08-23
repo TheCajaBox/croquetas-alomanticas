@@ -1,7 +1,10 @@
+import { readFileSync } from 'node:fs'
+import { fileURLToPath } from 'node:url'
+
 import { createPinia, setActivePinia } from 'pinia'
 import { beforeEach, describe, expect, it } from 'vitest'
 
-import { GLOSARIO, TERMINOS_BUSCABLES } from '../src/contenido/glosario.js'
+import { GLOSARIO, TERMINOS_BUSCABLES, entradaDe } from '../src/contenido/glosario.js'
 import { IMPREVISTOS, traducirImprevisto } from '../src/contenido/imprevistos.js'
 import { ANTESALA, antesalaDe, primerMundoDe } from '../src/contenido/antesala.js'
 import { mundosDelItinerario } from '../src/contenido/mundos.js'
@@ -77,6 +80,20 @@ describe('el glosario está bien montado', () => {
     }
   })
 
+  it('el almacén del glosario no arrastra el corpus al arranque', () => {
+    // Lo hacía: `main.js` monta este almacén al arrancar y él importaba
+    // `GLOSARIO_POR_ID`, así que las 128 entradas -70 kB de definiciones y
+    // ejemplos- viajaban en el paquete inicial para dos cosas que hace mejor
+    // quien las pinta. Aquí solo hay identificadores.
+    const fuente = readFileSync(
+      fileURLToPath(new URL('../src/almacen/glosario.js', import.meta.url)),
+      'utf8',
+    )
+    expect(fuente, 'el almacén ha vuelto a importar el glosario').not.toMatch(
+      /from '\.\.\/contenido\/glosario\.js'/,
+    )
+  })
+
   it('ninguna forma de escribir un término pisa la de otro', () => {
     const textos = TERMINOS_BUSCABLES.map((t) => t.texto.toLowerCase())
     expect(new Set(textos).size).toBe(textos.length)
@@ -92,19 +109,25 @@ describe('el glosario está bien montado', () => {
     expect(glosario.consultado('variable')).toBe(false)
 
     glosario.abrir('variable')
-    expect(glosario.entrada.termino).toBe('variable')
+    expect(glosario.abierto).toBe('variable')
+    // La entrada la resuelve quien la pinta, no el almacén: aquí solo hay
+    // identificadores, para que el corpus no viaje en el arranque.
+    expect(entradaDe('variable').termino).toBe('variable')
     expect(glosario.consultado('variable')).toBe(true)
 
     glosario.cerrar()
-    expect(glosario.entrada).toBeNull()
+    expect(glosario.abierto).toBeNull()
     // Cerrarlo no lo borra de los consultados.
     expect(glosario.consultado('variable')).toBe(true)
   })
 
-  it('un término inventado no abre nada', () => {
-    const glosario = usarGlosario()
-    glosario.abrir('metalurgia-alomantica')
-    expect(glosario.abierto).toBeNull()
+  it('un término inventado no pinta nada', () => {
+    // La comprobación estaba en el almacén y la hacía contra el corpus, que es
+    // lo que obligaba a traerlo entero al arranque. Ahora vive donde se pinta:
+    // `entradaDe` no encuentra nada y el panel tiene su `v-if`, así que el
+    // resultado que ve el jugador es el mismo.
+    expect(entradaDe('metalurgia-alomantica')).toBeNull()
+    expect(entradaDe('metalurgia-alomantica', 'php')).toBeNull()
   })
 })
 

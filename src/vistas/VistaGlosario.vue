@@ -42,6 +42,23 @@ const camino = computed(() => CAMINOS.find((cada) => cada.id === eleccion.value)
 const porMundos = computed(() => glosarioPorMundos(camino.value.id))
 const cuantas = computed(() => porMundos.value.reduce((suma, grupo) => suma + grupo.entradas.length, 0))
 
+/**
+ * Cuántos de **estos** términos has consultado.
+ *
+ * Se cuenta aquí y no en el almacén por dos motivos. El primero es que el
+ * almacén guarda solo identificadores -para que el corpus no viaje en el
+ * arranque- y no puede saber cuáles son de este camino. El segundo es que así
+ * el número cuadra con el que tiene al lado: antes decía «30 de 30 · 45
+ * consultados», que es una cuenta global puesta al lado de una del camino.
+ */
+const consultados = computed(
+  () =>
+    porMundos.value.reduce(
+      (suma, grupo) => suma + grupo.entradas.filter((entrada) => glosario.consultado(entrada.id)).length,
+      0,
+    ),
+)
+
 const sinTildes = (texto) =>
   texto.normalize('NFD').replace(/[̀-ͯ]/g, '').toLowerCase()
 
@@ -100,7 +117,7 @@ const encontradas = computed(() => grupos.value.reduce((suma, g) => suma + g.ent
           </button>
         </div>
         <span class="tenue cuenta">
-          {{ encontradas }} de {{ cuantas }} · {{ glosario.cuantosConsultados }} consultados
+          {{ encontradas }} de {{ cuantas }} · {{ consultados }} consultados
         </span>
       </div>
     </section>

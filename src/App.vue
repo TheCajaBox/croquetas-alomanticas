@@ -1,15 +1,28 @@
 <script setup>
-import { computed, ref, watch } from 'vue'
+import { computed, defineAsyncComponent, ref, watch } from 'vue'
 import { useRoute } from 'vue-router'
 import { storeToRefs } from 'pinia'
 
 import Narrador from './componentes/Narrador.vue'
-import PanelArmonia from './componentes/PanelArmonia.vue'
-import PanelGlosario from './componentes/PanelGlosario.vue'
 import SombreroEscondido from './componentes/SombreroEscondido.vue'
+
+/**
+ * Los dos paneles que se abren desde cualquier pantalla, en diferido.
+ *
+ * Viven en la barra porque se pueden abrir desde donde sea, y eso los metía en
+ * el paquete inicial con todo lo que arrastran: `PanelGlosario` se llevaba
+ * detrás **las 128 entradas del glosario** -70 kB de definiciones y ejemplos-
+ * para pintar una ficha que casi nadie abre en el primer minuto.
+ *
+ * Se piden la primera vez que se abren y se quedan montados desde entonces, que
+ * es lo que conserva las transiciones de abrir y cerrar tal y como estaban.
+ */
+const PanelArmonia = defineAsyncComponent(() => import('./componentes/PanelArmonia.vue'))
+const PanelGlosario = defineAsyncComponent(() => import('./componentes/PanelGlosario.vue'))
 import { usarArmonia } from './almacen/armonia.js'
 import { usarEconomia } from './almacen/economia.js'
 import { usarGatos } from './almacen/gatos.js'
+import { usarGlosario } from './almacen/glosario.js'
 import { usarNarrador } from './almacen/narrador.js'
 import { usarProgreso } from './almacen/progreso.js'
 import { usarRecortes } from './almacen/recortes.js'
@@ -28,6 +41,22 @@ const progreso = usarProgreso()
 const sombreros = usarSombreros()
 const recortes = usarRecortes()
 const rumbo = usarRumbo()
+const glosario = usarGlosario()
+
+/**
+ * Si alguno de los dos paneles se ha abierto **alguna vez** en esta visita.
+ *
+ * No es lo mismo que «está abierto ahora»: se enciende y no se apaga. Así el
+ * panel se pide en diferido la primera vez que hace falta y a partir de ahí
+ * queda montado, con lo que sus transiciones de abrir y cerrar siguen siendo
+ * las de siempre. Con un `v-if` atado a «está abierto», el panel se desmontaría
+ * al cerrarse y la animación de salida no se vería.
+ */
+const armoniaAbiertaAlguna = ref(false)
+const glosarioAbiertoAlguna = ref(false)
+watch(() => armonia.abierto, (abierto) => { if (abierto) armoniaAbiertaAlguna.value = true })
+watch(() => glosario.abierto, (abierto) => { if (abierto) glosarioAbiertoAlguna.value = true })
+
 const { croquetas } = storeToRefs(economia)
 const { ultimoEncontrado } = storeToRefs(sombreros)
 const { ultimoEncontrado: ultimoRecorte } = storeToRefs(recortes)
@@ -190,8 +219,8 @@ watch(ultimoRecorte, (nuevo) => {
       </RouterLink>
     </Transition>
 
-    <PanelArmonia />
-    <PanelGlosario />
+    <PanelArmonia v-if="armoniaAbiertaAlguna" />
+    <PanelGlosario v-if="glosarioAbiertoAlguna" />
 
     <Narrador />
   </div>

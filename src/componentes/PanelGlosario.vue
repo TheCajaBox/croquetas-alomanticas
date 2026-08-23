@@ -50,7 +50,9 @@ onBeforeUnmount(() => window.removeEventListener('keydown', alPulsarTecla))
 </script>
 
 <template>
-  <Transition name="glosario">
+  <!-- `appear` porque el panel se pide en diferido: la primera vez se monta con
+       la ficha ya abierta, y sin esto esa primera apertura saldría de golpe. -->
+  <Transition name="glosario" appear>
     <div v-if="entrada" class="fondo" @click.self="glosario.cerrar()">
       <div class="ficha" role="dialog" aria-modal="true" :aria-label="`Qué es ${entrada.termino}`">
         <header>

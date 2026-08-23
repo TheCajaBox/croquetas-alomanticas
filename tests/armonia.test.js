@@ -474,19 +474,19 @@ describe('la voz prestada', () => {
     }
   })
 
-  it('el apunte del reto abierto no se manda dos veces', () => {
+  it('el apunte del reto abierto no se manda dos veces', async () => {
     // Va entero por su cuenta; si además salía troceado en el material, el
     // modelo recibía las mismas secciones repetidas y pagaba el contexto dos
     // veces. Con uno pequeño eso se nota en lo que contesta.
     const reto = RETOS.find((r) => r.id === 'dia1-01-variables')
-    const material = materialParaElModelo('¿qué es una variable?', reto)
+    const material = await materialParaElModelo('¿qué es una variable?', reto)
 
     expect(material.length).toBeGreaterThan(0)
     const repetido = material.filter((t) => t.tipo === 'apunte' && t.retoId === reto.id)
     expect(repetido).toEqual([])
     // Y sin reto abierto se sigue trayendo lo que haya, que es de donde sale
     // todo lo que puede decir.
-    expect(materialParaElModelo('¿qué es una variable?', null).length).toBeGreaterThan(0)
+    expect((await materialParaElModelo('¿qué es una variable?', null)).length).toBeGreaterThan(0)
   })
 
   it('el contexto no le promete al modelo una lista que no va detrás', () => {

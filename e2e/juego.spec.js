@@ -1346,6 +1346,36 @@ test('el final de Elantris son dos actos, y el segundo es el que más paga del j
   await expect(page.locator('.apunte .titulo')).toContainText('El apunte de Raoden')
 })
 
+test('el glosario y el cerebro de Armonía no viajan en el arranque', async ({ page }) => {
+  // Los dos se abren desde cualquier pantalla, así que vivían en la barra, y eso
+  // los metía en el paquete inicial con todo lo que arrastran: el glosario son
+  // 48 kB de definiciones y ejemplos, y el cerebro de Armonía se llevaba además
+  // el índice de búsqueda. Nada de eso hace falta para ver la portada.
+  const pedidos = []
+  page.on('request', (peticion) => pedidos.push(peticion.url()))
+
+  await page.goto('#/itinerario/era2')
+  await expect(page.getByRole('heading', { name: 'La segunda era' })).toBeVisible()
+  const alArrancar = pedidos.filter((url) => /glosario-|responder-|buscar-|proveedores-/.test(url))
+  expect(alArrancar, 'trozos que no deberían estar en el arranque').toEqual([])
+
+  // Y se piden en cuanto se usan. El glosario, al abrir su página.
+  await page.goto('#/glosario')
+  await expect(page.locator('.cabecera-mundo h2').first()).toBeVisible()
+  await expect.poll(() => pedidos.filter((url) => /glosario-/.test(url)).length).toBeGreaterThan(0)
+
+  // El cerebro de Armonía, al preguntarle algo.
+  pedidos.length = 0
+  await irAlReto(page, 'dia1-01-variables')
+  expect(pedidos.filter((url) => /responder-|buscar-/.test(url)), 'abrir un reto no pide el cerebro').toEqual([])
+
+  await preguntarAArmonia(page, '¿qué es una variable?')
+  await expect(page.locator('.cajon .suyo').last()).toContainText('variable')
+  await expect
+    .poll(() => pedidos.filter((url) => /responder-|buscar-/.test(url)).length)
+    .toBeGreaterThan(0)
+})
+
 test('la pestaña tiene su icono, y no hay un 404 en cada carga', async ({ page }) => {
   // El sitio no declaraba ninguno, así que el navegador pedía /favicon.ico por
   // su cuenta -en la raíz del dominio, que no es nuestra- y se llevaba un 404

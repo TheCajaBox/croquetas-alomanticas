@@ -2,11 +2,34 @@ import { defineStore } from 'pinia'
 
 import { cargarApunte } from '../contenido/apuntes/index.js'
 import { cargarReto } from '../contenido/retos/index.js'
-import { buscar } from '../motor/armonia/buscar.js'
-import { contexto, instrucciones, preguntarAlProveedor, sinCodigo } from '../motor/armonia/proveedores.js'
-import { prepararArmonia, responder } from '../motor/armonia/responder.js'
 import { guardarAjustesDeProveedor, hayClave, leerAjustesDeProveedor } from './clave.js'
 import { autoguardar } from './persistencia.js'
+
+/**
+ * El cerebro de Armonía, en diferido.
+ *
+ * Este almacén lo monta `main.js` al arrancar, y con los `import` estáticos se
+ * llevaba al paquete inicial todo lo que hay detrás: el índice de búsqueda, el
+ * pegamento del corpus, los mensajes de los proveedores y -por la cadena de
+ * `buscar.js`- **las 128 entradas del glosario**. Todo eso para una ventana que
+ * no se abre hasta que alguien pregunta algo.
+ *
+ * Lo que se queda aquí es el estado: si está abierta, lo hablado, los ajustes
+ * del proveedor. Lo que piensa se pide la primera vez que hace falta, y las
+ * cuatro acciones que lo necesitan ya eran asíncronas.
+ *
+ * Se guarda la promesa y no el módulo: dos preguntas seguidas no piden el
+ * mismo trozo dos veces, y no hace falta esperar a que la primera acabe.
+ */
+let elCerebro = null
+function cerebro() {
+  elCerebro ??= Promise.all([
+    import('../motor/armonia/responder.js'),
+    import('../motor/armonia/proveedores.js'),
+    import('../motor/armonia/buscar.js'),
+  ]).then(([responder, proveedores, buscar]) => ({ ...responder, ...proveedores, ...buscar }))
+  return elCerebro
+}
 
 /** Cuántos turnos se recuerdan. Más allá, la conversación no aporta nada. */
 const MEMORIA = 30
@@ -22,7 +45,8 @@ const TROZOS = 5
  * de aquí: iban por duplicado y costaban un cuarto del contexto, y en un modelo
  * pequeño el contexto gastado es respuesta perdida.
  */
-export function materialParaElModelo(pregunta, reto) {
+export async function materialParaElModelo(pregunta, reto) {
+  const { buscar } = await cerebro()
   return buscar(pregunta, {
     retoId: reto?.id ?? null,
     mundoId: reto?.mundo ?? null,
@@ -87,12 +111,14 @@ export const usarArmonia = defineStore('armonia', {
 
     /** Trae los apuntes y monta el índice. Idempotente: se puede llamar siempre. */
     async preparar() {
+      const { prepararArmonia } = await cerebro()
       await prepararArmonia()
     },
 
     async preguntar(texto) {
       const pregunta = (texto ?? '').trim()
       if (!pregunta) return null
+      const { prepararArmonia, responder } = await cerebro()
       await prepararArmonia()
 
       const contestada = responder(pregunta, {
@@ -130,6 +156,8 @@ export const usarArmonia = defineStore('armonia', {
       const pregunta = (texto ?? '').trim()
       if (!pregunta) return null
 
+      const { contexto, instrucciones, prepararArmonia, preguntarAlProveedor, responder, sinCodigo } =
+        await cerebro()
       await prepararArmonia()
       // El reto entero, no su ficha: de aquí sale el enunciado que se le da al
       // modelo, y el enunciado vive en el cuerpo. Es una carga local y esto ya
@@ -155,7 +183,7 @@ export const usarArmonia = defineStore('armonia', {
       // Sin esto, un modelo pequeño recita de su propia memoria y contesta como
       // un manual, que es exactamente lo que hacía.
       const apunte = reto ? await cargarApunte(reto.id) : null
-      const material = materialParaElModelo(pregunta, reto)
+      const material = await materialParaElModelo(pregunta, reto)
 
       this.escribiendo = ''
       try {
