@@ -120,8 +120,13 @@ describe('todos los retos traen apunte, y pistas los que deben', () => {
 
       // Los jefes no llevan pistas: cierran un mundo y todo lo que hace falta
       // ya se ha visto en los retos de antes. Ahí solo queda Armonía, y poco.
-      if (reto.jefe) {
-        expect(reto.pistas, 'un jefe no puede tener pistas').toBeUndefined()
+      //
+      // Y tampoco los **actos** de un final. Los finales de itinerario vienen en
+      // dos retos que van juntos -se monta el sistema y luego se le pide que
+      // aguante- y los dos son el examen: si el primero tuviera pistas, la
+      // mitad del final se podría comprar.
+      if (reto.jefe || reto.acto) {
+        expect(reto.pistas, `${reto.jefe ? 'un jefe' : 'un acto del final'} no puede tener pistas`).toBeUndefined()
         return
       }
       expect(reto.pistas?.length, 'sin las tres pistas').toBe(3)

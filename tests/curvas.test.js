@@ -207,3 +207,57 @@ describe('el orden en que se enseña', () => {
     expect(fuera).toEqual([])
   })
 })
+
+/**
+ * Los finales de dos actos.
+ *
+ * Cada itinerario acaba en dos retos que van juntos: en el primero se monta el
+ * sistema y en el segundo se le pide que aguante. Es una forma, no una
+ * casualidad, y tiene tres reglas que sin prueba se pierden a la primera:
+ * ninguno lleva pistas, van los dos al final, y el segundo es el jefe.
+ *
+ * Cuando se escriban los de Elantris y Sel, esta prueba los mide con la misma
+ * vara sin tocar una línea.
+ */
+describe('los finales de dos actos', () => {
+  const conActos = MUNDOS.filter((mundo) => enteros(mundo.id).some((reto) => reto.acto))
+
+  it('hay al menos un final de dos actos', () => {
+    expect(conActos.length).toBeGreaterThan(0)
+  })
+
+  for (const mundo of conActos) {
+    it(`${mundo.id}: dos actos, sin pistas y al final`, () => {
+      const retos = enteros(mundo.id)
+      const actos = retos.filter((reto) => reto.acto)
+
+      expect(actos.map((reto) => reto.acto), 'los actos van numerados 1 y 2').toEqual([1, 2])
+      expect(retos.slice(-2), 'los dos actos son los dos últimos retos').toEqual(actos)
+      expect(actos.at(-1).jefe, 'el segundo acto es el jefe').toBe(true)
+      expect(actos[0].jefe, 'el primero no es el jefe: el jefe cierra el mundo').toBeFalsy()
+
+      for (const acto of actos) {
+        expect(acto.pistas, `${acto.id} no puede tener pistas`).toBeUndefined()
+      }
+
+      // Y el segundo paga más que el primero: es el reto más difícil del juego.
+      expect(actos[1].recompensa.croquetas).toBeGreaterThan(actos[0].recompensa.croquetas)
+      // Que además tiene que ser el que más paga de todo su itinerario.
+      const suItinerario = mundosDelItinerario(mundo.itinerario).flatMap((cada) => enteros(cada.id))
+      const elMasCaro = Math.max(...suItinerario.map((reto) => reto.recompensa?.croquetas ?? 0))
+      expect(actos[1].recompensa.croquetas, 'el acto final tiene que ser el que más paga').toBe(elMasCaro)
+    })
+  }
+
+  it('un itinerario con final de dos actos no cierra hasta el segundo', () => {
+    // El acto II es el jefe y el jefe es el último reto, así que el mundo -y con
+    // él el itinerario- no está completo hasta que cae. Esto lo comprueba desde
+    // el otro lado: que no haya ningún reto después del acto II.
+    for (const mundo of conActos) {
+      const retos = enteros(mundo.id)
+      const dondeEsta = retos.findIndex((reto) => reto.acto === 2)
+      expect(dondeEsta, `${mundo.id}: el acto II tiene que existir`).toBeGreaterThanOrEqual(0)
+      expect(dondeEsta, `${mundo.id}: hay retos después del acto II`).toBe(retos.length - 1)
+    }
+  })
+})

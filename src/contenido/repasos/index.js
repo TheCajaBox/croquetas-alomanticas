@@ -42,6 +42,7 @@ export const REPASOS = [
   { id: 'repaso-pozo', mundo: 'pozo', quien: 'brisa', titulo: 'El caso del Pozo', cuantasPreguntas: 9 },
   { id: 'repaso-fundacion', mundo: 'fundacion', quien: 'brisa', titulo: 'El caso de la Fundación', cuantasPreguntas: 9 },
   { id: 'repaso-kandra', mundo: 'kandra', quien: 'brisa', titulo: 'El caso del kandra', cuantasPreguntas: 9 },
+  { id: 'repaso-ruina', mundo: 'ruina', quien: 'brisa', titulo: 'El caso del final', cuantasPreguntas: 9 },
 ]
 
 export const REPASOS_POR_MUNDO = Object.fromEntries(REPASOS.map((cada) => [cada.mundo, cada]))

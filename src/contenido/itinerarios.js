@@ -169,6 +169,11 @@ export const ITINERARIO_POR_DEFECTO = ITINERARIOS[0].id
  * con su campo `parte` y aquí se traduce a quién firma.
  */
 export function quienEscribeElApunte(mundo) {
+  // Un mundo puede decir quién firma los suyos, y hay dos que lo dicen: el de
+  // refactor lo lleva TenSoon y el final lo explica Vin. Sin esto, el panel
+  // anunciaba a Elend encima de un apunte escrito con otra voz, que es la misma
+  // clase de mentira que los `quien="marasi"` de las plantillas.
+  if (mundo?.apunte) return mundo.apunte
   const reparto = repartoDelMundo(mundo)
   const deSuParte = reparto.apuntesPorParte?.[mundo?.parte ?? 'primera']
   return deSuParte?.[0] ?? reparto.apuntes?.[0] ?? 'wax'

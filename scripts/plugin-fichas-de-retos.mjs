@@ -51,6 +51,9 @@ export const CAMPOS_DE_LA_FICHA = [
   'tipo',
   'titulo',
   'jefe',
+  // Un acto de un final de itinerario. Lo necesita la lista del mundo para
+  // etiquetarlo, y las pruebas para saber que no lleva pistas.
+  'acto',
   'recompensa',
   'requisitos',
 ]

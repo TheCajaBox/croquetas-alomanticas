@@ -9,6 +9,7 @@ import {
   LINEAS_DE_HAM,
   LINEAS_DE_ELEND,
   LINEAS_DE_TENSOON,
+  LINEAS_DE_VIN,
   LINEAS_DE_KELSIER,
   LINEAS_DE_ARMONIA,
   LINEAS_DE_MARASI,
@@ -51,6 +52,8 @@ const SACOS = {
   elend: LINEAS_DE_ELEND,
   // Y TenSoon en el de refactor, que es el suyo.
   tensoon: LINEAS_DE_TENSOON,
+  // Vin abre el último. Es la que menos habla del juego, y es a propósito.
+  vin: LINEAS_DE_VIN,
 }
 
 export const NIVELES_DE_VERBORREA = [

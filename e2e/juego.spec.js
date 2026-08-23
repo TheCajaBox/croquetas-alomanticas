@@ -1019,7 +1019,14 @@ test('a un sitio que no existe en tu camino no se entra ni escribiendo la direcc
 }) => {
   // La barra ya no ofrece la puerta, pero una dirección en favoritos sí que
   // llevaba. Sale a la portada del camino donde estabas.
+  // Se espera a que la portada esté pintada antes de saltar. Quien apunta en
+  // qué camino estás es la barra, al navegar, y `goto` de una almohadilla vuelve
+  // en cuanto carga la página: saltando seguido, el guardián preguntaba antes de
+  // que nadie le hubiera dicho dónde estabas y dejaba pasar una vez de cada
+  // tres. Es carrera de la prueba y no del juego -por la barra se llega con la
+  // aplicación viva, y por la dirección el camino sale de la partida guardada-.
   await page.goto('#/itinerario/era1')
+  await expect(page.getByRole('heading', { name: 'La primera era' })).toBeVisible()
   await page.goto('#/colonia')
 
   await expect(page).toHaveURL(/#\/itinerario\/era1$/)
@@ -1027,6 +1034,7 @@ test('a un sitio que no existe en tu camino no se entra ni escribiendo la direcc
 
   // Desde la segunda era, la misma dirección entra.
   await page.goto('#/itinerario/era2')
+  await expect(page.getByRole('heading', { name: 'La segunda era' })).toBeVisible()
   await page.goto('#/colonia')
   await expect(page).toHaveURL(/#\/colonia$/)
 })
@@ -1150,6 +1158,76 @@ test('las preguntas de un repaso se piden al abrirlo, y solo las suyas', async (
   // Y al entrar se ha pedido un trozo, no doce: el de este mundo.
   const cuerpos = pedidos.filter((cada) => /^(ceniza|tripulacion|pozo|primer-dia|comisaria)-/.test(cada))
   expect(cuerpos.length, `trozos de repaso pedidos: ${cuerpos.join(', ')}`).toBeLessThanOrEqual(1)
+})
+
+test('el final de la primera era son dos actos y ninguno se vende', async ({ page }) => {
+  // Los dos últimos retos del itinerario van juntos y ninguno lleva pistas: si
+  // el primero las tuviera, media final se podría comprar. La etiqueta lo dice
+  // antes de entrar, y el panel de pistas no está.
+  const todos = await todosLosRetos()
+  // Se siembra con el ayudante de siempre y no a mano: el acto II pide el acto
+  // I **y** el mundo abierto, que a su vez pide El kandra entero. Sembrando
+  // solo los once retos de Ruina, la vista rebotaba al mundo y de ahí a la
+  // portada, y las etiquetas que se ven abajo eran las de la lista del mundo.
+  await sembrarLoAnterior(page, todos.ruina.at(-1))
+  await page.goto('#/')
+  await page.reload()
+
+  await page.goto('#/mundo/ruina')
+  await expect(page.locator('.etiqueta.acto')).toHaveCount(2)
+  await expect(page.locator('.etiqueta.acto').first()).toHaveText('acto I')
+  await expect(page.locator('.etiqueta.acto').last()).toHaveText('acto II')
+
+  // El acto I: etiqueta puesta y ni una pista a la venta.
+  //
+  // Se recarga después de cada salto y no se salta de almohadilla en
+  // almohadilla, porque la vista sale con una transición: mientras la anterior
+  // se va, su DOM sigue ahí y los localizadores encuentran dos de cada cosa.
+  await page.goto(`#/reto/${todos.ruina.at(-2)}`)
+  await page.reload()
+  await expect(page.locator('.etiqueta.acto')).toHaveText('acto I')
+  // El panel de pistas está, pero no vende: no hay lista y sí el «este no te lo
+  // vendo». Se mira así y no por el título, porque el título -«Pistas de
+  // Fantasma»- sale igual; lo que no sale es nada que comprar.
+  await expect(page.locator('.pistas .lista')).toHaveCount(0)
+  await expect(page.locator('.pistas .cerrado')).toBeVisible()
+
+  // Y el acto II es además el jefe, así que lleva las dos etiquetas.
+  await page.goto(`#/reto/${todos.ruina.at(-1)}`)
+  await page.reload()
+  await expect(page.locator('.etiqueta.acto')).toHaveText('acto II')
+  await expect(page.locator('.etiqueta.jefe')).toHaveText('jefe')
+  await expect(page.locator('.pistas .lista')).toHaveCount(0)
+  await expect(page.locator('.pistas .cerrado')).toBeVisible()
+  // Y quien no vende aquí es Fantasma, que es quien vende en este camino: el
+  // panel es compartido y antes decía «Wayne» en la letra pequeña.
+  await expect(page.locator('.pistas h3')).toHaveText('Pistas de Fantasma')
+
+  // Lo abre Vin, que es la que menos habla del juego.
+  await expect(page.locator('.apunte .titulo')).toContainText('El apunte de Vin')
+})
+
+test('al acto II no se entra sin haber pasado el acto I', async ({ page }) => {
+  // La otra mitad de la regla: los dos actos van juntos, y el segundo no está
+  // hasta que el primero cae. Lo hace el candado normal -los retos se abren en
+  // fila- y conviene fijarlo aquí, porque es lo que hace que el itinerario no
+  // se pueda cerrar por el atajo.
+  const todos = await todosLosRetos()
+  await sembrarLoAnterior(page, todos.ruina.at(-2))
+
+  // Con el acto I sin pasar, escribir la dirección del II devuelve a la lista
+  // del mundo. Se mira la dirección y no el título, porque el título del acto
+  // II **sí** sale en esa lista -con su candado-: lo que no se abre es el reto.
+  await page.goto(`#/reto/${todos.ruina.at(-1)}`)
+  await page.reload()
+  await expect(page).toHaveURL(/#\/mundo\/ruina$/)
+  await expect(page.locator('.apunte')).toHaveCount(0)
+
+  // Y el acto I sí, que es el que toca: se queda en su dirección y trae apunte.
+  await page.goto(`#/reto/${todos.ruina.at(-2)}`)
+  await page.reload()
+  await expect(page).toHaveURL(new RegExp(`#/reto/${todos.ruina.at(-2)}$`))
+  await expect(page.locator('.apunte .titulo')).toContainText('El apunte de Vin')
 })
 
 test('la pestaña tiene su icono, y no hay un 404 en cada carga', async ({ page }) => {

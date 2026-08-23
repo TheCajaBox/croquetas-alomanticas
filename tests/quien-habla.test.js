@@ -134,9 +134,15 @@ describe('quién habla lo dice el reparto', () => {
     // Kelsier explica la primera mitad y no llega al final; la segunda la
     // explican Elend y Vin. Que el temario cambie de manos es la historia que
     // se cuenta por debajo, así que conviene que no se pierda por un descuido.
+    //
+    // Y un mundo puede reclamar el suyo: el de refactor lo lleva TenSoon y el
+    // final lo explica Vin. Cuando lo declara, gana el mundo; cuando no, la
+    // parte. Lo que no puede pasar es que el panel anuncie a alguien distinto
+    // de quien escribió el apunte, que es lo que pasaba con El kandra.
     for (const mundo of mundosDelItinerario('era1')) {
-      const esperado = mundo.parte === 'segunda' ? 'elend' : 'kelsier'
+      const esperado = mundo.apunte ?? (mundo.parte === 'segunda' ? 'elend' : 'kelsier')
       expect(quienEscribeElApunte(mundo), mundo.id).toBe(esperado)
+      if (mundo.apunte) expect(existePersonaje(mundo.apunte), mundo.id).toBe(true)
     }
     // Y en la segunda era es Wax en todos.
     for (const mundo of mundosDelItinerario('era2')) {

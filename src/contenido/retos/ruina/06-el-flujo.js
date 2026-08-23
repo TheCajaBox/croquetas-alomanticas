@@ -1,0 +1,68 @@
+import { codigo, pista } from '../comun.js'
+
+export default {
+  id: "ruina-06-el-flujo",
+  mundo: "ruina",
+  entorno: "php",
+  tipo: "trazar",
+  titulo: "Por dentro de la tubería",
+  enunciado: codigo(
+    "Una tubería de tres pasos: transformar, filtrar y aplastar. Cada paso recibe lo que sale",
+    "del anterior, y la manera de entenderla -y de encontrar dónde falla- es ver qué hay entre",
+    "un paso y el siguiente.",
+    "",
+    "Rellena la tabla con lo que hay **al salir** de cada paso.",
+  ),
+  codigoMostrado: codigo(
+    "<?php",
+    "",
+    "$sacos = [4, 0, 7, 2];",
+    "",
+    "$dobles = array_map(fn($saco) => $saco * 2, $sacos);",
+    "$grandes = array_values(array_filter($dobles, fn($saco) => $saco > 4));",
+    "$total = array_reduce($grandes, fn($llevado, $saco) => $llevado + $saco, 0);",
+    "",
+    "echo $total;",
+  ),
+  variables: ["cuántos hay", "el primero", "el último"],
+  pasos: [
+    { etiqueta: "de partida", valores: { "cuántos hay": "4", "el primero": "4", "el último": "2" } },
+    { etiqueta: "tras el map", valores: { "cuántos hay": "4", "el primero": "8", "el último": "4" } },
+    { etiqueta: "tras el filter", valores: { "cuántos hay": "2", "el primero": "8", "el último": "14" } },
+    { etiqueta: "tras el reduce", valores: { "cuántos hay": "1", "el primero": "22", "el último": "22" } },
+  ],
+  valoresPosibles: ["1", "2", "3", "4", "8", "14", "22", "0", "7"],
+  porque: codigo(
+    "La tabla enseña la forma de cada paso, y la forma es lo que hay que tener en la cabeza:",
+    "",
+    "**`array_map` no cambia cuántos hay.** Cuatro entran, cuatro salen. Si alguna vez te sale",
+    "otro número, no estabas usando `array_map`.",
+    "",
+    "**`array_filter` no cambia los valores.** Los que salen son exactamente los que entraron,",
+    "sin tocar. Lo único que cambia es cuántos, y -si no lo envuelves en `array_values`- las",
+    "claves.",
+    "",
+    "**`array_reduce` deja una sola cosa.** Y no tiene por qué ser un número: puede ser un texto,",
+    "una lista o un objeto. Lo que no puede es seguir siendo una lista de tantos como entraron.",
+    "",
+    "Y el detalle del filtro: el `2` de partida se convierte en `4` con el map, y `4 > 4` es",
+    "falso, así que se cae. Los bordes se caen en el sitio menos esperado, y por eso se traza.",
+  ),
+  tests: [
+    {
+      nombre: "el total es el que sale de la tabla",
+      codigo: codigo(
+        "$sacos = [4, 0, 7, 2];",
+        "$dobles = array_map(fn($s) => $s * 2, $sacos);",
+        "$grandes = array_values(array_filter($dobles, fn($s) => $s > 4));",
+        "esperar(array_reduce($grandes, fn($ll, $s) => $ll + $s, 0), 'el total')->igualA(22);",
+      ),
+    },
+  ],
+  pistas: [
+    pista("El map dobla los cuatro: `[8, 0, 14, 4]`. Escríbelo antes de seguir.", 0),
+    pista("El filtro se queda con los mayores que 4. Fíjate bien en el `4`: no es mayor que 4.", 1),
+    pista("Después del reduce ya no hay lista: hay un número, así que «cuántos hay» es 1 y el primero y el último son el mismo.", 2),
+  ],
+  recompensa: { croquetas: 7 },
+}

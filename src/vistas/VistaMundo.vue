@@ -95,6 +95,9 @@ if (!mundo.value || !progreso.mundoDisponible(props.mundoId)) router.replace('/'
           <div class="cuerpo">
             <div class="fila etiquetas">
               <span class="etiqueta">{{ etiquetaDelTipo(reto.tipo) }}</span>
+              <!-- Los dos actos del final van juntos y ninguno lleva pistas: la
+                   etiqueta lo dice antes de entrar. -->
+              <span v-if="reto.acto" class="etiqueta acto">acto {{ reto.acto === 1 ? 'I' : 'II' }}</span>
               <span v-if="reto.jefe" class="etiqueta jefe">jefe</span>
               <span v-if="reto.superado" class="etiqueta superado">superado</span>
               <span v-else-if="reto.empezado" class="etiqueta">empezado</span>

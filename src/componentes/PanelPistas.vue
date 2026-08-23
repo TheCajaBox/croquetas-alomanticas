@@ -82,8 +82,8 @@ function pedir(nivel) {
       <span v-if="!esJefe" class="tenue saldo">{{ economia.croquetas }} croquetas</span>
     </div>
 
-    <!-- En los jefes no hay nada que vender, y conviene que Wayne lo diga él
-         en vez de dejar el panel vacío y que parezca que se ha roto algo. -->
+    <!-- En los jefes no hay nada que vender, y conviene que lo diga quien
+         vende en vez de dejar el panel vacío y que parezca que se ha roto algo. -->
     <p v-if="esJefe" class="cerrado">
       «Este no te lo vendo. No es que no sepa cómo va —que tampoco—, es que si te lo suelto
       ahora te quedas sin saber si sabías. Todo lo que hace falta te lo han contado ya en los
@@ -92,7 +92,7 @@ function pedir(nivel) {
     </p>
 
     <p v-if="cortesiaDeCobre && !esJefe" class="cortesia">
-      Cobre te cubre una pista de pago hoy. Wayne no se ha enterado.
+      Cobre te cubre una pista de pago hoy. {{ comoSeLlama }} no se ha enterado.
     </p>
 
     <ol v-if="!esJefe" class="lista">
@@ -118,7 +118,7 @@ function pedir(nivel) {
     <p v-if="aviso" class="aviso">{{ aviso }}</p>
 
     <div v-if="ultimoTrasto" class="trasto">
-      <p class="titulo">A cambio, Wayne te deja</p>
+      <p class="titulo">A cambio, {{ comoSeLlama }} te deja</p>
       <p class="nombre">{{ ultimoTrasto.nombre }}</p>
       <p class="nota tenue">{{ TRASTOS_POR_ID[ultimoTrasto.id].nota }}</p>
     </div>

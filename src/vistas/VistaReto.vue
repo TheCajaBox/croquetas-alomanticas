@@ -284,6 +284,7 @@ function reiniciarCodigo() {
       </RouterLink>
       <div class="fila etiquetas">
         <span class="etiqueta" :style="{ color: mundo.color, borderColor: mundo.color }">{{ mundo.subtitulo }}</span>
+        <span v-if="reto.acto" class="etiqueta acto">acto {{ reto.acto === 1 ? 'I' : 'II' }}</span>
         <span v-if="reto.jefe" class="etiqueta jefe">jefe</span>
         <span v-if="yaSuperado" class="etiqueta superado">superado</span>
         <span v-if="variante" class="etiqueta practica">

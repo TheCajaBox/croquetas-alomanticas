@@ -239,14 +239,36 @@ export const MUNDOS = [
     requiere: 'fundacion',
     color: '#6fb08a',
     // Quien recibe al llegar. Este mundo lo lleva TenSoon, que de cambiar de
-    // forma sin dejar de ser uno mismo sabe más que nadie.
+    // forma sin dejar de ser uno mismo sabe más que nadie. Y sus apuntes los
+    // firma él: el temario de la segunda parte lo explica Elend menos aquí.
     anfitrion: 'tensoon',
+    apunte: 'tensoon',
     resumen:
       'Doce trozos de código que funcionan y que no se pueden leer. No se añade nada: se cambia de forma. Es el mundo que lo lleva TenSoon, que de eso sabe.',
     presentacion:
       'Un kandra puede tomar la forma de cualquiera sin dejar de ser él. Este mundo va de eso: el mismo programa, con otra forma, haciendo exactamente lo mismo. No vas a aprender nada nuevo aquí -ya sabes todo lo que hace falta- y es el mundo que más te va a cambiar la manera de escribir. Cada reto trae código que funciona, pasa sus tests y no se puede leer. Tu trabajo es que se pueda leer, sin romper ni un test.',
     despedida:
       'Ahora ya sabes que un programa que funciona no está terminado. Lo que has hecho aquí es lo que se hace el ochenta por ciento del tiempo en un trabajo de verdad, y casi nadie lo enseña.',
+  },
+  {
+    id: 'ruina',
+    parte: 'segunda',
+    nombre: 'Ruina',
+    subtitulo: 'PHP · el final, en dos actos',
+    itinerario: 'era1',
+    entorno: 'php',
+    requiere: 'kandra',
+    color: '#8a2f3c',
+    // El mundo lo abre Vin y sus apuntes los firma ella. Elend presenta el
+    // primer acto; el segundo lo presenta ella en cuatro líneas.
+    anfitrion: 'vin',
+    apunte: 'vin',
+    resumen:
+      'Todo lo de la primera era junto, y al final dos actos: montar el sistema y hacer que aguante. El segundo es el reto más difícil del juego y no tiene pistas.',
+    presentacion:
+      'Aquí no hay nada nuevo. Están las seis cosas de los cinco mundos anteriores y hay que usarlas a la vez, que es lo único que no se ha practicado todavía. Los dos últimos retos van juntos: en el primero se monta el sistema y en el segundo se le pide que aguante lo que le echen. Ninguno de los dos tiene pistas. Si llegas al segundo y lo pasas, ya no te hace falta este juego para la parte de PHP.',
+    despedida:
+      'Ya está. Sabes escribir PHP moderno, estructurarlo en clases, decir lo que no puedes hacer en voz alta y dejarlo de manera que otro lo entienda. Lo que queda por aprender se aprende trabajando, y eso no lo puede dar ningún juego.',
   },
 ]
 

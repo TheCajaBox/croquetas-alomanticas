@@ -133,6 +133,9 @@ input:focus, textarea:focus, select:focus { outline: 2px solid rgba(201, 139, 75
 }
 .etiqueta.superado { color: var(--verde); border-color: rgba(95, 185, 138, 0.45); background: rgba(95, 185, 138, 0.10); }
 .etiqueta.jefe { color: var(--ambar); border-color: rgba(217, 180, 92, 0.45); background: rgba(217, 180, 92, 0.10); }
+/* Los dos actos de un final. Granate y no ámbar: el jefe cierra un mundo y un
+   acto cierra un itinerario, y conviene que no se confundan de un vistazo. */
+.etiqueta.acto { color: #d98a97; border-color: rgba(217, 138, 151, 0.45); background: rgba(217, 138, 151, 0.10); }
 .etiqueta.bloqueado { color: var(--texto-apagado); }
 
 /* Barra de estado de los gatos y de progreso de los mundos. */

@@ -734,6 +734,24 @@ export const GLOSARIO = [
   },
   // ---- De PHP -------------------------------------------------------------
   {
+    id: "polimorfismo",
+    // El nombre que tiene lo que se ha estado haciendo desde La Fundación. Se
+    // enseña al final a propósito: primero se usa y después se nombra.
+    desde: { era2: 'taller', era1: 'ruina' },
+    termino: "polimorfismo",
+    alias: ["polimórfico"],
+    definicion: "Que quien usa unos objetos no necesite saber de qué clase es cada uno. Un bucle que le pide `total()` a una lista de cosas distintas y cada una responde a su manera: el día que aparezca una clase nueva, ese bucle no se toca. Suena peor de lo que es.",
+    ejemplo: { js: "cosas.map((c) => c.total())", php: "array_map(fn($c) => $c->total(), $cosas)" },
+  },
+  {
+    id: "fabrica",
+    desde: { era1: 'ruina' },
+    termino: "fábrica",
+    alias: ["fábricas", "método de fábrica"],
+    definicion: "Un método estático que construye un objeto de su propia clase de una manera concreta. Se lee mejor que un constructor con cinco parámetros opcionales, se pueden tener varias con su nombre cada una, y es el sitio donde poner en forma los datos que llegan de fuera.",
+    ejemplo: { php: "Expedicion::deArray($fila)" },
+  },
+  {
     id: "match",
     // No existía, y en la primera era tiene un reto propio -«Del if largo al
     // match»- en el mundo de refactor. En la segunda no hay equivalente

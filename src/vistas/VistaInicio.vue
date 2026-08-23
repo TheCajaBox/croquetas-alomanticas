@@ -192,6 +192,7 @@ const marcadores = computed(() =>
         <h2>{{ siguiente.titulo }}</h2>
         <p class="tenue">
           {{ siguiente.mundo?.nombre }}
+          <span v-if="siguiente.acto" class="etiqueta acto">acto {{ siguiente.acto === 1 ? 'I' : 'II' }}</span>
           <span v-if="siguiente.jefe" class="etiqueta jefe">jefe</span>
         </p>
       </div>
