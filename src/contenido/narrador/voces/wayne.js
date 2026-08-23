@@ -54,11 +54,14 @@ const LINEAS = {
     'Ejecuta ya, hombre, que no muerde.',
     'Dale al botón. Peor lo tuvo Wax la primera vez que le tiré una moneda.',
     'Venga, que el primer intento es como el primer trago: está para saber lo que hay.',
+    'Ejecútalo ya, en vez de releerlo veinte veces. Un intento tarda un segundo y encima te contesta; releerlo veinte veces te lleva la tarde y no te dice ni buenas tardes.',
+    'Tíralo. El primer intento no es para acertar, es para que la máquina te diga qué esperaba. Luego ya discutís.',
+    'Dale sin mirar tanto. Yo he entrado en sitios peores con menos plan y aquí encima no hay perros.',
   ],
 
   testFallado: [
     'Vale, no ha funcionao. Pero míralo así: ahora sabes una forma más de no hacerlo. Yo me sé unas cuatrocientas.',
-    'Casi. Y "casi", en esto, vale exactamente lo mismo que nada. Pero suena mejor.',
+    'Casi. Y «casi», en esto, vale exactamente lo mismo que nada. Pero suena mejor.',
     'Nah. Tampoco te agobies: a Wax le costó tres meses aprender a recargar sin mirar.',
     'Ha fallao. No me mires a mí, yo solo leo lo que pone.',
     'Fallo. De los pequeñitos, que son los que dan rabia de verdad.',
@@ -307,6 +310,7 @@ const LINEAS = {
     (contexto) => contexto.dice,
     (contexto) => `${contexto.dice} Toma unas croquetas y no se lo cuentes a nadie.`,
     (contexto) => `¡Eh! Ese es mío. ${contexto.dice}`,
+    (contexto) => `${contexto.dice} Y no me preguntes cómo llegó ahí, que la historia cambia según quién la cuente.`,
   ],
 
   todosLosSombreros: [
@@ -318,6 +322,12 @@ const LINEAS = {
     (contexto) =>
       `${contexto.cuantos} sombreros y ni uno en mi cabeza. Esto no había pasado nunca. ` +
       'Voy a sentarme un rato.',
+    (contexto) =>
+      `Ni uno escondido. Los ${contexto.cuantos} los tienes tú y yo llevo la cabeza al aire, ` +
+      'que es un estado que todavía no había investigado.',
+    (contexto) =>
+      `${contexto.cuantos} de ${contexto.cuantos}. Y fíjate en cómo los has encontrado: mirando ` +
+      'donde nadie mira. Eso mismo vale para los errores, aunque los errores dan menos alegría.',
   ],
 
   trastoRecibido: [
