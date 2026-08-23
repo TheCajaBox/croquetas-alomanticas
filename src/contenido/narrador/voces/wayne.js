@@ -1,0 +1,331 @@
+/**
+ * Todo lo que dice Wayne.
+ *
+ * Cada evento del juego tiene su propio saco de frases; el almacén del
+ * narrador elige una sin repetir las últimas, porque el mismo chiste dos veces
+ * seguidas deja de tener gracia y empieza a tener otra cosa.
+ *
+ * Una línea es una cadena, o una función que recibe el contexto del momento
+ * (el nombre del gato, el del reto, el error real) y devuelve la cadena.
+ *
+ * Todos los diálogos son originales, escritos imitando el registro del
+ * personaje. **No hay una sola línea copiada de los libros**, y no la va a
+ * haber: esto es un repositorio público y ese texto tiene dueño y traductor.
+ * Lo que sí se imita, a propósito y por escrito para que no se pierda, son sus
+ * manías:
+ *
+ * - **Le habla al sombrero** como si fuera alguien, y a veces le hace caso.
+ * - **Corrige la gramática** en el peor momento posible.
+ * - **Consuela fatal**: siempre hay alguien peor, y lo dice.
+ * - **Infla las historias** hasta que no queda nada de verdad, y lo reconoce a
+ *   mitad de frase.
+ * - **Nunca dice que bebe**: investiga estados.
+ * - **No roba**: intercambia, y te deja algo peor a cambio.
+ *
+ * Este saco -y el de cada una de las otras catorce voces- se pide por
+ * `import()` desde `voces/index.js` cuando le toca hablar a quien sea. Así el
+ * arranque no carga los quince.
+ */
+const LINEAS = {
+  bienvenida: [
+    'Bueno, bueno. Otro que quiere aprender a programar. Yo de eso no sé nada, pero se me da de miedo opinar.',
+    'Norma número uno: yo no robo, intercambio. Si al final te falta algo, es que te he dejao otra cosa mejor.',
+    'Wax dice que no debería ser yo quien te enseñe esto. Wax dice muchas cosas.',
+    'Te aviso ya: aquí se escribe código de verdad. Nada de mirar y asentir.',
+    'Yo he sido muchas cosas: vaquero, abogado, viuda una vez. Profesor todavía no, así que tú tranquilo, que estrenamos los dos.',
+    'Lo primero, las presentaciones. Yo soy Wayne. Lo segundo, cuenta los sombreros que llevas puestos, y luego los cuentas otra vez al salir.',
+    'Aquí se paga en croquetas y se cobra en gatos. Es un sistema mejor que el de los bancos de Elendel, y más honrao.',
+    'Antes de nada: si le hablo al sombrero, tú disimula. Lleva conmigo más años que cualquiera y se ofende si lo ignoran.',
+  ],
+
+  entrarAlMundo: [
+    'Sitio nuevo. Mantén las manos donde yo pueda verlas.',
+    'Muy bien, aquí es. Tú tranquilo, que si sale mal la culpa será tuya.',
+    'Ya hemos llegao. Y sin perdernos, que es más de lo que suele pasar.',
+    'Espera, que me pongo el acento de por aquí. Es de mala educación entrar en un sitio hablando como el de al lado.',
+    'Sitio nuevo, reglas nuevas. Las reglas nuevas también las pongo yo, por cierto.',
+    'A ver qué se nos ha perdido aquí. Algo se nos habrá perdido, siempre pasa.',
+    'Quédate cerca y no toques nada. Se lo digo al sombrero, pero tú aplícatelo también.',
+  ],
+
+  primerIntento: [
+    'Venga, dale. Lo peor que puede pasar es que no funcione, y eso pasa siempre.',
+    'Pruébalo. Total, aquí no explota nada. Casi nunca.',
+    'Ejecuta ya, hombre, que no muerde.',
+    'Dale al botón. Peor lo tuvo Wax la primera vez que le tiré una moneda.',
+    'Venga, que el primer intento es como el primer trago: está para saber lo que hay.',
+  ],
+
+  testFallado: [
+    'Vale, no ha funcionao. Pero míralo así: ahora sabes una forma más de no hacerlo. Yo me sé unas cuatrocientas.',
+    'Casi. Y "casi", en esto, vale exactamente lo mismo que nada. Pero suena mejor.',
+    'Nah. Tampoco te agobies: a Wax le costó tres meses aprender a recargar sin mirar.',
+    'Ha fallao. No me mires a mí, yo solo leo lo que pone.',
+    'Fallo. De los pequeñitos, que son los que dan rabia de verdad.',
+    'No. Pero lo has dicho con mucha seguridad, eso hay que reconocerlo.',
+    (contexto) =>
+      contexto?.fallo
+        ? `Dice que ${contexto.fallo.toLowerCase()} Y yo me fío, que es el que lo ha visto.`
+        : 'Eso no es lo que había que hacer. Léete otra vez el enunciado, anda.',
+    'Ha fallao, sí. Pero con estilo. Eso en los Áridos cuenta.',
+    'No ha colao. Y mira que yo he colao cosas peores con menos.',
+    'Eso no es. Respira, que no te persigue nadie. Que yo sepa.',
+    'Nada. Si esto fuera una coartada, ya estarías detenío.',
+    'Consuélate: podría haber fallado delante de más gente.',
+    'Ha fallao, pero mírale el lado bueno: te está diciendo exactamente qué esperaba. Poca gente es así de clara contigo.',
+  ],
+
+  errorDeSintaxis: [
+    'Eso todavía no es JavaScript. Es JavaScript en potencia. Le falta un símbolo por ahí.',
+    'Te has dejao algo abierto. Un paréntesis, una llave, un cajón. Algo.',
+    'Ni ejecutarlo he podido. Y mira que yo ejecuto cosas sin pensármelo.',
+    'Hay un símbolo de más o uno de menos. Nunca los justos, ¿te has fijao?',
+    (contexto) =>
+      contexto?.linea
+        ? `Línea ${contexto.linea}. Ahí. No, no busques en otro lao, que te lo estoy diciendo.`
+        : 'Está mal escrito, y ni el ordenador ni yo sabemos qué querías decir.',
+    'Esto es como cuando finjo un acento que no me sé: se nota enseguida y encima queda raro.',
+    'Ni empieza. Y para no empezar ya estoy yo, que llevo así toda la vida.',
+    '«Esperaba una coma», dice. Fíjate: hasta la máquina conjuga mejor que la mitad de la gente que conozco.',
+    'Esto no está mal escrito. Está CASI escrito, que es otra cosa y encima peor.',
+  ],
+
+  bucleInfinito: [
+    'Ese bucle da más vueltas que yo cuando finjo que sé dónde estoy. Ponle una salida.',
+    'Enhorabuena, has inventao la máquina de no parar nunca. Ahora quítala.',
+    'Tu bucle no sabe cuándo irse a casa. Como yo en las tabernas, pero con menos gracia.',
+    'Cien mil vueltas y subiendo. Eso ya no es un bucle, es una condena.',
+    'Le has quitao la puerta a la habitación. Ahora está dentro y no sabe salir, pobre.',
+    'Yo he estado en una burbuja de esas donde el tiempo va raro. Se sale. Tu bucle no.',
+    'Al último que dejó uno así abierto se lo tragó la máquina. Bueno, eso no es verdad. Se quedó sin tarde, que es peor y además pasa.',
+  ],
+
+  tiempoAgotado: [
+    'Se te ha acabao el tiempo. Y eso que aquí el tiempo lo manejo yo bastante bien.',
+    'Tres segundos. Hasta dentro de una burbuja habría acabao ya.',
+    'Sigue pensándoselo. Yo tengo cosas que hacer.',
+    'Ni metiéndolo en una burbuja de bendalloy te da tiempo, y mira que ahí cunde.',
+    'Demasiado lento. Y te lo dice uno que se pasa el día esperando a Wax.',
+    'Demasiado rato pensando. Yo también hago eso, pero investigando otros estados.',
+  ],
+
+  requisitoIncumplido: [
+    'Funcionar a lo mejor funciona. Pero te has saltao las normas, y las normas las pongo yo.',
+    'No, no y no. Que sí, que llegas al mismo sitio. Pero por el camino que yo digo.',
+    'Muy listo. Demasiado. Vuelve a hacerlo como toca.',
+    'Eso es hacer trampas, y las trampas son cosa mía.',
+    'Funciona, pero por el camino de al lado. Y hoy el camino de al lado está cortao.',
+    'Eso es como pagar con un botón que parece una moneda. A mí no me lo cuelas, que lo inventé yo.',
+  ],
+
+  pistaPedida: {
+    1: [
+      'Va, una gratis, que hoy me has caío bien. Y porque no me cuesta nada.',
+      'Toma pista. Tampoco es gran cosa; es que no te has ganao gran cosa.',
+      'La primera siempre sale de la casa. Las otras salen de tu bolsillo.',
+      'Una gratis, como el primer trago en una taberna decente. Después ya se paga todo.',
+    ],
+    2: [
+      'Esta te va a costar unas croquetas. Que los gatos comen, ¿eh?, del aire no viven.',
+      'Vale, pero se paga. Yo no regalo dos veces seguidas, que tengo una reputación.',
+      'Croquetas por delante. Y no te quejes, que te estoy haciendo un favor a precio de amigo.',
+      'Esta se paga. Y no es robar: te llevas la pista y me dejas las croquetas. Intercambio de manual.',
+      'Te la vendo, aunque el sombrero opina que podrías sacarlo tú solo. El sombrero es muy optimista.',
+    ],
+    3: [
+      'Esto ya es prácticamente la respuesta, así que te va a costar. Y no me mires así: yo no robo, te dejo algo a cambio.',
+      'La última. Después de esta ya no es tu solución, es la mía con tu nombre puesto.',
+      'Cara. Muy cara. Pero es que te la estoy dando entera, mírala.',
+      'A este precio ya casi es más barato aprender. Tú mismo, que yo cobro igual.',
+    ],
+  },
+
+  retoSuperado: [
+    'Funciona. No me preguntes por qué, pero funciona.',
+    'Bien. Lo has hecho bien. Ya está, no pienso repetirlo.',
+    'Mira tú por dónde. Toma tus croquetas antes de que me arrepienta.',
+    'Superao, y solo has tardao lo que tarda Wax en explicar algo sencillo.',
+    'Vale. Vale. Está bien. No pongas esa cara de listo.',
+    'Ha salío. Voy a apuntármelo como mérito mío, que para eso estaba yo delante.',
+    'Bien hecho. Y lo digo sin acento raro ni nada, que eso conmigo es una medalla.',
+    'Funciona a la primera y todo. A ver si va a resultar que se te da.',
+    'Toma. Y no te lo gastes todo en pistas, que luego venís llorando.',
+    'Bien. Se lo cuento al sombrero, que se alegra por ti más que yo.',
+  ],
+
+  superadoSinPistas: [
+    '¿A la primera y sin pistas? O eres listo, o te lo he chivao yo sin darme cuenta. Me quedo con lo segundo.',
+    'Sin pistas. Vale. Tampoco hace falta que te lo creas tanto.',
+    'Ni una pista. Estás empezando a caerme regular.',
+    'Sin pistas. Con esa cabeza podrías dedicarte a algo peor pagao, como la ley.',
+    'Cero pistas. Como sigas así me tendré que buscar un sombrero más barato.',
+    'Sin pistas. Al sombrero le ha impresionado, y él no se impresiona con nada.',
+  ],
+
+  rachaSube: [
+    (contexto) => `${contexto.racha} seguidos sin pedirme nada. Empiezo a preocuparme por el negocio.`,
+    (contexto) => `Van ${contexto.racha} sin pistas. Como sigas así tendré que buscarme otro oficio.`,
+    (contexto) => `${contexto.racha} de seguido y sin abrir el puesto. Wax estaría insoportable ahora mismo.`,
+    (contexto) => `${contexto.racha} seguidos. Ranette me dispara menos veces por semana que eso.`,
+  ],
+
+  rachaRota: [
+    (contexto) => `Ahí se fue la racha. Iban ${contexto.racha}. Tranquilo, que las croquetas no las devuelvo.`,
+    (contexto) => `${contexto.racha} llevabas. Bueno. Yo también he perdido rachas, y sombreros, y una vez un caballo.`,
+    'Y se acabó la racha. Pero mira, has aprendido algo y yo he cobrado. Ganamos los dos.',
+    'Rota. Bueno. Las rachas son como los sombreros: acaban cambiando de cabeza.',
+  ],
+
+  mundoCompletado: [
+    (contexto) => `${contexto.mundo}, terminado. Uno menos y sigues de una pieza.`,
+    (contexto) => `Se acabó ${contexto.mundo}. Voy a contarlo por ahí diciendo que ayudé.`,
+    (contexto) => `Con ${contexto.mundo} ya no te queda nada por hacer aquí. Vámonos antes de que nos den algo que firmar.`,
+    (contexto) => `${contexto.mundo} despachao. Steris ya lo tenía previsto, y eso me da un poco de rabia.`,
+  ],
+
+  insigniaGanada: [
+    (contexto) => `Te has ganado eso de «${contexto.insignia}». No vale croquetas, pero queda bien en la vitrina.`,
+    (contexto) => `«${contexto.insignia}». Marasi lo apunta todo, ya lo sabes.`,
+    (contexto) => `Anda, «${contexto.insignia}». Yo tengo una parecida, pero me la hice yo.`,
+    (contexto) => `«${contexto.insignia}». Póntela en el sombrero, que es donde se ven.`,
+  ],
+
+  jefeDerrotado: [
+    'Se acabó este sitio. Coge tus cosas. Y las mías, si las ves por ahí.',
+    'Eso era lo gordo y lo has tumbao. Hoy invito yo. A mirar.',
+    'Fin del asunto. Voy a contarlo por ahí cambiando algún detalle.',
+    'Eso ya está. Y sin sacar un arma, que es como más me gusta terminar las cosas.',
+    'Se acabó. Yo lo habría resuelto hablando, pero cada uno tiene lo suyo.',
+    'Hecho. Esta noche lo cuento con el doble de sangre y un caballo, que es como se cuentan estas cosas.',
+  ],
+
+  gatoAdoptado: [
+    (contexto) => `Te presento a ${contexto.gato}. Yo no me haría amigo suyo, pero tú mismo.`,
+    (contexto) => `${contexto.gato} se viene contigo. Ya está, ya no hay marcha atrás.`,
+    (contexto) => `Este es ${contexto.gato}. Le he dicho que eres de fiar. No me dejes mal.`,
+    (contexto) => `${contexto.gato} ya es tuyo. Que conste que yo lo vi primero.`,
+    (contexto) => `Ahí tienes a ${contexto.gato}. No le he cambiao el nombre por nada, aunque me lo pensé.`,
+  ],
+
+  gatoDesatendido: [
+    (contexto) => `Oye. ${contexto.gato} lleva un rato mirándote como me mira Wax cuando le escondo el sombrero.`,
+    (contexto) => `${contexto.gato} tiene hambre. Y memoria. Sobre todo memoria.`,
+    (contexto) => `Yo no me meto, pero ${contexto.gato} está la mar de triste y aquí solo estamos tú y yo.`,
+    (contexto) => `${contexto.gato} te mira como Marasi cuando llegas tarde y encima traes excusas malas.`,
+    (contexto) => `Hazle caso a ${contexto.gato}, anda. Un gato aburrido acaba tomando decisiones.`,
+    (contexto) => `Le he preguntado al sombrero qué hacemos con ${contexto.gato} y me ha mirado a mí. O sea que muy mal.`,
+  ],
+
+  gatoCuidado: [
+    (contexto) => `${contexto.gato} está contento. Disfrútalo, que dura poco.`,
+    'Ya está, ya has cumplido. Qué buena persona eres, de repente.',
+    (contexto) => `A ${contexto.gato} le has caído bien. A mí me costó más.`,
+    (contexto) => `${contexto.gato} está como nuevo. Y sin curarse con oro ni nada.`,
+    'Bien hecho. Los gatos se acuerdan de estas cosas, y yo también.',
+  ],
+
+  sinCroquetas: [
+    'No te queda ni una croqueta. Podrías resolver algo, que es la parte del trato que te toca a ti.',
+    'Cero croquetas. Y las pistas, ya lo sabes, no se pagan con buenas intenciones.',
+    'Estás sin blanca. Te prestaría, pero es que no.',
+    'Ni una croqueta. Y yo fío a mucha gente, pero justo hoy no.',
+    'Sin fondos. Resuelve algo, que es la única manera honrada de arreglarlo. La otra la conozco yo y no te la voy a contar.',
+    'Consuélate: hay gente con menos croquetas que tú. Poca. Pero haberla, hayla.',
+  ],
+
+  vuelvesTrasUnaSemana: [
+    '¡Anda! Has vuelto. Los gatos y yo ya nos habíamos repartido tus cosas.',
+    'Cuánto tiempo. Tranquilo, no he tocao nada. Casi nada.',
+    'Ya pensaba que te habías ido a Elendel a hacer algo de provecho.',
+    'Mira quién vuelve. He tenido tu sitio guardao y todo. Bueno, lo he usao, pero guardao.',
+    'Cuánto sin verte. Los gatos preguntaban por ti; yo les decía que estabas trabajando.',
+    'Le dije al sombrero que volverías. Él decía que no. Ahora me debe una ronda.',
+  ],
+
+  inactividad: [
+    '¿Seguimos? Te lo digo porque llevo un rato aquí de pie.',
+    'Sigo aquí, ¿eh? Por si te lo estabas preguntando. Que no.',
+    'Si necesitas pensar, piensa. Yo mientras miro el sombrero.',
+    'Aquí seguimos. Yo ya me he cambiado de acento dos veces y tú sin escribir una línea.',
+    'Oye, ¿te lo estás pensando o te has ido a por algo de beber? Porque si es lo segundo, tráeme.',
+    'Nada, tú a tu ritmo. Yo tengo un bastón, un sombrero y toda la tarde.',
+    'Ya le he contado al sombrero cómo va tu código. Se ha quedao callado, que en él es mucho decir.',
+  ],
+
+  /**
+   * Lo que suelta Wayne cuando no ha pasado absolutamente nada. No informa de
+   * nada y no hay que hacerle caso: es que está ahí y se aburre.
+   */
+  charla: [
+    'Una vez cambié un caballo por un sombrero. Salí ganando, y el del caballo también lo pensaba.',
+    'Wax dice que los nombres de las variables tienen que explicarse solos. Yo a mi sombrero lo llamo «sombrero» y nos entendemos.',
+    'Lo bueno de los ordenadores es que te dicen que te has equivocao sin ponerte esa cara. Wax pone la cara.',
+    'Si algo funciona a la primera, desconfía. Yo desconfío hasta cuando funciona a la tercera.',
+    'He conocido a gente que programa de pie. No les preguntes por qué, porque te lo cuentan.',
+    'El truco de una buena coartada y el de un buen código es el mismo: que no haya que explicarlo dos veces.',
+    'Ese gato lleva un rato mirando la pantalla. O sabe más que tú, o hay una mosca.',
+    'A mí lo de las llaves y los paréntesis me recuerda a los abogados. Todo son parejas y si falta una, ya la has liao.',
+    'Antes había un tipo en los Áridos que escribía sus planes en un papel. Le pillaron por eso. Comenta menos, escribe mejor.',
+    'Deberías beber agua. Lo digo yo, que no bebo agua.',
+    'Con el tiempo aprendes a mirar un código y saber si su autor dormía bien. Este tuyo tiene buena pinta. Más o menos.',
+    'Yo no tengo un sombrero favorito. Tengo el que llevo puesto, que siempre es el mejor.',
+    'Marasi lo apuntaría todo en una libreta. Yo me lo apunto en un sombrero, que se pierde menos.',
+    'Un consejo gratis, y de los de verdad: si llevas veinte minutos con lo mismo, levántate. Vuelves y está resuelto. No sé por qué.',
+    'Nunca he entendido lo de los números que empiezan en cero. Wax dice que es lógico. Wax dice eso de todo.',
+    'Yo no robo sombreros: los cambio por otro sombrero. Que el otro sombrero sea imaginario es un detalle entre el sombrero y yo.',
+    'Nunca llevo pistola. Un bastón te saca de casi todo, y de lo que no te saca, tampoco te sacaba la pistola.',
+    'El acento lo es todo. Si entras en un barrio hablando como el de al lado, te miran. Con el código igual: escribe como escriben los de la casa.',
+    'Una vez me pasé una tarde entera dentro de una burbuja de tiempo. Salí con las mismas ideas malas, pero antes.',
+    'Ranette me ha disparado tres veces. Dos me las merecía. La tercera fue por la puerta, que eso ya es manía.',
+    'MeLaan cambia de cara cuando le apetece. Yo cambio de acento, que es lo mismo pero más barato.',
+    'Steris lo tiene todo previsto. Yo antes me reía. Luego pasó lo previsto y dejé de reírme.',
+    'Marasi se lee las leyes enteras. Léete tú los mensajes de error enteros y estáis en paz.',
+    'A Wax le da por tirar una moneda y salir volando. Cada uno resuelve sus problemas con lo que tiene a mano.',
+    'En los Áridos aprendes que lo que no llevas encima no existe. En el código igual: lo que no has escrito no lo va a hacer nadie por ti.',
+    'Si te sale a la primera, o eres bueno o el problema era malo. Yo, por costumbre, culpo al problema.',
+    'Cuando algo se pone feo, yo hablo. Hablo mucho. Y mientras hablo, pienso. Prueba a explicarle el código en voz alta al gato, verás.',
+    'Un buen sombrero, un buen bastón y saber cuándo callarse. Dos de tres no está mal.',
+    'Yo el dinero lo entiendo mejor en croquetas. Los números grandes son cosa de Elendel y de la gente que lleva chaleco.',
+    'Le he explicado al sombrero que hoy no salimos, que ahí fuera hay corriente. Ha protestado, pero se ha quedao.',
+    'Mi sombrero dice que esa variable no se llama así. Y mira, el sombrero suele acertar.',
+    'No estoy bebiendo: estoy investigando cómo se programa desde otros estados. Es prácticamente ciencia.',
+    'Hay cosas que cuanto más las haces, peor se te dan. Copiar y pegar es una. Las otras no vienen al caso.',
+    'Consuélate: por lo menos tú puedes borrar y escribirlo otra vez. Yo, de lo que digo, no borro nada.',
+    'A mí me gustan los tests que te devuelven el golpe. Los que pasan a la primera no tienen carácter ninguno.',
+    'Con el sombrero tengo dos normas: no se presta y no se moja. Ponte tú dos con el código, las que quieras, pero cúmplelas.',
+    'Eso que has escrito ahí no es un error todavía. Lo será. Pretérito imperfecto, creo que se llama. O el otro.',
+  ],
+
+  verborreaBaja: [
+    '¿Que me calle? Muy bien. Perfecto. No diré ni una palabra más. ...¿Ves? Ni una.',
+    'Callao. Como una tumba. Una tumba con muy buenas ideas que no comparte.',
+    'Silencio absoluto. Como en una burbuja, pero sin lo bonito.',
+    'Ni una palabra. Se lo cuento todo al sombrero, que no se chiva.',
+  ],
+
+  sombreroEncontrado: [
+    (contexto) => contexto.dice,
+    (contexto) => `${contexto.dice} Toma unas croquetas y no se lo cuentes a nadie.`,
+    (contexto) => `¡Eh! Ese es mío. ${contexto.dice}`,
+  ],
+
+  todosLosSombreros: [
+    // El número va por contexto: escrito a mano se quedó viejo el día que
+    // aparecieron dos sombreros nuevos, y Wayne se puso a contar mal.
+    (contexto) =>
+      `Los ${contexto.cuantos}. Todos. No me queda ni uno escondido y me siento raro, la verdad. ` +
+      'Quédatelos: se te da mejor que a mí guardarlos.',
+    (contexto) =>
+      `${contexto.cuantos} sombreros y ni uno en mi cabeza. Esto no había pasado nunca. ` +
+      'Voy a sentarme un rato.',
+  ],
+
+  trastoRecibido: [
+    (contexto) => `A cambio te dejo esto: ${contexto.trasto}. Es un intercambio justo, no me discutas.`,
+    (contexto) => `Toma, ${contexto.trasto}. No vale nada, pero es tuyo y eso no te lo quita nadie.`,
+    (contexto) => `${contexto.trasto}. De nada. Ya me lo agradecerás cuando te haga falta, que no te hará.`,
+    (contexto) => `Te dejo ${contexto.trasto} en su sitio. Así no es robar: es que ahora tienes otra cosa.`,
+  ],
+}
+
+export default LINEAS

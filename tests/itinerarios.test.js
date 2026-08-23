@@ -11,7 +11,7 @@ import { MUNDOS, mundosDelItinerario } from '../src/contenido/mundos.js'
 import { cargarApunte } from '../src/contenido/apuntes/index.js'
 import { retosDelMundo } from '../src/contenido/retos/index.js'
 import { seEscribe } from '../src/contenido/retos/tipos.js'
-import { LEMAS_POR_NARRADOR } from '../src/contenido/narrador/lineas.js'
+import { LEMAS_POR_NARRADOR } from '../src/contenido/narrador/lemas.js'
 import { SOMBREROS_POR_ID } from '../src/contenido/sombreros.js'
 
 describe('los itinerarios', () => {
@@ -146,7 +146,9 @@ describe('quien recibe en un mundo tiene algo que decir', () => {
     // en el primer mundo de la primera era.
     const { createPinia, setActivePinia } = await import('pinia')
     const { usarNarrador } = await import('../src/almacen/narrador.js')
+    const { cargarTodasLasVoces } = await import('../src/contenido/narrador/index.js')
     setActivePinia(createPinia())
+    await cargarTodasLasVoces()
     const narrador = usarNarrador()
 
     const mudos = MUNDOS.filter(
@@ -158,7 +160,9 @@ describe('quien recibe en un mundo tiene algo que decir', () => {
   it('y quien interrumpe también, o su primera aparición sería un desconocido', async () => {
     const { createPinia, setActivePinia } = await import('pinia')
     const { usarNarrador } = await import('../src/almacen/narrador.js')
+    const { cargarTodasLasVoces } = await import('../src/contenido/narrador/index.js')
     setActivePinia(createPinia())
+    await cargarTodasLasVoces()
     const narrador = usarNarrador()
 
     for (const cada of ITINERARIOS) {

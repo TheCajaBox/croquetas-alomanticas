@@ -2,7 +2,7 @@
 import { computed } from 'vue'
 import SombreroEscondido from '../componentes/SombreroEscondido.vue'
 
-import { LEMAS_POR_NARRADOR } from '../contenido/narrador/lineas.js'
+import { LEMAS_POR_NARRADOR } from '../contenido/narrador/lemas.js'
 import {
   ITINERARIOS_POR_ID,
   ITINERARIO_POR_DEFECTO,

@@ -4,7 +4,7 @@ import { RouterLink, useRoute } from 'vue-router'
 
 import Avatar from './Avatar.vue'
 import Marcado from './Marcado.vue'
-import { LINEAS_DE_ARMONIA } from '../contenido/narrador/lineas.js'
+import { LINEAS_DE_ARMONIA } from '../contenido/narrador/voces/armonia.js'
 import { usarArmonia } from '../almacen/armonia.js'
 import { usarProgreso } from '../almacen/progreso.js'
 

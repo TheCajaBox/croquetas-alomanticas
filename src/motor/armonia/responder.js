@@ -14,7 +14,7 @@
  */
 import { lenguajeDelMundo } from '../../contenido/dondeEstas.js'
 import { traducirImprevisto } from '../../contenido/imprevistos.js'
-import { LINEAS_DE_ARMONIA } from '../../contenido/narrador/lineas.js'
+import { LINEAS_DE_ARMONIA } from '../../contenido/narrador/voces/armonia.js'
 import { citar, corpusYaConstruido } from '../../contenido/armonia/corpus.js'
 import { RETOS_POR_ID } from '../../contenido/retos/index.js'
 import { comprobarRequisitos } from '../chequeosEstaticos.js'

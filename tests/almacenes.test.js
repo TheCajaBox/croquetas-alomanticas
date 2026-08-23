@@ -1,12 +1,10 @@
 import { readFileSync, readdirSync } from 'node:fs'
 
 import { GATOS } from '../src/contenido/gatos.js'
-import {
-  LEMAS_DE_WAYNE,
-  LINEAS,
-  LINEAS_DE_BRISA_NARRANDO,
-  LINEAS_DE_FANTASMA,
-} from '../src/contenido/narrador/lineas.js'
+import { LEMAS_DE_WAYNE } from '../src/contenido/narrador/lemas.js'
+import LINEAS from '../src/contenido/narrador/voces/wayne.js'
+import { LINEAS_DE_BRISA_NARRANDO } from '../src/contenido/narrador/voces/brisa.js'
+import LINEAS_DE_FANTASMA from '../src/contenido/narrador/voces/fantasma.js'
 import { ITINERARIOS, ITINERARIOS_POR_ID } from '../src/contenido/itinerarios.js'
 import { MUNDOS, mundosDelItinerario } from '../src/contenido/mundos.js'
 import { cargarTodosLosRetos, cuantasVariantes, enVariante, retosDelMundo } from '../src/contenido/retos/index.js'
@@ -25,6 +23,7 @@ import { usarNarrador } from '../src/almacen/narrador.js'
 import { usarProgreso } from '../src/almacen/progreso.js'
 import { usarRecortes } from '../src/almacen/recortes.js'
 import { usarSombreros } from '../src/almacen/sombreros.js'
+import { cargarTodasLasVoces } from '../src/contenido/narrador/index.js'
 
 /**
  * Los retos **enteros**: el catálogo solo trae la ficha de cada uno y el cuerpo
@@ -34,7 +33,10 @@ import { usarSombreros } from '../src/almacen/sombreros.js'
  */
 const RETOS = await cargarTodosLosRetos()
 
-beforeEach(() => setActivePinia(createPinia()))
+beforeEach(async () => {
+  setActivePinia(createPinia())
+  await cargarTodasLasVoces()
+})
 afterEach(() => vi.useRealTimers())
 
 describe('economía', () => {

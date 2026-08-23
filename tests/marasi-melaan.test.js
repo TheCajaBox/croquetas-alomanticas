@@ -16,6 +16,7 @@ import { cargarTodosLosRetos, retosDelMundo } from '../src/contenido/retos/index
 import { CROQUETAS_INICIALES, usarEconomia } from '../src/almacen/economia.js'
 import { usarNarrador } from '../src/almacen/narrador.js'
 import { usarRepasos } from '../src/almacen/repasos.js'
+import { cargarTodasLasVoces } from '../src/contenido/narrador/index.js'
 
 /**
  * Los retos **enteros**: el catálogo solo trae la ficha de cada uno y el cuerpo
@@ -32,7 +33,10 @@ const RETOS = await cargarTodosLosRetos()
  */
 const ENTEROS = await cargarTodosLosRepasos()
 
-beforeEach(() => setActivePinia(createPinia()))
+beforeEach(async () => {
+  setActivePinia(createPinia())
+  await cargarTodasLasVoces()
+})
 
 describe('los repasos de Marasi', () => {
   it('hay uno por cada mundo', () => {
@@ -169,7 +173,10 @@ describe('el conjunto del contenido', () => {
 })
 
 describe('quién recibe al entrar en un mundo', () => {
-  beforeEach(() => setActivePinia(createPinia()))
+  beforeEach(async () => {
+  setActivePinia(createPinia())
+  await cargarTodasLasVoces()
+})
 
   it('MeLaan se presenta la primera vez que se pisa el suyo, y solo la primera', () => {
     const narrador = usarNarrador()

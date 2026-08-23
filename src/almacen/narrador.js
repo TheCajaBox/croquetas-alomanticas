@@ -2,23 +2,10 @@ import { defineStore } from 'pinia'
 
 import {
   EVENTOS_IMPORTANTES,
-  LINEAS,
-  LINEAS_DE_BRISA,
-  LINEAS_DE_BRISA_NARRANDO,
-  LINEAS_DE_FANTASMA,
-  LINEAS_DE_GALLADON,
-  LINEAS_DE_HAM,
-  LINEAS_DE_ELEND,
-  LINEAS_DE_TENSOON,
-  LINEAS_DE_VIN,
-  LINEAS_DE_KELSIER,
-  LINEAS_DE_ARMONIA,
-  LINEAS_DE_MARASI,
-  LINEAS_DE_MELAAN,
-  LINEAS_DE_RAODEN,
-  LINEAS_DE_STERIS,
-  LINEAS_DE_WAX,
-} from '../contenido/narrador/lineas.js'
+  cargarVoces,
+  sacoDe,
+  vozLista,
+} from '../contenido/narrador/index.js'
 import { repartoDelMundo } from '../contenido/itinerarios.js'
 import { autoguardar } from './persistencia.js'
 
@@ -37,31 +24,6 @@ const CADA_CUANTAS_INTERRUMPE = 3
 /** Eventos que con la verborrea normal sobran: son ruido de Wayne, no información. */
 const SOLO_CON_VERBORREA_ALTA = new Set(['primerIntento', 'gatoCuidado'])
 
-const SACOS = {
-  wayne: LINEAS,
-  armonia: LINEAS_DE_ARMONIA,
-  wax: LINEAS_DE_WAX,
-  steris: LINEAS_DE_STERIS,
-  marasi: LINEAS_DE_MARASI,
-  melaan: LINEAS_DE_MELAAN,
-  // Brisa hace dos papeles en la primera era: narra y abre los repasos. Los
-  // dos sacos se juntan aquí porque es la misma voz, no dos personas.
-  brisa: { ...LINEAS_DE_BRISA, ...LINEAS_DE_BRISA_NARRANDO },
-  fantasma: LINEAS_DE_FANTASMA,
-  ham: LINEAS_DE_HAM,
-  kelsier: LINEAS_DE_KELSIER,
-  // Elend recibe en los mundos de la segunda parte, cuando Kelsier ya no está.
-  elend: LINEAS_DE_ELEND,
-  // Y TenSoon en el de refactor, que es el suyo.
-  tensoon: LINEAS_DE_TENSOON,
-  // Vin abre el último. Es la que menos habla del juego, y es a propósito.
-  vin: LINEAS_DE_VIN,
-  // Elantris: Raoden narra y Galladon interrumpe. Donde Ham pregunta por qué
-  // funciona, Galladon pregunta qué pasa cuando no funcione, que es la otra
-  // pregunta que hace falta y nadie quiere oír.
-  raoden: LINEAS_DE_RAODEN,
-  galladon: LINEAS_DE_GALLADON,
-}
 
 export const NIVELES_DE_VERBORREA = [
   { id: 'alta', titulo: 'Que hable todo lo que quiera' },
@@ -115,9 +77,37 @@ export const usarNarrador = defineStore('narrador', {
   },
 
   actions: {
-    /** Lo pone la vista al abrir un mundo o un reto, según el reparto. */
+    /**
+     * Lo pone la vista al abrir un mundo o un reto, según el reparto.
+     *
+     * Y de paso pide las voces que van a hacer falta en esa pantalla: la de
+     * quien narra y las dos que hablan en cualquiera -Wax cuando te atascas,
+     * Wayne cuando no hay nadie puesto-. Devuelve la promesa por si quien llama
+     * quiere esperarla; nadie tiene que hacerlo, porque `decir` sabe esperar.
+     */
     ponerNarrador(quien) {
       this.quienNarra = quien ?? 'wayne'
+      return cargarVoces(this.quienNarra, 'wayne', 'wax')
+    },
+
+    /**
+     * ¿Están aquí las voces que hacen falta? Si no, se piden y se dice que no.
+     *
+     * Quien pregunta esto vuelve a intentarlo cuando lleguen, con `reintentar`,
+     * y no toca nada antes: una acción que apunta a alguien como presentado y
+     * luego se queda sin frase gasta la presentación en silencio.
+     */
+    listas(...quienes) {
+      const faltan = quienes.filter((quien) => quien && !vozLista(quien))
+      if (faltan.length === 0) return true
+      cargarVoces(...faltan)
+      return false
+    },
+
+    /** Lo mismo, pero volviendo a llamar a lo que se quedó a medias. */
+    reintentar(quienes, seguir) {
+      cargarVoces(...quienes).then(seguir)
+      return null
     },
 
     /**
@@ -150,7 +140,7 @@ export const usarNarrador = defineStore('narrador', {
       // Sin saco propio, callado. Antes se caía en el de Wayne por descarte, y
       // eso hacía que en un mundo de la primera era hablara Wayne -que no ha
       // estado allí nunca- con frases de otro itinerario. Mejor no decir nada.
-      const sacos = SACOS[quien]
+      const sacos = sacoDe(quien)
       if (!sacos) return null
       const saco = nivel != null ? sacos[evento]?.[nivel] : sacos[evento]
       if (!Array.isArray(saco) || saco.length === 0) return null
@@ -161,13 +151,18 @@ export const usarNarrador = defineStore('narrador', {
     },
 
     /**
-     * @param {string} evento clave de src/contenido/narrador/lineas.js
+     * @param {string} evento clave de src/contenido/narrador/voces/*.js
      * @param {object} contexto datos para las frases que se rellenan
      * @param {{nivel?: number, forzar?: boolean, personaje?: string}} opciones
      */
     decir(evento, contexto = {}, { nivel, forzar = false, personaje = null } = {}) {
       const quien = personaje ?? this.quienNarra
       if (!forzar && !this.leTocaHablar(evento, quien)) return null
+      // Sin la voz aquí todavía, se pide y se vuelve. Comprobar si le toca
+      // hablar no cambia nada, así que repetirlo al llegar es gratis.
+      if (!this.listas(quien)) {
+        return this.reintentar([quien], () => this.decir(evento, contexto, { nivel, forzar, personaje }))
+      }
 
       const texto = this.frase(quien, evento, contexto, nivel ?? null)
       if (texto == null) return null
@@ -188,6 +183,11 @@ export const usarNarrador = defineStore('narrador', {
     interrumpirEn(mundo, evento, contexto = {}) {
       const quien = repartoDelMundo(mundo)?.interrumpe
       if (!quien || quien === this.quienNarra) return null
+      // Antes de tocar los contadores: una presentación gastada sin frase no se
+      // recupera, y una ocasión contada de más descoloca el «una de cada tres».
+      if (!this.listas(quien)) {
+        return this.reintentar([quien], () => this.interrumpirEn(mundo, evento, contexto))
+      }
       // Con el narrador callado del todo, tampoco interrumpe nadie: quien pide
       // silencio no quiere dos voces en vez de una.
       if (this.verborrea === 'callado') return null
@@ -233,6 +233,14 @@ export const usarNarrador = defineStore('narrador', {
      */
     entrarAlMundo(mundo) {
       const anfitrion = mundo?.anfitrion
+      // Aquí hablan tres: quien narra, el dueño del mundo si lo tiene, y quien
+      // interrumpe. Se piden los tres de una vez, que es una espera y no tres.
+      const interrumpe = repartoDelMundo(mundo)?.interrumpe
+      if (!this.listas(this.quienNarra, anfitrion, interrumpe)) {
+        return this.reintentar([this.quienNarra, anfitrion, interrumpe], () =>
+          this.entrarAlMundo(mundo),
+        )
+      }
       // Presentarse dos veces es de no acordarse de con quién hablas. A partir
       // de la segunda visita el mundo lo abre Wayne, como todos los demás.
       if (anfitrion && !this.presentados.includes(anfitrion)) {
@@ -264,6 +272,10 @@ export const usarNarrador = defineStore('narrador', {
      * directo al grano, que es lo suyo.
      */
     decirWax(evento, contexto = {}) {
+      // `waxSePresento` se marca aquí, así que la voz tiene que estar antes.
+      if (!this.listas('wax')) {
+        return this.reintentar(['wax'], () => this.decirWax(evento, contexto))
+      }
       if (!this.waxSePresento) {
         this.waxSePresento = true
         return this.decir('presentacion', contexto, { personaje: 'wax', forzar: true })

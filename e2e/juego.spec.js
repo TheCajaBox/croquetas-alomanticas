@@ -1376,6 +1376,39 @@ test('el glosario y el cerebro de Armonía no viajan en el arranque', async ({ p
     .toBeGreaterThan(0)
 })
 
+test('las voces del narrador se piden una a una, y solo las del camino', async ({ page }) => {
+  // El fichero de frases era uno y lo importaba el almacén del narrador, que se
+  // monta al arrancar: las quince voces viajaban en el paquete inicial para que
+  // hablara una. Ahora cada una es un trozo y se pide cuando le toca hablar.
+  // Se miran las voces de los **otros** caminos, no la de Wayne: Wayne dice la
+  // bienvenida al arrancar, así que su trozo ya está en la caché del navegador
+  // antes de que este recorrido empiece a mirar la red -lo carga el `beforeEach`
+  // de arriba- y no se volvería a pedir. Que sea un trozo aparte lo fija la
+  // prueba unitaria; lo que se comprueba aquí es que no se piden las demás.
+  const voces = []
+  page.on('request', (peticion) => {
+    const nombre = peticion.url().match(/\/assets\/(\w+)-[\w-]+\.js$/)?.[1]
+    if (nombre) voces.push(nombre)
+  })
+
+  // Un mundo de la segunda era: narra Wayne y no interrumpe nadie. Ninguna de
+  // las voces de los otros caminos se pide, y son once de las quince.
+  await page.goto('#/mundo/primer-dia')
+  await expect(page.locator('.encabezado h1')).toBeVisible()
+  await expect(page.locator('.reto').first()).toBeVisible()
+  for (const ajena of ['raoden', 'galladon', 'brisa', 'ham', 'kelsier', 'elend', 'vin']) {
+    expect(voces, `${ajena} no habla en la segunda era`).not.toContain(ajena)
+  }
+
+  // Y uno de Elantris: allí narra Raoden y le interrumpe Galladon, así que sus
+  // dos voces sí se piden, y solo al llegar.
+  await page.goto('#/mundo/kae')
+  await expect(page.locator('.encabezado h1').last()).toBeVisible()
+  await expect.poll(() => voces.includes('raoden')).toBe(true)
+  await expect.poll(() => voces.includes('galladon')).toBe(true)
+  expect(voces, 'Kelsier no aparece por Elantris').not.toContain('kelsier')
+})
+
 test('la pestaña tiene su icono, y no hay un 404 en cada carga', async ({ page }) => {
   // El sitio no declaraba ninguno, así que el navegador pedía /favicon.ico por
   // su cuenta -en la raíz del dominio, que no es nuestra- y se llevaba un 404
@@ -1556,11 +1589,21 @@ class Aullador {
   await expect(page.locator('.resultados')).not.toContainText('Reto superado')
 })
 
-/** Abre el cajón de Armonía desde la barra y le pregunta algo. */
-async function preguntarAArmonia(pagina, texto) {
-  if (!(await pagina.locator('.cajon').isVisible())) {
+/**
+ * Abre el cajón de Armonía desde la barra y le pregunta algo.
+ *
+ * `yaAbierta` es para quien viene de pulsar «Preguntar a Armonía» junto a un
+ * resultado en rojo: el cajón ya está abriéndose. Antes esto se miraba con un
+ * `isVisible()`, y desde que el panel se monta en diferido ese `isVisible()`
+ * decía «no» durante el tic que tarda en llegar su trozo, así que se pulsaba
+ * también el botón de la barra y el cajón se cerraba solo.
+ */
+async function preguntarAArmonia(pagina, texto, { yaAbierta = false } = {}) {
+  const cajon = pagina.locator('.cajon')
+  if (!yaAbierta && !(await cajon.isVisible())) {
     await pagina.getByRole('button', { name: 'Armonía' }).click()
   }
+  await expect(cajon).toBeVisible()
   await pagina.fill('.cajon input', texto)
   await pagina.getByRole('button', { name: 'Preguntar', exact: true }).click()
 }
@@ -1595,7 +1638,7 @@ function laMayor(numeros) {
 
   // La entrada está donde hace falta: junto al resultado en rojo.
   await page.getByRole('button', { name: 'Preguntar a Armonía' }).click()
-  await preguntarAArmonia(page, '¿por qué falla?')
+  await preguntarAArmonia(page, '¿por qué falla?', { yaAbierta: true })
 
   const suyo = page.locator('.cajon .suyo').last()
   await expect(suyo).toContainText('y si todas son negativas')
