@@ -395,6 +395,13 @@ export const GLOSARIO = [
     ejemplo: "v-for, v-if, v-model",
   },
   {
+    id: "v-model",
+    desde: { era2: 'vue2' },
+    termino: "v-model",
+    definicion: "La directiva que ata un campo de formulario a un dato en los dos sentidos: pinta el dato en el campo y guarda en el dato lo que se escribe. Por debajo es un atributo y un evento, nada más.",
+    ejemplo: "<input v-model.trim=\"nombre\">",
+  },
+  {
     id: "prop",
     desde: { era2: 'vue2' },
     termino: "prop",
@@ -462,6 +469,13 @@ export const GLOSARIO = [
     alias: ["refs"],
     definicion: "En Vue 3, una caja que envuelve un valor para poder vigilarlo. Dentro del código se abre con `.value`; en la plantilla, no.",
     ejemplo: "const balas = ref(6)",
+  },
+  {
+    id: "reactive",
+    desde: { era2: 'vue3' },
+    termino: "reactive",
+    definicion: "En Vue 3, la otra forma de vigilar datos: coge un objeto y devuelve otro igual pero vigilado por dentro, sin `.value`. Lo que se saque de él con una desestructuración deja de estar vigilado.",
+    ejemplo: "const almacen = reactive({ croquetas: 2 })",
   },
   {
     id: "setup",
@@ -546,6 +560,15 @@ export const GLOSARIO = [
     definicion:
       "Una forma de buscar por la pinta que tiene algo, y no por su contenido exacto: tres dígitos seguidos, una palabra en mayúsculas. Va entre barras.",
     ejemplo: { js: "/recompensa: (\\d+)/", php: "preg_match('/recompensa: (\\\\d+)/', $texto, $c)" },
+  },
+  {
+    id: "grupo-de-captura",
+    desde: { era2: 'elendel' },
+    termino: "grupo de captura",
+    alias: ["grupos de captura", "grupo con nombre", "grupos con nombre"],
+    definicion:
+      "Un trozo de un patrón puesto entre paréntesis para quedárselo aparte, y no solo comprobar que estaba. Con `?<nombre>` justo detrás del paréntesis se lee después por su nombre en vez de por su número.",
+    ejemplo: { js: "'oro: 12'.match(/(?<metal>\\w+): (?<precio>\\d+)/).groups.metal   // 'oro'" },
   },
   {
     id: "microtarea",
@@ -761,6 +784,24 @@ export const GLOSARIO = [
     definicion:
       "La dirección que identifica una pantalla. Es lo que permite compartir un enlace, volver atrás y recargar sin perder dónde estabas.",
     ejemplo: "{ path: '/reto/:retoId', component: Reto }",
+  },
+  {
+    id: "atributos-que-caen",
+    desde: { era2: 'ferrocarril' },
+    termino: "$attrs",
+    alias: ["atributos que caen", "atributos heredados"],
+    definicion:
+      "Todo lo que le pasas a un componente y no es una prop que él haya declarado: atributos de HTML y escuchadores de eventos. Por omisión Vue los pega en el elemento raíz; en un componente que envuelve a otro casi siempre hay que repartirlos a mano.",
+    ejemplo: { js: "<input class=\"dato\" v-bind=\"$attrs\" />" },
+  },
+  {
+    id: "componente-dinamico",
+    desde: { era2: 'ferrocarril' },
+    termino: "componente dinámico",
+    alias: ["componentes dinámicos"],
+    definicion:
+      "Un hueco en la plantilla que pinta el componente que le pases, en vez de uno escrito a mano. Sirve para las familias de cosas del mismo tipo -pestañas, tipos de aviso, pasos de un formulario- y evita la escalera de condiciones.",
+    ejemplo: { js: "const PANELES = { horario: Horario, averias: Averias }" },
   },
   {
     id: "almacen",

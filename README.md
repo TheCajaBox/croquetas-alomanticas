@@ -10,7 +10,7 @@ se eligen al entrar y no compiten entre sí:
 | **Elantris** | SQL: preguntar bien a los datos | Raoden, y le interrumpe Galladon | 6 |
 | **El alma del emperador** | Ciberseguridad: encontrar el agujero y taparlo | Shai, y le interrumpe Gaotona | 6 |
 
-Veintisiete mundos y 309 retos. Cada camino tiene su materia, su reparto y su lenguaje
+Veintisiete mundos y 324 retos. Cada camino tiene su materia, su reparto y su lenguaje
 **ejecutándose de verdad** —JavaScript con acorn y un worker, PHP 8.5 compilado a
 WebAssembly, SQLite en el navegador—, que es lo que distingue esto de un cuestionario.
 
@@ -134,8 +134,8 @@ romperían al publicar en Pages.
 
 Wayne sale además de cuerpo entero, con el bastón al hombro, presidiendo la portada.
 
-**Wax** escribe el temario de la segunda era, y es lo más largo del juego: **93 lecciones**,
-cerca de 600.000 caracteres, una por reto — entre 5.700 y 7.400 cada una, sin excepción. No son notas
+**Wax** escribe el temario de la segunda era, y es lo más largo del juego: **108 lecciones**,
+cerca de 700.000 caracteres, una por reto — entre 5.700 y 7.400 cada una, sin excepción. No son notas
 al margen — cada una tiene la estructura de
 un artículo: el problema que resuelve, la idea, el modelo mental, **lo que despista**,
 **un ejemplo trabajado con su salida exacta** y **cómo se plantea** ese tipo de problema.
@@ -145,7 +145,7 @@ sintaxis en saber plantear.
 Los otros tres caminos tienen sus 216 lecciones —72 cada uno, unos 200.000 caracteres— y son
 **deliberadamente más cortas**: entre 1.800 y 3.800 caracteres, con la prosa de alrededor
 recortada y más retos por mundo. La estructura es la misma; lo que cambia es el equilibrio
-entre leer y practicar, y es una decisión y no una prisa. En total, **309 lecciones**, una por
+entre leer y practicar, y es una decisión y no una prisa. En total, **324 lecciones**, una por
 reto y sin excepción, y bastante más de un millón de caracteres.
 
 Todos los ejemplos están comprobados ejecutándolos, no escritos de memoria. De ahí salen
@@ -226,7 +226,7 @@ ahora mismo**, porque lee lo que has escrito y mira qué test se ha puesto rojo.
 Lo que no hace, nunca, es darte la solución. Y no porque se lo hayamos prohibido: es que no
 la tiene. Lo que Armonía recuerda se construye con una lista blanca de tres campos —título,
 enunciado y apunte—, así que las soluciones, los tests y las pistas quedan fuera por
-construcción. Un test recorre los 309 retos y comprueba que **cada palabra que puede decir
+construcción. Un test recorre los 324 retos y comprueba que **cada palabra que puede decir
 sale de material que ya tienes gratis y abierto en la misma pantalla**.
 
 Que se contenga es el personaje, no una norma nuestra: en la era 2, Armonía podría
@@ -277,7 +277,7 @@ mundos.
 
 Y ninguna pista da ya la solución entera. La escalera es: **gratis**, dónde mirar; **60%**,
 qué concepto te falta; **200%**, el paso exacto que te queda, sin la línea escrita. Un test
-recorre los 279 retos con pistas y comprueba que la última no contenga ni una línea de su
+recorre los 294 retos con pistas y comprueba que la última no contenga ni una línea de su
 solución — es lo que impide que esto se relaje con el tiempo.
 
 Los veintisiete jefes —uno por mundo— no tienen pistas en absoluto. Cierran un mundo, y todo lo que hace falta se
@@ -590,7 +590,7 @@ de lo que se anima hace falta para jugar.
 ```bash
 npm install     # instala y copia los runtimes de Vue a public/vendor/
 npm run dev
-npm test        # motor, almacenes, Armonía, Marasi y las soluciones de los 309 retos
+npm test        # motor, almacenes, Armonía, Marasi y las soluciones de los 324 retos
 npm run test:e2e
 ```
 

@@ -1,0 +1,246 @@
+import { codigo, pista } from '../comun.js'
+
+export default {
+  id: "vue2-03b-v-model",
+  mundo: "vue2",
+  entorno: "vue2",
+  tipo: "codigo",
+  titulo: "El vale de la despensa",
+  enunciado: codigo(
+    "En el reto anterior el campo y el dato iban por separado: `:value` para pintarlo y",
+    "`@input` para recogerlo. `v-model` hace las dos cosas de una vez, y trae tres",
+    "modificadores que hay que conocer antes de que te muerdan.",
+    "",
+    "Declara `componente` con el `data` que ya te doy -`nombre`, `raciones`, `urgente` y",
+    "`destino`-, una plantilla con cuatro campos atados a esos cuatro datos, y un `computed`",
+    "llamado `resumen`.",
+    "",
+    "Los campos:",
+    "",
+    "- `<input class=\"nombre\">`, atado a `nombre` **sin los espacios de los lados**",
+    "- `<input class=\"raciones\" type=\"number\">`, atado a `raciones` y que llegue **como número**",
+    "- `<input class=\"urgente\" type=\"checkbox\">`, atado a `urgente`",
+    "- `<select class=\"destino\">` con dos opciones, `mansión` y `comisaría`, atado a `destino`",
+    "",
+    "Y `resumen`, que se pinta en un `<p class=\"resumen\">`:",
+    "",
+    "- si `nombre` está vacío: `Falta el nombre.`",
+    "- si no: `3 de croquetas a la mansión`, y con ` (urgente)` pegado al final si la casilla",
+    "  está marcada",
+  ),
+  inicial: codigo(
+    "const componente = {",
+    "  data() {",
+    "    return { nombre: '', raciones: 1, urgente: false, destino: 'mansión' }",
+    "  },",
+    "  // El computed «resumen» va aquí.",
+    "  template: `",
+    "    <form @submit.prevent>",
+    "    </form>",
+    "  `,",
+    "}",
+  ),
+  solucion: codigo(
+    "const componente = {",
+    "  data() {",
+    "    return { nombre: '', raciones: 1, urgente: false, destino: 'mansión' }",
+    "  },",
+    "  computed: {",
+    "    resumen() {",
+    "      if (!this.nombre) return 'Falta el nombre.'",
+    "      const prisa = this.urgente ? ' (urgente)' : ''",
+    "      return `${this.raciones} de ${this.nombre} a la ${this.destino}${prisa}`",
+    "    },",
+    "  },",
+    "  template: `",
+    "    <form @submit.prevent>",
+    "      <input class=\"nombre\" v-model.trim=\"nombre\">",
+    "      <input class=\"raciones\" type=\"number\" v-model.number=\"raciones\">",
+    "      <input class=\"urgente\" type=\"checkbox\" v-model=\"urgente\">",
+    "      <select class=\"destino\" v-model=\"destino\">",
+    "        <option value=\"mansión\">mansión</option>",
+    "        <option value=\"comisaría\">comisaría</option>",
+    "      </select>",
+    "      <p class=\"resumen\">{{ resumen }}</p>",
+    "    </form>",
+    "  `,",
+    "}",
+  ),
+  requisitos: [
+    { tipo: "declaraVariable", valor: "componente" },
+    { tipo: "usaPropiedad", valor: "computed" },
+    { tipo: "usaEnPlantilla", valor: "v-model.trim" },
+    { tipo: "usaEnPlantilla", valor: "v-model.number" },
+  ],
+  tests: [
+    {
+      nombre: "recién abierto, el vale está en blanco y lo dice",
+      codigo: codigo(
+        "const vale = montar(componente)",
+        "esperar(vale.texto('.resumen')).igualA('Falta el nombre.')",
+        "esperar(vale.valor('.raciones')).igualA('1')",
+      ),
+    },
+    {
+      nombre: "lo que se escribe llega al dato, y sin los espacios de los lados",
+      codigo: codigo(
+        "const vale = montar(componente)",
+        "await vale.escribir('.nombre', '  croquetas  ')",
+        "esperar(vale.vm.nombre, 'el dato nombre').igualA('croquetas')",
+        "esperar(vale.texto('.resumen')).igualA('1 de croquetas a la mansión')",
+      ),
+    },
+    {
+      nombre: "las raciones llegan como número y no como texto",
+      codigo: codigo(
+        "const vale = montar(componente)",
+        "await vale.escribir('.nombre', 'croquetas')",
+        "await vale.escribir('.raciones', '3')",
+        "esperar(typeof vale.vm.raciones, 'el tipo de raciones').igualA('number')",
+        "esperar(vale.texto('.resumen')).igualA('3 de croquetas a la mansión')",
+      ),
+    },
+    {
+      nombre: "marcar la casilla enciende el aviso de prisa",
+      codigo: codigo(
+        "const vale = montar(componente)",
+        "await vale.escribir('.nombre', 'croquetas')",
+        "vale.vm.urgente = true",
+        "await siguienteTick()",
+        "esperar(vale.texto('.resumen')).igualA('1 de croquetas a la mansión (urgente)')",
+      ),
+    },
+    {
+      nombre: "cambiar el destino cambia el vale",
+      codigo: codigo(
+        "const vale = montar(componente)",
+        "await vale.escribir('.nombre', 'croquetas')",
+        "await vale.escribir('.destino', 'comisaría')",
+        "esperar(vale.vm.destino, 'el dato destino').igualA('comisaría')",
+        "esperar(vale.texto('.resumen')).igualA('1 de croquetas a la comisaría')",
+      ),
+    },
+  ],
+  // Los bordes de este reto son los tres modificadores: el texto que solo trae
+  // espacios, el número que se queda en texto y el cero. Las tandas pasan por
+  // los tres, y por las dos casillas a la vez.
+  variantes: [
+    {
+      titulo: "El vale de la despensa · otra tanda",
+      tests: [
+        {
+          nombre: "un nombre que solo son espacios sigue siendo un nombre vacío",
+          codigo: codigo(
+            "const vale = montar(componente)",
+            "await vale.escribir('.nombre', '     ')",
+            "esperar(vale.vm.nombre, 'el dato nombre').igualA('')",
+            "esperar(vale.texto('.resumen')).igualA('Falta el nombre.')",
+          ),
+        },
+        {
+          nombre: "los espacios de dentro no se tocan: solo se recortan los de los lados",
+          codigo: codigo(
+            "const vale = montar(componente)",
+            "await vale.escribir('.nombre', '  pienso de pollo  ')",
+            "esperar(vale.vm.nombre).igualA('pienso de pollo')",
+            "esperar(vale.texto('.resumen')).igualA('1 de pienso de pollo a la mansión')",
+          ),
+        },
+        {
+          nombre: "cero raciones sigue siendo un número, y se pinta el cero",
+          codigo: codigo(
+            "const vale = montar(componente)",
+            "await vale.escribir('.nombre', 'croquetas')",
+            "await vale.escribir('.raciones', '0')",
+            "esperar(typeof vale.vm.raciones).igualA('number')",
+            "esperar(vale.texto('.resumen')).igualA('0 de croquetas a la mansión')",
+          ),
+        },
+        {
+          nombre: "las raciones son número de verdad: sumarles uno suma, no pega",
+          codigo: codigo(
+            "const vale = montar(componente)",
+            "await vale.escribir('.raciones', '12')",
+            "esperar(vale.vm.raciones + 1, 'raciones más uno').igualA(13)",
+          ),
+        },
+        {
+          nombre: "urgente y comisaría a la vez, cada cosa en su sitio de la frase",
+          codigo: codigo(
+            "const vale = montar(componente)",
+            "await vale.escribir('.nombre', 'arena')",
+            "await vale.escribir('.destino', 'comisaría')",
+            "vale.vm.urgente = true",
+            "await siguienteTick()",
+            "esperar(vale.texto('.resumen')).igualA('1 de arena a la comisaría (urgente)')",
+          ),
+        },
+      ],
+    },
+    {
+      titulo: "El vale de la despensa · y otra",
+      tests: [
+        {
+          nombre: "el camino de ida y vuelta: escribir, borrar, y vuelve el aviso",
+          codigo: codigo(
+            "const vale = montar(componente)",
+            "await vale.escribir('.nombre', 'croquetas')",
+            "esperar(vale.texto('.resumen')).igualA('1 de croquetas a la mansión')",
+            "await vale.escribir('.nombre', '')",
+            "esperar(vale.texto('.resumen')).igualA('Falta el nombre.')",
+          ),
+        },
+        {
+          nombre: "desmarcar la casilla quita el aviso de prisa",
+          codigo: codigo(
+            "const vale = montar(componente)",
+            "await vale.escribir('.nombre', 'croquetas')",
+            "vale.vm.urgente = true",
+            "await siguienteTick()",
+            "esperar(vale.texto('.resumen')).contiene('(urgente)')",
+            "vale.vm.urgente = false",
+            "await siguienteTick()",
+            "esperar(vale.texto('.resumen')).igualA('1 de croquetas a la mansión')",
+          ),
+        },
+        {
+          nombre: "el atado va en los dos sentidos: cambiar el dato mueve el campo",
+          codigo: codigo(
+            "const vale = montar(componente)",
+            "vale.vm.nombre = 'sardinas'",
+            "vale.vm.raciones = 9",
+            "await siguienteTick()",
+            "esperar(vale.valor('.nombre'), 'lo que pone en el campo').igualA('sardinas')",
+            "esperar(vale.valor('.raciones'), 'lo que pone en las raciones').igualA('9')",
+          ),
+        },
+        {
+          nombre: "la casilla refleja el dato: marcada cuando urgente es verdadero",
+          codigo: codigo(
+            "const vale = montar(componente)",
+            "esperar(vale.elemento.querySelector('.urgente').checked, 'la casilla al abrir').esFalso()",
+            "vale.vm.urgente = true",
+            "await siguienteTick()",
+            "esperar(vale.elemento.querySelector('.urgente').checked, 'la casilla después').esVerdadero()",
+          ),
+        },
+        {
+          nombre: "y volver a la mansión desde la comisaría también funciona",
+          codigo: codigo(
+            "const vale = montar(componente)",
+            "await vale.escribir('.nombre', 'arena')",
+            "await vale.escribir('.destino', 'comisaría')",
+            "await vale.escribir('.destino', 'mansión')",
+            "esperar(vale.texto('.resumen')).igualA('1 de arena a la mansión')",
+          ),
+        },
+      ],
+    },
+  ],
+  pistas: [
+    pista("`v-model` en un campo de formulario hace lo que en el reto anterior hacían `:value` y `@input` juntos. Empieza por el `<input>` del nombre y déjalo funcionar sin modificadores.", 0),
+    pista("Los modificadores se pegan al `v-model` con un punto, como los de los eventos: uno recorta los espacios de los lados al llegar, otro convierte a número lo que el campo siempre da como texto. Sin el segundo, `raciones + 1` te da `'11'`.", 1),
+    pista("Cuatro campos, cuatro datos, y cada uno con su modificador donde haga falta: el nombre recorta, las raciones convierten, la casilla y el desplegable van a pelo. El `resumen` es un `computed` con la guarda del nombre vacío arriba y una plantilla de texto abajo; lo de urgente sale de un ternario que devuelve el aviso o la cadena vacía.", 2),
+  ],
+  recompensa: { croquetas: 12 },
+}
