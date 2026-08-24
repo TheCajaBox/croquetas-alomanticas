@@ -74,11 +74,16 @@ describe('el README no miente sobre las cuentas del juego', () => {
   })
 
   it('las lecciones de la segunda era y las de los otros tres caminos', () => {
-    expect(loQueDice(/\*\*([\d.]+) lecciones,\n?576\.000/)).toBe(apuntesDe('era2'))
+    // Se comprueban las **cuentas** y no los caracteres. Un total de caracteres
+    // cambia con cada apunte que se toca, así que fijarlo obliga a venir aquí
+    // por cada coma añadida y no protege de nada: el número que dice algo es
+    // cuántas lecciones hay y que haya una por reto. En el README los
+    // caracteres van redondeados y dichos como lo que son, una aproximación.
+    expect(loQueDice(/\*\*([\d.]+) lecciones\*\*,\n?cerca de/)).toBe(apuntesDe('era2'))
 
     const otros = ['era1', 'elantris', 'sel'].reduce((suma, cada) => suma + apuntesDe(cada), 0)
     expect(loQueDice(/tienen sus ([\d.]+) lecciones/)).toBe(otros)
-    expect(loQueDice(/\*\*([\d.]+) lecciones y\n1\.197\.000 caracteres\*\*/)).toBe(APUNTES.length)
+    expect(loQueDice(/\*\*([\d.]+) lecciones\*\*, una por\n?reto/)).toBe(APUNTES.length)
   })
 
   it('y hay un apunte por reto, que es la promesa de todo lo anterior', () => {

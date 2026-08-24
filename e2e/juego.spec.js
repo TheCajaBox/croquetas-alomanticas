@@ -825,23 +825,34 @@ test('los sombreros se encuentran, se pagan y se guardan', async ({ page }) => {
 
 test('la racha se ve en la cabecera y se pierde al comprar una pista', async ({ page }) => {
   // Se siembra una racha de uno: encadenar dos retos a mano aquí no aportaría
-  // nada y ataría la prueba a cómo se resuelve cada tipo.
-  // Y el segundo reto por hecho, que si no el tercero está cerrado. Se siembra
-  // aquí y no con `irAlReto` para no perder la racha: sembrar recarga, y esta
-  // partida se escribe entera en cada carga.
-  await page.addInitScript(() => {
+  // nada y ataría la prueba a cómo se resuelve cada tipo. Se siembra con
+  // `addInitScript` y no con `irAlReto` para no perder la racha: sembrar
+  // recarga, y esta partida se escribe entera en cada carga.
+  //
+  // Y por hechos **todos los retos anteriores** al de la pista, menos el que se
+  // va a resolver aquí. Estaba escrito «dia1-02-tipos» a mano, y el día que se
+  // colaron tres retos nuevos en El primer día el de la pista quedó cerrado por
+  // el candado -los retos se abren en orden- y la prueba se cayó sin que nada
+  // estuviera mal. De la lista del mundo, que es la que manda.
+  const DEL_TIRON = 'dia1-01-variables'
+  const CON_PISTA = 'dia1-03-const-o-let'
+  const orden = await idsDelMundo('primer-dia')
+  const antesDeLaPista = orden
+    .slice(0, orden.indexOf(CON_PISTA))
+    .filter((id) => id !== DEL_TIRON)
+
+  await page.addInitScript((sembrados) => {
     const hecho = { superado: true, intentos: 1, fallos: 0, pistasUsadas: [], superadoEn: Date.now() }
+    const retos = {}
+    for (const id of sembrados) retos[id] = hecho
     localStorage.setItem(
       'gatosYCodigo',
-      JSON.stringify({
-        version: 1,
-        progreso: { rachaSinPistas: 1, mejorRacha: 1, retos: { 'dia1-02-tipos': hecho } },
-      }),
+      JSON.stringify({ version: 1, progreso: { rachaSinPistas: 1, mejorRacha: 1, retos } }),
     )
-  })
+  }, antesDeLaPista)
 
   // Con uno no hay racha que enseñar.
-  await page.goto('#/reto/dia1-01-variables')
+  await page.goto(`#/reto/${DEL_TIRON}`)
   await page.reload()
   await expect(page.locator('.contador.racha')).toHaveCount(0)
 
@@ -852,7 +863,7 @@ test('la racha se ve en la cabecera y se pierde al comprar una pista', async ({ 
   await expect(page.locator('.contador.racha')).toContainText('2')
 
   // Y comprar una pista en el siguiente la rompe.
-  await page.goto('#/reto/dia1-03-const-o-let')
+  await page.goto(`#/reto/${CON_PISTA}`)
   await expect(page.getByRole('heading', { name: /Lo que se mueve/ })).toBeVisible()
   await page.getByRole('button', { name: /Pista 1/ }).click()
   // Se espera a que la pista esté abierta de verdad: contestar antes deja la
