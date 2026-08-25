@@ -97,6 +97,40 @@ const colonia = computed(() => gatos.adoptados)
  * guardián del enrutador te devolvería— y va al camino donde la casa está. Un
  * enlace que lleva a algo, en vez de una puerta que rebota.
  */
+/**
+ * La muestra: un reto pequeño, resolviéndose, en la propia portada.
+ *
+ * La frase «escribes, se ejecuta y unos tests dicen si va» es la promesa entera
+ * del juego, y estaba solo escrita. Quien llega de nuevas no tiene ni idea de si
+ * eso significa un editor de verdad o un formulario con tres opciones, y es
+ * justo la diferencia que separa esto de un cuestionario. Enseñarlo cuesta
+ * quince líneas y convence más que el párrafo de arriba.
+ *
+ * Va **escrito aquí y a mano**, que es la excepción a la regla de la casa de que
+ * los números y los textos salen de los datos. Y a propósito: un reto de verdad
+ * traería su cuerpo -enunciado, solución, tests, pistas- al paquete de arranque,
+ * que es exactamente lo que se sacó de ahí para que la portada cargue rápido, y
+ * hay una prueba que falla si alguien importa un reto de forma estática. Esto no
+ * afirma nada del contenido: es un decorado, y se lee como tal.
+ */
+const MUESTRA = {
+  titulo: 'Un reto de los primeros',
+  // Sin comillas invertidas: este texto se pinta tal cual y no como marcado, así
+  // que un `nombre` así saldría con las comillas a la vista.
+  enunciado: 'Escribe la función raciones, que reparte croquetas entre los gatos que haya. Sin decimales.',
+  codigo: [
+    { texto: 'function raciones(croquetas, gatos) {', clase: '' },
+    { texto: '  if (gatos === 0) return 0', clase: 'clave' },
+    { texto: '  return Math.floor(croquetas / gatos)', clase: 'clave' },
+    { texto: '}', clase: '' },
+  ],
+  tests: [
+    'doce croquetas entre cuatro gatos son tres',
+    'trece entre cuatro siguen siendo tres: no hay media croqueta',
+    'y sin gatos no se reparte nada, en vez de reventar',
+  ],
+}
+
 const dondeVivenLosGatos = computed(() => {
   if (rumbo.hay('colonia')) return { to: '/colonia', etiqueta: 'Ir a la casa →' }
   const suyo = itinerarioDelSitio('colonia')
@@ -141,6 +175,39 @@ const dondeVivenLosGatos = computed(() => {
         <span class="bocadillo">{{ lema }}</span>
         <span class="tenue otra">otra ↻</span>
       </button>
+    </section>
+
+    <!-- Lo que hace el juego, haciéndolo. Decorativo para quien lee con la
+         oreja -`aria-hidden` no, porque el código y los tests se leen bien-,
+         pero fuera del recorrido de tabulación: aquí no hay nada que pulsar. -->
+    <section class="panel muestra">
+      <div class="lado enunciado-muestra">
+        <p class="sobretitulo">Así se juega</p>
+        <p class="titulo-muestra">{{ MUESTRA.titulo }}</p>
+        <p class="tenue">{{ MUESTRA.enunciado }}</p>
+        <p class="letra-pequena tenue nota-muestra">
+          Y si te atascas hay tres pistas, cada vez más caras. La primera es gratis.
+        </p>
+      </div>
+
+      <div class="lado">
+        <pre class="editorcillo"><code><span
+          v-for="(linea, i) in MUESTRA.codigo"
+          :key="i"
+          class="linea"
+          :class="linea.clase"
+        >{{ linea.texto }}
+</span></code></pre>
+
+        <ul class="tests-muestra">
+          <li v-for="test in MUESTRA.tests" :key="test">
+            <span class="tic" aria-hidden="true">✓</span>{{ test }}
+          </li>
+          <li class="cobrado">
+            <span class="tic" aria-hidden="true">●</span>Reto superado. +10 croquetas.
+          </li>
+        </ul>
+      </div>
     </section>
 
     <div class="fila titulo-caminos">
@@ -257,6 +324,59 @@ const dondeVivenLosGatos = computed(() => {
 </template>
 
 <style scoped>
+/* ── La muestra ────────────────────────────────────────────────────────────
+   Dos columnas: a la izquierda lo que se pide, a la derecha el código y los
+   tests en verde. Es el único sitio de la portada con tipografía monoespaciada,
+   y eso hace la mitad del trabajo: se reconoce como «aquí se programa» antes de
+   leer una palabra. */
+.muestra {
+  display: grid;
+  grid-template-columns: minmax(0, 5fr) minmax(0, 7fr);
+  gap: 26px;
+  align-items: start;
+  background:
+    radial-gradient(120% 140% at 100% 0%, rgba(95, 185, 138, 0.07), transparent 55%),
+    var(--panel);
+}
+.muestra .lado { min-width: 0; }
+.titulo-muestra { margin: 0 0 6px; font-weight: 650; }
+.nota-muestra { margin-top: 12px; }
+
+.editorcillo {
+  margin: 0 0 14px;
+  padding: 13px 15px;
+  background: var(--fondo);
+  border: 1px solid var(--borde-suave);
+  border-radius: var(--radio-menudo);
+  font-family: var(--mono);
+  font-size: 0.82rem;
+  line-height: 1.65;
+  /* El código no se dobla: se desplaza dentro de su caja, como en el editor de
+     verdad. Doblado, la indentación deja de decir nada. */
+  overflow-x: auto;
+  color: var(--texto-tenue);
+}
+.editorcillo .linea { display: block; white-space: pre; }
+/* Las dos líneas donde está la gracia del reto: la salida temprana del caso raro
+   y el reparto sin decimales. Que resalten es el motivo de que esto esté aquí. */
+.editorcillo .clave { color: var(--texto); }
+
+.tests-muestra { list-style: none; margin: 0; padding: 0; display: grid; gap: 5px; }
+.tests-muestra li {
+  display: flex;
+  gap: 8px;
+  align-items: baseline;
+  font-size: 0.83rem;
+  color: var(--texto-tenue);
+}
+.tests-muestra .tic { color: var(--verde); font-weight: 700; flex-shrink: 0; }
+.tests-muestra .cobrado { color: var(--cobre-claro); margin-top: 4px; font-weight: 600; }
+.tests-muestra .cobrado .tic { color: var(--cobre); }
+
+@media (max-width: 780px) {
+  .muestra { grid-template-columns: 1fr; gap: 18px; }
+}
+
 /* --- el héroe ------------------------------------------------------------ */
 
 .heroe {

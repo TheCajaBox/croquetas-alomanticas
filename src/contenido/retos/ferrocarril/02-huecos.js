@@ -96,6 +96,131 @@ export default {
       ),
     },
   ],
+  // Un hueco se practica montando la ficha con otras cosas dentro. Las tandas
+  // meten varios elementos por el hueco por defecto, dejan el pie sin rellenar y
+  // pasan un cero, que es donde se ve si el hueco recibe datos de verdad.
+  variantes: [
+    {
+      titulo: "Dejar un hueco para lo que no sabes · otra tanda",
+      tests: [
+        {
+          nombre: "otra ficha, otro título y otros casos, y el pie los enseña",
+          codigo: codigo(
+            "const vista = montar({",
+            "  components: { Ficha },",
+            "  template: `",
+            "    <Ficha titulo=\"Marasi\" :casos=\"9\">",
+            "      <p>Ayudante del fiscal</p>",
+            "      <template #pie=\"{ casos }\">Lleva {{ casos }} casos</template>",
+            "    </Ficha>",
+            "  `,",
+            "})",
+            "esperar(vista.texto('h3')).diceLoMismoQue('Marasi')",
+            "esperar(vista.texto('footer')).contiene('9')",
+          ),
+        },
+        {
+          nombre: "por el hueco por defecto cabe más de una cosa",
+          codigo: codigo(
+            "const vista = montar({",
+            "  components: { Ficha },",
+            "  template: `",
+            "    <Ficha titulo=\"Wayne\" :casos=\"1\">",
+            "      <p>Sombrero</p>",
+            "      <p>Chicle</p>",
+            "    </Ficha>",
+            "  `,",
+            "})",
+            "esperar(vista.contar('.cuerpo p')).igualA(2)",
+          ),
+        },
+        {
+          nombre: "sin rellenar el pie, el pie se queda vacío y no revienta",
+          codigo: codigo(
+            "const vista = montar({",
+            "  components: { Ficha },",
+            "  template: '<Ficha titulo=\"X\" :casos=\"3\" />',",
+            "})",
+            "esperar(vista.texto('footer')).igualA('')",
+          ),
+        },
+        {
+          nombre: "y el título es una prop de texto, no un hueco: va en el atributo",
+          codigo: codigo(
+            "const vista = montar({",
+            "  components: { Ficha },",
+            "  template: '<Ficha titulo=\"Steris\" :casos=\"0\" />',",
+            "})",
+            "esperar(vista.texto('h3')).diceLoMismoQue('Steris')",
+          ),
+        },
+      ],
+    },
+    {
+      titulo: "Dejar un hueco para lo que no sabes · y otra",
+      tests: [
+        {
+          nombre: "un cero también baja por el hueco: cero no es «no hay nada»",
+          codigo: codigo(
+            "const vista = montar({",
+            "  components: { Ficha },",
+            "  template: `",
+            "    <Ficha titulo=\"Recién llegado\" :casos=\"0\">",
+            "      <template #pie=\"{ casos }\">Lleva {{ casos }} casos</template>",
+            "    </Ficha>",
+            "  `,",
+            "})",
+            "esperar(vista.texto('footer')).contiene('0')",
+          ),
+        },
+        {
+          nombre: "el respaldo del hueco por defecto solo sale cuando nadie mete nada",
+          codigo: codigo(
+            "const vacia = montar({",
+            "  components: { Ficha },",
+            "  template: '<Ficha titulo=\"A\" :casos=\"1\" />',",
+            "})",
+            "esperar(vacia.texto('.cuerpo')).diceLoMismoQue('Sin datos')",
+            "const llena = montar({",
+            "  components: { Ficha },",
+            "  template: '<Ficha titulo=\"B\" :casos=\"1\"><em>Algo</em></Ficha>',",
+            "})",
+            "esperar(llena.texto('.cuerpo')).diceLoMismoQue('Algo')",
+          ),
+        },
+        {
+          nombre: "la ficha declara las dos props que recibe",
+          codigo: codigo(
+            "esperar(Ficha.props, 'las props de la ficha').contiene('titulo')",
+            "esperar(Ficha.props, 'las props de la ficha').contiene('casos')",
+          ),
+        },
+        {
+          nombre: "dos fichas montadas a la vez, cada una con lo suyo",
+          codigo: codigo(
+            "const vista = montar({",
+            "  components: { Ficha },",
+            "  template: `",
+            "    <div>",
+            "      <Ficha titulo=\"Wax\" :casos=\"4\"><p>Uno</p></Ficha>",
+            "      <Ficha titulo=\"Wayne\" :casos=\"7\"><p>Otro</p></Ficha>",
+            "    </div>",
+            "  `,",
+            "})",
+            "esperar(vista.textos('h3')).igualA(['Wax', 'Wayne'])",
+            "esperar(vista.textos('.cuerpo')).igualA(['Uno', 'Otro'])",
+          ),
+        },
+        {
+          nombre: "y el cuerpo lleva su clase, que es por donde lo buscan los tests",
+          codigo: codigo(
+            "const vista = montar(componente)",
+            "esperar(vista.existe('.cuerpo'), 'el cuerpo de la ficha').esVerdadero()",
+          ),
+        },
+      ],
+    },
+  ],
   pistas: [
     pista("Un hueco se abre con `<slot />` en la plantilla del hijo. Lo que escribas **dentro** de esa etiqueta es lo que se enseña si nadie mete nada.", 0),
     pista("Para tener más de un hueco hay que ponerles nombre: `<slot name=\"pie\" />`, y quien lo use lo rellena con `<template #pie>`.", 1),

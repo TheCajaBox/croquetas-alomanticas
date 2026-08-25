@@ -49,6 +49,37 @@ export default {
       codigo: 'esperar(() => { TARIFA_DIARIA = 3 }).lanzaError()',
     },
   ],
+  // Aquí lo que hay que agarrar es que la cuenta salga de la constante y no de
+  // un 25 escrito otra vez a mano. Las tandas lo comprueban desde fuera.
+  variantes: [
+    {
+      titulo: 'Lo que no cambia y lo que sí · otra tanda',
+      tests: [
+        { nombre: 'dos días son dos tarifas', codigo: 'esperar(cobrar(2)).igualA(50)' },
+        { nombre: 'diez días de rastreo, diez tarifas', codigo: 'esperar(cobrar(10)).igualA(250)' },
+        { nombre: 'un mes entero detrás de alguien', codigo: 'esperar(cobrar(30)).igualA(750)' },
+        {
+          nombre: 'y la cuenta sale de la tarifa, no de un 25 escrito otra vez',
+          codigo: 'esperar(cobrar(7), "lo que se cobra por siete días").igualA(TARIFA_DIARIA * 7)',
+        },
+      ],
+    },
+    {
+      titulo: 'Lo que no cambia y lo que sí · y otra',
+      tests: [
+        { nombre: 'medio día se paga a medias: la multiplicación no pregunta', codigo: 'esperar(cobrar(0.5)).igualA(12.5)' },
+        { nombre: 'cien días tampoco desbordan nada', codigo: 'esperar(cobrar(100)).igualA(2500)' },
+        {
+          nombre: 'después de cobrar, la tarifa sigue valiendo lo mismo',
+          codigo: codigo('cobrar(3)', 'esperar(TARIFA_DIARIA, "la tarifa").igualA(25)'),
+        },
+        {
+          nombre: 'y no se deja reasignar ni al mismo valor que ya tenía',
+          codigo: 'esperar(() => { TARIFA_DIARIA = 25 }).lanzaError()',
+        },
+      ],
+    },
+  ],
   pistas: [
     pista('Una de las dos cosas no va a cambiar nunca. Esa lleva `const`. La otra ni siquiera es una variable tuya: es el parámetro.', 0),
     pista("La tarifa es la que no cambia, así que va con `const`, fuera de la función y en mayúsculas porque es un valor fijado por la casa. Dentro de `cobrar` solo queda una multiplicación y devolverla.", 1),

@@ -13,7 +13,7 @@ import { createPinia, setActivePinia } from 'pinia'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 
 import { CUIDADOS, DESGASTE_MAXIMO, FELICIDAD_PARA_BONUS } from '../src/contenido/gatos.js'
-import { RECORTES } from '../src/contenido/recortes.js'
+import { RECORTES, recorteDe } from '../src/contenido/recortes.js'
 import { CROQUETAS_POR_SOMBRERO, SOMBREROS } from '../src/contenido/sombreros.js'
 import { TRASTOS } from '../src/contenido/trastos.js'
 import { CROQUETAS_INICIALES, usarEconomia } from '../src/almacen/economia.js'
@@ -648,11 +648,17 @@ describe('recortes secretos', () => {
     expect(recortes.tiene('seis-sombreros')).toBe(true)
   })
 
-  it('cada recorte trae titular, entradilla y consejo', () => {
+  it('cada recorte trae titular, entradilla y consejo, en los cuatro caminos', () => {
+    // El titular y la entradilla salen de la edición del camino -cada uno tiene
+    // su prensa-; el consejo es el mismo en los cuatro y por eso vive fuera.
     for (const recorte of RECORTES) {
-      expect(recorte.titular, recorte.id).toBeTruthy()
-      expect(recorte.entradilla, recorte.id).toBeTruthy()
       expect(recorte.consejo, recorte.id).toBeTruthy()
+      for (const itinerario of ITINERARIOS) {
+        const suyo = recorteDe(recorte.id, itinerario.id)
+        expect(suyo.titular, `${recorte.id}/${itinerario.id}`).toBeTruthy()
+        expect(suyo.entradilla, `${recorte.id}/${itinerario.id}`).toBeTruthy()
+        expect(suyo.cabecera, `${recorte.id}/${itinerario.id}`).toBeTruthy()
+      }
     }
   })
 })

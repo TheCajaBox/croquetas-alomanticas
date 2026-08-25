@@ -18,7 +18,18 @@ import { usarRecortes } from './recortes.js'
 /** Con la burbuja de Bendaloy, el código tiene bastante más margen. */
 const TIEMPO_LIMITE_AMPLIADO_MS = 8000
 
-const normalizar = (texto) =>
+/**
+ * Cómo se comparan una predicción escrita y la respuesta esperada: por líneas,
+ * sin espacios de sobra, sin líneas vacías y sin distinguir mayúsculas.
+ *
+ * Se exporta **para que las pruebas puedan corregir igual que corrige el juego**.
+ * Un reto de predecir se califica contra `respuestaEsperada`, así que si esa
+ * cadena no es lo que el código imprime de verdad, quien acierte recibe un «no»
+ * con la salida real delante contradiciéndolo. Es el peor fallo posible en un
+ * juego para aprender, y no fallaba nada: hay una prueba por reto que ejecuta el
+ * código mostrado y compara con esta misma función.
+ */
+export const normalizar = (texto) =>
   String(texto ?? '')
     .split('\n')
     .map((linea) => linea.replace(/\s+/g, ' ').trim())
@@ -80,7 +91,7 @@ export const usarJuego = defineStore('juego', {
 
     /**
      * Compra una pista. La primera es gratis; las otras se pagan, y a cambio
-     * Wayne deja un trasto sin ningún valor.
+     * Quien las vende deja un trasto sin ningún valor.
      */
     comprarPista(reto, nivel) {
       const progreso = usarProgreso()
@@ -121,7 +132,11 @@ export const usarJuego = defineStore('juego', {
         { nivel: nivel + 1, forzar: true, personaje: repartoDelMundo(MUNDOS_POR_ID[reto.mundo]).pistas },
       )
 
-      const trasto = precio > 0 && !cortesiaDeCobre ? economia.recibirTrasto() : null
+      // Del cajón del camino donde estés, que es de donde sale quien te la vende.
+      const trasto =
+        precio > 0 && !cortesiaDeCobre
+          ? economia.recibirTrasto(MUNDOS_POR_ID[reto.mundo]?.itinerario)
+          : null
       if (trasto) narrador.decir('trastoRecibido', { trasto: trasto.nombre })
       return { ok: true, pista, precio, trasto, cortesiaDeCobre }
     },

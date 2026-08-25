@@ -115,5 +115,116 @@ export default {
       codigo: "esperar(informeDeLaRegion('{ esto no')).igualA(null)",
     },
   ],
+  // El jefe junta JSON, patrón, cuenta por clave y orden. Cada tanda vuelve a
+  // pasar por los cuatro sitios, y de paso por los dos ceros que se confunden:
+  // el cartel que no paga y la ciudad que no aparece.
+  variantes: [
+    {
+      titulo: "Jefe: el parte de la ciudad · otra tanda",
+      tests: [
+        {
+          nombre: "dos ciudades y una que no paga nada, y aun así sale en el informe",
+          codigo: codigo(
+            "const texto = JSON.stringify({ carteles: [",
+            "  { ciudad: 'Elendel', texto: 'a (recompensa: 100 marcos)' },",
+            "  { ciudad: 'Bilming', texto: 'b, y no pagan nada' },",
+            "  { ciudad: 'Elendel', texto: 'c (recompensa: 50 marcos)' },",
+            "] })",
+            "esperar(informeDeLaRegion(texto)).igualA({ Bilming: 0, Elendel: 150 })",
+          ),
+        },
+        {
+          nombre: "un cartel que promete cero suma cero, que no es lo mismo que no prometer",
+          codigo: codigo(
+            "const texto = JSON.stringify({ carteles: [",
+            "  { ciudad: 'Dulsing', texto: 'SE BUSCA: X (recompensa: 0 marcos)' },",
+            "] })",
+            "esperar(informeDeLaRegion(texto)).igualA({ Dulsing: 0 })",
+          ),
+        },
+        {
+          nombre: "cinco carteles de la misma ciudad se suman los cinco",
+          codigo: codigo(
+            "const texto = JSON.stringify({ carteles: [",
+            "  { ciudad: 'Elendel', texto: 'a (recompensa: 10 marcos)' },",
+            "  { ciudad: 'Elendel', texto: 'b (recompensa: 10 marcos)' },",
+            "  { ciudad: 'Elendel', texto: 'c (recompensa: 10 marcos)' },",
+            "  { ciudad: 'Elendel', texto: 'd (recompensa: 10 marcos)' },",
+            "  { ciudad: 'Elendel', texto: 'e (recompensa: 10 marcos)' },",
+            "] })",
+            "esperar(informeDeLaRegion(texto)).igualA({ Elendel: 50 })",
+          ),
+        },
+        {
+          nombre: "el orden alfabético manda aunque en el JSON vinieran al revés",
+          codigo: codigo(
+            "const texto = JSON.stringify({ carteles: [",
+            "  { ciudad: 'Vertírrio', texto: 'a (recompensa: 1 marcos)' },",
+            "  { ciudad: 'Bilming', texto: 'b (recompensa: 1 marcos)' },",
+            "  { ciudad: 'Dulsing', texto: 'c (recompensa: 1 marcos)' },",
+            "] })",
+            "esperar(Object.keys(informeDeLaRegion(texto))).igualA(['Bilming', 'Dulsing', 'Vertírrio'])",
+          ),
+        },
+        {
+          nombre: "y un expediente con comillas simples no es JSON: null y a otra cosa",
+          codigo: "esperar(informeDeLaRegion(\"{'carteles': []}\")).igualA(null)",
+        },
+      ],
+    },
+    {
+      titulo: "Jefe: el parte de la ciudad · y otra",
+      tests: [
+        {
+          nombre: "«Recompensa» con mayúscula no la paga nadie: ese cartel vale cero",
+          codigo: codigo(
+            "const texto = JSON.stringify({ carteles: [",
+            "  { ciudad: 'Elendel', texto: 'SE BUSCA: X (Recompensa: 500 marcos)' },",
+            "] })",
+            "esperar(informeDeLaRegion(texto)).igualA({ Elendel: 0 })",
+          ),
+        },
+        {
+          nombre: "dos recompensas en un mismo cartel y solo cuenta la primera",
+          codigo: codigo(
+            "const texto = JSON.stringify({ carteles: [",
+            "  { ciudad: 'Elendel', texto: 'a (recompensa: 10 marcos) y b (recompensa: 90 marcos)' },",
+            "] })",
+            "esperar(informeDeLaRegion(texto)).igualA({ Elendel: 10 })",
+          ),
+        },
+        {
+          nombre: "seis ciudades, seis claves, y cada una en su sitio del abecedario",
+          codigo: codigo(
+            "const texto = JSON.stringify({ carteles: [",
+            "  { ciudad: 'Nuevaseran', texto: 'a (recompensa: 10 marcos)' },",
+            "  { ciudad: 'Austrex', texto: 'b (recompensa: 10 marcos)' },",
+            "  { ciudad: 'Vertírrio', texto: 'c (recompensa: 10 marcos)' },",
+            "  { ciudad: 'Dulsing', texto: 'd (recompensa: 10 marcos)' },",
+            "  { ciudad: 'Elendel', texto: 'e (recompensa: 10 marcos)' },",
+            "  { ciudad: 'Bilming', texto: 'f (recompensa: 10 marcos)' },",
+            "] })",
+            "esperar(Object.keys(informeDeLaRegion(texto))).igualA([",
+            "  'Austrex', 'Bilming', 'Dulsing', 'Elendel', 'Nuevaseran', 'Vertírrio',",
+            "])",
+          ),
+        },
+        {
+          nombre: "el cero que no paga y el que sí paga conviven en la misma ciudad",
+          codigo: codigo(
+            "const texto = JSON.stringify({ carteles: [",
+            "  { ciudad: 'Elendel', texto: 'a (recompensa: 0 marcos)' },",
+            "  { ciudad: 'Elendel', texto: 'b (recompensa: 40 marcos)' },",
+            "] })",
+            "esperar(informeDeLaRegion(texto)).igualA({ Elendel: 40 })",
+          ),
+        },
+        {
+          nombre: "y un expediente en blanco tampoco es JSON",
+          codigo: "esperar(informeDeLaRegion('')).igualA(null)",
+        },
+      ],
+    },
+  ],
   recompensa: { croquetas: 22 },
 }

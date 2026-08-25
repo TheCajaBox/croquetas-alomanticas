@@ -150,6 +150,123 @@ export default {
       ),
     },
   ],
+  // Partido bien, el hijo se puede montar solo y el padre solo escucha. Estas
+  // tandas montan la tarjeta con otros gatos y adoptan en otro orden, que es
+  // donde se ve si el aviso sube de verdad o el hijo sigue tocando la colonia.
+  variantes: [
+    {
+      titulo: "Partir en dos · otra tanda",
+      tests: [
+        {
+          nombre: "al arrancar no hay ningún adoptado",
+          codigo: codigo(
+            "const refugio = montar(componente)",
+            "esperar(refugio.texto('.adoptados')).igualA('')",
+          ),
+        },
+        {
+          nombre: "cada gato viene con su botón: dos gatos, dos botones",
+          codigo: codigo(
+            "const refugio = montar(componente)",
+            "esperar(refugio.contar('.adoptar')).igualA(2)",
+            "esperar(refugio.contar('.nombre')).igualA(2)",
+          ),
+        },
+        {
+          nombre: "adoptar el segundo apunta a Bronce y no a Acero",
+          codigo: codigo(
+            "const refugio = montar(componente)",
+            "const botones = refugio.elemento.querySelectorAll('.adoptar')",
+            "botones[1].dispatchEvent(new MouseEvent('click', { bubbles: true }))",
+            "await siguienteTick()",
+            "esperar(refugio.texto('.adoptados')).igualA('Bronce')",
+          ),
+        },
+        {
+          nombre: "adoptar al mismo gato dos veces lo apunta dos veces: el padre no filtra",
+          codigo: codigo(
+            "const refugio = montar(componente)",
+            "await refugio.click('.adoptar')",
+            "await refugio.click('.adoptar')",
+            "esperar(refugio.texto('.adoptados')).igualA('Acero, Acero')",
+          ),
+        },
+        {
+          nombre: "y la tarjeta suelta pinta el gato que le bajen, sea cual sea",
+          codigo: codigo(
+            "const suelta = montar({",
+            "  components: { 'tarjeta-de-gato': tarjetaDeGato },",
+            "  template: `<ul><tarjeta-de-gato :gato=\"{ id: 7, nombre: 'Duraluminio' }\" /></ul>`,",
+            "})",
+            "esperar(suelta.texto('.nombre')).igualA('Duraluminio')",
+          ),
+        },
+      ],
+    },
+    {
+      titulo: "Partir en dos · y otra",
+      tests: [
+        {
+          nombre: "adoptar del último al primero los apunta en ese orden",
+          codigo: codigo(
+            "const refugio = montar(componente)",
+            "const botones = refugio.elemento.querySelectorAll('.adoptar')",
+            "botones[1].dispatchEvent(new MouseEvent('click', { bubbles: true }))",
+            "botones[0].dispatchEvent(new MouseEvent('click', { bubbles: true }))",
+            "await siguienteTick()",
+            "esperar(refugio.texto('.adoptados')).igualA('Bronce, Acero')",
+          ),
+        },
+        {
+          nombre: "la tarjeta suelta también trae su botón, que es suyo y no del padre",
+          codigo: codigo(
+            "const suelta = montar({",
+            "  components: { 'tarjeta-de-gato': tarjetaDeGato },",
+            "  template: `<ul><tarjeta-de-gato :gato=\"{ id: 9, nombre: 'Peltre' }\" /></ul>`,",
+            "})",
+            "esperar(suelta.existe('.adoptar'), 'el botón de la tarjeta suelta').esVerdadero()",
+            "esperar(suelta.contar('.gato')).igualA(1)",
+          ),
+        },
+        {
+          nombre: "el aviso de la tarjeta llega arriba: se puede escuchar desde otro padre",
+          codigo: codigo(
+            "const espia = montar({",
+            "  components: { 'tarjeta-de-gato': tarjetaDeGato },",
+            "  setup() {",
+            "    const oidos = Vue.ref([])",
+            "    return { oidos, apuntar: (gato) => oidos.value.push(gato.nombre) }",
+            "  },",
+            "  template: `",
+            "    <div>",
+            "      <tarjeta-de-gato :gato=\"{ id: 3, nombre: 'Estaño' }\" @adoptar=\"apuntar\" />",
+            "      <p class=\"oidos\">{{ oidos.join(', ') }}</p>",
+            "    </div>",
+            "  `,",
+            "})",
+            "await espia.click('.adoptar')",
+            "esperar(espia.texto('.oidos')).igualA('Estaño')",
+          ),
+        },
+        {
+          nombre: "la tarjeta declara qué recibe y qué avisa, para que se vea sin leerla",
+          codigo: codigo(
+            "esperar(tarjetaDeGato.props, 'las props de la tarjeta').existe()",
+            "esperar(tarjetaDeGato.emits, 'los emits de la tarjeta').contiene('adoptar')",
+            "esperar(tarjetaDeGato.template, 'la plantilla de la tarjeta').existe()",
+          ),
+        },
+        {
+          nombre: "y el sitio donde se apuntan los adoptados sigue siendo del padre",
+          codigo: codigo(
+            "const refugio = montar(componente)",
+            "esperar(refugio.existe('.adoptados'), 'el párrafo de adoptados').esVerdadero()",
+            "esperar(refugio.contar('.adoptados')).igualA(1)",
+          ),
+        },
+      ],
+    },
+  ],
   pistas: [
     pista("El trozo que se repite dentro del `v-for` es el hijo entero: el `<li>` con su nombre y su botón.", 0),
     pista("El hijo necesita un dato (`gato`) y provoca un aviso (`adoptar`). Eso son sus props y sus emits.", 1),

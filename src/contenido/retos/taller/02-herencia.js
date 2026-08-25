@@ -115,6 +115,87 @@ export default {
       ),
     },
   ],
+  // La tentación aquí es copiar `quemar` en las hijas. La segunda tanda lo mira
+  // de frente: si el método está copiado, las dos clases no comparten el mismo.
+  variantes: [
+    {
+      titulo: "Lo que comparten y lo que no · otra tanda",
+      tests: [
+        {
+          nombre: "un aullador con una sola reserva oye una vez y ya",
+          codigo: codigo(
+            "const a = new Aullador(1)",
+            "esperar(a.quemar()).igualA('oye con estaño')",
+            "esperar(a.quemar()).igualA(null)",
+          ),
+        },
+        { nombre: "un lanzamonedas sin reservas no empuja nada", codigo: "esperar(new Lanzamonedas(0).quemar()).igualA(null)" },
+        {
+          nombre: "cada uno lleva su metal escrito",
+          codigo: codigo(
+            "esperar(new Lanzamonedas(1).metal).igualA('acero')",
+            "esperar(new Aullador(1).metal).igualA('estaño')",
+          ),
+        },
+        {
+          nombre: "y su efecto",
+          codigo: codigo(
+            "esperar(new Lanzamonedas(1).efecto).igualA('empuja')",
+            "esperar(new Aullador(1).efecto).igualA('oye')",
+          ),
+        },
+        {
+          nombre: "dos lanzamonedas no se gastan las reservas del otro",
+          codigo: codigo(
+            "const a = new Lanzamonedas(2)",
+            "const b = new Lanzamonedas(2)",
+            "a.quemar()",
+            "esperar(b.reservas).igualA(2)",
+          ),
+        },
+      ],
+    },
+    {
+      titulo: "Lo que comparten y lo que no · y otra",
+      tests: [
+        {
+          nombre: "tres quemadas gastan tres reservas, y esa cuenta la lleva el padre",
+          codigo: codigo(
+            "const a = new Aullador(5)",
+            "a.quemar()",
+            "a.quemar()",
+            "a.quemar()",
+            "esperar(a.reservas).igualA(2)",
+          ),
+        },
+        {
+          nombre: "insistir con las reservas a cero no las pone en negativo",
+          codigo: codigo(
+            "const a = new Lanzamonedas(1)",
+            "a.quemar()",
+            "a.quemar()",
+            "a.quemar()",
+            "esperar(a.reservas).igualA(0)",
+          ),
+        },
+        {
+          nombre: "los dos usan exactamente el mismo quemar: heredar no es copiar",
+          codigo: "esperar(new Lanzamonedas(1).quemar === new Aullador(1).quemar).esVerdadero()",
+        },
+        {
+          nombre: "un aullador no es un lanzamonedas: tener el mismo padre no los hermana",
+          codigo: "esperar(new Aullador(1) instanceof Lanzamonedas).esFalso()",
+        },
+        {
+          nombre: "y las dos cuelgan de Alomantico de verdad, no de una copia suya",
+          codigo: codigo(
+            "esperar(Object.getPrototypeOf(Lanzamonedas) === Alomantico).esVerdadero()",
+            "esperar(Object.getPrototypeOf(Aullador) === Alomantico).esVerdadero()",
+          ),
+        },
+      ],
+    },
+  ],
   pistas: [
     pista("Las dos clases son casi idénticas y muy cortas: un `extends`, un constructor con `super` y dos propiedades.", 0),
     pista("`quemar` no se copia. Se hereda. Si lo escribes en las hijas, el último test te lo dirá.", 1),

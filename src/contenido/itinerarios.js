@@ -102,7 +102,11 @@ export const ITINERARIOS = [
     paraQue:
       'Mirar tu propio código como lo miraría quien quiere entrar. Da por sabido programar.',
     etiquetaLenguaje: 'Seguridad',
-    lenguajeEnFrase: 'código que hay que romper y luego arreglar',
+    // Lo que se **ejecuta**, y no lo que se aprende: esto se mete en frases como
+    // «código {lenguajeEnFrase} que se ejecuta de verdad», y con «código que hay
+    // que romper y luego arreglar» salía «código código que hay que romper…».
+    // Lo de romper y arreglar está donde tenía que estar, en `resumen`.
+    lenguajeEnFrase: 'JavaScript y SQL',
     // Dos lenguajes porque una inyección no se entiende sin la base de datos
     // recibiéndola de verdad.
     lenguajes: ['js', 'sql'],

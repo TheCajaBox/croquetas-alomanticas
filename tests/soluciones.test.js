@@ -7,6 +7,7 @@ import { cargarTodosLosRetos, cuantasVariantes, enVariante } from '../src/conten
 import { SIN_CODIGO, codigoDeReferencia, revisarTactil } from './revisarRetos.js'
 import { analizar, inyectarGuardaDeBucles } from '../src/motor/guardaBucles.js'
 import { comprobarRequisitos } from '../src/motor/chequeosEstaticos.js'
+import { normalizar } from '../src/almacen/juego.js'
 
 /**
  * Los retos **enteros**: el catálogo solo trae la ficha de cada uno y el cuerpo
@@ -55,7 +56,7 @@ async function ejecutarSolucion(reto) {
     restaurar()
   }
 
-  return { incumplidos, resultados: api.resultados }
+  return { incumplidos, resultados: api.resultados, consola: api.consola }
 }
 
 const retosSinNavegador = RETOS.filter(
@@ -176,6 +177,43 @@ describe('las soluciones de referencia resuelven sus propios retos', () => {
 
       const fallados = resultados.filter((r) => !r.ok)
       expect(fallados.map((r) => `${r.nombre}: ${r.mensaje}`), 'tests en rojo').toEqual([])
+    })
+  }
+})
+
+/**
+ * Los retos de predecir: que lo esperado sea lo que de verdad sale.
+ *
+ * Un reto de predecir **no se corrige ejecutando**: se compara lo que has
+ * escrito con `respuestaEsperada`, tal cual (ver `normalizar` en
+ * `almacen/juego.js`). El código sí se ejecuta, pero solo para enseñarte la
+ * salida real al lado.
+ *
+ * De ahí sale el peor fallo que puede tener un juego para aprender, y no falla
+ * nada cuando pasa: si `respuestaEsperada` no es exactamente lo que el código
+ * imprime, **quien acierta recibe un «no»**, y encima con la salida real delante
+ * contradiciendo el veredicto. Sus propios `tests` no lo cazan, porque comparan
+ * la consola con una cadena escrita en el propio test, que puede haberse
+ * escrito bien mientras la otra se escribía mal.
+ *
+ * Así que aquí se ejecuta el código mostrado y se compara **con la misma
+ * función con la que corrige el juego**.
+ */
+describe('lo que hay que predecir es lo que de verdad se imprime', () => {
+  const aPredecir = RETOS.filter((reto) => reto.tipo === 'prediccion' && reto.entorno === 'worker')
+
+  it('hay retos de predecir que comprobar', () => {
+    expect(aPredecir.length).toBeGreaterThan(0)
+  })
+
+  for (const reto of aPredecir) {
+    it(`${reto.id}: ${reto.titulo}`, async () => {
+      const { consola } = await ejecutarSolucion(reto)
+      const real = consola.map((linea) => linea.texto).join('\n')
+      expect(
+        normalizar(real),
+        `la salida real no es la respuesta esperada:\n--- real ---\n${real}\n--- esperada ---\n${reto.respuestaEsperada}`,
+      ).toBe(normalizar(reto.respuestaEsperada))
     })
   }
 })

@@ -109,6 +109,98 @@ export default {
       ),
     },
   ],
+  // Lo que se practica es que el saldo viva dentro y sobreviva a las llamadas.
+  // La segunda tanda insiste en lo de fuera: pisar las funciones no da acceso.
+  variantes: [
+    {
+      titulo: "Funciones que se acuerdan · otra tanda",
+      tests: [
+        {
+          nombre: "una cuenta que empieza a cero también se acuerda",
+          codigo: codigo(
+            "const c = abrirCuenta(0)",
+            "esperar(c.saldo()).igualA(0)",
+            "esperar(c.ingresar(25)).igualA(25)",
+          ),
+        },
+        {
+          nombre: "gastar exactamente lo que hay la deja a cero, y eso sí se puede",
+          codigo: codigo(
+            "const c = abrirCuenta(40)",
+            "esperar(c.gastar(40)).igualA(0)",
+            "esperar(c.saldo()).igualA(0)",
+          ),
+        },
+        {
+          nombre: "uno más de lo que hay ya no se puede, y no se mueve nada",
+          codigo: codigo(
+            "const c = abrirCuenta(40)",
+            "esperar(c.gastar(41)).igualA(40)",
+            "esperar(c.saldo()).igualA(40)",
+          ),
+        },
+        {
+          nombre: "de una cuenta vacía no sale ni una croqueta",
+          codigo: "esperar(abrirCuenta(0).gastar(1)).igualA(0)",
+        },
+        {
+          nombre: "ingresos y gastos alternados y la cuenta no se pierde",
+          codigo: codigo(
+            "const c = abrirCuenta(10)",
+            "c.ingresar(90)",
+            "c.gastar(50)",
+            "c.ingresar(5)",
+            "esperar(c.saldo()).igualA(55)",
+          ),
+        },
+        {
+          nombre: "y tres cuentas son tres saldos, cada uno en su cierre",
+          codigo: codigo(
+            "const una = abrirCuenta(1)",
+            "const otra = abrirCuenta(2)",
+            "const tercera = abrirCuenta(3)",
+            "una.ingresar(100)",
+            "esperar(otra.saldo()).igualA(2)",
+            "esperar(tercera.saldo()).igualA(3)",
+          ),
+        },
+      ],
+    },
+    {
+      titulo: "Funciones que se acuerdan · y otra",
+      tests: [
+        {
+          nombre: "gastar cero devuelve el saldo sin mover un céntimo",
+          codigo: "esperar(abrirCuenta(100).gastar(0)).igualA(100)",
+        },
+        {
+          nombre: "lo que sale son tres funciones y nada más",
+          codigo: codigo(
+            "const c = abrirCuenta(1)",
+            "esperar(typeof c.ingresar).igualA('function')",
+            "esperar(typeof c.gastar).igualA('function')",
+            "esperar(typeof c.saldo).igualA('function')",
+          ),
+        },
+        {
+          nombre: "y no hay ninguna propiedad de propina con el saldo a la vista",
+          codigo: "esperar(Object.keys(abrirCuenta(100)), 'lo que se ve de la cuenta').tieneLongitud(3)",
+        },
+        {
+          nombre: "pisar la función saldo de una cuenta no enseña nada de la siguiente",
+          codigo: codigo(
+            "const c = abrirCuenta(100)",
+            "c.saldo = () => 999999",
+            "esperar(abrirCuenta(7).saldo()).igualA(7)",
+          ),
+        },
+        {
+          nombre: "lo que devuelve saldo es un número, no una promesa ni un texto",
+          codigo: "esperar(abrirCuenta(5).saldo(), 'el saldo').esDeTipo('number')",
+        },
+      ],
+    },
+  ],
   pistas: [
     pista("La variable del saldo va en `abrirCuenta`, **antes** del `return`. Las tres funciones de dentro la ven.", 0),
     pista("Tiene que ser `let`: `const` no dejaría sumarle ni restarle.", 1),

@@ -115,6 +115,117 @@ export default {
       ),
     },
   ],
+  // Lo que se practica es el orden del método: limpiar, salir si no queda nada,
+  // guardar y vaciar el campo. Estas tandas atacan cada paso por separado.
+  variantes: [
+    {
+      titulo: "Apuntar el botín · otra tanda",
+      tests: [
+        {
+          nombre: "los espacios de los lados se recortan antes de guardar",
+          codigo: codigo(
+            "const caja = montar(componente)",
+            "await caja.escribir('.campo', '   Chicle   ')",
+            "await caja.click('.guardar')",
+            "esperar(caja.textos('li')).igualA(['Chicle'])",
+          ),
+        },
+        {
+          nombre: "pulsar guardar sin haber escrito nada no apunta nada",
+          codigo: codigo(
+            "const caja = montar(componente)",
+            "await caja.click('.guardar')",
+            "esperar(caja.contar('li')).igualA(0)",
+            "esperar(caja.texto('.cuenta')).igualA('0')",
+          ),
+        },
+        {
+          nombre: "tres cosas seguidas y la cuenta va con ellas",
+          codigo: codigo(
+            "const caja = montar(componente)",
+            "await caja.escribir('.campo', 'Vindicación')",
+            "await caja.click('.guardar')",
+            "await caja.escribir('.campo', 'Sombrero')",
+            "await caja.click('.guardar')",
+            "await caja.escribir('.campo', 'Chicle')",
+            "await caja.click('.guardar')",
+            "esperar(caja.texto('.cuenta')).igualA('3')",
+            "esperar(caja.textos('li')).igualA(['Vindicación', 'Sombrero', 'Chicle'])",
+          ),
+        },
+        {
+          nombre: "guardar lo mismo dos veces lo apunta dos veces: nadie dijo que fuera un conjunto",
+          codigo: codigo(
+            "const caja = montar(componente)",
+            "await caja.escribir('.campo', 'Chicle')",
+            "await caja.click('.guardar')",
+            "await caja.escribir('.campo', 'Chicle')",
+            "await caja.click('.guardar')",
+            "esperar(caja.textos('li')).igualA(['Chicle', 'Chicle'])",
+          ),
+        },
+        {
+          nombre: "y el campo y el botón están donde los buscan los tests",
+          codigo: codigo(
+            "const caja = montar(componente)",
+            "esperar(caja.existe('.campo'), 'el campo').esVerdadero()",
+            "esperar(caja.existe('.guardar'), 'el botón').esVerdadero()",
+          ),
+        },
+      ],
+    },
+    {
+      titulo: "Apuntar el botín · y otra",
+      tests: [
+        {
+          nombre: "un tabulador entre espacios tampoco es un objeto que guardar",
+          codigo: codigo(
+            "const caja = montar(componente)",
+            "await caja.escribir('.campo', '  \\t  ')",
+            "await caja.click('.guardar')",
+            "esperar(caja.contar('li')).igualA(0)",
+          ),
+        },
+        {
+          nombre: "insistir en el botón después de guardar no duplica lo guardado",
+          codigo: codigo(
+            "const caja = montar(componente)",
+            "await caja.escribir('.campo', 'Mentemetal')",
+            "await caja.click('.guardar')",
+            "await caja.click('.guardar')",
+            "esperar(caja.textos('li')).igualA(['Mentemetal'])",
+          ),
+        },
+        {
+          nombre: "el campo y el dato van a la par: eso es lo que hace v-model",
+          codigo: codigo(
+            "const caja = montar(componente)",
+            "await caja.escribir('.campo', 'Vindicación')",
+            "esperar(caja.vm.nuevo, 'el dato nuevo').igualA('Vindicación')",
+          ),
+        },
+        {
+          nombre: "la cuenta sube de uno en uno, y se pinta",
+          codigo: codigo(
+            "const caja = montar(componente)",
+            "await caja.escribir('.campo', 'uno')",
+            "await caja.click('.guardar')",
+            "esperar(caja.texto('.cuenta')).igualA('1')",
+            "await caja.escribir('.campo', 'dos')",
+            "await caja.click('.guardar')",
+            "esperar(caja.texto('.cuenta')).igualA('2')",
+          ),
+        },
+        {
+          nombre: "y el botín es una lista, no un texto donde se van pegando cosas",
+          codigo: codigo(
+            "const caja = montar(componente)",
+            "esperar(Array.isArray(caja.vm.botin), 'que el botín sea una lista').esVerdadero()",
+          ),
+        },
+      ],
+    },
+  ],
   pistas: [
     pista("`v-model=\"nuevo\"` ata el campo al dato en los dos sentidos. `@click=\"guardar\"` llama al método al pulsar.", 0),
     pista("Dentro del método, `this.nuevo` es lo escrito y `this.botin` la lista. Para no guardar espacios, mira `this.nuevo.trim()`.", 1),

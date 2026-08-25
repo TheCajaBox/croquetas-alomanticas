@@ -84,6 +84,103 @@ export default {
       ),
     },
   ],
+  // Lo que falla si `unref` se llama en el sitio equivocado es que la computed
+  // deja de seguir a la ref. Estas tandas mezclan números y refs en todas las
+  // combinaciones, y cambian las refs después de crear el descuento.
+  variantes: [
+    {
+      titulo: "Un composable que acepta lo que le den · otra tanda",
+      tests: [
+        {
+          nombre: "cien menos el veinte por ciento son ochenta",
+          codigo: codigo(
+            "const { rebajado } = usarDescuento(100, 20)",
+            "esperar(rebajado.value).igualA(80)",
+          ),
+        },
+        {
+          nombre: "un descuento del cien por cien deja el precio a cero",
+          codigo: codigo(
+            "const { rebajado } = usarDescuento(50, 100)",
+            "esperar(rebajado.value).igualA(0)",
+          ),
+        },
+        {
+          nombre: "un descuento de cero deja el precio como estaba",
+          codigo: codigo(
+            "const { rebajado } = usarDescuento(37, 0)",
+            "esperar(rebajado.value).igualA(37)",
+          ),
+        },
+        {
+          nombre: "con las dos como refs, sigue los dos cambios y no solo el primero",
+          codigo: codigo(
+            "const precio = ref(200)",
+            "const porcentaje = ref(10)",
+            "const { rebajado } = usarDescuento(precio, porcentaje)",
+            "esperar(rebajado.value).igualA(180)",
+            "precio.value = 100",
+            "esperar(rebajado.value).igualA(90)",
+            "porcentaje.value = 50",
+            "esperar(rebajado.value).igualA(50)",
+          ),
+        },
+        {
+          nombre: "y un precio de cero se queda en cero, descuento incluido",
+          codigo: codigo(
+            "const { rebajado } = usarDescuento(0, 30)",
+            "esperar(rebajado.value).igualA(0)",
+          ),
+        },
+      ],
+    },
+    {
+      titulo: "Un composable que acepta lo que le den · y otra",
+      tests: [
+        {
+          nombre: "precio en ref y porcentaje suelto: sesenta menos un cuarto son cuarenta y cinco",
+          codigo: codigo(
+            "const { rebajado } = usarDescuento(ref(60), 25)",
+            "esperar(rebajado.value).igualA(45)",
+          ),
+        },
+        {
+          nombre: "y al revés sale lo mismo: al composable le da igual cómo le llegue cada cosa",
+          codigo: codigo(
+            "const { rebajado } = usarDescuento(60, ref(25))",
+            "esperar(rebajado.value).igualA(45)",
+          ),
+        },
+        {
+          nombre: "los decimales salen tal cual, que aquí nadie redondea nada",
+          codigo: codigo(
+            "const { rebajado } = usarDescuento(10, 33)",
+            "esperar(rebajado.value).igualA(6.7)",
+          ),
+        },
+        {
+          nombre: "cambiar la ref del precio dos veces se nota las dos veces",
+          codigo: codigo(
+            "const precio = ref(80)",
+            "const { rebajado } = usarDescuento(precio, 15)",
+            "esperar(rebajado.value).igualA(68)",
+            "precio.value = 100",
+            "esperar(rebajado.value).igualA(85)",
+            "precio.value = 0",
+            "esperar(rebajado.value).igualA(0)",
+          ),
+        },
+        {
+          nombre: "y lo que devuelve es una sola cosa, y se lee con punto value",
+          codigo: codigo(
+            "const salida = usarDescuento(1, 1)",
+            "esperar(Object.keys(salida), 'lo que devuelve el composable').tieneLongitud(1)",
+            "esperar(salida.rebajado.value, 'el precio rebajado').esDeTipo('number')",
+          ),
+        },
+      ],
+    },
+  ],
   pistas: [
     pista("`unref(x)` es el atajo de `isRef(x) ? x.value : x`. Con eso, dentro de la función da igual qué te hayan pasado.", 0),
     pista("Lo importante es **dónde** se llama a `unref`. Si lo llamas al principio de la función, coges el valor de ese momento y se acabó.", 1),

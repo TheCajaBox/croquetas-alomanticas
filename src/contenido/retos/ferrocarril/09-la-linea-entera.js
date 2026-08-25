@@ -143,5 +143,104 @@ export default {
       ),
     },
   ],
+  // El jefe junta hueco, hueco con nombre, estado compartido y un botón que baja
+  // de veinticinco en veinticinco. Las tandas dan de comer hasta el fondo, que es
+  // donde se ve si el tope de cero está puesto, y montan un panel después para
+  // comprobar que el estado no era de nadie en particular.
+  variantes: [
+    {
+      titulo: "Jefe: la línea entera · otra tanda",
+      tests: [
+        {
+          nombre: "el panel arranca con el hambre a tope y el pie lo dice",
+          codigo: codigo(
+            "const vista = montar(componente)",
+            "esperar(vista.texto('footer')).contiene('100')",
+            "esperar(vista.texto('h3')).diceLoMismoQue('La colonia')",
+          ),
+        },
+        {
+          nombre: "el botón entra por el hueco por defecto, no por el del pie",
+          codigo: codigo(
+            "const vista = montar(componente)",
+            "esperar(vista.existe('.cuerpo .dar'), 'el botón dentro del cuerpo').esVerdadero()",
+            "esperar(vista.existe('footer .dar'), 'el botón dentro del pie').esFalso()",
+          ),
+        },
+        {
+          nombre: "dos platos y el hambre se queda en cincuenta",
+          codigo: codigo(
+            "const vista = montar(componente)",
+            "await vista.click('.dar')",
+            "await vista.click('.dar')",
+            "esperar(usarColonia().estado.hambre).igualA(50)",
+            "esperar(vista.texto('footer')).contiene('50')",
+          ),
+        },
+        {
+          nombre: "otro panel montado ahora ya nace con el hambre que hay",
+          codigo: codigo(
+            "const vista = montar(componente)",
+            "esperar(vista.texto('footer')).contiene('50')",
+          ),
+        },
+        {
+          nombre: "y cuatro platos más la dejan a cero, no en menos cincuenta",
+          codigo: codigo(
+            "const colonia = usarColonia()",
+            "colonia.alimentar()",
+            "colonia.alimentar()",
+            "colonia.alimentar()",
+            "colonia.alimentar()",
+            "esperar(colonia.estado.hambre).igualA(0)",
+          ),
+        },
+      ],
+    },
+    {
+      titulo: "Jefe: la línea entera · y otra",
+      tests: [
+        {
+          nombre: "usarColonia devuelve el mismísimo estado todas las veces que la llames",
+          codigo: "esperar(usarColonia().estado === usarColonia().estado, 'que el estado sea uno solo').esVerdadero()",
+        },
+        {
+          nombre: "cuatro platos justos dejan el hambre a cero exacto",
+          codigo: codigo(
+            "const colonia = usarColonia()",
+            "colonia.alimentar()",
+            "colonia.alimentar()",
+            "colonia.alimentar()",
+            "colonia.alimentar()",
+            "esperar(colonia.estado.hambre).igualA(0)",
+          ),
+        },
+        {
+          nombre: "y el quinto plato no la pone en negativo: ahí está el tope",
+          codigo: codigo(
+            "const colonia = usarColonia()",
+            "colonia.alimentar()",
+            "esperar(colonia.estado.hambre).igualA(0)",
+          ),
+        },
+        {
+          nombre: "un panel montado con la colonia llena de comida enseña el cero en el pie",
+          codigo: codigo(
+            "const vista = montar(componente)",
+            "esperar(vista.texto('footer')).contiene('0')",
+          ),
+        },
+        {
+          nombre: "y las tres piezas siguen en su sitio: título, cuerpo y pie",
+          codigo: codigo(
+            "const vista = montar(componente)",
+            "esperar(vista.existe('h3'), 'el título').esVerdadero()",
+            "esperar(vista.existe('.cuerpo'), 'el cuerpo').esVerdadero()",
+            "esperar(vista.existe('footer'), 'el pie').esVerdadero()",
+          ),
+        },
+      ],
+    },
+  ],
   recompensa: { croquetas: 24 },
 }

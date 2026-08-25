@@ -1,0 +1,71 @@
+import { codigo, pista } from '../comun.js'
+
+export default {
+  id: "dia1-06c-leer-un-error",
+  mundo: "primer-dia",
+  entorno: "worker",
+  tipo: "cazar-linea",
+  titulo: "Lo primero es leer el error",
+  enunciado: codigo(
+    "Vas a ver muchos errores. Muchísimos. La diferencia entre pasarte una tarde atascado",
+    "y arreglarlo en diez segundos casi siempre es la misma: **haberlo leído**.",
+    "",
+    "Un error de JavaScript trae dos regalos: **qué** ha pasado y **dónde**. Aquí tienes",
+    "los dos. Pulsa la línea culpable.",
+  ),
+  codigoMostrado: codigo(
+    "const sombreros = 3",
+    "const prestados = 1",
+    "",
+    "const quedan = sombreros - prestados",
+    "",
+    "console.log(`Wayne tiene ${sombrero} sombreros`)",
+    "console.log(`y le quedan ${quedan}`)",
+  ),
+  errorMostrado: codigo(
+    "ReferenceError: sombrero is not defined",
+    "",
+    "    en la línea 6",
+  ),
+  lineaCulpable: 6,
+  explicaciones: {
+    6: codigo(
+      "Esta. El error lo dice con todas las letras: `sombrero`, en singular, **no existe**. Lo",
+      "que se declaró arriba es `sombreros`, con ese.",
+      "",
+      "`ReferenceError: X is not defined` significa siempre lo mismo: «me has pedido algo",
+      "llamado X y no encuentro nada con ese nombre». Y en un programa recién escrito la causa",
+      "es casi siempre una de estas tres:",
+      "",
+      "- una letra de más o de menos, como aquí;",
+      "- una mayúscula donde iba minúscula, porque `Sombreros` y `sombreros` son dos nombres",
+      "  distintos;",
+      "- o pedirlo antes de la línea que lo crea.",
+      "",
+      "Fíjate en algo importante: el error **no** aparece al escribir la línea 6, sino al",
+      "ejecutarla. Las cinco de arriba se ejecutaron bien y `quedan` ya valía 2.",
+    ),
+    1: codigo(
+      "`const sombreros = 3` está perfecta, y además es la línea que te da la pista para",
+      "resolver esto: aquí está el nombre bueno, escrito tal cual hay que escribirlo. Compáralo",
+      "con el que se usa más abajo, letra por letra.",
+    ),
+    4: codigo(
+      "Esta resta es correcta: `sombreros` y `prestados` existen las dos y son números, así que",
+      "`quedan` acaba valiendo 2 sin ningún problema. Que una línea haga una operación no la",
+      "convierte en sospechosa.",
+    ),
+    7: codigo(
+      "Esta línea nunca llegó a ejecutarse. Cuando un programa revienta, se para ahí mismo: lo",
+      "que venía después no ha pasado. Es un detalle que confunde mucho al principio, porque",
+      "buscas el fallo en la última cosa que salió por pantalla y el fallo está en la",
+      "siguiente.",
+    ),
+  },
+  pistas: [
+    pista("Empieza por el error, no por el código. Te está dando un nombre y un número: úsalos los dos antes de leer nada más.", 0),
+    pista("`no está definido` quiere decir que has pedido algo que no existe con ese nombre. Así que busca dónde se pide y compáralo con dónde se creó.", 1),
+    pista("El número que da el error es el bueno, y ahí hay una palabra que se parece mucho a otra de arriba pero no es igual. Se diferencian en una sola letra, y está al final.", 2),
+  ],
+  recompensa: { croquetas: 6 },
+}

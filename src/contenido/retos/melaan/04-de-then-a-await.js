@@ -55,6 +55,52 @@ export default {
       ),
     },
   ],
+  // Al bajar de la escalera es fácil perder el orden o devolver la promesa sin
+  // esperarla. Estas tandas miran las dos cosas por separado.
+  variantes: [
+    {
+      titulo: "Salir de la escalera · otra tanda",
+      tests: [
+        { nombre: "reúne a tres, ni dos ni cuatro", codigo: "esperar(await reunirEquipo()).tieneLongitud(3)" },
+        { nombre: "el primero en la lista es Wax", codigo: "esperar((await reunirEquipo())[0]).igualA('Wax llega')" },
+        { nombre: "y la que cierra es Marasi", codigo: "esperar((await reunirEquipo())[2]).igualA('Marasi llega')" },
+        {
+          nombre: "cada aviso es un texto y ninguno se ha quedado a medias",
+          codigo: codigo(
+            "const equipo = await reunirEquipo()",
+            "esperar(equipo[0], 'el primer aviso').esDeTipo('string')",
+            "esperar(equipo.every((aviso) => aviso.endsWith(' llega'))).esVerdadero()",
+          ),
+        },
+        { nombre: "y avisar por su cuenta también avisa", codigo: "esperar(await avisar('MeLaan')).igualA('MeLaan llega')" },
+      ],
+    },
+    {
+      titulo: "Salir de la escalera · y otra",
+      tests: [
+        { nombre: "lo que devuelve es una lista de verdad", codigo: "esperar(Array.isArray(await reunirEquipo())).esVerdadero()" },
+        { nombre: "avisar sigue devolviendo una promesa antes de resolverse", codigo: "esperar(avisar('Wax') instanceof Promise).esVerdadero()" },
+        {
+          nombre: "tres veces seguidas y las tres dicen lo mismo",
+          codigo: codigo(
+            "const primera = await reunirEquipo()",
+            "const segunda = await reunirEquipo()",
+            "const tercera = await reunirEquipo()",
+            "esperar(primera).igualA(segunda)",
+            "esperar(segunda).igualA(tercera)",
+          ),
+        },
+        {
+          nombre: "el orden es el de las llamadas, con los tres nombres en su sitio",
+          codigo: "esperar(await reunirEquipo()).igualA(['Wax llega', 'Wayne llega', 'Marasi llega'])",
+        },
+        {
+          nombre: "y sin esperarla, lo que sale no es la lista todavía",
+          codigo: "esperar(Array.isArray(reunirEquipo())).esFalso()",
+        },
+      ],
+    },
+  ],
   pistas: [
     pista("Marca la función con `async` y cada `.then(...)` se convierte en un `await` con su variable.", 0),
     pista("Los tres valores que la escalera arrastraba hacia abajo pasan a ser tres `const` normales, uno por línea.", 1),

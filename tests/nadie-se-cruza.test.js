@@ -7,12 +7,17 @@ import { antesalaDe } from '../src/contenido/antesala.js'
 import { glosarioDe } from '../src/contenido/glosario.js'
 import { IMPREVISTOS } from '../src/contenido/imprevistos.js'
 import { INSIGNIAS, porqueDe } from '../src/contenido/insignias.js'
-import { ITINERARIOS, ITINERARIOS_POR_ID } from '../src/contenido/itinerarios.js'
+import {
+  ITINERARIOS,
+  ITINERARIOS_POR_ID,
+  quienEscribeElApunte,
+} from '../src/contenido/itinerarios.js'
 import { MUNDOS, mundosDelItinerario } from '../src/contenido/mundos.js'
 import { PERSONAJES } from '../src/contenido/personajes.js'
-import { RECORTES } from '../src/contenido/recortes.js'
+import { RECORTES, recorteDe } from '../src/contenido/recortes.js'
 import { REPASOS } from '../src/contenido/repasos/index.js'
 import { cargarTodosLosRetos, retosDelMundo } from '../src/contenido/retos/index.js'
+import { TRASTOS, trastosDelCamino } from '../src/contenido/trastos.js'
 
 /**
  * Nadie sale en un camino que no es el suyo.
@@ -100,12 +105,24 @@ function loQueVe(itinerarioId) {
 
   // Los recortes y las insignias se ganan en cualquier camino y se leen en el
   // cajón, que es una página global: no pueden nombrar a nadie.
+  // Los recortes, resueltos como los lee este camino: cada uno tiene su prensa y
+  // el consejo del pie es el mismo en los cuatro. Mirar el recorte en crudo
+  // diría que todos hablan de Elendel, porque todos traen esa edición dentro.
   for (const recorte of RECORTES) {
-    trozos.push([`recorte/${recorte.id}`, [recorte.titular, recorte.entradilla, recorte.consejo].join(' ')])
+    const suyo = recorteDe(recorte.id, itinerarioId)
+    trozos.push([`recorte/${recorte.id}`, [suyo.cabecera, suyo.titular, suyo.entradilla, suyo.consejo].join(' ')])
   }
   for (const insignia of INSIGNIAS) {
     // Resuelta como la ve este camino: los huecos los rellena su reparto.
     trozos.push([`insignia/${insignia.id}`, `${insignia.nombre} ${porqueDe(insignia, itinerarioId)}`])
+  }
+
+  // Los trastos, que es por donde se colaron dieciséis sin que nada fallara: los
+  // daba Wayne y hablaban de Wayne, de Elendel y de los Áridos, y en Elantris te
+  // los entregaba Karata de parte de un hombre que está a mil años de allí.
+  // Solo los de este camino: cada uno tiene su cajón.
+  for (const trasto of trastosDelCamino(itinerarioId)) {
+    trozos.push([`trasto/${trasto.id}`, `${trasto.nombre} ${trasto.nota}`])
   }
 
   for (const mundo of mundosDelItinerario(itinerarioId)) {
@@ -175,5 +192,177 @@ describe('nadie sale en un camino que no es el suyo', () => {
     }
     const suma = ITINERARIOS.reduce((total, cada) => total + mundosDelItinerario(cada.id).length, 0)
     expect(suma).toBe(MUNDOS.length)
+  })
+})
+
+/**
+ * Y que ningún camino se quede sin cajón.
+ *
+ * `trastosDelCamino` cae en los de la segunda era cuando un camino no tiene
+ * propios -mejor entregar algo de otro sitio que dejar la pista sin su parte de
+ * comedia-, y esa red de seguridad es justo lo que haría desaparecer el fallo
+ * sin avisar: los cuatro caminos volverían a hablar de Wayne y la prueba de
+ * arriba lo cazaría, pero un camino nuevo entraría con el cajón prestado y en
+ * silencio.
+ */
+describe('cada camino tiene su propio cajón de trastos', () => {
+  it('ninguno vive del prestado, y ninguno baja de diez', () => {
+    for (const itinerario of ITINERARIOS) {
+      const suyos = TRASTOS.filter((trasto) => trasto.camino === itinerario.id)
+      expect(suyos.length, `${itinerario.id} no tiene trastos propios`).toBeGreaterThanOrEqual(10)
+    }
+  })
+
+  it('todo trasto es de un camino que existe, y no hay ids repetidos', () => {
+    const caminos = new Set(ITINERARIOS.map((cada) => cada.id))
+    for (const trasto of TRASTOS) {
+      expect(caminos.has(trasto.camino), `${trasto.id} dice ser de «${trasto.camino}»`).toBe(true)
+      expect(trasto.nota.length, `${trasto.id} sin nota`).toBeGreaterThan(20)
+    }
+    const ids = TRASTOS.map((cada) => cada.id)
+    expect(new Set(ids).size, 'ids de trasto repetidos').toBe(ids.length)
+  })
+})
+
+/**
+ * Y que ningún camino se quede sin prensa propia.
+ *
+ * `recorteDe` cae en la edición de la segunda era cuando falta la del camino
+ * -mejor un chiste de otro sitio que ninguno-, y esa red es lo que haría
+ * desaparecer el fallo sin avisar: un camino nuevo entraría leyendo el Elendel
+ * Daily y en silencio.
+ */
+describe('cada camino tiene su propia prensa', () => {
+  it('los nueve recortes traen edición para los cuatro caminos', () => {
+    for (const recorte of RECORTES) {
+      for (const itinerario of ITINERARIOS) {
+        const edicion = recorte.ediciones[itinerario.id]
+        expect(edicion, `${recorte.id} no tiene edición de ${itinerario.id}`).toBeTruthy()
+        expect(edicion.titular.length, `${recorte.id}/${itinerario.id}: titular corto`).toBeGreaterThan(15)
+        expect(edicion.entradilla.length, `${recorte.id}/${itinerario.id}: entradilla corta`).toBeGreaterThan(40)
+      }
+    }
+  })
+
+  it('ninguna edición se repite entre caminos, que sería copiar y pegar', () => {
+    for (const recorte of RECORTES) {
+      const titulares = ITINERARIOS.map((cada) => recorte.ediciones[cada.id].titular)
+      expect(new Set(titulares).size, `${recorte.id} repite titular entre caminos`).toBe(titulares.length)
+    }
+  })
+
+  it('el consejo es el mismo en los cuatro: es la parte que sirve', () => {
+    for (const recorte of RECORTES) {
+      const consejos = ITINERARIOS.map((cada) => recorteDe(recorte.id, cada.id).consejo)
+      expect(new Set(consejos).size, `${recorte.id} cambia de consejo según el camino`).toBe(1)
+    }
+  })
+})
+
+/**
+ * Y el que faltaba: **nadie sale del trozo de camino que es suyo**.
+ *
+ * Hasta aquí la prueba iba por caminos, y eso deja fuera el reparto que cambia
+ * de manos **dentro** de un camino. La primera era se cuenta en dos mitades y no
+ * por capricho: Kelsier explica la primera y no llega al final, y cuando ya no
+ * está la segunda la explican Elend y Vin. Es la historia que se cuenta por
+ * debajo del temario, y un enunciado que nombre a Kelsier en La Fundación la
+ * rompe entera sin que falle nada.
+ *
+ * No hace falta declarar nada nuevo: `apuntesPorParte` ya dice quién enseña en
+ * cada mitad y `parte` ya está en cada mundo.
+ *
+ * ## El relevo va en un solo sentido, y eso es la mitad de la prueba
+ *
+ * La primera versión de esto miraba las dos direcciones y cazó a Vin en La
+ * Ceniza y en El Pozo. Y estaba **mal la prueba**, no el contenido: Vin sale ahí
+ * como dato de un ejemplo -`['Vin', 'Elend']`, `saludo('Vin', 3)`- y Vin está en
+ * Luthadel desde el principio. Lo que empieza en la segunda mitad es que
+ * *enseñe*, no que exista.
+ *
+ * Lo que sí es una ruptura es la otra dirección: quien entrega el temario **no
+ * vuelve**. Nombrar a Kelsier en La Fundación como si estuviera delante rompe lo
+ * único que este camino cuenta por debajo del temario. Así que la regla es que
+ * un mundo no nombre a quien enseñaba en una mitad **anterior** a la suya; los
+ * de la mitad siguiente pueden aparecer antes, porque ya estaban.
+ */
+describe('nadie sale de su mitad del camino', () => {
+  /** Todo lo que un mundo le pone delante al jugador, en un solo texto. */
+  function textoDelMundo(mundo) {
+    return [
+      mundo.nombre,
+      mundo.lema,
+      mundo.intro,
+      mundo.resumen,
+      mundo.presentacion,
+      mundo.despedida,
+      ...retosDelMundo(mundo.id).flatMap((ficha) => {
+        const reto = RETOS.find((cada) => cada.id === ficha.id)
+        return [
+          reto.titulo,
+          reto.enunciado,
+          reto.explicacion,
+          ...(reto.pistas ?? []).map((cada) => cada.texto ?? cada),
+          ...(reto.opciones ?? []).map((cada) => `${cada.texto ?? ''} ${cada.porque ?? ''}`),
+          APUNTES[reto.id],
+        ]
+      }),
+    ]
+      .filter(Boolean)
+      .join(' ')
+  }
+
+  it('quien entrega el temario no vuelve a aparecer después', () => {
+    const colados = []
+    for (const mundo of MUNDOS) {
+      const porParte = ITINERARIOS_POR_ID[mundo.itinerario]?.reparto?.apuntesPorParte
+      if (!porParte) continue
+
+      // Las mitades en el orden en que se declaran, que es el orden en que se
+      // juegan. De aquí sale «anterior a la mía».
+      const orden = Object.keys(porParte)
+      const mia = orden.indexOf(mundo.parte ?? 'primera')
+      const yaEntregaron = orden.slice(0, mia).flatMap((parte) => porParte[parte])
+
+      const texto = textoDelMundo(mundo)
+      for (const quien of yaEntregaron) {
+        const nombre = PERSONAJES[quien]?.nombre
+        if (nombre && busca(texto, nombre)) {
+          colados.push(`${mundo.id} nombra a ${nombre}, que ya había entregado el temario`)
+        }
+      }
+    }
+    expect(
+      colados,
+      'alguien que ya dejó de enseñar sigue apareciendo en los mundos de después',
+    ).toEqual([])
+  })
+
+  it('y las dos mitades existen de verdad, con mundos en cada una', () => {
+    // Si un día alguien quita los `parte` de los mundos, la prueba de arriba
+    // dejaría de comprobar nada y no se quejaría: `deLaOtra` saldría vacío.
+    for (const itinerario of ITINERARIOS) {
+      const porParte = itinerario.reparto.apuntesPorParte
+      if (!porParte) continue
+      for (const parte of Object.keys(porParte)) {
+        const suyos = mundosDelItinerario(itinerario.id).filter(
+          (mundo) => (mundo.parte ?? 'primera') === parte,
+        )
+        expect(suyos.length, `${itinerario.id}: la mitad «${parte}» no tiene mundos`).toBeGreaterThan(0)
+      }
+    }
+  })
+
+  it('quien firma el apunte de un mundo es de la mitad de ese mundo', () => {
+    for (const mundo of MUNDOS) {
+      const porParte = ITINERARIOS_POR_ID[mundo.itinerario]?.reparto?.apuntesPorParte
+      if (!porParte) continue
+      const quien = quienEscribeElApunte(mundo)
+      const mia = mundo.parte ?? 'primera'
+      // El mundo puede declarar su propia firma -el de refactor lo lleva TenSoon-
+      // y entonces manda la suya, que es lo correcto.
+      if (mundo.apunte) continue
+      expect(porParte[mia], `${mundo.id}: la mitad «${mia}» no tiene quien enseñe`).toContain(quien)
+    }
   })
 })

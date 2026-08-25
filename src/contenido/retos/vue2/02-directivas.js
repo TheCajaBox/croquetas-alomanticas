@@ -102,6 +102,116 @@ export default {
     },
     { nombre: "cada fila lleva su key", codigo: "esperar(componente.template, 'la plantilla').contiene(':key')" },
   ],
+  // Los bordes de este reto son el corte de los cien y el cajón que se vacía y
+  // se vuelve a llenar. Las tandas pasan por los dos, y por el valor de cero.
+  variantes: [
+    {
+      titulo: "El inventario del despacho · otra tanda",
+      tests: [
+        {
+          nombre: "un solo objeto deja una sola fila, y baratija",
+          codigo: codigo(
+            "const despacho = montar(componente)",
+            "despacho.vm.objetos = [{ id: 9, nombre: 'Chicle', valor: 1 }]",
+            "await siguienteTick()",
+            "esperar(despacho.contar('li')).igualA(1)",
+            "esperar(despacho.textos('li')).igualA(['Chicle'])",
+            "esperar(despacho.contar('.baratija')).igualA(1)",
+          ),
+        },
+        {
+          nombre: "el que vale justo cien es valioso: el corte es «cien o más»",
+          codigo: codigo(
+            "const despacho = montar(componente)",
+            "despacho.vm.objetos = [{ id: 1, nombre: 'justo', valor: 100 }]",
+            "await siguienteTick()",
+            "esperar(despacho.contar('.valioso')).igualA(1)",
+            "esperar(despacho.contar('.baratija')).igualA(0)",
+          ),
+        },
+        {
+          nombre: "y el que vale noventa y nueve se queda en baratija",
+          codigo: codigo(
+            "const despacho = montar(componente)",
+            "despacho.vm.objetos = [{ id: 1, nombre: 'casi', valor: 99 }]",
+            "await siguienteTick()",
+            "esperar(despacho.contar('.baratija')).igualA(1)",
+            "esperar(despacho.contar('.valioso')).igualA(0)",
+          ),
+        },
+        {
+          nombre: "vaciar el cajón saca el aviso, y volver a llenarlo lo quita",
+          codigo: codigo(
+            "const despacho = montar(componente)",
+            "despacho.vm.objetos = []",
+            "await siguienteTick()",
+            "esperar(despacho.existe('.vacio'), 'el aviso con el cajón vacío').esVerdadero()",
+            "despacho.vm.objetos = [{ id: 1, nombre: 'Vindicación', valor: 400 }]",
+            "await siguienteTick()",
+            "esperar(despacho.existe('.vacio'), 'el aviso con el cajón lleno').esFalso()",
+            "esperar(despacho.contar('li')).igualA(1)",
+          ),
+        },
+      ],
+    },
+    {
+      titulo: "El inventario del despacho · y otra",
+      tests: [
+        {
+          nombre: "cinco objetos, cinco filas, y las clases repartidas donde toca",
+          codigo: codigo(
+            "const despacho = montar(componente)",
+            "despacho.vm.objetos = [",
+            "  { id: 1, nombre: 'a', valor: 0 },",
+            "  { id: 2, nombre: 'b', valor: 100 },",
+            "  { id: 3, nombre: 'c', valor: 99 },",
+            "  { id: 4, nombre: 'd', valor: 5000 },",
+            "  { id: 5, nombre: 'e', valor: 1 },",
+            "]",
+            "await siguienteTick()",
+            "esperar(despacho.contar('li')).igualA(5)",
+            "esperar(despacho.contar('.valioso'), 'los valiosos').igualA(2)",
+            "esperar(despacho.contar('.baratija'), 'las baratijas').igualA(3)",
+          ),
+        },
+        {
+          nombre: "el aviso del cajón vacío dice exactamente lo que tiene que decir",
+          codigo: codigo(
+            "const despacho = montar(componente)",
+            "despacho.vm.objetos = []",
+            "await siguienteTick()",
+            "esperar(despacho.texto('.vacio')).igualA('El cajón está vacío.')",
+          ),
+        },
+        {
+          nombre: "y con el cajón vacío no queda ninguna fila colgando",
+          codigo: codigo(
+            "const despacho = montar(componente)",
+            "despacho.vm.objetos = []",
+            "await siguienteTick()",
+            "esperar(despacho.contar('li')).igualA(0)",
+            "esperar(despacho.contar('.valioso')).igualA(0)",
+            "esperar(despacho.contar('.baratija')).igualA(0)",
+          ),
+        },
+        {
+          nombre: "los nombres con tilde se pintan enteros, sin comerse nada",
+          codigo: codigo(
+            "const despacho = montar(componente)",
+            "esperar(despacho.textos('li')).contiene('Vindicación')",
+          ),
+        },
+        {
+          nombre: "la plantilla trae las tres directivas del reto",
+          codigo: codigo(
+            "esperar(componente.template, 'la plantilla').contiene('v-if')",
+            "esperar(componente.template, 'la plantilla').contiene('v-for')",
+            "esperar(componente.template, 'la plantilla').contiene(':key')",
+          ),
+        },
+      ],
+    },
+  ],
   pistas: [
     pista("`v-if` decide si algo se pinta, `v-else` va justo detrás, y `v-for` repite un elemento por cada cosa de una lista.", 0),
     pista("La clase se puede calcular: `:class=\"objeto.valor >= 100 ? 'valioso' : 'baratija'\"`. Los dos puntos delante significan que lo de dentro es JavaScript, no texto.", 1),

@@ -268,10 +268,20 @@ test('cada camino presenta a quien lo narra, con su ilustración si la tiene', a
   // el hueco se vería igual de vacío que si no existiera el retrato.
   expect(await suyo.evaluate((img) => img.naturalWidth)).toBeGreaterThan(100)
 
-  // Sel todavía no tiene ilustración: sale su avatar y no un hueco.
-  await page.goto('#/itinerario/sel')
-  await expect(page.locator('.retrato-grande')).toHaveCount(0)
-  await expect(page.locator('.anfitrion .avatar, .anfitrion svg')).toBeVisible()
+  // Sel y Elantris todavía no tienen ilustración, y no salen con un hueco ni con
+  // un disco suelto en medio del panel: sale el emblema de su camino con la cara
+  // de quien narra delante. Con dos retratos ilustrados al lado, el disco a pelo
+  // hacía que esos dos caminos parecieran provisionales.
+  for (const camino of ['sel', 'elantris']) {
+    await page.goto(`#/itinerario/${camino}`)
+    await expect(page.locator('.retrato-grande')).toHaveCount(0)
+    const sinRetrato = page.locator('.anfitrion .sin-retrato')
+    await expect(sinRetrato.locator('.emblema')).toBeVisible()
+    await expect(sinRetrato.locator('.avatar')).toBeVisible()
+    // Y el emblema es el suyo, no el anillo de reserva: cada uno dice algo de su
+    // temario -el aon de Elantris, el sello agrietado de Sel-.
+    await expect(sinRetrato.locator(`.emblema.${camino}`)).toBeVisible()
+  }
 })
 
 test('la portada dice por dónde ibas y lleva a ese reto', async ({ page }) => {
@@ -621,6 +631,28 @@ test('el cuerpo de un reto se pide al abrirlo, y solo el suyo', async ({ page })
   expect(cuerpos[0]).toContain('07-primera-funcion')
 })
 
+test('la portada enseña un reto resolviéndose, no solo lo cuenta', async ({ page }) => {
+  // «Escribes, se ejecuta y unos tests dicen si va» es la promesa entera del
+  // juego, y estaba solo escrita: quien llega de nuevas no sabe si eso significa
+  // un editor de verdad o un formulario con tres opciones, que es justo la
+  // diferencia que separa esto de un cuestionario.
+  await page.goto('')
+  const muestra = page.locator('.muestra')
+  await expect(muestra).toBeVisible()
+
+  // Código de verdad, con la salida temprana del caso raro a la vista.
+  await expect(muestra.locator('.editorcillo')).toContainText('function raciones')
+  await expect(muestra.locator('.editorcillo .clave').first()).toContainText('return 0')
+
+  // Y los tests en verde, que es la otra mitad de la promesa.
+  await expect(muestra.locator('.tests-muestra li')).toHaveCount(4)
+  await expect(muestra.locator('.cobrado')).toContainText('croquetas')
+
+  // Nada de comillas invertidas a la vista: este texto se pinta tal cual y no
+  // como marcado, y con ellas se leía «la función `raciones`».
+  await expect(muestra).not.toContainText('`')
+})
+
 test('la tira de arriba dice en qué camino y en qué mundo estás', async ({ page }) => {
   // El agujero que tapa: dentro de un reto no había forma de saber en cuál de
   // los cuatro caminos estabas. Con cuatro lenguajes eso no es un detalle -lo
@@ -793,23 +825,34 @@ test('los sombreros se encuentran, se pagan y se guardan', async ({ page }) => {
 
 test('la racha se ve en la cabecera y se pierde al comprar una pista', async ({ page }) => {
   // Se siembra una racha de uno: encadenar dos retos a mano aquí no aportaría
-  // nada y ataría la prueba a cómo se resuelve cada tipo.
-  // Y el segundo reto por hecho, que si no el tercero está cerrado. Se siembra
-  // aquí y no con `irAlReto` para no perder la racha: sembrar recarga, y esta
-  // partida se escribe entera en cada carga.
-  await page.addInitScript(() => {
+  // nada y ataría la prueba a cómo se resuelve cada tipo. Se siembra con
+  // `addInitScript` y no con `irAlReto` para no perder la racha: sembrar
+  // recarga, y esta partida se escribe entera en cada carga.
+  //
+  // Y por hechos **todos los retos anteriores** al de la pista, menos el que se
+  // va a resolver aquí. Estaba escrito «dia1-02-tipos» a mano, y el día que se
+  // colaron tres retos nuevos en El primer día el de la pista quedó cerrado por
+  // el candado -los retos se abren en orden- y la prueba se cayó sin que nada
+  // estuviera mal. De la lista del mundo, que es la que manda.
+  const DEL_TIRON = 'dia1-01-variables'
+  const CON_PISTA = 'dia1-03-const-o-let'
+  const orden = await idsDelMundo('primer-dia')
+  const antesDeLaPista = orden
+    .slice(0, orden.indexOf(CON_PISTA))
+    .filter((id) => id !== DEL_TIRON)
+
+  await page.addInitScript((sembrados) => {
     const hecho = { superado: true, intentos: 1, fallos: 0, pistasUsadas: [], superadoEn: Date.now() }
+    const retos = {}
+    for (const id of sembrados) retos[id] = hecho
     localStorage.setItem(
       'gatosYCodigo',
-      JSON.stringify({
-        version: 1,
-        progreso: { rachaSinPistas: 1, mejorRacha: 1, retos: { 'dia1-02-tipos': hecho } },
-      }),
+      JSON.stringify({ version: 1, progreso: { rachaSinPistas: 1, mejorRacha: 1, retos } }),
     )
-  })
+  }, antesDeLaPista)
 
   // Con uno no hay racha que enseñar.
-  await page.goto('#/reto/dia1-01-variables')
+  await page.goto(`#/reto/${DEL_TIRON}`)
   await page.reload()
   await expect(page.locator('.contador.racha')).toHaveCount(0)
 
@@ -820,7 +863,7 @@ test('la racha se ve en la cabecera y se pierde al comprar una pista', async ({ 
   await expect(page.locator('.contador.racha')).toContainText('2')
 
   // Y comprar una pista en el siguiente la rompe.
-  await page.goto('#/reto/dia1-03-const-o-let')
+  await page.goto(`#/reto/${CON_PISTA}`)
   await expect(page.getByRole('heading', { name: /Lo que se mueve/ })).toBeVisible()
   await page.getByRole('button', { name: /Pista 1/ }).click()
   // Se espera a que la pista esté abierta de verdad: contestar antes deja la

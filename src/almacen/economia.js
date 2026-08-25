@@ -1,6 +1,6 @@
 import { defineStore } from 'pinia'
 
-import { TRASTOS } from '../contenido/trastos.js'
+import { TRASTOS, trastosDelCamino } from '../contenido/trastos.js'
 import { autoguardar } from './persistencia.js'
 
 /** Con esto se empieza: da para una pista barata y una comida. Y poco más. */
@@ -16,7 +16,7 @@ export const usarEconomia = defineStore('economia', {
   }),
 
   getters: {
-    /** Cuántos trastos distintos le ha colocado ya Wayne. */
+    /** Cuántos trastos distintos te han colocado ya, de los cuatro cajones. */
     trastosDistintos: (estado) => new Set(estado.trastos).size,
     puedePagar: (estado) => (cantidad) => estado.croquetas >= cantidad,
   },
@@ -52,12 +52,17 @@ export const usarEconomia = defineStore('economia', {
     },
 
     /**
-     * Wayne no roba: intercambia. Deja un trasto sin ningún valor, y a ser
-     * posible uno que no te haya colocado ya.
+     * Quien te vende la pista no roba: intercambia. Deja un trasto sin ningún
+     * valor, y a ser posible uno que no te haya colocado ya.
+     *
+     * **Del cajón de su camino**, y eso importa: cada camino tiene el suyo con
+     * el humor de quien lo llena. Sin el camino, Karata te entregaba en Elantris
+     * un mapa de los Áridos de parte de un hombre que está a mil años de allí.
      */
-    recibirTrasto() {
-      const sinRepetir = TRASTOS.filter((trasto) => !this.trastos.includes(trasto.id))
-      const posibles = sinRepetir.length > 0 ? sinRepetir : TRASTOS
+    recibirTrasto(itinerarioId) {
+      const suyos = itinerarioId ? trastosDelCamino(itinerarioId) : TRASTOS
+      const sinRepetir = suyos.filter((trasto) => !this.trastos.includes(trasto.id))
+      const posibles = sinRepetir.length > 0 ? sinRepetir : suyos
       const elegido = posibles[Math.floor(Math.random() * posibles.length)]
       this.trastos.push(elegido.id)
       return elegido

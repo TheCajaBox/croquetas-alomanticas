@@ -70,6 +70,69 @@ export default {
       ),
     },
   ],
+  // Cada tanda vuelve a mirar lo mismo desde otro ángulo: que la lista que sale
+  // no ES la plantilla, y que tocar la que sale no la toque a ella.
+  variantes: [
+    {
+      titulo: "La copia que no era una copia · otra tanda",
+      tests: [
+        { nombre: "el refuerzo entra al final de la fila", codigo: "esperar(prepararSalida('MeLaan')[2]).igualA('MeLaan')" },
+        {
+          nombre: "tres salidas seguidas y la plantilla sigue teniendo dos nombres",
+          codigo: codigo(
+            "prepararSalida('a')",
+            "prepararSalida('b')",
+            "prepararSalida('c')",
+            "esperar(PLANTILLA).tieneLongitud(2)",
+          ),
+        },
+        { nombre: "cada salida son tres, ni cuatro ni cinco", codigo: "esperar(prepararSalida('Steris')).tieneLongitud(3)" },
+        {
+          nombre: "la salida no es la plantilla: son dos listas distintas de verdad",
+          codigo: "esperar(prepararSalida('x') === PLANTILLA).esFalso()",
+        },
+        {
+          nombre: "y tocar la salida -hasta cambiarle el primero- no toca la plantilla",
+          codigo: codigo(
+            "const salida = prepararSalida('x')",
+            "salida.push('y')",
+            "salida[0] = 'nadie'",
+            "esperar(PLANTILLA).igualA(['Wax', 'Wayne'])",
+          ),
+        },
+      ],
+    },
+    {
+      titulo: "La copia que no era una copia · y otra",
+      tests: [
+        { nombre: "un refuerzo sin nombre también ocupa su plaza", codigo: "esperar(prepararSalida('')).igualA(['Wax', 'Wayne', ''])" },
+        { nombre: "y la plantilla sigue siendo la de siempre después", codigo: "esperar(PLANTILLA).igualA(['Wax', 'Wayne'])" },
+        {
+          nombre: "las dos primeras plazas son Wax y Wayne, salida tras salida",
+          codigo: codigo(
+            "const salida = prepararSalida('MeLaan')",
+            "esperar(salida[0]).igualA('Wax')",
+            "esperar(salida[1]).igualA('Wayne')",
+          ),
+        },
+        {
+          nombre: "pedir la misma salida dos veces da dos listas, no la misma dos veces",
+          codigo: "esperar(prepararSalida('a') === prepararSalida('a')).esFalso()",
+        },
+        {
+          nombre: "y cinco salidas después la plantilla no ha engordado ni un nombre",
+          codigo: codigo(
+            "prepararSalida('1')",
+            "prepararSalida('2')",
+            "prepararSalida('3')",
+            "prepararSalida('4')",
+            "prepararSalida('5')",
+            "esperar(PLANTILLA).igualA(['Wax', 'Wayne'])",
+          ),
+        },
+      ],
+    },
+  ],
   pistas: [
     pista("`const equipo = PLANTILLA` no crea ninguna lista nueva. Le pone un segundo nombre a la que ya había.", 0),
     pista("Hace falta una lista nueva con el mismo contenido, y a esa sí se le puede hacer `push` tranquilamente.", 1),

@@ -238,8 +238,12 @@ const marcadores = computed(() =>
       <div>
         <p class="titulo-antesala">¿No has programado nunca?</p>
         <p class="tenue">
+          <!-- «Qué pintan aquí JavaScript y Vue» estaba escrito a mano, así que en
+               Elantris esta tarjeta ofrecía una lista sobre otro lenguaje. Del
+               itinerario, que sabe cuál es el suyo. -->
           Steris ha preparado una lista con lo que hay que saber antes de empezar: qué es un
-          programa, qué pintan aquí JavaScript y Vue, y cómo funciona esto. Dos minutos.
+          programa, qué pinta aquí {{ itinerario.lenguajeEnFrase }}, y cómo funciona esto. Dos
+          minutos.
         </p>
       </div>
       <span class="flecha" aria-hidden="true">→</span>

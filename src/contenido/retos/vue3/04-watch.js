@@ -118,6 +118,99 @@ export default {
       ),
     },
   ],
+  // La diferencia entre los dos vigilantes se mide contando apuntes: uno habla al
+  // nacer y el otro no. Aquí se cuenta con más disparos y se mira el orden.
+  variantes: [
+    {
+      titulo: "Dos formas de estar pendiente · otra tanda",
+      tests: [
+        {
+          nombre: "el primer apunte de todos es del watchEffect: el watch aún está callado",
+          codigo: codigo(
+            "const puesto = montar(componente)",
+            "esperar(puesto.vm.registro[0], 'el primer apunte').igualA('watchEffect: 6')",
+            "esperar(puesto.vm.registro).tieneLongitud(1)",
+          ),
+        },
+        {
+          nombre: "un disparo deja los dos apuntes, y en el orden en que se registraron",
+          codigo: codigo(
+            "const puesto = montar(componente)",
+            "await puesto.click('.disparar')",
+            "esperar(puesto.vm.registro).igualA(['watchEffect: 6', 'watch: 6 -> 5', 'watchEffect: 5'])",
+          ),
+        },
+        {
+          nombre: "tres disparos dejan siete apuntes: uno de nacimiento y dos por disparo",
+          codigo: codigo(
+            "const puesto = montar(componente)",
+            "await puesto.click('.disparar')",
+            "await puesto.click('.disparar')",
+            "await puesto.click('.disparar')",
+            "esperar(puesto.vm.registro.length, 'apuntes tras tres disparos').igualA(7)",
+          ),
+        },
+        {
+          nombre: "y el último apunte del watchEffect dice las balas que quedan",
+          codigo: codigo(
+            "const puesto = montar(componente)",
+            "await puesto.click('.disparar')",
+            "await puesto.click('.disparar')",
+            "await puesto.click('.disparar')",
+            "esperar(puesto.vm.registro).contiene('watchEffect: 3')",
+            "esperar(puesto.texto('.balas')).igualA('3')",
+          ),
+        },
+      ],
+    },
+    {
+      titulo: "Dos formas de estar pendiente · y otra",
+      tests: [
+        {
+          nombre: "aquí disparar no comprueba nada, así que las balas pueden bajar de cero",
+          codigo: codigo(
+            "const puesto = montar(componente)",
+            "for (let i = 0; i < 7; i += 1) await puesto.click('.disparar')",
+            "esperar(puesto.texto('.balas')).igualA('-1')",
+          ),
+        },
+        {
+          nombre: "y el watch lo apunta sin rechistar: su trabajo es contar, no opinar",
+          codigo: codigo(
+            "const puesto = montar(componente)",
+            "for (let i = 0; i < 7; i += 1) await puesto.click('.disparar')",
+            "esperar(puesto.vm.registro).contiene('watch: 0 -> -1')",
+          ),
+        },
+        {
+          nombre: "el registro es una lista, no un texto donde se pega todo",
+          codigo: codigo(
+            "const puesto = montar(componente)",
+            "esperar(Array.isArray(puesto.vm.registro), 'que el registro sea una lista').esVerdadero()",
+          ),
+        },
+        {
+          nombre: "dos puestos montados aparte llevan cada uno su registro",
+          codigo: codigo(
+            "const uno = montar(componente)",
+            "await uno.click('.disparar')",
+            "const otro = montar(componente)",
+            "esperar(otro.vm.registro).igualA(['watchEffect: 6'])",
+          ),
+        },
+        {
+          nombre: "y el watch nunca apunta dos veces el mismo cambio",
+          codigo: codigo(
+            "const puesto = montar(componente)",
+            "await puesto.click('.disparar')",
+            "await puesto.click('.disparar')",
+            "const suyos = puesto.vm.registro.filter((apunte) => apunte.startsWith('watch:'))",
+            "esperar(suyos).igualA(['watch: 6 -> 5', 'watch: 5 -> 4'])",
+          ),
+        },
+      ],
+    },
+  ],
   pistas: [
     pista("`watch` quiere dos cosas: qué vigilar y qué hacer cuando cambie. `watchEffect` solo quiere lo segundo, y averigua solo qué está vigilando.", 0),
     pista("Al montar, el registro tiene exactamente un apunte. Si te salen dos, has puesto el watch con `immediate: true` sin querer.", 1),

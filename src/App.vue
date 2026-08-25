@@ -32,7 +32,7 @@ import { nombreDe } from './contenido/personajes.js'
 import { itinerarioDeLaRuta, mundoDeLaRuta } from './contenido/dondeEstas.js'
 import { mundosDelItinerario } from './contenido/mundos.js'
 import { RETOS, RETOS_POR_ID, retosDelMundo } from './contenido/retos/index.js'
-import { RECORTES_POR_ID } from './contenido/recortes.js'
+import { recorteDe } from './contenido/recortes.js'
 import { SOMBREROS_POR_ID } from './contenido/sombreros.js'
 
 const armonia = usarArmonia()
@@ -147,8 +147,10 @@ watch(ultimoEncontrado, (nuevo) => {
 
 // Los recortes no se buscan: caen solos. Por eso se anuncian, o pasarían
 // desapercibidos y nadie llegaría a leerlos nunca.
+// Del camino donde estés: cada uno tiene su prensa, y el chiste de un recorte
+// es justo el sitio. Ver `contenido/recortes.js`.
 const recorteReciente = computed(() =>
-  ultimoRecorte.value ? RECORTES_POR_ID[ultimoRecorte.value.id] : null,
+  ultimoRecorte.value ? recorteDe(ultimoRecorte.value.id, rumbo.dondeEstoy) : null,
 )
 watch(ultimoRecorte, (nuevo) => {
   if (nuevo) setTimeout(() => recortes.olvidarUltimo(), 6500)
@@ -286,7 +288,7 @@ watch(ultimoRecorte, (nuevo) => {
     <!-- Aviso de recorte desbloqueado -->
     <Transition name="hallazgo">
       <RouterLink v-if="recorteReciente" to="/trastos" class="recorte-nuevo">
-        <p class="cabecera-periodico">Elendel Daily · edición especial</p>
+        <p class="cabecera-periodico">{{ recorteReciente.cabecera }} · edición especial</p>
         <p class="titular">{{ recorteReciente.titular }}</p>
         <p class="pie">Recorte nuevo en el cajón →</p>
       </RouterLink>
@@ -363,8 +365,20 @@ watch(ultimoRecorte, (nuevo) => {
 .navegacion .como-enlace:hover { color: var(--texto); background: var(--panel); }
 
 /* El botón de Armonía tiene que pesar lo mismo que sus vecinos: sin borde, sin
-   fondo y con la misma tipografía, o se lee como un botón perdido en un menú. */
-.navegacion .como-enlace { background: none; border: none; font: inherit; cursor: pointer; }
+   fondo y con la misma tipografía, o se lee como un botón perdido en un menú.
+   Y hacía justo lo contrario de lo que dice este comentario: `font: inherit` es
+   una abreviatura, así que reponía el `font-size` a 1rem y pisaba los 0,88 de la
+   regla de arriba. Armonía salía un diez por ciento más grande que sus siete
+   vecinos, que es de esas cosas que se ven sin saber qué se está viendo. Se
+   heredan las tres piezas que hacen falta y el tamaño se deja en paz. */
+.navegacion .como-enlace {
+  background: none;
+  border: none;
+  font-family: inherit;
+  font-weight: inherit;
+  line-height: inherit;
+  cursor: pointer;
+}
 .navegacion a.router-link-active { color: var(--cobre-claro); background: rgba(201, 139, 75, 0.12); }
 
 .con-aviso { display: inline-flex; align-items: center; gap: 6px; }

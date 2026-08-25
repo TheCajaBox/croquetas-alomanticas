@@ -205,5 +205,121 @@ export default {
       ),
     },
   ],
+  // El jefe se practica dando vueltas al almacén: llenarlo, vaciarlo del todo y
+  // volver a llenarlo. Ahí es donde se ve si el metal agotado desaparece de la
+  // lista o se queda a cero haciendo bulto.
+  variantes: [
+    {
+      titulo: "Jefe: el almacén de metales · otra tanda",
+      tests: [
+        {
+          nombre: "vaciar un metal lo quita de la lista, y volver a guardarlo lo devuelve",
+          codigo: codigo(
+            "const a = new Almacen()",
+            "a.guardar('zinc', 3)",
+            "a.sacar('zinc', 3)",
+            "esperar(a.metales).igualA([])",
+            "a.guardar('zinc', 1)",
+            "esperar(a.metales).igualA(['zinc'])",
+          ),
+        },
+        {
+          nombre: "el total baja cuando se saca, no solo sube cuando se guarda",
+          codigo: codigo(
+            "const a = new Almacen()",
+            "a.guardar('estaño', 10)",
+            "a.guardar('acero', 5)",
+            "a.sacar('estaño', 4)",
+            "esperar(a.total).igualA(11)",
+          ),
+        },
+        {
+          nombre: "las tildes no se cuelan al principio de la lista: estaño va entre aluminio y zinc",
+          codigo: codigo(
+            "const a = new Almacen()",
+            "a.guardar('estaño', 1)",
+            "a.guardar('zinc', 1)",
+            "a.guardar('aluminio', 1)",
+            "esperar(a.metales).igualA(['aluminio', 'estaño', 'zinc'])",
+          ),
+        },
+        {
+          nombre: "un metal agotado vuelve a estar a cero, no a undefined",
+          codigo: codigo(
+            "const a = new Almacen()",
+            "a.guardar('bronce', 2)",
+            "a.sacar('bronce', 2)",
+            "esperar(a.cuanto('bronce')).igualA(0)",
+          ),
+        },
+        {
+          nombre: "y guardar el mismo metal en dos almacenes no los mezcla",
+          codigo: codigo(
+            "const a = new Almacen()",
+            "const b = new Almacen()",
+            "a.guardar('acero', 3)",
+            "b.guardar('acero', 7)",
+            "esperar(a.cuanto('acero')).igualA(3)",
+            "esperar(b.cuanto('acero')).igualA(7)",
+          ),
+        },
+      ],
+    },
+    {
+      titulo: "Jefe: el almacén de metales · y otra",
+      tests: [
+        {
+          nombre: "sacar justo lo que hay se puede: es «no hay bastante», no «no hay de sobra»",
+          codigo: codigo(
+            "const a = new Almacen()",
+            "a.guardar('peltre', 4)",
+            "a.sacar('peltre', 4)",
+            "esperar(a.cuanto('peltre')).igualA(0)",
+            "esperar(a.total).igualA(0)",
+          ),
+        },
+        {
+          nombre: "pedir un metal que nunca pisó el almacén lanza nombrándolo",
+          codigo: codigo(
+            "const a = new Almacen()",
+            "esperar(() => a.sacar('aluminio', 1)).lanzaError()",
+          ),
+        },
+        {
+          nombre: "el total de tres metales es la suma de los tres, y preguntarlo no lo cambia",
+          codigo: codigo(
+            "const a = new Almacen()",
+            "a.guardar('estaño', 10)",
+            "a.guardar('acero', 15)",
+            "a.guardar('bronce', 5)",
+            "esperar(a.total).igualA(30)",
+            "esperar(a.total).igualA(30)",
+          ),
+        },
+        {
+          nombre: "una cantidad que no vale no crea el metal a medias",
+          codigo: codigo(
+            "const a = new Almacen()",
+            "try { a.guardar('acero', -1) } catch (e) {}",
+            "esperar(a.metales).tieneLongitud(0)",
+            "esperar(a.cuanto('acero')).igualA(0)",
+          ),
+        },
+        {
+          nombre: "el inventario no asoma ni entre las propiedades del almacén",
+          codigo: "esperar(Object.keys(new Almacen()), 'lo que se ve del almacén').tieneLongitud(0)",
+        },
+        {
+          nombre: "y un metal con nombre de catálogo también vale de clave",
+          codigo: codigo(
+            "const a = new Almacen()",
+            "a.guardar('duraluminio-12', 4)",
+            "esperar(a.cuanto('duraluminio-12')).igualA(4)",
+            "esperar(a.metales).igualA(['duraluminio-12'])",
+          ),
+        },
+      ],
+    },
+  ],
   recompensa: { croquetas: 18 },
 }

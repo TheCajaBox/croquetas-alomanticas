@@ -40,5 +40,28 @@ export default {
     { nombre: "devuelve el saludo en vez de escribirlo", codigo: "esperar(saludar('Wax'), 'lo que devuelve la función').esDeTipo('string')" },
     { nombre: "aguanta hasta un nombre vacío", codigo: "esperar(saludar('')).igualA('Buenas, .')" },
   ],
+  // Practicar esto es practicar la plantilla: los tests cambian de nombre y de
+  // caso raro, y la función tiene que seguir saliendo de una sola línea.
+  variantes: [
+    {
+      titulo: "Tu primera función · otra tanda",
+      tests: [
+        { nombre: "saluda a Steris, que agradecerá la puntualidad", codigo: "esperar(saludar('Steris')).igualA('Buenas, Steris.')" },
+        { nombre: "y a MeLaan, con sus mayúsculas raras intactas", codigo: "esperar(saludar('MeLaan')).igualA('Buenas, MeLaan.')" },
+        { nombre: "un nombre con espacio dentro no se toca", codigo: "esperar(saludar('Lord Waxillium')).igualA('Buenas, Lord Waxillium.')" },
+        { nombre: "el punto final está, y no hay dos", codigo: "esperar(saludar('Wayne').endsWith('.')).esVerdadero()" },
+      ],
+    },
+    {
+      titulo: "Tu primera función · y otra",
+      tests: [
+        { nombre: "saluda a Ranette sin pedir nada a cambio", codigo: "esperar(saludar('Ranette')).igualA('Buenas, Ranette.')" },
+        { nombre: "las tildes pasan tal cual: es un texto, no un traductor", codigo: "esperar(saludar('Aradán')).igualA('Buenas, Aradán.')" },
+        { nombre: "un número disfrazado de nombre también entra", codigo: "esperar(saludar('724')).igualA('Buenas, 724.')" },
+        { nombre: "llamarla dos veces da lo mismo: no guarda rencor ni estado", codigo: "esperar(saludar('Vin')).igualA(saludar('Vin'))" },
+        { nombre: "y empieza por «Buenas, » siempre", codigo: "esperar(saludar('Elend').startsWith('Buenas, ')).esVerdadero()" },
+      ],
+    },
+  ],
   recompensa: { croquetas: 10 },
 }

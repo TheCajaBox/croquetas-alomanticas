@@ -77,6 +77,74 @@ export default {
       ),
     },
   ],
+  // Al pasar de pegar textos con `+` a una plantilla es fácil colarse con un
+  // espacio. Estas tandas traen recompensas con decimales y a cero, que es donde
+  // el texto cantaría si el orden de los trozos hubiera cambiado.
+  variantes: [
+    {
+      titulo: "Código de hace quince años · otra tanda",
+      tests: [
+        {
+          nombre: "una recompensa redonda sale redonda",
+          codigo: "esperar(resumirCartel({ nombre: 'Miles', recompensa: 10 })).igualA('Se busca a Miles por 11 monedas')",
+        },
+        {
+          nombre: "el impuesto puede dejar decimales, y salen tal cual",
+          codigo: "esperar(resumirCartel({ nombre: 'Wax', recompensa: 7 })).igualA('Se busca a Wax por 7.7 monedas')",
+        },
+        {
+          nombre: "por quien no pagan nada tampoco se cobra impuesto",
+          codigo: "esperar(resumirCartel({ nombre: 'Nadie', recompensa: 0 })).igualA('Se busca a Nadie por 0 monedas')",
+        },
+        {
+          nombre: "un cartel solo se ordena solo, y en otra lista",
+          codigo: codigo(
+            "const carteles = [{ nombre: 'a', recompensa: 5 }]",
+            "esperar(ordenarPorRecompensa(carteles) === carteles).esFalso()",
+            "esperar(ordenarPorRecompensa(carteles).map((cartel) => cartel.nombre)).igualA(['a'])",
+          ),
+        },
+      ],
+    },
+    {
+      titulo: "Código de hace quince años · y otra",
+      tests: [
+        {
+          nombre: "una recompensa de mil doscientos y su impuesto",
+          codigo: "esperar(resumirCartel({ nombre: 'Paalm', recompensa: 1200 })).igualA('Se busca a Paalm por 1320 monedas')",
+        },
+        {
+          nombre: "un nombre con espacios dentro se respeta entero",
+          codigo: "esperar(resumirCartel({ nombre: 'Miles Dagouter', recompensa: 100 })).igualA('Se busca a Miles Dagouter por 110 monedas')",
+        },
+        {
+          nombre: "ordenar cinco carteles los deja de mayor a menor",
+          codigo: codigo(
+            "const carteles = [",
+            "  { nombre: 'a', recompensa: 10 },",
+            "  { nombre: 'b', recompensa: 1000 },",
+            "  { nombre: 'c', recompensa: 70 },",
+            "  { nombre: 'd', recompensa: 0 },",
+            "  { nombre: 'e', recompensa: 500 },",
+            "]",
+            "esperar(ordenarPorRecompensa(carteles).map((cartel) => cartel.nombre)).igualA(['b', 'e', 'c', 'a', 'd'])",
+          ),
+        },
+        {
+          nombre: "ordenar la lista vacía devuelve la lista vacía",
+          codigo: "esperar(ordenarPorRecompensa([])).igualA([])",
+        },
+        {
+          nombre: "y con dos empatados la lista original sigue en su orden",
+          codigo: codigo(
+            "const carteles = [{ nombre: 'a', recompensa: 50 }, { nombre: 'b', recompensa: 50 }]",
+            "ordenarPorRecompensa(carteles)",
+            "esperar(carteles.map((cartel) => cartel.nombre)).igualA(['a', 'b'])",
+          ),
+        },
+      ],
+    },
+  ],
   pistas: [
     pista("Empieza por lo mecánico: cambia las tres `var` por `const` y mira si algo se queja. No debería.", 0),
     pista("El texto largo con `+` se pasa a comillas invertidas y cada trozo variable va dentro de `${...}`.", 1),

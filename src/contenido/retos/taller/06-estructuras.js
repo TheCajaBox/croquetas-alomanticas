@@ -124,6 +124,120 @@ export default {
       ),
     },
   ],
+  // Registros nuevos, y con los casos que se le atragantan a la solución fácil:
+  // el mismo agente cinco veces, el repetido en primera posición y el nombre
+  // vacío, que también es una clave.
+  variantes: [
+    {
+      titulo: "Cuando una lista no es lo que hace falta · otra tanda",
+      tests: [
+        {
+          nombre: "cuatro registros y tres agentes distintos",
+          codigo: codigo(
+            "const r = [",
+            "  { agente: 'Wax', caso: 'a' },",
+            "  { agente: 'Wayne', caso: 'b' },",
+            "  { agente: 'Marasi', caso: 'c' },",
+            "  { agente: 'Wayne', caso: 'd' },",
+            "]",
+            "esperar(agentesDistintos(r)).igualA(['Wax', 'Wayne', 'Marasi'])",
+          ),
+        },
+        {
+          nombre: "el mismo agente cinco veces sigue siendo un agente, y cinco casos",
+          codigo: codigo(
+            "const r = [",
+            "  { agente: 'Wax', caso: 'a' },",
+            "  { agente: 'Wax', caso: 'b' },",
+            "  { agente: 'Wax', caso: 'c' },",
+            "  { agente: 'Wax', caso: 'd' },",
+            "  { agente: 'Wax', caso: 'e' },",
+            "]",
+            "esperar(agentesDistintos(r)).igualA(['Wax'])",
+            "esperar(casosPorAgente(r).get('Wax')).igualA(5)",
+            "esperar(casosPorAgente(r).size).igualA(1)",
+          ),
+        },
+        {
+          nombre: "el Map tiene tantas entradas como agentes distintos, ni una más",
+          codigo: codigo(
+            "const r = [",
+            "  { agente: 'Wax', caso: 'a' },",
+            "  { agente: 'Wayne', caso: 'b' },",
+            "  { agente: 'Marasi', caso: 'c' },",
+            "  { agente: 'Wayne', caso: 'd' },",
+            "]",
+            "esperar(casosPorAgente(r).size).igualA(3)",
+            "esperar(casosPorAgente(r).get('Wayne')).igualA(2)",
+          ),
+        },
+        {
+          nombre: "y sin registros el Map está vacío pero sigue siendo un Map",
+          codigo: codigo(
+            "const m = casosPorAgente([])",
+            "esperar(m instanceof Map).esVerdadero()",
+            "esperar(m.size).igualA(0)",
+          ),
+        },
+      ],
+    },
+    {
+      titulo: "Cuando una lista no es lo que hace falta · y otra",
+      tests: [
+        {
+          nombre: "un nombre vacío también es un agente y también es una clave",
+          codigo: codigo(
+            "const r = [{ agente: '', caso: 'a' }]",
+            "esperar(agentesDistintos(r)).igualA([''])",
+            "esperar(casosPorAgente(r).get('')).igualA(1)",
+          ),
+        },
+        {
+          nombre: "el orden es el de la primera aparición, aunque el repetido abra la lista",
+          codigo: codigo(
+            "const r = [",
+            "  { agente: 'Marasi', caso: 'a' },",
+            "  { agente: 'Marasi', caso: 'b' },",
+            "  { agente: 'Wax', caso: 'c' },",
+            "]",
+            "esperar(agentesDistintos(r)).igualA(['Marasi', 'Wax'])",
+          ),
+        },
+        {
+          nombre: "ninguna de las dos toca los registros que le dieron",
+          codigo: codigo(
+            "const r = [",
+            "  { agente: 'Wax', caso: 'a' },",
+            "  { agente: 'Wayne', caso: 'b' },",
+            "]",
+            "agentesDistintos(r)",
+            "casosPorAgente(r)",
+            "esperar(r).tieneLongitud(2)",
+            "esperar(r[0]).igualA({ agente: 'Wax', caso: 'a' })",
+          ),
+        },
+        {
+          nombre: "pedir la cuenta dos veces no acumula: cada Map nace nuevo",
+          codigo: codigo(
+            "const r = [{ agente: 'Wax', caso: 'a' }]",
+            "casosPorAgente(r)",
+            "esperar(casosPorAgente(r).get('Wax')).igualA(1)",
+          ),
+        },
+        {
+          nombre: "y las dos funciones ven exactamente a los mismos agentes",
+          codigo: codigo(
+            "const r = [",
+            "  { agente: 'Wax', caso: 'a' },",
+            "  { agente: 'Wayne', caso: 'b' },",
+            "  { agente: 'Wax', caso: 'c' },",
+            "]",
+            "esperar(agentesDistintos(r).length).igualA(casosPorAgente(r).size)",
+          ),
+        },
+      ],
+    },
+  ],
   pistas: [
     pista("Para la primera: saca los nombres con `map`, y a esa lista de nombres le aplicas el truco del `Set` del apunte.", 0),
     pista("Para la segunda hace falta un bucle, porque hay que ir tocando el mismo `Map` en cada vuelta.", 1),

@@ -114,5 +114,100 @@ export default {
       ),
     },
   ],
+  // El jefe se practica montando y destruyendo el reloj otra vez. Lo que importa
+  // sigue siendo lo mismo: que el intervalo quede guardado para poder pararlo, y
+  // que al morir el componente se pare de verdad.
+  variantes: [
+    {
+      titulo: "Jefe: el reloj de la mansión · otra tanda",
+      tests: [
+        {
+          nombre: "el registro arranca con created, sigue con mounted y de momento nada más",
+          codigo: codigo(
+            "const reloj = montar(componente)",
+            "esperar(reloj.vm.registro[0], 'el primer apunte').igualA('created')",
+            "esperar(reloj.vm.registro[1], 'el segundo apunte').igualA('mounted')",
+            "esperar(reloj.vm.registro).tieneLongitud(2)",
+          ),
+        },
+        {
+          nombre: "recién montado marca cero y todavía no ha avisado de nada",
+          codigo: codigo(
+            "const reloj = montar(componente)",
+            "esperar(reloj.texto('.reloj')).igualA('0')",
+            "esperar(reloj.vm.avisos).tieneLongitud(0)",
+          ),
+        },
+        {
+          nombre: "el temporizador queda guardado, que es lo que después permite pararlo",
+          codigo: codigo(
+            "const reloj = montar(componente)",
+            "esperar(reloj.vm.temporizador, 'el temporizador').existe()",
+          ),
+        },
+        {
+          nombre: "al rato ya ha avisado, y el aviso lleva su flecha de antes a después",
+          codigo: codigo(
+            "const reloj = montar(componente)",
+            "await new Promise((sigue) => setTimeout(sigue, 90))",
+            "esperar(reloj.vm.avisos.length > 0, 'que haya avisado alguna vez').esVerdadero()",
+            "esperar(reloj.vm.avisos[0]).contiene('->')",
+          ),
+        },
+        {
+          nombre: "y lo que se pinta son solo cifras, sin adornos",
+          codigo: codigo(
+            "const reloj = montar(componente)",
+            "await new Promise((sigue) => setTimeout(sigue, 60))",
+            "await siguienteTick()",
+            "esperar(/^\\d+$/.test(reloj.texto('.reloj')), 'que el reloj pinte solo cifras').esVerdadero()",
+          ),
+        },
+      ],
+    },
+    {
+      titulo: "Jefe: el reloj de la mansión · y otra",
+      tests: [
+        {
+          nombre: "un reloj nuevo no hereda el registro del anterior",
+          codigo: codigo(
+            "const primero = montar(componente)",
+            "const segundo = montar(componente)",
+            "esperar(segundo.vm.registro).igualA(['created', 'mounted'])",
+          ),
+        },
+        {
+          nombre: "mientras el reloj vive, el registro no crece: ahí ya no se apunta nadie",
+          codigo: codigo(
+            "const reloj = montar(componente)",
+            "await new Promise((sigue) => setTimeout(sigue, 60))",
+            "esperar(reloj.vm.registro).tieneLongitud(2)",
+          ),
+        },
+        {
+          nombre: "al destruirlo, el tercer apunte es beforeDestroy",
+          codigo: codigo(
+            "const reloj = montar(componente)",
+            "reloj.vm.$destroy()",
+            "esperar(reloj.vm.registro).tieneLongitud(3)",
+            "esperar(reloj.vm.registro[2]).igualA('beforeDestroy')",
+          ),
+        },
+        {
+          nombre: "y después de destruirlo deja de avisar: el intervalo se paró de verdad",
+          codigo: codigo(
+            "const reloj = montar(componente)",
+            "const avisos = reloj.vm.avisos",
+            "await new Promise((sigue) => setTimeout(sigue, 90))",
+            "reloj.vm.$destroy()",
+            "const cuantos = avisos.length",
+            "esperar(cuantos > 0, 'que hubiera avisado antes de apagarlo').esVerdadero()",
+            "await new Promise((sigue) => setTimeout(sigue, 90))",
+            "esperar(avisos.length, 'los avisos después de apagarlo').igualA(cuantos)",
+          ),
+        },
+      ],
+    },
+  ],
   recompensa: { croquetas: 20 },
 }

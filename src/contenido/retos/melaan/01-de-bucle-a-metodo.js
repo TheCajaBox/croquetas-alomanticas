@@ -79,6 +79,79 @@ export default {
       ),
     },
   ],
+  // Reescribir un bucle bien hecho se nota justo en los bordes: el mínimo justo,
+  // el precio de cero y la lista vacía, que es donde `reduce` sin valor inicial
+  // se cae y el bucle de antes no se caía.
+  variantes: [
+    {
+      titulo: "La misma vuelta, otra forma · otra tanda",
+      tests: [
+        {
+          nombre: "un metal solo que llega justo al mínimo",
+          codigo: "esperar(nombresCaros([{ nombre: 'cobre', precio: 50 }], 50)).igualA(['COBRE'])",
+        },
+        {
+          nombre: "el que no llega se queda fuera y la lista sale vacía",
+          codigo: "esperar(nombresCaros([{ nombre: 'peltre', precio: 8 }], 20)).igualA([])",
+        },
+        {
+          nombre: "el orden de salida es el de entrada, no el del precio",
+          codigo: codigo(
+            "const almacen = [",
+            "  { nombre: 'oro', precio: 300 },",
+            "  { nombre: 'acero', precio: 10 },",
+            "  { nombre: 'zinc', precio: 900 },",
+            "]",
+            "esperar(nombresCaros(almacen, 5)).igualA(['ORO', 'ACERO', 'ZINC'])",
+          ),
+        },
+        {
+          nombre: "y esos tres precios suman lo que suman",
+          codigo: codigo(
+            "const almacen = [",
+            "  { nombre: 'oro', precio: 300 },",
+            "  { nombre: 'acero', precio: 10 },",
+            "  { nombre: 'zinc', precio: 900 },",
+            "]",
+            "esperar(valorTotal(almacen)).igualA(1210)",
+          ),
+        },
+      ],
+    },
+    {
+      titulo: "La misma vuelta, otra forma · y otra",
+      tests: [
+        {
+          nombre: "un precio de cero no llega a un mínimo de uno, pero sí a un mínimo de cero",
+          codigo: codigo(
+            "esperar(nombresCaros([{ nombre: 'plomo', precio: 0 }], 1)).igualA([])",
+            "esperar(nombresCaros([{ nombre: 'plomo', precio: 0 }], 0)).igualA(['PLOMO'])",
+          ),
+        },
+        {
+          nombre: "los números rojos también entran en la suma, restando",
+          codigo: "esperar(valorTotal([{ nombre: 'a', precio: 80 }, { nombre: 'b', precio: -30 }])).igualA(50)",
+        },
+        {
+          nombre: "un nombre que ya venía en mayúsculas se queda igual",
+          codigo: "esperar(nombresCaros([{ nombre: 'ORO', precio: 9 }], 1)).igualA(['ORO'])",
+        },
+        {
+          nombre: "el almacén vacío suma cero: es el valor inicial de reduce, no un descuido",
+          codigo: "esperar(valorTotal([])).igualA(0)",
+        },
+        {
+          nombre: "y ninguna de las dos toca el almacén que le dieron",
+          codigo: codigo(
+            "const almacen = [{ nombre: 'zinc', precio: 40 }, { nombre: 'oro', precio: 300 }]",
+            "nombresCaros(almacen, 1)",
+            "valorTotal(almacen)",
+            "esperar(almacen).igualA([{ nombre: 'zinc', precio: 40 }, { nombre: 'oro', precio: 300 }])",
+          ),
+        },
+      ],
+    },
+  ],
   pistas: [
     pista("La primera función hace dos cosas a la vez: descarta unos y transforma otros. Son dos métodos encadenados.", 0),
     pista("La segunda va acumulando en una variable de fuera. Eso es exactamente lo que hace `reduce`.", 1),

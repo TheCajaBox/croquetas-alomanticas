@@ -124,6 +124,91 @@ export default {
     },
     { nombre: "el hijo no recibe ninguna prop", codigo: "esperar(hijo.props, 'las props del piso intermedio').igualA(undefined)" },
   ],
+  // Compartir la caja y no su contenido es lo que hace que el nieto se entere de
+  // los cambios. Las tandas cambian la colonia desde arriba de dos maneras: con
+  // el botón y a mano, y montan dos casas para que no se toquen.
+  variantes: [
+    {
+      titulo: "Sin pasar por todos los pisos · otra tanda",
+      tests: [
+        {
+          nombre: "dos adopciones y abajo ya van cuatro",
+          codigo: codigo(
+            "const casa = montar(componente)",
+            "await casa.click('.adoptar')",
+            "await casa.click('.adoptar')",
+            "esperar(casa.texto('.cuenta')).igualA('4 gatos')",
+          ),
+        },
+        {
+          nombre: "el nieto está dentro del piso de en medio, que es lo que hace largo el camino",
+          codigo: codigo(
+            "const casa = montar(componente)",
+            "esperar(casa.existe('.piso-intermedio .cuenta'), 'el nieto dentro del piso').esVerdadero()",
+          ),
+        },
+        {
+          nombre: "el botón vive arriba, en el abuelo, y no en el nieto",
+          codigo: codigo(
+            "const casa = montar(componente)",
+            "esperar(casa.existe('.adoptar'), 'el botón').esVerdadero()",
+            "esperar(casa.existe('.piso-intermedio .adoptar'), 'el botón dentro del piso').esFalso()",
+          ),
+        },
+        {
+          nombre: "y el nieto no declara ni una prop: no recibe nada por el camino normal",
+          codigo: "esperar(nieto.props, 'las props del nieto').igualA(undefined)",
+        },
+      ],
+    },
+    {
+      titulo: "Sin pasar por todos los pisos · y otra",
+      tests: [
+        {
+          nombre: "la cuenta de abajo lleva la palabra gatos y no solo el número",
+          codigo: codigo(
+            "const casa = montar(componente)",
+            "esperar(casa.texto('.cuenta')).contiene('gatos')",
+          ),
+        },
+        {
+          nombre: "meter mano a la colonia desde arriba también llega abajo",
+          codigo: codigo(
+            "const casa = montar(componente)",
+            "casa.vm.colonia.push('Estaño')",
+            "await siguienteTick()",
+            "esperar(casa.texto('.cuenta')).igualA('3 gatos')",
+          ),
+        },
+        {
+          nombre: "tres adopciones y abajo son cinco",
+          codigo: codigo(
+            "const casa = montar(componente)",
+            "await casa.click('.adoptar')",
+            "await casa.click('.adoptar')",
+            "await casa.click('.adoptar')",
+            "esperar(casa.texto('.cuenta')).igualA('5 gatos')",
+          ),
+        },
+        {
+          nombre: "dos casas montadas aparte no comparten colonia",
+          codigo: codigo(
+            "const una = montar(componente)",
+            "const otra = montar(componente)",
+            "await una.click('.adoptar')",
+            "esperar(otra.texto('.cuenta')).igualA('2 gatos')",
+          ),
+        },
+        {
+          nombre: "y el piso de en medio sigue sin recibir nada, aunque tenga inquilino",
+          codigo: codigo(
+            "esperar(hijo.props, 'las props del piso intermedio').igualA(undefined)",
+            "esperar(hijo.components, 'los componentes del piso intermedio').existe()",
+          ),
+        },
+      ],
+    },
+  ],
   pistas: [
     pista("`provide(clave, valor)` se llama dentro del `setup` del de arriba. `inject(clave)` dentro del `setup` del de abajo. La clave tiene que ser la misma.", 0),
     pista("Comparte el `ref` entero, no `colonia.value`. Si compartes el valor, el nieto se queda con una foto del momento y no se entera de nada más.", 1),

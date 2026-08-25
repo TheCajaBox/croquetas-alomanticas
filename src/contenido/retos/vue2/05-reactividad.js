@@ -118,6 +118,107 @@ export default {
       ),
     },
   ],
+  // El fallo original se cuela igual en las dos caras: la clave que aparece
+  // después y la posición del array. Las tandas dan de alta varias cosas y gastan
+  // varias posiciones, que es donde una solución a medias se queda corta.
+  variantes: [
+    {
+      titulo: "El cargamento que la casa no vio llegar · otra tanda",
+      tests: [
+        {
+          nombre: "tres altas nuevas y las tres se ven",
+          codigo: codigo(
+            "const casa = montar(componente)",
+            "casa.vm.guardar('cuerda')",
+            "casa.vm.guardar('chicle')",
+            "casa.vm.guardar('linterna')",
+            "await siguienteTick()",
+            "esperar(casa.contar('.inventario li'), 'filas del inventario').igualA(4)",
+          ),
+        },
+        {
+          nombre: "gastar la última bala también se ve, no solo la primera",
+          codigo: codigo(
+            "const casa = montar(componente)",
+            "casa.vm.gastar(2)",
+            "await siguienteTick()",
+            "esperar(casa.textos('.balas li')).igualA(['6', '6', '0'])",
+          ),
+        },
+        {
+          nombre: "gastar dos veces la misma posición no duplica la fila",
+          codigo: codigo(
+            "const casa = montar(componente)",
+            "casa.vm.gastar(1)",
+            "casa.vm.gastar(1)",
+            "await siguienteTick()",
+            "esperar(casa.textos('.balas li')).igualA(['6', '0', '6'])",
+            "esperar(casa.contar('.balas li')).igualA(3)",
+          ),
+        },
+        {
+          nombre: "y dar de alta una clave que ya estaba no la duplica: la pone al día",
+          codigo: codigo(
+            "const casa = montar(componente)",
+            "casa.vm.guardar('sombrero')",
+            "await siguienteTick()",
+            "esperar(casa.contar('.inventario li')).igualA(1)",
+          ),
+        },
+      ],
+    },
+    {
+      titulo: "El cargamento que la casa no vio llegar · y otra",
+      tests: [
+        {
+          nombre: "el dato y la pantalla dicen lo mismo: ahora sí van juntos",
+          codigo: codigo(
+            "const casa = montar(componente)",
+            "casa.vm.guardar('cuerda')",
+            "await siguienteTick()",
+            "esperar(casa.vm.inventario.cuerda, 'el dato').igualA(1)",
+            "esperar(casa.textos('.inventario li')).contiene('cuerda: 1')",
+          ),
+        },
+        {
+          nombre: "gastar la primera y la última deja la de en medio intacta",
+          codigo: codigo(
+            "const casa = montar(componente)",
+            "casa.vm.gastar(0)",
+            "casa.vm.gastar(2)",
+            "await siguienteTick()",
+            "esperar(casa.textos('.balas li')).igualA(['0', '6', '0'])",
+          ),
+        },
+        {
+          nombre: "cada fila del inventario dice el nombre y cuántos hay",
+          codigo: codigo(
+            "const casa = montar(componente)",
+            "esperar(casa.textos('.inventario li')).igualA(['sombrero: 1'])",
+          ),
+        },
+        {
+          nombre: "una clave con espacios en el nombre también entra por el timbre",
+          codigo: codigo(
+            "const casa = montar(componente)",
+            "casa.vm.guardar('mentemetal de oro')",
+            "await siguienteTick()",
+            "esperar(casa.textos('.inventario li')).contiene('mentemetal de oro: 1')",
+          ),
+        },
+        {
+          nombre: "y dos casas montadas aparte no comparten inventario",
+          codigo: codigo(
+            "const una = montar(componente)",
+            "const otra = montar(componente)",
+            "una.vm.guardar('cuerda')",
+            "await siguienteTick()",
+            "esperar(otra.contar('.inventario li'), 'las filas de la otra casa').igualA(1)",
+          ),
+        },
+      ],
+    },
+  ],
   pistas: [
     pista("Los datos sí cambian. Lo que no pasa es que Vue se entere, y por eso no vuelve a pintar.", 0),
     pista("`this.$set(objeto, clave, valor)` da de alta la propiedad **y** avisa. Sirve igual para objetos y para posiciones de un array.", 1),

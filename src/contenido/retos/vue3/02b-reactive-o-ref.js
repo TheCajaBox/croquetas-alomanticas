@@ -1,0 +1,235 @@
+import { codigo, pista } from '../comun.js'
+
+export default {
+  id: "vue3-02b-reactive-o-ref",
+  mundo: "vue3",
+  entorno: "vue3",
+  tipo: "bug",
+  titulo: "El almacén que se quedó en dos",
+  enunciado: codigo(
+    "`ref` no es la única caja de la ciudad nueva. `reactive` coge un objeto entero y lo",
+    "vigila por dentro, sin `.value` por ninguna parte: `estado.croquetas` y ya está. Se lee",
+    "muy bien, y por eso este fallo es tan popular.",
+    "",
+    "El componente arranca en dos croquetas y tres gatos, y el total dice seis. Pulsa el",
+    "botón: el objeto `estado` cambia de verdad -míralo si quieres- y la pantalla se queda",
+    "clavada en dos y en seis.",
+    "",
+    "Arréglalo. La línea culpable es una sola, y el arreglo también: la caja de la que",
+    "sacaste las cosas sigue siendo reactiva, pero lo que sacaste de ella no.",
+  ),
+  inicial: codigo(
+    "const { reactive, computed } = Vue",
+    "",
+    "const componente = {",
+    "  setup() {",
+    "    const estado = reactive({ croquetas: 2, gatos: 3 })",
+    "",
+    "    const { croquetas, gatos } = estado",
+    "",
+    "    const total = computed(() => croquetas * gatos)",
+    "",
+    "    const servir = () => {",
+    "      estado.croquetas += 1",
+    "    }",
+    "",
+    "    return { croquetas, gatos, total, servir }",
+    "  },",
+    "  template: `",
+    "    <div>",
+    "      <p class=\"croquetas\">{{ croquetas }}</p>",
+    "      <p class=\"total\">{{ total }}</p>",
+    "      <button class=\"servir\" @click=\"servir\">Servir</button>",
+    "    </div>",
+    "  `,",
+    "}",
+  ),
+  solucion: codigo(
+    "const { reactive, computed, toRefs } = Vue",
+    "",
+    "const componente = {",
+    "  setup() {",
+    "    const estado = reactive({ croquetas: 2, gatos: 3 })",
+    "",
+    "    const { croquetas, gatos } = toRefs(estado)",
+    "",
+    "    const total = computed(() => croquetas.value * gatos.value)",
+    "",
+    "    const servir = () => {",
+    "      estado.croquetas += 1",
+    "    }",
+    "",
+    "    return { croquetas, gatos, total, servir }",
+    "  },",
+    "  template: `",
+    "    <div>",
+    "      <p class=\"croquetas\">{{ croquetas }}</p>",
+    "      <p class=\"total\">{{ total }}</p>",
+    "      <button class=\"servir\" @click=\"servir\">Servir</button>",
+    "    </div>",
+    "  `,",
+    "}",
+  ),
+  requisitos: [
+    { tipo: "declaraVariable", valor: "componente" },
+    { tipo: "usaLlamada", valor: "reactive" },
+    { tipo: "usaLlamada", valor: "toRefs" },
+    { tipo: "usaLlamada", valor: "computed" },
+    { tipo: "usaDesestructuracion" },
+  ],
+  tests: [
+    {
+      nombre: "al abrir, dos croquetas y un total de seis",
+      codigo: codigo(
+        "const almacen = montar(componente)",
+        "esperar(almacen.texto('.croquetas')).igualA('2')",
+        "esperar(almacen.texto('.total')).igualA('6')",
+      ),
+    },
+    {
+      nombre: "servir una croqueta se ve en la pantalla",
+      codigo: codigo(
+        "const almacen = montar(componente)",
+        "await almacen.click('.servir')",
+        "esperar(almacen.texto('.croquetas')).igualA('3')",
+      ),
+    },
+    {
+      nombre: "y el total se entera: nueve, no seis",
+      codigo: codigo(
+        "const almacen = montar(componente)",
+        "await almacen.click('.servir')",
+        "esperar(almacen.texto('.total')).igualA('9')",
+      ),
+    },
+    {
+      nombre: "servir tres veces sigue cuadrando",
+      codigo: codigo(
+        "const almacen = montar(componente)",
+        "await almacen.click('.servir')",
+        "await almacen.click('.servir')",
+        "await almacen.click('.servir')",
+        "esperar(almacen.texto('.croquetas')).igualA('5')",
+        "esperar(almacen.texto('.total')).igualA('15')",
+      ),
+    },
+  ],
+  // Lo que hay que distinguir es «el objeto cambia» de «lo que saqué del objeto
+  // cambia». Las tandas atacan las dos direcciones: tocar el objeto y ver la
+  // pantalla, y tocar lo sacado y ver el objeto.
+  variantes: [
+    {
+      titulo: "El almacén que se quedó en dos · otra tanda",
+      tests: [
+        {
+          nombre: "los gatos no se mueven: solo cambian las croquetas",
+          codigo: codigo(
+            "const almacen = montar(componente)",
+            "await almacen.click('.servir')",
+            "await almacen.click('.servir')",
+            "esperar(almacen.texto('.croquetas')).igualA('4')",
+            "esperar(almacen.texto('.total')).igualA('12')",
+          ),
+        },
+        {
+          nombre: "el vínculo va en los dos sentidos: tocar lo sacado se ve en pantalla",
+          codigo: codigo(
+            "const almacen = montar(componente)",
+            "almacen.vm.croquetas = 10",
+            "await siguienteTick()",
+            "esperar(almacen.texto('.croquetas')).igualA('10')",
+            "esperar(almacen.texto('.total')).igualA('30')",
+          ),
+        },
+        {
+          nombre: "poner las croquetas a cero deja el total a cero, y no en seis",
+          codigo: codigo(
+            "const almacen = montar(componente)",
+            "almacen.vm.croquetas = 0",
+            "await siguienteTick()",
+            "esperar(almacen.texto('.croquetas')).igualA('0')",
+            "esperar(almacen.texto('.total')).igualA('0')",
+          ),
+        },
+        {
+          nombre: "cambiar los gatos también mueve el total",
+          codigo: codigo(
+            "const almacen = montar(componente)",
+            "almacen.vm.gatos = 5",
+            "await siguienteTick()",
+            "esperar(almacen.texto('.total')).igualA('10')",
+          ),
+        },
+        {
+          nombre: "dos almacenes montados aparte no comparten las croquetas",
+          codigo: codigo(
+            "const uno = montar(componente)",
+            "const otro = montar(componente)",
+            "await uno.click('.servir')",
+            "esperar(uno.texto('.croquetas'), 'el primero').igualA('3')",
+            "esperar(otro.texto('.croquetas'), 'el segundo').igualA('2')",
+          ),
+        },
+      ],
+    },
+    {
+      titulo: "El almacén que se quedó en dos · y otra",
+      tests: [
+        {
+          nombre: "el botón se puede pulsar diez veces y la cuenta aguanta",
+          codigo: codigo(
+            "const almacen = montar(componente)",
+            "for (let vez = 0; vez < 10; vez += 1) await almacen.click('.servir')",
+            "esperar(almacen.texto('.croquetas')).igualA('12')",
+            "esperar(almacen.texto('.total')).igualA('36')",
+          ),
+        },
+        {
+          nombre: "el total es un producto y no una suma: cinco por tres son quince",
+          codigo: codigo(
+            "const almacen = montar(componente)",
+            "almacen.vm.croquetas = 5",
+            "almacen.vm.gatos = 3",
+            "await siguienteTick()",
+            "esperar(almacen.texto('.total')).igualA('15')",
+          ),
+        },
+        {
+          nombre: "sin gatos no hay reparto: el total se va a cero",
+          codigo: codigo(
+            "const almacen = montar(componente)",
+            "almacen.vm.gatos = 0",
+            "await siguienteTick()",
+            "esperar(almacen.texto('.total')).igualA('0')",
+            "esperar(almacen.texto('.croquetas'), 'las croquetas siguen ahí').igualA('2')",
+          ),
+        },
+        {
+          nombre: "servir después de haber cambiado los gatos sigue cuadrando",
+          codigo: codigo(
+            "const almacen = montar(componente)",
+            "almacen.vm.gatos = 4",
+            "await siguienteTick()",
+            "await almacen.click('.servir')",
+            "esperar(almacen.texto('.croquetas')).igualA('3')",
+            "esperar(almacen.texto('.total')).igualA('12')",
+          ),
+        },
+        {
+          nombre: "y en la plantilla no hace falta abrir ninguna caja: se pinta el número",
+          codigo: codigo(
+            "const almacen = montar(componente)",
+            "esperar(/^\\d+$/.test(almacen.texto('.croquetas')), 'que se pinte un número y no un objeto').esVerdadero()",
+            "esperar(/^\\d+$/.test(almacen.texto('.total')), 'que el total sea un número').esVerdadero()",
+          ),
+        },
+      ],
+    },
+  ],
+  pistas: [
+    pista("El objeto `estado` sí es reactivo: `estado.croquetas` cambia de verdad. Lo que hay que mirar es la línea donde se saca de él, y qué queda en las variables después.", 0),
+    pista("Desestructurar un objeto **copia valores**, y un número copiado es un número suelto: ya no sabe de dónde vino. Vue trae una función para sacar cosas de un `reactive` convirtiéndolas en refs de verdad, y su nombre lo dice.", 1),
+    pista("Cambia solo la línea que saca `croquetas` y `gatos` del estado, envolviendo el objeto en esa función. Y cuidado con lo de después: si lo que sacas son refs, dentro del `computed` hay que abrirlas — en la plantilla, no.", 2),
+  ],
+  recompensa: { croquetas: 13 },
+}

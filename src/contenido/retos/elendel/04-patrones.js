@@ -53,6 +53,64 @@ export default {
       codigo: "esperar(sacarRecompensa('SE BUSCA: Alguien, y no pagan nada')).igualA(null)",
     },
   ],
+  // Carteles impresos por gente distinta: con la palabra en mayúscula, sin el
+  // espacio detrás de los dos puntos, con dos recompensas. El patrón es exigente
+  // a propósito y estas tandas enseñan exactamente cuánto.
+  variantes: [
+    {
+      titulo: "Buscar por la forma, no por el nombre · otra tanda",
+      tests: [
+        {
+          nombre: "una recompensa de cuatro cifras entra entera",
+          codigo: "esperar(sacarRecompensa('SE BUSCA: Paalm (recompensa: 1200 marcos)')).igualA(1200)",
+        },
+        {
+          nombre: "un cero es una recompensa como otra cualquiera, y no es «no hay»",
+          codigo: "esperar(sacarRecompensa('SE BUSCA: Nadie (recompensa: 0 marcos)')).igualA(0)",
+        },
+        {
+          nombre: "el patrón busca dentro del texto, esté al principio o al final",
+          codigo: "esperar(sacarRecompensa('(recompensa: 90 marcos) SE BUSCA: alguien')).igualA(90)",
+        },
+        {
+          nombre: "si la palabra está pero detrás no hay cifras, no hay recompensa",
+          codigo: "esperar(sacarRecompensa('SE BUSCA: X (recompensa: muchas gracias)')).igualA(null)",
+        },
+        {
+          nombre: "y un cartel en blanco tampoco paga nada",
+          codigo: "esperar(sacarRecompensa('')).igualA(null)",
+        },
+      ],
+    },
+    {
+      titulo: "Buscar por la forma, no por el nombre · y otra",
+      tests: [
+        {
+          nombre: "«Recompensa» con mayúscula no encaja: el patrón distingue",
+          codigo: "esperar(sacarRecompensa('SE BUSCA: X (Recompensa: 500 marcos)')).igualA(null)",
+        },
+        {
+          nombre: "y hace falta el espacio detrás de los dos puntos",
+          codigo: "esperar(sacarRecompensa('SE BUSCA: X (recompensa:500 marcos)')).igualA(null)",
+        },
+        {
+          nombre: "con dos recompensas en el mismo cartel se queda con la primera",
+          codigo: "esperar(sacarRecompensa('a (recompensa: 10 marcos) y b (recompensa: 20 marcos)')).igualA(10)",
+        },
+        {
+          nombre: "las cifras se paran donde se paran: no se traga los años que vienen detrás",
+          codigo: "esperar(sacarRecompensa('SE BUSCA: X (recompensa: 500 marcos del 1868)')).igualA(500)",
+        },
+        {
+          nombre: "y un millón sigue saliendo como número, no como texto",
+          codigo: codigo(
+            "esperar(sacarRecompensa('SE BUSCA: Y (recompensa: 1000000 marcos)')).igualA(1000000)",
+            "esperar(sacarRecompensa('SE BUSCA: Y (recompensa: 1000000 marcos)'), 'la recompensa').esDeTipo('number')",
+          ),
+        },
+      ],
+    },
+  ],
   pistas: [
     pista("`texto.match(/patron/)` busca y devuelve lo encontrado, o `null` si no hay nada. Ese `null` es medio ejercicio.", 0),
     pista("`\\d` significa «un dígito» y `+` significa «uno o más». Así que `\\d+` es un número de las cifras que sea.", 1),
